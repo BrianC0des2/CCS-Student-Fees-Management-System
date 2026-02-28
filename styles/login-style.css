@@ -164,7 +164,7 @@ input[type="submit"]:hover{
     }
 
     .login-form {
-        width: 100%;
+        width: 90%;
         padding: 20px 15px;
         border-radius: 20px;
     }
