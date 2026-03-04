@@ -25,6 +25,45 @@ if (loginForm) {
   });
 }
 
+function enforceRouteAccess() {
+  if (!window.Auth) return;
+
+  const page = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+  const isLoginPage = page === 'login-page.html';
+  const user = window.Auth.getUser();
+
+  if (isLoginPage) {
+    if (!user) return;
+
+    const preferredView = window.Auth.getView();
+    if (preferredView === 'organization' && window.Auth.canManageOrg()) {
+      window.location.href = 'FinanceDS.html';
+      return;
+    }
+
+    window.location.href = 'index.html';
+    return;
+  }
+
+  if (!user) {
+    window.location.href = 'login-page.html';
+    return;
+  }
+
+  if (page === 'financeds.html' && !window.Auth.canManageOrg()) {
+    window.location.href = 'index.html';
+    return;
+  }
+
+  if (page === 'financeds.html') {
+    window.Auth.setView('organization');
+  } else if (page === 'index.html') {
+    window.Auth.setView('student');
+  }
+}
+
+enforceRouteAccess();
+
 let arrow = document.querySelectorAll(".arrow");
 for (var i = 0; i < arrow.length; i++) {
   arrow[i].addEventListener("click", (e)=>{
@@ -33,10 +72,12 @@ for (var i = 0; i < arrow.length; i++) {
   });
 }
 
-let sidebar = document.querySelector(".sidebar");
 let sidebarBtn = document.querySelector(".bx-menu");
-if (sidebarBtn) {
+if (sidebarBtn && !sidebarBtn.dataset.sidebarInitialized) {
+  sidebarBtn.dataset.sidebarInitialized = 'true';
   sidebarBtn.addEventListener("click", ()=>{
+    const sidebar = document.querySelector(".sidebar");
+    if (!sidebar) return;
     sidebar.classList.toggle("close");
     adjustHomeSectionMargin();
   });

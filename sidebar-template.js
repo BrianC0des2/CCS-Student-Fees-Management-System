@@ -7,7 +7,6 @@ const sidebarHTML = `
         <i class='bx bxl-c-plus-plus'></i>
         <span class="logo_name">Pay++</span>
     </div>
-    <div id="view-toggle-sidebar-container"></div>
     <ul class="nav-links">
         <li>
             <a href="#">
@@ -118,7 +117,8 @@ function initializeSidebarEvents() {
     // Sidebar toggle
     let sidebar = document.querySelector(".sidebar");
     let sidebarBtn = document.querySelector(".bx-menu");
-    if (sidebarBtn) {
+    if (sidebarBtn && !sidebarBtn.dataset.sidebarInitialized) {
+        sidebarBtn.dataset.sidebarInitialized = 'true';
         sidebarBtn.addEventListener("click", () => {
             sidebar.classList.toggle("close");
             // Adjust home-section margin based on sidebar state
