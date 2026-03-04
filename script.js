@@ -4,15 +4,23 @@ const loginForm = document.getElementById("login-form");
 if (loginForm) {
   loginForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    const email = document.getElementById("user-email").value;
-    const password = document.getElementById("user-password").value;
+    const email = document.getElementById("user-email").value.trim();
+    const password = document.getElementById("user-password").value.trim();
     
     if (!email || !password) {
       alert("Please enter both email and password");
       return;
     }
-    
-    // Navigate to index.html
+
+    if (window.Auth) {
+      const result = window.Auth.login(email, password);
+      if (!result.ok) {
+        alert(result.message);
+        return;
+      }
+    }
+
+    // Default to student dashboard after login
     window.location.href = "index.html";
   });
 }
@@ -48,9 +56,119 @@ function adjustHomeSectionMargin() {
   }
 }
 
+function syncProfileDetails() {
+  if (!window.Auth) return;
+  const user = window.Auth.getUser();
+  if (!user) return;
+
+  const profileNames = document.querySelectorAll('.profile_name');
+  const jobs = document.querySelectorAll('.job');
+
+  profileNames.forEach((el) => {
+    el.textContent = user.name;
+  });
+
+  jobs.forEach((el) => {
+    el.textContent = user.studentId || user.email;
+  });
+}
+
+function initializeViewToggle() {
+  const switchContainer = document.querySelector('.view-switch-container');
+  if (!switchContainer) return;
+
+  if (!window.Auth || !window.Auth.canManageOrg()) {
+    switchContainer.style.display = 'none';
+    return;
+  }
+
+  const switchIcon = switchContainer.querySelector('.view-switch-icon');
+  if (!switchIcon) return;
+
+  const closeDropdown = () => {
+    const dropdown = switchContainer.querySelector('.view-switch-dropdown');
+    if (dropdown) dropdown.remove();
+    switchContainer.classList.remove('is-open');
+  };
+
+  const handleOutsideClick = (event) => {
+    if (!switchContainer.contains(event.target)) {
+      closeDropdown();
+      document.removeEventListener('click', handleOutsideClick);
+    }
+  };
+
+  switchContainer.addEventListener('click', (event) => {
+    event.stopPropagation();
+
+    const existing = switchContainer.querySelector('.view-switch-dropdown');
+    if (existing) {
+      closeDropdown();
+      document.removeEventListener('click', handleOutsideClick);
+      return;
+    }
+
+    const currentView = window.Auth.getView();
+    switchContainer.classList.add('is-open');
+    const dropdown = document.createElement('div');
+    dropdown.className = 'view-switch-dropdown';
+    dropdown.innerHTML = `
+      <div class="switch-menu-label">Switch view</div>
+      <button type="button" class="switch-btn ${currentView === 'student' ? 'active' : ''}" data-view="student">
+        <i class='bx bx-check switch-check'></i>
+        <span>Personal</span>
+      </button>
+      <button type="button" class="switch-btn ${currentView === 'organization' ? 'active' : ''}" data-view="organization">
+        <i class='bx bx-check switch-check'></i>
+        <span>Organization</span>
+      </button>
+    `;
+
+    switchContainer.appendChild(dropdown);
+
+    dropdown.addEventListener('click', (e) => {
+      const button = e.target.closest('.switch-btn');
+      if (!button) return;
+
+      const nextView = button.dataset.view;
+      if (nextView === currentView) {
+        closeDropdown();
+        document.removeEventListener('click', handleOutsideClick);
+        return;
+      }
+
+      const allowed = window.Auth.setView(nextView);
+      if (!allowed) return;
+
+      window.location.href = nextView === 'organization' ? 'FinanceDS.html' : 'index.html';
+    });
+
+    setTimeout(() => {
+      document.addEventListener('click', handleOutsideClick);
+    }, 0);
+  });
+}
+
+function initializeLogout() {
+  const logoutSection = document.querySelector('.profile-details .logout-section');
+  if (!logoutSection) return;
+
+  logoutSection.addEventListener('click', () => {
+    if (window.Auth) {
+      window.Auth.logout();
+    }
+    window.location.href = 'login-page.html';
+  });
+}
+
 // Initialize margin on page load
 document.addEventListener('DOMContentLoaded', function() {
   setTimeout(adjustHomeSectionMargin, 100);
+  setTimeout(() => {
+    syncProfileDetails();
+    initializeViewToggle();
+    initializeLogout();
+  }, 120);
 });
 
 // Payments history: populate sample items and filter by date
@@ -121,13 +239,14 @@ function setSchoolYear() {
     const today = new Date();
     const year = today.getFullYear();
     const month = today.getMonth() + 1;
+  const badge = document.querySelector('.ay-badge');
+  if (!badge) return;
 
     let sem = month >= 6 && month <= 10 ? "1st Semester" : "2nd Semester";
     let startYear = month >= 6 ? year : year - 1;
     let endYear = startYear + 1;
 
-    document.querySelector('.ay-badge').textContent 
-        = `S.Y. ${startYear}-${endYear} | ${sem}`;
+  badge.textContent = `S.Y. ${startYear}-${endYear} | ${sem}`;
 }
 
 const sections = {

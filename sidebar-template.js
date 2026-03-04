@@ -7,6 +7,7 @@ const sidebarHTML = `
         <i class='bx bxl-c-plus-plus'></i>
         <span class="logo_name">Pay++</span>
     </div>
+    <div id="view-toggle-sidebar-container"></div>
     <ul class="nav-links">
         <li>
             <a href="#">
@@ -76,14 +77,24 @@ const sidebarHTML = `
         </li>
         <li>
             <div class="profile-details">
-                <div class="profile-content">
-                    <img src="assets/images/profile.png" alt="profileImg">
+                <div class="profile-main">
+                    <div class="profile-content">
+                        <img src="assets/images/profile.png" alt="profileImg">
+                    </div>
+                    <div class="name-job">
+                        <div class="name-with-switch">
+                            <div class="profile_name">Bryan</div>
+                            <button type="button" class="view-switch-container" aria-label="Switch view">
+                                <i class='bx bx-chevron-up view-switch-icon'></i>
+                            </button>
+                        </div>
+                        <div class="job">TY202500628</div>
+                    </div>
                 </div>
-                <div class="name-job">
-                    <div class="profile_name">Bryan</div>
-                    <div class="job">TY202500628</div>
+                <div class="logout-section">
+                    <span>Sign out</span>
+                    <i class='bx bx-log-out'></i>
                 </div>
-                <i class='bx bx-log-out' ></i>
             </div>
         </li>
     </ul>
