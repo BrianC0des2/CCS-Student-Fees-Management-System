@@ -58,10 +58,11 @@
 
 
 .fees{
-    margin-top:10px;
+    background-color: white;
+    margin-top:20px;
     max-width: 330px;
     width: 100%;
-    height:375px;
+    height:390px;
     border-radius: 20px;
     border: 2px solid #c8cbd1;
 }
@@ -76,7 +77,7 @@
 
 /* Keep the fees card position, but left-align text by default. Center only the amount. */
 .fees{
-    margin-top: 10px; /* keep card positioning unchanged */
+    margin-top: 15px; /* match payments-history vertical spacing */
     display: flex;
     flex-direction: column;
     align-items: center; /* centers block-level children horizontally */
@@ -91,19 +92,19 @@
     font-size: 20px;
     display: flex;
     align-items: center;
+    justify-content: center; /* center icon and text together */
 }
 
 .fees > h2 i {
     margin-right: 8px;
-    font-size: 1.2em;
+    font-size: 1.5em; /* larger icon */
 }
 
 
 .bx-wallet{
     color: green;
-    margin-left: auto;
+    /* the icon sits before the text; no auto margin needed */
 }
-
 /* .fees > h2,
 .fees > h1,
 .fees > p
@@ -116,7 +117,11 @@
 .fees > p{
     color: rgb(255, 81, 0);
     font-size:14px;
-      margin-bottom: 10px 0;
+    margin-bottom: 10px 0;
+    padding-bottom: 10px;
+    width: 250px;
+    text-align: center;
+    border-bottom:2px solid rgb(189, 185, 185);
 }
 
 /* Keep title and due date left-aligned */
@@ -163,4 +168,106 @@
 
 #pay-btn:hover{
     background-color:#076634;
+}
+
+.payments-history{
+    max-width: 100em;
+    width: 100%;
+    height: 390px; /* visible box height */
+    border-radius: 20px;
+    border: 2px solid #c8cbd1;
+    box-sizing: border-box;
+    padding: 0 12px 12px 12px; /* remove top padding so header sits flush */
+    overflow-y: auto; /* make this container scrollable so sticky header works inside it */
+    position: relative;
+    background-color: white;
+    scrollbar-gutter: stable; /* reserve space for scrollbar so width doesn't shift */
+}
+
+.payments-header{
+    position: sticky; /* keep header visible when scrolling */
+    top: 0; /* sit at top of the container (no top padding now) */
+    left: 12px; /* align with container padding */
+    right: 12px; /* align with container padding */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px; /* fill the padded area so list doesn't show through */
+    background: #ffffff; /* opaque background so list items don't show through */
+    z-index: 100; /* sit above list items */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+
+.payments-label{
+    font-size: 18px;
+}
+
+#payments-filter{
+    border: none;
+    background-color:transparent;
+    font-size: 18px;
+}
+
+/* Payments list item styling */
+.payments-list{
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    /* let the outer .payments-history handle scrolling */
+}
+
+.payments-list .payment-item{
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: ;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.04);
+    border: none;
+    /* slightly narrower than container */
+    width: calc(100% - 24px);
+    margin: 0 12px;
+    transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+}
+
+.payments-list .payment-item:hover{
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    background-color:#f3f4f6;
+}
+
+.payments-list .payment-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.payments-list .pay-desc{
+    font-weight: 500;
+    color: #222;
+}
+
+.payments-list .pay-amount{
+    font-weight: 600;
+    color: #007736;
+}
+
+.payments-list .payment-meta{
+    font-size: 12px;
+    color: #666;
+    margin-top: 6px;
+}
+
+
+
+
+
+
+
+
+/* Uniform vertical spacing for dashboard containers (no horizontal offset) */
+.payment-progress-container,
+.payments-history
+{
+    margin: 15px 0;
 }

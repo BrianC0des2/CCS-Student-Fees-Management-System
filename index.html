@@ -161,7 +161,7 @@
 
                 <div class="payment-progress-container">
                     <div class="fees">
-                        <h2>Outstanding Fees <i class='bx bx-wallet'></i> </h2>
+                        <h2><i class='bx bx-wallet'></i> Outstanding Fees</h2>
                         <h1>₱200.00</h1>
                         <p>Due: February 19, 2026</p>
                         
@@ -188,8 +188,23 @@
                         <a id="pay-btn" href="">Pay Now</a>
                     </div>
                     <div class="payments-history">
+                        <div class="payments-header">
+                            <label for="payments-filter" class="payments-label">View:</label>
+                            <select id="payments-filter" class="payments-filter">
+                                <option value="recent">Recent Payments</option>
+                                <option value="all">All Payments</option>
+                                <option value="old">Older Payments</option>
+                            </select>
+                        </div>
+
+                        <div class="payments-list">
+
+                        </div>
 
                     </div>
+
+                    
+
 
                 </div>
             </div>
