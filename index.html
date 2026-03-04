@@ -1,17 +1,201 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <title>Pay++</title>
-</head>
-<body>
-    
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="UTF-8">
+        <title> CCS PAY++ </title>
+        <link rel="stylesheet" href="styles/style.css">
+        <link rel="stylesheet" href="styles/dashboard-style.css">
+        <!-- Boxiocns CDN Link -->
+        <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <div class="sidebar close">
+            <div class="logo-details">
+                <i class='bx bxl-c-plus-plus'></i>
+                <span class="logo_name">Pay++</span>
+            </div>
+            <ul class="nav-links">
+                <li>
+                    <a href="#">
+                        <i class='bx bx-grid-alt' ></i>
+                        <span class="link_name">Dashboard</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name" href="#">Category</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <div class="iocn-link">
+                        <a href="#">
+                            <i class='bx bx-collection' ></i>
+                            <span class="link_name">Category</span>
+                        </a>
+                        <i class='bx bxs-chevron-down arrow' ></i>
+                    </div>
+                    <ul class="sub-menu">
+                        <li><a class="link_name" href="#">Category</a></li>
+                        <li><a href="#">HTML & CSS</a></li>
+                        <li><a href="#">JavaScript</a></li>
+                        <li><a href="#">PHP & MySQL</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <div class="iocn-link">
+                        <a href="#">
+                            <i class='bx bx-book-alt' ></i>
+                            <span class="link_name">Posts</span>
+                        </a>
+                        <i class='bx bxs-chevron-down arrow' ></i>
+                    </div>
+                    <ul class="sub-menu">
+                        <li><a class="link_name" href="#">Posts</a></li>
+                        <li><a href="#">Web Design</a></li>
+                        <li><a href="#">Login Form</a></li>
+                        <li><a href="#">Card Design</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class='bx bx-pie-chart-alt-2' ></i>
+                        <span class="link_name">Analytics</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name" href="#">Analytics</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class='bx bx-line-chart' ></i>
+                        <span class="link_name">Chart</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name" href="#">Chart</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <div class="iocn-link">
+                        <a href="#">
+                            <i class='bx bx-plug' ></i>
+                            <span class="link_name">Plugins</span>
+                        </a>
+                        <i class='bx bxs-chevron-down arrow' ></i>
+                    </div>
+                    <ul class="sub-menu">
+                        <li><a class="link_name" href="#">Plugins</a></li>
+                        <li><a href="#">UI Face</a></li>
+                        <li><a href="#">Pigments</a></li>
+                        <li><a href="#">Box Icons</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class='bx bx-compass' ></i>
+                        <span class="link_name">Explore</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name" href="#">Explore</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class='bx bx-history'></i>
+                        <span class="link_name">History</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name" href="#">History</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class='bx bx-cog' ></i>
+                        <span class="link_name">Setting</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name" href="#">Setting</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <div class="profile-details">
+                        <div class="profile-content">
+                            <img src="assets/images/profile.png" alt="profileImg">
+                        </div>
+                        <div class="name-job">
+                            <div class="profile_name">Bryan</div>
+                            <div class="job">TY202500628</div>
+                        </div>
+                        <i class='bx bx-log-out' ></i>
+                    </div>
+                </li>
+            </ul>
+        </div>
 
+        <section class="home-section">
+            <div class="home-content">
+                <i class='bx bx-menu' ></i>
+                <span class="text">Dashboard</span>
+            </div>
+            <br>
+            <div class="dashboard-container">
+                <div class="header">
+                    <h1>Welcome back, Bryan!</h1>
+                    <p>Here's your clearance status and academic informations</p>
+                </div>
+                <div class="clearance-progress-container">
+                    <img class="clearance-content" src="/assets/images/progress.png" alt="percentage" width="150px" height="100px">
+                    <div class="clearance-content progress">
+                        <h2>Clearance Progress</h2>
+                        <p>2 of 8 Requirements Completed</p>
+                    </div>
+                    <div class="labels">
+                        <div class="clearance-content completed">
+                            <h1>2</h1>
+                            <p>Completed</p>
+                        </div>
+                        <div class="clearance-content pending">
+                            <h1>6</h1>
+                            <p>Pending</p>
+                        </div>
+                    </div>
+                </div>
 
+                <div class="payment-progress-container">
+                    <div class="fees">
+                        <h2>Outstanding Fees <i class='bx bx-wallet'></i> </h2>
+                        <h1>₱200.00</h1>
+                        <p>Due: February 19, 2026</p>
+                        
+                        <div class="fee-list">
+                            <ul>
+                                <li>
+                                    <span>CCS Fee</span>
+                                    <span>₱200.00</span>
+                                </li>
+                                <li>
+                                    <span>Gender Club</span>
+                                    <span>₱50.00</span>
+                                </li>
+                                <li>
+                                    <span>Insurance</span>
+                                    <span>₱40.00</span>
+                                </li>
+                                <li>
+                                    <span>Miscallaneus</span>
+                                    <span>₱60.00</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <a id="pay-btn" href="">Pay Now</a>
+                    </div>
+                    <div class="payments-history">
 
-    
-</body>
-    <script src="script.js"></script>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <script src="script.js"></script>
+
+    </body>
 </html>
