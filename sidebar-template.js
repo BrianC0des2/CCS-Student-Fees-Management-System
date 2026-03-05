@@ -1,6 +1,16 @@
 // Sidebar template loader
 // Usage: Add <div id="sidebar-container"></div> to your HTML, then call loadSidebar()
+// OVERALL FLOW
+// 1) Build sidebar from static template string.
+// 2) Inject template into #sidebar-container.
+// 3) Bind interactions (burger toggle + submenu arrows).
+// 4) Recalculate content width/margin based on sidebar state.
+// TYPE GUIDE (for this file)
+// - USER-DEFINED FUNCTION: loadSidebar, initializeSidebarEvents, adjustHomeSectionMargin.
+// - PREDEFINED API: document/querySelector/addEventListener/setTimeout are browser APIs.
 
+// HTML markup stored in a JavaScript template string.
+// We inject this into #sidebar-container so we can reuse one sidebar layout across pages.
 const sidebarHTML = `
 <div class="sidebar close">
     <div class="logo-details">
@@ -100,6 +110,13 @@ const sidebarHTML = `
 </div>
 `;
 
+// LOAD FLOW
+// - Verify target container exists
+// - Inject shared sidebar markup
+// - Bind all interaction handlers after injection
+// TYPE: USER-DEFINED FUNCTION
+// PURPOSE: Mount shared sidebar markup into the page and initialize behavior.
+// PREDEFINED APIS USED: document.getElementById, console.warn.
 function loadSidebar() {
     const container = document.getElementById('sidebar-container');
     if (!container) {
@@ -113,10 +130,18 @@ function loadSidebar() {
     initializeSidebarEvents();
 }
 
+// INTERACTION FLOW
+// - Burger button toggles collapsed/expanded state
+// - Arrow buttons toggle submenu visibility
+// - Each toggle keeps layout synced via adjustHomeSectionMargin()
+// TYPE: USER-DEFINED FUNCTION
+// PURPOSE: Attach click handlers for sidebar open/close and submenu expansion.
+// PREDEFINED APIS USED: document.querySelector, addEventListener, classList.toggle.
 function initializeSidebarEvents() {
     // Sidebar toggle
     let sidebar = document.querySelector(".sidebar");
     let sidebarBtn = document.querySelector(".bx-menu");
+    // dataset flag prevents adding duplicate click listeners when this runs multiple times
     if (sidebarBtn && !sidebarBtn.dataset.sidebarInitialized) {
         sidebarBtn.dataset.sidebarInitialized = 'true';
         sidebarBtn.addEventListener("click", () => {
@@ -136,6 +161,13 @@ function initializeSidebarEvents() {
     }
 }
 
+// LAYOUT FLOW
+// - Read current sidebar mode (`close` or expanded)
+// - Apply matching margin/width to `.home-section`
+// - Prevent overlap so main content remains readable
+// TYPE: USER-DEFINED FUNCTION
+// PURPOSE: Keep main content dimensions synchronized with sidebar width.
+// PREDEFINED APIS USED: document.querySelector, classList.contains.
 function adjustHomeSectionMargin() {
     const sidebar = document.querySelector(".sidebar");
     const homeSection = document.querySelector(".home-section");
@@ -150,14 +182,19 @@ function adjustHomeSectionMargin() {
     }
 }
 
-// Auto-load sidebar if DOM is ready
+// BOOTSTRAP FLOW
+// - If DOM is still loading, wait for DOMContentLoaded
+// - Otherwise load immediately
 if (document.readyState === 'loading') {
+    // Wait for full HTML to be parsed first
     document.addEventListener('DOMContentLoaded', loadSidebar);
 } else {
+    // DOM already loaded, we can insert sidebar immediately
     loadSidebar();
 }
 
-// Call adjustHomeSectionMargin after sidebar is loaded
+// Final layout sync on startup (small delay helps with initial element sizing).
 document.addEventListener('DOMContentLoaded', function() {
+    // Small delay helps ensure layout elements are already present
     setTimeout(adjustHomeSectionMargin, 100);
 });
