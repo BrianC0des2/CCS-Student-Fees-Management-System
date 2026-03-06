@@ -12,8 +12,7 @@
 // HTML markup stored in a JavaScript template string.
 // We inject this into #sidebar-container so we can reuse one sidebar layout across pages.
 const sidebarHTML = `
-<div class="sidebar close">
-<a href="financeDS.html">
+<div class="sidebar">
     <div class="logo-details">
         <i class='bx bxl-c-plus-plus'></i>
         <span class="logo_name">Pay++</span>
@@ -25,13 +24,28 @@ const sidebarHTML = `
                 <span class="link_name">Dashboard</span>
             </a>
             <ul class="sub-menu blank">
-                <li><a class="link_name" href="#">Dashboard</a></li>
+                <li><a class="link_name" href="#">Category</a></li>
             </ul>
         </li>
         <li>
             <div class="iocn-link">
                 <a href="#">
-                    <i class='bx bx-book-alt' ></i>
+                    <i class='bx bx-clipboard' ></i>
+                    <span class="link_name">Clearance</span>
+                </a>
+                <i class='bx bxs-chevron-down arrow' ></i>
+            </div>
+            <ul class="sub-menu">
+                <li><a class="link_name" href="#">Clearance</a></li>
+                <li><a href="#">View Status</a></li>
+                <li><a href="#">Requirements</a></li>
+                <li><a href="#">Track Progress</a></li>
+            </ul>
+        </li>
+        <li>
+            <div class="iocn-link">
+                <a href="#">
+                    <i class='bx bx-wallet' ></i>
                     <span class="link_name">Payments</span>
                 </a>
                 <i class='bx bxs-chevron-down arrow' ></i>
@@ -43,14 +57,22 @@ const sidebarHTML = `
         </li>
         <li>
             <a href="#">
-                <i class='bx bx-pie-chart-alt-2' ></i>
+                <i class='bx bx-bar-chart-alt-2' ></i>
                 <span class="link_name">Analytics</span>
             </a>
             <ul class="sub-menu blank">
                 <li><a class="link_name" href="#">Analytics</a></li>
             </ul>
         </li>
-
+        <li>
+            <a href="#">
+                <i class='bx bx-file' ></i>
+                <span class="link_name">Reports</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="#">Reports</a></li>
+            </ul>
+        </li>
         <li>
             <a href="#">
                 <i class='bx bx-cog' ></i>
