@@ -30,7 +30,7 @@ const sidebarHTML = `
         <li>
             <div class="iocn-link">
                 <a href="#">
-                    <i class='bx bx-collection' ></i>
+                    <i class='bx bx-clipboard' ></i>
                     <span class="link_name">Clearance</span>
                 </a>
                 <i class='bx bxs-chevron-down arrow' ></i>
@@ -45,7 +45,7 @@ const sidebarHTML = `
         <li>
             <div class="iocn-link">
                 <a href="#">
-                    <i class='bx bx-book-alt' ></i>
+                    <i class='bx bx-wallet' ></i>
                     <span class="link_name">Payments</span>
                 </a>
                 <i class='bx bxs-chevron-down arrow' ></i>
@@ -59,7 +59,7 @@ const sidebarHTML = `
         </li>
         <li>
             <a href="#">
-                <i class='bx bx-pie-chart-alt-2' ></i>
+                <i class='bx bx-bar-chart-alt-2' ></i>
                 <span class="link_name">Analytics</span>
             </a>
             <ul class="sub-menu blank">
@@ -68,7 +68,7 @@ const sidebarHTML = `
         </li>
         <li>
             <a href="#">
-                <i class='bx bx-line-chart' ></i>
+                <i class='bx bx-file' ></i>
                 <span class="link_name">Reports</span>
             </a>
             <ul class="sub-menu blank">
