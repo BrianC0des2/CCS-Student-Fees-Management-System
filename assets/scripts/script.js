@@ -510,14 +510,22 @@ function setSchoolYear() {
     const today = new Date();
     const year = today.getFullYear();
     const month = today.getMonth() + 1;
-  const badge = document.querySelector('.ay-badge');
-  if (!badge) return;
+    const badge = document.querySelector('.ay-badge');
+    const orgYearSem = document.getElementById('orgYearSem');
 
     let sem = month >= 6 && month <= 10 ? "1st Semester" : "2nd Semester";
     let startYear = month >= 6 ? year : year - 1;
     let endYear = startYear + 1;
 
-  badge.textContent = `S.Y. ${startYear}-${endYear} | ${sem}`;
+    const yearSemText = `S.Y. ${startYear}-${endYear} | ${sem}`;
+    
+    if (badge) {
+        badge.textContent = yearSemText;
+    }
+    
+    if (orgYearSem) {
+        orgYearSem.textContent = yearSemText;
+    }
 }
 
 // List of available sections per course-year combination.
@@ -627,10 +635,156 @@ function initializeFilters() {
         document.querySelectorAll('#filtersPopover select').forEach(select => {
             select.value = '';
         });
+        restoreAllOptions(); // Restore all dropdown options
         updateActiveFiltersDisplay();
         updateFilterCount();
         applyTableFilters();
+        updateFilterSections(); // Reset sections to show all
     });
+
+    // Update sections dropdown when Year Level or Course changes
+    const yearLevelSelect = document.getElementById('yearLevel');
+    const courseSelect = document.getElementById('course');
+    
+    if (yearLevelSelect) {
+        yearLevelSelect.addEventListener('change', () => {
+            updateCourseOptions();
+            updateFilterSections();
+        });
+    }
+    if (courseSelect) {
+        courseSelect.addEventListener('change', () => {
+            updateYearLevelOptions();
+            updateFilterSections();
+        });
+    }
+
+    // Initialize sections dropdown with all options
+    updateFilterSections();
+
+    // Filter Course options based on selected Year Level
+    function updateCourseOptions() {
+        const year = document.getElementById('yearLevel')?.value;
+        const courseSelect = document.getElementById('course');
+        
+        if (!courseSelect) return;
+
+        // Get all options
+        const options = courseSelect.querySelectorAll('option');
+        
+        options.forEach(option => {
+            const courseValue = option.value;
+            
+            // If year is 3 or 4, hide ACT courses (they only have years 1 and 2)
+            if ((year === "3" || year === "4") && (courseValue === "ACT-AD" || courseValue === "ACT-NET")) {
+                option.disabled = true;
+                option.style.display = 'none';
+                // If this option was selected, deselect it
+                if (courseSelect.value === courseValue) {
+                    courseSelect.value = '';
+                }
+            } else {
+                option.disabled = false;
+                option.style.display = '';
+            }
+        });
+    }
+
+    // Filter Year Level options based on selected Course
+    function updateYearLevelOptions() {
+        const course = document.getElementById('course')?.value;
+        const yearLevelSelect = document.getElementById('yearLevel');
+        
+        if (!yearLevelSelect) return;
+
+        // Get all options
+        const options = yearLevelSelect.querySelectorAll('option');
+        
+        options.forEach(option => {
+            const yearValue = option.value;
+            
+            // If course is ACT-AD or ACT-NET, hide years 3 and 4
+            if ((course === "ACT-AD" || course === "ACT-NET") && (yearValue === "3" || yearValue === "4")) {
+                option.disabled = true;
+                option.style.display = 'none';
+                // If this option was selected, deselect it
+                if (yearLevelSelect.value === yearValue) {
+                    yearLevelSelect.value = '';
+                }
+            } else {
+                option.disabled = false;
+                option.style.display = '';
+            }
+        });
+    }
+
+    // Restore all options in dropdowns
+    function restoreAllOptions() {
+        const yearLevelSelect = document.getElementById('yearLevel');
+        const courseSelect = document.getElementById('course');
+        
+        if (yearLevelSelect) {
+            yearLevelSelect.querySelectorAll('option').forEach(option => {
+                option.disabled = false;
+                option.style.display = '';
+            });
+        }
+        
+        if (courseSelect) {
+            courseSelect.querySelectorAll('option').forEach(option => {
+                option.disabled = false;
+                option.style.display = '';
+            });
+        }
+    }
+
+    function updateFilterSections() {
+        const year = document.getElementById('yearLevel')?.value;
+        const course = document.getElementById('course')?.value;
+        const sectionSelect = document.getElementById('section');
+
+        if (!sectionSelect) return;
+
+        // Reset to "All" option
+        sectionSelect.innerHTML = '<option value="">All</option>';
+
+        // If both year and course are selected, show only matching sections
+        if (year && course) {
+            // Check if ACT courses have invalid year levels
+            if ((course === "ACT-AD" || course === "ACT-NET") && (year === "3" || year === "4")) {
+                sectionSelect.innerHTML = '<option value="">Not available</option>';
+                return;
+            }
+
+            const key = course + "-" + year;
+            if (sections[key]) {
+                sections[key].forEach(function(s) {
+                    const opt = document.createElement('option');
+                    opt.value = s;
+                    opt.textContent = s;
+                    sectionSelect.appendChild(opt);
+                });
+            }
+        } else {
+            // Show all sections from all combinations
+            const allSections = new Set();
+            Object.keys(sections).forEach(key => {
+                // Filter based on what's selected
+                if (year && !key.endsWith('-' + year)) return;
+                if (course && !key.startsWith(course + '-')) return;
+                
+                sections[key].forEach(s => allSections.add(s));
+            });
+
+            // Sort and add all sections
+            Array.from(allSections).sort().forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.textContent = s;
+                sectionSelect.appendChild(opt);
+            });
+        }
+    }
 
     function updateActiveFiltersDisplay() {
         activeFiltersContainer.innerHTML = '';

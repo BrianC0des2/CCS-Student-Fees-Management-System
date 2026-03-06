@@ -6,10 +6,10 @@
 
 
 :root {
-    --bg: #f5f5f5;           /* light gray background */
+    --bg: #f5f5f5;          
     --white: #ffffff;        
-    --sidebar: #1a3c2e;      /* dark green sidebar */
-    --accent: #2e7d52;       /* green accents */
+    --sidebar: #1a3c2e;      
+    --accent: #2e7d52;       
     --accent-light: #e8f5e8; 
     --text: #1a2420;         
     --text-muted: #5a7a66;   
@@ -154,7 +154,7 @@ body {
     display: flex;
     gap: 10px;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 4px;
     flex-wrap: wrap;
 }
 
@@ -188,6 +188,48 @@ body {
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
+}
+
+.home-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.home-content > div:first-child {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.org-header-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    border-radius: 10px;
+    padding: 7px 14px;
+    border: 1px solid #e0e4ef;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-right: 12px;
+}
+
+.org-header-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.org-header-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1a1a2e;
+}
+
+.org-header-sub {
+    font-size: 11px;
+    color: #888;
 }
 
 .members-table {
@@ -232,7 +274,8 @@ body {
 }
 
 .export-btn:hover {
-    background: var(--accent-light);
+    background-color: #007639 !important;
+    color: #ffffff !important;
 }
 
 table {
@@ -293,7 +336,8 @@ tbody tr:hover { background: var(--bg); }
 }
 
 .action-btn:hover {
-    background: var(--accent-light);
+    background-color: #007639 !important;
+    color: #ffffff !important;
 }
 
 /* Filters Button */
@@ -318,7 +362,8 @@ tbody tr:hover { background: var(--bg); }
 }
 
 .filters-btn:hover {
-    background: var(--bg);
+    background-color: #007639 !important;
+    color: #ffffff !important;
 }
 
 .filters-btn i {
@@ -426,8 +471,7 @@ tbody tr:hover { background: var(--bg); }
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-bottom: 20px;
-    min-height: 24px;
+    margin-bottom: 8px;
 }
 
 .filter-tag {
