@@ -9,8 +9,11 @@
     max-width: 200em;
     width: 100%;
     height: 150px;
-    color: white;
-    background-color: #007736;
+        color: var(--color-light);
+    background: linear-gradient(
+            var(--color-primary),
+            var(--color-primary)
+        );
     border-radius: 20px;
     border: transparent;
     display: flex;
@@ -46,7 +49,7 @@
 }
 
 .completed{
-    border-right: 2px solid white;
+    border-right: 2px solid var(--color-light);
     padding-right: 30px;
     margin-right: 30px;
     height: 75px;
@@ -58,13 +61,13 @@
 
 
 .fees{
-    background-color: white;
+    background-color: var(--color-light);
     margin-top:20px;
     max-width: 330px;
     width: 100%;
     height:390px;
     border-radius: 20px;
-    border: 2px solid #c8cbd1;
+    border: 2px solid rgba(var(--color-dark-rgb), 0.2);
 }
 
 /* Center the fees box within its parent and center its inner text */
@@ -102,7 +105,7 @@
 
 
 .bx-wallet{
-    color: green;
+    color: var(--color-primary);
     /* the icon sits before the text; no auto margin needed */
 }
 /* .fees > h2,
@@ -115,13 +118,13 @@
 } */
 
 .fees > p{
-    color: rgb(255, 81, 0);
+    color: var(--color-orange);
     font-size:14px;
     margin-bottom: 10px 0;
     padding-bottom: 10px;
     width: 250px;
     text-align: center;
-    border-bottom:2px solid rgb(189, 185, 185);
+    border-bottom: 2px solid rgba(var(--color-dark-rgb), 0.2);
 }
 
 /* Keep title and due date left-aligned */
@@ -159,15 +162,15 @@
     text-align: center;
     margin:20px 0 10px 0 ;
     text-decoration: none;
-    color:white;
-    background-color: #007736;
+    color: var(--color-light);
+    background-color: var(--color-primary);
     height: 50px;
     width: 290px;
     border-radius: 15px;
 }
 
 #pay-btn:hover{
-    background-color:#076634;
+    background-color: #006832;
 }
 
 .payments-history{
@@ -175,16 +178,17 @@
     width: 100%;
     height: 390px; /* visible box height */
     border-radius: 20px;
-    border: 2px solid #c8cbd1;
+    border: 2px solid rgba(var(--color-dark-rgb), 0.2);
     box-sizing: border-box;
     padding: 0 12px 12px 12px; /* remove top padding so header sits flush */
     overflow-y: auto; /* make this container scrollable so sticky header works inside it */
     position: relative;
-    background-color: white;
+    background-color: var(--color-light);
     scrollbar-gutter: stable; /* reserve space for scrollbar so width doesn't shift */
 }
 
 .payments-header{
+    border-top: 20px;
     position: sticky; /* keep header visible when scrolling */
     top: 0; /* sit at top of the container (no top padding now) */
     left: 12px; /* align with container padding */
@@ -193,9 +197,8 @@
     align-items: center;
     gap: 8px;
     padding: 10px 12px; /* fill the padded area so list doesn't show through */
-    background: #ffffff; /* opaque background so list items don't show through */
-    z-index: 100; /* sit above list items */
-    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    background: var(--color-light); /* opaque background so list items don't show through */
+    z-index: 20; /* sit above list items */
 }
 
 .payments-label{
@@ -220,8 +223,8 @@
 .payments-list .payment-item{
     padding: 10px 12px;
     border-radius: 8px;
-    background: ;
-    box-shadow: 0 1px 0 rgba(0,0,0,0.04);
+    background: var(--color-light);
+    box-shadow: 0 1px 0 rgba(var(--color-dark-rgb), 0.08);
     border: none;
     /* slightly narrower than container */
     width: calc(100% - 24px);
@@ -230,9 +233,8 @@
 }
 
 .payments-list .payment-item:hover{
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-    background-color:#f3f4f6;
+    box-shadow: 0 8px 24px rgba(var(--color-dark-rgb), 0.16);
+    background-color: rgba(var(--color-light-rgb), 0.9);
 }
 
 .payments-list .payment-row{
@@ -244,20 +246,85 @@
 
 .payments-list .pay-desc{
     font-weight: 500;
-    color: #222;
+    color: var(--color-dark);
 }
 
 .payments-list .pay-amount{
     font-weight: 600;
-    color: #007736;
+    color: var(--color-primary);
 }
 
 .payments-list .payment-meta{
     font-size: 12px;
-    color: #666;
+    color: rgba(var(--color-dark-rgb), 0.7);
     margin-top: 6px;
 }
 
+.approval-status{
+    width: 100%;
+    min-height: 230px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    align-content: start;
+    padding: 14px;
+    border: 2px solid rgba(var(--color-dark-rgb), 0.2);
+    border-radius: 20px;
+    background-color: var(--color-light);
+}
+
+.personels{
+    width: 100%;
+    min-height: 98px;
+    font-size: 14px;
+    border: 1px solid rgba(var(--color-dark-rgb), 0.16);
+    border-radius: 14px;
+    background-color: rgba(var(--color-light-rgb), 0.88);
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.personels h2{
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-dark);
+    line-height: 1.35;
+}
+
+.pendings {
+    margin: 0;
+    width: fit-content;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #9a6700;
+    background-color: #fff3cd;
+    border: 1px solid #ffe69c;
+}
+
+.personels h3{
+    font-weight:bold;
+    font-size: 13px;
+    color: rgba(var(--color-dark-rgb), 0.68);
+}
+
+
+.cleared {
+    margin: 0;
+    width: fit-content;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-primary);
+    background-color: rgba(var(--color-primary-rgb), 0.18);
+    border: 1px solid rgba(var(--color-primary-rgb), 0.55);
+
+}
 
 
 
@@ -267,7 +334,8 @@
 
 /* Uniform vertical spacing for dashboard containers (no horizontal offset) */
 .payment-progress-container,
-.payments-history
+.payments-history,
+.approval-status
 {
-    margin: 15px 0;
+    margin: 10px 0;
 }

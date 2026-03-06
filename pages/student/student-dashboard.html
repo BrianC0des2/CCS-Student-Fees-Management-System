@@ -3,14 +3,14 @@
     <head>
         <meta charset="UTF-8">
         <title> CCS PAY++ </title>
-        <link rel="stylesheet" href="styles/style.css">
-        <link rel="stylesheet" href="styles/dashboard-style.css">
+        <link rel="stylesheet" href="../../styles/sidebar.css">
+        <link rel="stylesheet" href="../../styles/student-styles/student-dashboard.css">
         <!-- Boxiocns CDN Link -->
         <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
-        <div class="sidebar close">
+        <div class="sidebar">
             <div class="logo-details">
                 <i class='bx bxl-c-plus-plus'></i>
                 <span class="logo_name">Pay++</span>
@@ -22,10 +22,10 @@
                         <span class="link_name">Dashboard</span>
                     </a>
                     <ul class="sub-menu blank">
-                        <li><a class="link_name" href="#">Category</a></li>
+                        <li><a class="link_name" href="#">Dashboard</a></li>
                     </ul>
                 </li>
-                <li>
+                <!-- <li>
                     <div class="iocn-link">
                         <a href="#">
                             <i class='bx bx-collection' ></i>
@@ -39,8 +39,8 @@
                         <li><a href="#">JavaScript</a></li>
                         <li><a href="#">PHP & MySQL</a></li>
                     </ul>
-                </li>
-                <li>
+                </li> -->
+                <!-- <li>
                     <div class="iocn-link">
                         <a href="#">
                             <i class='bx bx-book-alt' ></i>
@@ -54,26 +54,26 @@
                         <li><a href="#">Login Form</a></li>
                         <li><a href="#">Card Design</a></li>
                     </ul>
-                </li>
+                </li> -->
                 <li>
                     <a href="#">
-                        <i class='bx bx-pie-chart-alt-2' ></i>
-                        <span class="link_name">Analytics</span>
+                        <i class='bx bx-wallet' ></i>
+                        <span class="link_name">Payments</span>
                     </a>
                     <ul class="sub-menu blank">
-                        <li><a class="link_name" href="#">Analytics</a></li>
+                        <li><a class="link_name" href="#">Payments</a></li>
                     </ul>
                 </li>
                 <li>
                     <a href="#">
-                        <i class='bx bx-line-chart' ></i>
-                        <span class="link_name">Chart</span>
+                        <i class='bx bx-receipt' ></i>
+                        <span class="link_name">Receipts</span>
                     </a>
                     <ul class="sub-menu blank">
-                        <li><a class="link_name" href="#">Chart</a></li>
+                        <li><a class="link_name" href="#">Receipts</a></li>
                     </ul>
                 </li>
-                <li>
+                <!-- <li>
                     <div class="iocn-link">
                         <a href="#">
                             <i class='bx bx-plug' ></i>
@@ -87,14 +87,14 @@
                         <li><a href="#">Pigments</a></li>
                         <li><a href="#">Box Icons</a></li>
                     </ul>
-                </li>
+                </li> -->
                 <li>
                     <a href="#">
-                        <i class='bx bx-compass' ></i>
-                        <span class="link_name">Explore</span>
+                        <i class='bx bx-clipboard' ></i>
+                        <span class="link_name">Clearance</span>
                     </a>
                     <ul class="sub-menu blank">
-                        <li><a class="link_name" href="#">Explore</a></li>
+                        <li><a class="link_name" href="#">Clearance</a></li>
                     </ul>
                 </li>
                 <li>
@@ -117,14 +117,24 @@
                 </li>
                 <li>
                     <div class="profile-details">
-                        <div class="profile-content">
-                            <img src="assets/images/profile.png" alt="profileImg">
+                        <div class="profile-main">
+                            <div class="profile-content">
+                                <img src="../../assets/images/profile.png" alt="profileImg">
+                            </div>
+                            <div class="name-job">
+                                <div class="name-with-switch">
+                                    <div class="profile_name">Bryan</div>
+                                    <button type="button" class="view-switch-container" aria-label="Switch view">
+                                        <i class='bx bx-chevron-up view-switch-icon'></i>
+                                    </button>
+                                </div>
+                                <div class="job">TY202500628</div>
+                            </div>
                         </div>
-                        <div class="name-job">
-                            <div class="profile_name">Bryan</div>
-                            <div class="job">TY202500628</div>
-                        </div>
-                        <i class='bx bx-log-out' ></i>
+                        <a class="logout-section">
+                            <span>Sign out</span>
+                            <i class='bx bx-log-out'></i>
+                        </a>
                     </div>
                 </li>
             </ul>
@@ -133,7 +143,7 @@
         <section class="home-section">
             <div class="home-content">
                 <i class='bx bx-menu' ></i>
-                <span class="text">Dashboard</span>
+                <span class="text">Student Dashboard</span>
             </div>
             <br>
             <div class="dashboard-container">
@@ -142,7 +152,7 @@
                     <p>Here's your clearance status and academic informations</p>
                 </div>
                 <div class="clearance-progress-container">
-                    <img class="clearance-content" src="/assets/images/progress.png" alt="percentage" width="150px" height="100px">
+                    <img class="clearance-content" src="../../assets/images/progress.png" alt="percentage" width="150px" height="100px">
                     <div class="clearance-content progress">
                         <h2>Clearance Progress</h2>
                         <p>2 of 8 Requirements Completed</p>
@@ -185,7 +195,7 @@
                                 </li>
                             </ul>
                         </div>
-                        <a id="pay-btn" href="">Pay Now</a>
+                        <a id="pay-btn" href="payment-proccess.html">Pay Now</a>
                     </div>
                     <div class="payments-history">
                         <div class="payments-header">
@@ -201,16 +211,59 @@
 
                         </div>
 
+                        <div class="payments-bottom">
+
+                        </div>
                     </div>
-
-                    
-
-
+                </div>
+                <div class="approval-status">
+                    <div class="personels">
+                        <h2>CSC Student Council</h2>
+                        <h3>Organization</h3>
+                        <p class="cleared">Cleared</p>
+                    </div>
+                    <div class="personels">
+                        <h2>Venom Publication</h2>
+                        <h3>Organization</h3>
+                        <p class="cleared">Cleared</p>
+                    </div>
+                    <div class="personels">
+                        <h2>PHICCS</h2>
+                        <h3>Organization</h3>
+                        <p class="cleared">Cleared</p>
+                    </div>
+                    <div class="personels">
+                        <h2>CSC Gender Club</h2>
+                        <h3>Organization</h3>
+                        <p class="cleared">Cleared</p>
+                    </div>
+                    <div class="personels">
+                        <h2>Rhamrhem Jaafar</h2>
+                        <h3>Adviser</h3>
+                        <p class="pendings">Pending</p>
+                    </div>
+                    <div class="personels">
+                        <h2>Mr. Jaydee C. Ballaho, MIT</h2>
+                        <h3>Department Head</h3>
+                        <p class="pendings">Pending</p>
+                    </div>
+                    <div class="personels">
+                        <h2>Asst Prof Marjorie A. Rojas</h2>
+                        <h3>Student Affairs Coordinator, CCS</h3>
+                        <p class="pendings">Pending</p>
+                    </div>
+                    <div class="personels">
+                        <h2>Dr. Mark L. Flores</h2>
+                        <h3>College Dean CCS</h3>
+                        <p class="pendings">pendings</p>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <script src="script.js"></script>
+        <script src="../../assets/scripts/sample-accounts.js"></script>
+        <script src="../../assets/scripts/auth.js"></script>
+        <script src="../../assets/scripts/script.js"></script>
 
     </body>
 </html>

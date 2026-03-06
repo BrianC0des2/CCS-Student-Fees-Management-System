@@ -1,26 +1,36 @@
 // Sidebar template loader
 // Usage: Add <div id="sidebar-container"></div> to your HTML, then call loadSidebar()
+// OVERALL FLOW
+// 1) Build sidebar from static template string.
+// 2) Inject template into #sidebar-container.
+// 3) Bind interactions (burger toggle + submenu arrows).
+// 4) Recalculate content width/margin based on sidebar state.
+// TYPE GUIDE (for this file)
+// - USER-DEFINED FUNCTION: loadSidebar, initializeSidebarEvents, adjustHomeSectionMargin.
+// - PREDEFINED API: document/querySelector/addEventListener/setTimeout are browser APIs.
 
+// HTML markup stored in a JavaScript template string.
+// We inject this into #sidebar-container so we can reuse one sidebar layout across pages.
 const sidebarHTML = `
-<div class="sidebar close">
+<div class="sidebar">
     <div class="logo-details">
         <i class='bx bxl-c-plus-plus'></i>
         <span class="logo_name">Pay++</span>
     </div>
     <ul class="nav-links">
         <li>
-            <a href="#">
+            <a href="../organization/organization-dashboard.html">
                 <i class='bx bx-grid-alt' ></i>
                 <span class="link_name">Dashboard</span>
             </a>
             <ul class="sub-menu blank">
-                <li><a class="link_name" href="#">Category</a></li>
+                <li><a class="link_name" href="#">Dashboard</a></li>
             </ul>
         </li>
         <li>
             <div class="iocn-link">
                 <a href="#">
-                    <i class='bx bx-collection' ></i>
+                    <i class='bx bx-clipboard' ></i>
                     <span class="link_name">Clearance</span>
                 </a>
                 <i class='bx bxs-chevron-down arrow' ></i>
@@ -35,21 +45,19 @@ const sidebarHTML = `
         <li>
             <div class="iocn-link">
                 <a href="#">
-                    <i class='bx bx-book-alt' ></i>
+                    <i class='bx bx-wallet' ></i>
                     <span class="link_name">Payments</span>
                 </a>
                 <i class='bx bxs-chevron-down arrow' ></i>
             </div>
             <ul class="sub-menu">
                 <li><a class="link_name" href="#">Payments</a></li>
-                <li><a href="#">Outstanding Fees</a></li>
-                <li><a href="#">Payment History</a></li>
-                <li><a href="#">Receipt</a></li>
+                <li><a href="../student/payment-history.html">Payment History</a></li>
             </ul>
         </li>
         <li>
             <a href="#">
-                <i class='bx bx-pie-chart-alt-2' ></i>
+                <i class='bx bx-bar-chart-alt-2' ></i>
                 <span class="link_name">Analytics</span>
             </a>
             <ul class="sub-menu blank">
@@ -58,7 +66,7 @@ const sidebarHTML = `
         </li>
         <li>
             <a href="#">
-                <i class='bx bx-line-chart' ></i>
+                <i class='bx bx-file' ></i>
                 <span class="link_name">Reports</span>
             </a>
             <ul class="sub-menu blank">
@@ -76,20 +84,37 @@ const sidebarHTML = `
         </li>
         <li>
             <div class="profile-details">
-                <div class="profile-content">
-                    <img src="assets/images/profile.png" alt="profileImg">
+                <div class="profile-main">
+                    <div class="profile-content">
+                        <img src="../../assets/images/profile.png" alt="profileImg">
+                    </div>
+                    <div class="name-job">
+                        <div class="name-with-switch">
+                            <div class="profile_name">Bryan</div>
+                            <button type="button" class="view-switch-container" aria-label="Switch view">
+                                <i class='bx bx-chevron-up view-switch-icon'></i>
+                            </button>
+                        </div>
+                        <div class="job">TY202500628</div>
+                    </div>
                 </div>
-                <div class="name-job">
-                    <div class="profile_name">Bryan</div>
-                    <div class="job">TY202500628</div>
+                <div class="logout-section">
+                    <span>Sign out</span>
+                    <i class='bx bx-log-out'></i>
                 </div>
-                <i class='bx bx-log-out' ></i>
             </div>
         </li>
     </ul>
 </div>
 `;
 
+// LOAD FLOW
+// - Verify target container exists
+// - Inject shared sidebar markup
+// - Bind all interaction handlers after injection
+// TYPE: USER-DEFINED FUNCTION
+// PURPOSE: Mount shared sidebar markup into the page and initialize behavior.
+// PREDEFINED APIS USED: document.getElementById, console.warn.
 function loadSidebar() {
     const container = document.getElementById('sidebar-container');
     if (!container) {
@@ -103,11 +128,20 @@ function loadSidebar() {
     initializeSidebarEvents();
 }
 
+// INTERACTION FLOW
+// - Burger button toggles collapsed/expanded state
+// - Arrow buttons toggle submenu visibility
+// - Each toggle keeps layout synced via adjustHomeSectionMargin()
+// TYPE: USER-DEFINED FUNCTION
+// PURPOSE: Attach click handlers for sidebar open/close and submenu expansion.
+// PREDEFINED APIS USED: document.querySelector, addEventListener, classList.toggle.
 function initializeSidebarEvents() {
     // Sidebar toggle
     let sidebar = document.querySelector(".sidebar");
     let sidebarBtn = document.querySelector(".bx-menu");
-    if (sidebarBtn) {
+    // dataset flag prevents adding duplicate click listeners when this runs multiple times
+    if (sidebarBtn && !sidebarBtn.dataset.sidebarInitialized) {
+        sidebarBtn.dataset.sidebarInitialized = 'true';
         sidebarBtn.addEventListener("click", () => {
             sidebar.classList.toggle("close");
             // Adjust home-section margin based on sidebar state
@@ -125,28 +159,40 @@ function initializeSidebarEvents() {
     }
 }
 
+// LAYOUT FLOW
+// - Read current sidebar mode (`close` or expanded)
+// - Apply matching margin/width to `.home-section`
+// - Prevent overlap so main content remains readable
+// TYPE: USER-DEFINED FUNCTION
+// PURPOSE: Keep main content dimensions synchronized with sidebar width.
+// PREDEFINED APIS USED: document.querySelector, classList.contains.
 function adjustHomeSectionMargin() {
     const sidebar = document.querySelector(".sidebar");
     const homeSection = document.querySelector(".home-section");
     if (!sidebar || !homeSection) return;
     
     if (sidebar.classList.contains("close")) {
-        homeSection.style.marginLeft = "88px";
-        homeSection.style.width = "calc(100% - 88px)";
-    } else {
-        homeSection.style.marginLeft = "270px";
-        homeSection.style.width = "calc(100% - 270px)";
-    }
+        homeSection.style.marginLeft = "78px";
+        homeSection.style.width = "calc(100% - 78px)";
+    }  else {
+    homeSection.style.marginLeft = "260px";
+    homeSection.style.width = "calc(100% - 260px)";
+}
 }
 
-// Auto-load sidebar if DOM is ready
+// BOOTSTRAP FLOW
+// - If DOM is still loading, wait for DOMContentLoaded
+// - Otherwise load immediately
 if (document.readyState === 'loading') {
+    // Wait for full HTML to be parsed first
     document.addEventListener('DOMContentLoaded', loadSidebar);
 } else {
+    // DOM already loaded, we can insert sidebar immediately
     loadSidebar();
 }
 
-// Call adjustHomeSectionMargin after sidebar is loaded
+// Final layout sync on startup (small delay helps with initial element sizing).
 document.addEventListener('DOMContentLoaded', function() {
+    // Small delay helps ensure layout elements are already present
     setTimeout(adjustHomeSectionMargin, 100);
 });
