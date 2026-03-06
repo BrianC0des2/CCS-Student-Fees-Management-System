@@ -170,7 +170,7 @@
 }
 
 #pay-btn:hover{
-    background-color: var(--color-dark);
+    background-color: #006832;
 }
 
 .payments-history{

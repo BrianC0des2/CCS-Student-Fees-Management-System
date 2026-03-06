@@ -19,12 +19,12 @@ const sidebarHTML = `
     </div>
     <ul class="nav-links">
         <li>
-            <a href="financeDS.html">
+            <a href="../organization/organization-dashboard.html">
                 <i class='bx bx-grid-alt' ></i>
                 <span class="link_name">Dashboard</span>
             </a>
             <ul class="sub-menu blank">
-                <li><a class="link_name" href="#">Category</a></li>
+                <li><a class="link_name" href="#">Dashboard</a></li>
             </ul>
         </li>
         <li>
@@ -52,7 +52,7 @@ const sidebarHTML = `
             </div>
             <ul class="sub-menu">
                 <li><a class="link_name" href="#">Payments</a></li>
-                <li><a href="paymenthistory.html">Payment History</a></li>
+                <li><a href="../student/payment-history.html">Payment History</a></li>
             </ul>
         </li>
         <li>
@@ -86,7 +86,7 @@ const sidebarHTML = `
             <div class="profile-details">
                 <div class="profile-main">
                     <div class="profile-content">
-                        <img src="assets/images/profile.png" alt="profileImg">
+                        <img src="../../assets/images/profile.png" alt="profileImg">
                     </div>
                     <div class="name-job">
                         <div class="name-with-switch">
@@ -176,7 +176,7 @@ function adjustHomeSectionMargin() {
         homeSection.style.width = "calc(100% - 78px)";
     }  else {
     homeSection.style.marginLeft = "260px";
-    homeSection.style.width = "calc(100% 260px)";
+    homeSection.style.width = "calc(100% - 260px)";
 }
 }
 

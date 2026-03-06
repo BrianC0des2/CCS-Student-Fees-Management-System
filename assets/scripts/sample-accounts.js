@@ -49,10 +49,10 @@ window.SAMPLE_ACCOUNTS = [
   },
   {
     // FLOW: role-focused account for admin/faculty/dean permission checks
-    id: "u-org-001",
-    name: "Bryan",
-    studentId: "TY202500101",
-    email: "studentorg@demo.com",
+    id: "u-admin-001",
+    name: "Bryan Admin",
+    studentId: "TY202500102",
+    email: "admin@demo.com",
     password: "123456",
     permissions: {
       studentView: false,

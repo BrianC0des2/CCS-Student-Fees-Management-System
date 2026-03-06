@@ -24,13 +24,53 @@
   // Value is usually "student" or "organization".
   const AUTH_VIEW_KEY = "ccs.auth.view";
 
+  function readStorage(key) {
+    try {
+      const fromLocal = localStorage.getItem(key);
+      if (fromLocal !== null) return fromLocal;
+    } catch (error) {
+    }
+
+    try {
+      const fromSession = sessionStorage.getItem(key);
+      if (fromSession !== null) return fromSession;
+    } catch (error) {
+    }
+
+    return null;
+  }
+
+  function writeStorage(key, value) {
+    try {
+      localStorage.setItem(key, value);
+    } catch (error) {
+    }
+
+    try {
+      sessionStorage.setItem(key, value);
+    } catch (error) {
+    }
+  }
+
+  function removeStorage(key) {
+    try {
+      localStorage.removeItem(key);
+    } catch (error) {
+    }
+
+    try {
+      sessionStorage.removeItem(key);
+    } catch (error) {
+    }
+  }
+
   // Read user data from localStorage and convert JSON string back to object
   // TYPE: USER-DEFINED FUNCTION
   // PURPOSE: Return logged-in user from storage, or null when missing/invalid JSON.
   // PREDEFINED APIS USED: localStorage.getItem, JSON.parse.
   function getStoredUser() {
-    // PREDEFINED: localStorage.getItem reads saved text using AUTH_USER_KEY.
-    const raw = localStorage.getItem(AUTH_USER_KEY);
+    // PREDEFINED: storage read helper returns saved text using AUTH_USER_KEY.
+    const raw = readStorage(AUTH_USER_KEY);
     if (!raw) return null;
     try {
       // PREDEFINED: JSON.parse converts stored text back into an object.
@@ -46,8 +86,8 @@
   // PREDEFINED APIS USED: localStorage.setItem, JSON.stringify.
   function setStoredUser(user) {
     // PREDEFINED: JSON.stringify converts object to text for storage.
-    // PREDEFINED: localStorage.setItem saves that text under AUTH_USER_KEY.
-    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
+    // PREDEFINED: storage write helper saves that text under AUTH_USER_KEY.
+    writeStorage(AUTH_USER_KEY, JSON.stringify(user));
   }
 
   // LOGIN FLOW
@@ -79,8 +119,8 @@
 
     setStoredUser(user);
     // Default view right after login is student view
-    // PREDEFINED: localStorage.setItem saves selected view as text.
-    localStorage.setItem(AUTH_VIEW_KEY, "student");
+    // PREDEFINED: storage write helper saves selected view as text.
+    writeStorage(AUTH_VIEW_KEY, "student");
 
     return { ok: true, user };
   }
@@ -133,8 +173,8 @@
   // PURPOSE: Read saved UI view preference from storage.
   // PREDEFINED APIS USED: localStorage.getItem.
   function getView() {
-    // PREDEFINED: localStorage.getItem reads saved view text by key.
-    return localStorage.getItem(AUTH_VIEW_KEY) || "student";
+    // PREDEFINED: storage read helper reads saved view text by key.
+    return readStorage(AUTH_VIEW_KEY) || "student";
   }
 
   // VIEW SWITCH FLOW
@@ -146,7 +186,7 @@
   // PREDEFINED APIS USED: localStorage.setItem.
   function setView(view) {
     // Only two valid values are accepted
-    if (view !== "student" && view !== "organization" && view != "") {
+    if (view !== "student" && view !== "organization") {
       return false;
     }
 
@@ -155,8 +195,8 @@
       return false;
     }
 
-    // PREDEFINED: localStorage.setItem saves the accepted view text.
-    localStorage.setItem(AUTH_VIEW_KEY, view);
+    // PREDEFINED: storage write helper saves the accepted view text.
+    writeStorage(AUTH_VIEW_KEY, view);
     return true;
   }
 
@@ -165,9 +205,9 @@
   // PURPOSE: Clear session and view preference from storage.
   // PREDEFINED APIS USED: localStorage.removeItem.
   function logout() {
-    // PREDEFINED: localStorage.removeItem deletes saved entries by key.
-    localStorage.removeItem(AUTH_USER_KEY);
-    localStorage.removeItem(AUTH_VIEW_KEY);
+    // PREDEFINED: storage remove helper deletes saved entries by key.
+    removeStorage(AUTH_USER_KEY);
+    removeStorage(AUTH_VIEW_KEY);
   }
 
   // Public interface consumed by route guards, login page, and profile switch UI.
@@ -175,6 +215,9 @@
     login,
     getUser,
     canManageOrg,
+    isAdmin,
+    isFaculty,
+    isDean,
     getView,
     setView,
     logout

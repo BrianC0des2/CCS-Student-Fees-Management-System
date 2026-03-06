@@ -83,7 +83,9 @@ body{
   justify-content: space-between;
 }
 .sidebar.close .nav-links li .iocn-link{
-  display: block
+  display: block;
+  overflow: hidden;
+  width: 78px;
 }
 .sidebar .nav-links li i{
   height: 50px;
@@ -110,11 +112,10 @@ body{
   font-size: 18px;
   font-weight: 400;
   color: var(--color-light);
-  transition: all 0.4s ease;
+  transition: opacity 0.4s ease;
 }
 .sidebar.close .nav-links li a .link_name{
-  opacity: 0;
-  pointer-events: none;
+  display: none;
 }
 .sidebar .nav-links li .sub-menu{
   padding: 6px 6px 14px 80px;
@@ -144,32 +145,32 @@ body{
   padding: 10px 20px;
   border-radius: 0 6px 6px 0;
   opacity: 0;
+  visibility: hidden;
   display: block;
   pointer-events: none;
   transition: 0s;
+  animation: none; /* cancel global * fadeIn so tooltips never flash on load */
 }
 .sidebar.close .nav-links li:hover .sub-menu{
   top: 0;
   opacity: 1;
+  visibility: visible;
   pointer-events: auto;
-  transition: all 0.4s ease;
+  transition: opacity 0.4s ease, top 0.4s ease;
 }
 .sidebar .nav-links li .sub-menu .link_name{
   display: none;
 }
 .sidebar.close .nav-links li .sub-menu .link_name{
   font-size: 18px;
-  opacity: 1;
   display: block;
 }
 .sidebar .nav-links li .sub-menu.blank{
-  opacity: 1;
-  pointer-events: auto;
-  padding: 3px 20px 6px 16px;
   opacity: 0;
   pointer-events: none;
+  padding: 3px 20px 6px 16px;
 }
-.sidebar .nav-links li:hover .sub-menu.blank{
+.sidebar.close .nav-links li:hover .sub-menu.blank{
   top: 50%;
   transform: translateY(-50%);
 }

@@ -10,6 +10,54 @@
 // TYPE GUIDE (for this file)
 // - USER-DEFINED FUNCTION: functions declared in this file (enforceRouteAccess, renderPayments, etc.).
 // - PREDEFINED API: browser/JS built-ins (document, window, localStorage, Date, setTimeout, Array.map/filter).
+function appPath(targetPath) {
+  const isInsidePagesDir = window.location.pathname.includes('/pages/');
+  if (!isInsidePagesDir) return targetPath;
+  return `../../${targetPath}`;
+}
+
+function navigateTo(targetPath) {
+  const destination = appPath(targetPath);
+  const now = Date.now();
+  let state = { time: 0, count: 0, last: '' };
+
+  try {
+    const stored = sessionStorage.getItem('ccs.redirect.state');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (parsed && typeof parsed === 'object') {
+        state = {
+          time: Number(parsed.time) || 0,
+          count: Number(parsed.count) || 0,
+          last: String(parsed.last || '')
+        };
+      }
+    }
+  } catch (error) {
+  }
+
+  if (now - state.time < 1500 && state.last === destination) {
+    state.count += 1;
+  } else {
+    state.count = 1;
+  }
+
+  state.time = now;
+  state.last = destination;
+
+  try {
+    sessionStorage.setItem('ccs.redirect.state', JSON.stringify(state));
+  } catch (error) {
+  }
+
+  if (state.count > 6) {
+    alert('Navigation loop detected. Please clear site data and reload.');
+    return;
+  }
+
+  window.location.replace(destination);
+}
+
 const loginForm = document.getElementById("login-form");
 if (loginForm) {
   // Submit flow starts only when the user clicks login/presses Enter in the form.
@@ -29,6 +77,11 @@ if (loginForm) {
     // - window.Auth.login(...) checks account + password
     // - result.ok tells us if login should continue
     // - result.message gives user-friendly failure reason
+    if (!window.Auth) {
+      alert("Authentication module failed to load. Please refresh and try again.");
+      return;
+    }
+
     if (window.Auth) {
       const result = window.Auth.login(email, password);
       if (!result.ok) {
@@ -39,7 +92,7 @@ if (loginForm) {
 
     // Success path: route to personal/student dashboard.
     // (If needed, route protection below will still enforce proper page access.)
-    window.location.href = "index.html";
+    navigateTo('pages/student/student-dashboard.html');
   });
 }
 
@@ -58,8 +111,8 @@ if (loginForm) {
 function enforceRouteAccess() {
   if (!window.Auth) return;
 
-  // Get current file name from URL (example: index.html)
-  const page = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+  // Get current file name from URL (example: student-dashboard.html)
+  const page = (window.location.pathname.split('/').pop() || 'student-dashboard.html').toLowerCase();
   const isLoginPage = page === 'login-page.html';
   const user = window.Auth.getUser();
 
@@ -70,32 +123,37 @@ function enforceRouteAccess() {
 
     const preferredView = window.Auth.getView();
     if (preferredView === 'organization' && window.Auth.canManageOrg()) {
-      window.location.href = 'FinanceDS.html';
+      navigateTo('pages/organization/organization-dashboard.html');
       return;
     }
 
-    window.location.href = 'index.html';
+    navigateTo('pages/student/student-dashboard.html');
     return;
   }
 
   // Guard 2: every protected page requires an active session.
   if (!user) {
-    window.location.href = 'login-page.html';
+    navigateTo('login-page.html');
     return;
   }
 
   // Guard 3: finance/organization dashboard requires org-management permission.
-  if (page === 'financeds.html' && !window.Auth.canManageOrg()) {
-    window.location.href = 'index.html';
+  if (page === 'organization-dashboard.html' && !window.Auth.canManageOrg()) {
+    navigateTo('pages/student/student-dashboard.html');
     return;
   }
 
   // State sync: keep stored view aligned with what page user is currently on.
   // This makes future redirects open the same context the user last used.
-  if (page === 'financeds.html') {
+  if (page === 'organization-dashboard.html') {
     window.Auth.setView('organization');
-  } else if (page === 'index.html') {
+  } else if (page === 'student-dashboard.html') {
     window.Auth.setView('student');
+  }
+
+  try {
+    sessionStorage.removeItem('ccs.redirect.state');
+  } catch (error) {
   }
 }
 
@@ -256,7 +314,11 @@ function initializeViewToggle() {
       const allowed = window.Auth.setView(nextView);
       if (!allowed) return;
 
-      window.location.href = nextView === 'organization' ? 'FinanceDS.html' : 'index.html';
+      navigateTo(
+        nextView === 'organization'
+          ? 'pages/organization/organization-dashboard.html'
+          : 'pages/student/student-dashboard.html'
+      );
     });
 
     setTimeout(() => {
@@ -279,7 +341,7 @@ function initializeLogout() {
     if (window.Auth) {
       window.Auth.logout();
     }
-    window.location.href = 'login-page.html';
+    navigateTo('login-page.html');
   });
 }
 
@@ -293,8 +355,9 @@ document.addEventListener('DOMContentLoaded', function() {
     syncProfileDetails();
     initializeViewToggle();
     initializeLogout();
-    // Step 3: initialize filters functionality
+    // Step 3: initialize page tools
     initializeFilters();
+    initializeSearch();
   }, 120);
 });
 
@@ -311,7 +374,16 @@ const paymentsListEl = document.querySelector('.payments-history .payments-list'
 
 // sample data (date in YYYY-MM-DD)
 const samplePayments = [
-  // Recent payments from various students
+  // Payments for student1@demo.com (TY202500100)
+  { studentNo: "TY202500100", studentName: "Bryan", desc: 'CCSC Fee - BSCS 1A', amount: '₱1,000.00', date: '2026-02-14' },
+  { studentNo: "TY202500100", studentName: "Bryan", desc: 'Insurance - BSCS 1A', amount: '₱150.00', date: '2026-02-10' },
+  { studentNo: "TY202500100", studentName: "Bryan", desc: 'Miscellaneous - BSCS 1A', amount: '₱850.00', date: '2026-01-20' },
+  { studentNo: "TY202500100", studentName: "Bryan", desc: 'Gender Club - BSCS 1A', amount: '₱1,000.00', date: '2026-01-10' },
+  // Payments for studentorg@demo.com (TY202500101)
+  { studentNo: "TY202500101", studentName: "Bryan", desc: 'CCSC Fee - BSCS 1B', amount: '₱1,000.00', date: '2026-02-13' },
+  { studentNo: "TY202500101", studentName: "Bryan", desc: 'Insurance - BSCS 1B', amount: '₱150.00', date: '2026-02-08' },
+  { studentNo: "TY202500101", studentName: "Bryan", desc: 'Partial Payment - BSCS 1B', amount: '₱500.00', date: '2026-01-15' },
+  // Recent payments from various students (for org/admin view)
   { studentNo: "TY202500102", studentName: "Maria Santos", desc: 'CCSC Fee - BSCS 1A', amount: '₱1,000.00', date: '2026-02-10' },
   { studentNo: "TY202500104", studentName: "Ana Garcia", desc: 'Insurance - BSCS 1B', amount: '₱150.00', date: '2026-02-05' },
   { studentNo: "TY202500106", studentName: "Sofia Martinez", desc: 'Miscellaneous - BSIT 1A', amount: '₱850.00', date: '2026-02-01' },
@@ -333,7 +405,7 @@ const samplePayments = [
   { studentNo: "TY202200408", studentName: "Alicia Rubio", desc: 'Miscellaneous - ACT-AD 1B', amount: '₱850.00', date: '2026-01-25' },
   { studentNo: "TY202200410", studentName: "Natalia Gil", desc: 'Gender Club - ACT-NET 1B', amount: '₱1,000.00', date: '2026-02-16' },
   // Older payments
-  { studentNo: "TY202500101", studentName: "Juan Dela Cruz", desc: 'Partial Payment - BSCS 1A', amount: '₱500.00', date: '2026-01-15' },
+  { studentNo: "TY202500111", studentName: "Juan Dela Cruz", desc: 'Partial Payment - BSCS 1A', amount: '₱500.00', date: '2026-01-15' },
   { studentNo: "TY202500103", studentName: "Pedro Reyes", desc: 'Partial Payment - BSCS 1B', amount: '₱700.00', date: '2026-01-20' },
   { studentNo: "TY202500105", studentName: "Carlos Lopez", desc: 'Partial Payment - BSIT 1A', amount: '₱300.00', date: '2026-01-25' },
   { studentNo: "TY202500107", studentName: "Miguel Torres", desc: 'Partial Payment - BSIT 1B', amount: '₱800.00', date: '2026-01-30' },
@@ -367,7 +439,7 @@ function renderPayments(list){
         <span class="pay-desc">${p.desc}</span>
         <span class="pay-amount">${p.amount}</span>
       </div>
-      <div class="payment-meta">${p.studentNo} - ${p.studentName} | ${p.date}</div>
+      <div class="payment-meta">${p.date}</div>
     </div>
   `).join('');
 }
@@ -378,14 +450,14 @@ function renderPayments(list){
 // PREDEFINED APIS USED: Date, Array.filter.
 function filterPayments(value){
   if (value === 'all') {
-    renderPayments(samplePayments);
+    renderPayments(myPayments);
     return;
   }
 
   const now = new Date();
   const recentThreshold = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000); // 30 days
 
-  const filtered = samplePayments.filter(p => {
+  const filtered = myPayments.filter(p => {
     const d = new Date(p.date + 'T00:00:00');
     // recent = within last 30 days, old = older than 30 days
     if (value === 'recent') return d >= recentThreshold;
@@ -396,8 +468,15 @@ function filterPayments(value){
   renderPayments(filtered);
 }
 
+// Scope payments to the currently logged-in student only.
+// Each entry in samplePayments has a studentNo that maps to a user's studentId.
+const currentUser = window.Auth ? window.Auth.getUser() : null;
+const myPayments = currentUser
+  ? samplePayments.filter(p => p.studentNo === currentUser.studentId)
+  : samplePayments;
+
 // Initial paint so list is visible before user interaction.
-renderPayments(samplePayments);
+renderPayments(myPayments);
 if (paymentsFilter) {
   // Recalculate and repaint every time the selected filter changes.
   paymentsFilter.addEventListener('change', (e) => {
@@ -593,7 +672,7 @@ function initializeFilters() {
 
     function applyTableFilters() {
         const rows = document.querySelectorAll('tbody tr');
-        const isPaymentHistory = window.location.pathname.includes('paymenthistory');
+        const isPaymentHistory = window.location.pathname.includes('payment-history');
         
         rows.forEach(row => {
             let show = true;
@@ -673,17 +752,4 @@ function initializeSearch() {
         });
     });
 }
-
-// Initialize search on page load
-document.addEventListener('DOMContentLoaded', function() {
-    // Existing code...
-    setTimeout(adjustHomeSectionMargin, 100);
-    setTimeout(() => {
-        syncProfileDetails();
-        initializeViewToggle();
-        initializeLogout();
-        initializeSearch(); // Add this
-    }, 120);
-});
-
 
