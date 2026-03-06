@@ -116,7 +116,6 @@ for (var i = 0; i < arrow.length; i++) {
  arrowParent.classList.toggle("showMenu");
   });
 }
-
 // Sidebar burger button: collapse/expand sidebar.
 let sidebarBtn = document.querySelector(".bx-menu");
 if (sidebarBtn && !sidebarBtn.dataset.sidebarInitialized) {
@@ -131,21 +130,17 @@ if (sidebarBtn && !sidebarBtn.dataset.sidebarInitialized) {
 }
 
 // Layout sync helper used after sidebar state changes.
-// Keeps main content readable by matching margin/width to sidebar mode.
-// TYPE: USER-DEFINED FUNCTION
-// PURPOSE: Resize/reposition main content when sidebar state changes.
-// PREDEFINED APIS USED: document.querySelector, classList.contains.
 function adjustHomeSectionMargin() {
   const sidebar = document.querySelector(".sidebar");
   const homeSection = document.querySelector(".home-section");
   if (!sidebar || !homeSection) return;
   
   if (sidebar.classList.contains("close")) {
-    homeSection.style.marginLeft = "88px";
-    homeSection.style.width = "calc(100% - 88px)";
+    homeSection.style.marginLeft = "78px";
+    homeSection.style.width = "calc(100% - 78px)";
   } else {
-    homeSection.style.marginLeft = "270px";
-    homeSection.style.width = "calc(100% - 270px)";
+    homeSection.style.marginLeft = "260px";
+    homeSection.style.width = "calc(100% - 260px)";
   }
 }
 
@@ -298,6 +293,8 @@ document.addEventListener('DOMContentLoaded', function() {
     syncProfileDetails();
     initializeViewToggle();
     initializeLogout();
+    // Step 3: initialize filters functionality
+    initializeFilters();
   }, 120);
 });
 
@@ -314,14 +311,48 @@ const paymentsListEl = document.querySelector('.payments-history .payments-list'
 
 // sample data (date in YYYY-MM-DD)
 const samplePayments = [
-  { desc: 'Gender Club', amount: '₱1,000.00', date: '2026-02-25' },
-  { desc: 'CCSC fee', amount: '₱150.00', date: '2026-02-20' },
-  { desc: 'Insurance', amount: '₱40.00', date: '2026-01-10' },
-  { desc: 'Miscellaneous', amount: '₱60.00', date: '2025-12-15' },
-  { desc: 'Gender Club', amount: '₱1,000.00', date: '2026-02-25' },
-  { desc: 'CCSC fee', amount: '₱150.00', date: '2026-02-20' },
-  { desc: 'Insurance', amount: '₱40.00', date: '2026-01-10' },
-  { desc: 'Miscellaneous', amount: '₱60.00', date: '2025-12-15' }
+  // Recent payments from various students
+  { studentNo: "TY202500102", studentName: "Maria Santos", desc: 'CCSC Fee - BSCS 1A', amount: '₱1,000.00', date: '2026-02-10' },
+  { studentNo: "TY202500104", studentName: "Ana Garcia", desc: 'Insurance - BSCS 1B', amount: '₱150.00', date: '2026-02-05' },
+  { studentNo: "TY202500106", studentName: "Sofia Martinez", desc: 'Miscellaneous - BSIT 1A', amount: '₱850.00', date: '2026-02-01' },
+  { studentNo: "TY202500108", studentName: "Isabella Flores", desc: 'Gender Club - BSIT 1B', amount: '₱1,000.00', date: '2026-01-28' },
+  { studentNo: "TY202500110", studentName: "Valentina Castro", desc: 'CCSC Fee - ACT-AD 1A', amount: '₱1,000.00', date: '2026-01-22' },
+  { studentNo: "TY202400202", studentName: "Camila Vargas", desc: 'Insurance - BSCS 2A', amount: '₱150.00', date: '2026-02-08' },
+  { studentNo: "TY202400204", studentName: "Gabriela Ruiz", desc: 'Miscellaneous - BSCS 2B', amount: '₱850.00', date: '2026-02-03' },
+  { studentNo: "TY202400206", studentName: "Lucia Herrera", desc: 'Gender Club - BSIT 2A', amount: '₱1,000.00', date: '2026-01-31' },
+  { studentNo: "TY202400208", studentName: "Elena Jimenez", desc: 'CCSC Fee - BSIT 2B', amount: '₱1,000.00', date: '2026-01-26' },
+  { studentNo: "TY202400210", studentName: "Marina Ortega", desc: 'Insurance - ACT-AD 2A', amount: '₱150.00', date: '2026-02-06' },
+  { studentNo: "TY202300302", studentName: "Rosa Medina", desc: 'Miscellaneous - BSCS 3A', amount: '₱850.00', date: '2026-02-09' },
+  { studentNo: "TY202300304", studentName: "Carmen Delgado", desc: 'Gender Club - BSCS 3B', amount: '₱1,000.00', date: '2026-02-07' },
+  { studentNo: "TY202300306", studentName: "Patricia Soto", desc: 'CCSC Fee - BSIT 3A', amount: '₱1,000.00', date: '2026-01-23' },
+  { studentNo: "TY202300308", studentName: "Adriana Vega", desc: 'Insurance - BSIT 3B', amount: '₱150.00', date: '2026-01-19' },
+  { studentNo: "TY202300310", studentName: "Monica Paredes", desc: 'Miscellaneous - ACT-NET 1A', amount: '₱850.00', date: '2026-02-12' },
+  { studentNo: "TY202200402", studentName: "Silvia Aguilar", desc: 'Gender Club - BSCS 4A', amount: '₱1,000.00', date: '2026-02-13' },
+  { studentNo: "TY202200404", studentName: "Teresa Blanco", desc: 'CCSC Fee - BSCS 4B', amount: '₱1,000.00', date: '2026-02-14' },
+  { studentNo: "TY202200406", studentName: "Beatriz Leon", desc: 'Insurance - BSIT 4A', amount: '₱150.00', date: '2026-01-30' },
+  { studentNo: "TY202200408", studentName: "Alicia Rubio", desc: 'Miscellaneous - ACT-AD 1B', amount: '₱850.00', date: '2026-01-25' },
+  { studentNo: "TY202200410", studentName: "Natalia Gil", desc: 'Gender Club - ACT-NET 1B', amount: '₱1,000.00', date: '2026-02-16' },
+  // Older payments
+  { studentNo: "TY202500101", studentName: "Juan Dela Cruz", desc: 'Partial Payment - BSCS 1A', amount: '₱500.00', date: '2026-01-15' },
+  { studentNo: "TY202500103", studentName: "Pedro Reyes", desc: 'Partial Payment - BSCS 1B', amount: '₱700.00', date: '2026-01-20' },
+  { studentNo: "TY202500105", studentName: "Carlos Lopez", desc: 'Partial Payment - BSIT 1A', amount: '₱300.00', date: '2026-01-25' },
+  { studentNo: "TY202500107", studentName: "Miguel Torres", desc: 'Partial Payment - BSIT 1B', amount: '₱800.00', date: '2026-01-30' },
+  { studentNo: "TY202500109", studentName: "Diego Ramirez", desc: 'Partial Payment - ACT-AD 1A', amount: '₱500.00', date: '2026-02-02' },
+  { studentNo: "TY202400201", studentName: "Luis Mendoza", desc: 'Partial Payment - BSCS 2A', amount: '₱600.00', date: '2026-01-18' },
+  { studentNo: "TY202400203", studentName: "Andres Silva", desc: 'Partial Payment - BSCS 2B', amount: '₱400.00', date: '2026-01-12' },
+  { studentNo: "TY202400205", studentName: "Fernando Morales", desc: 'Partial Payment - BSIT 2A', amount: '₱400.00', date: '2026-01-27' },
+  { studentNo: "TY202400207", studentName: "Roberto Diaz", desc: 'Partial Payment - BSIT 2B', amount: '₱700.00', date: '2026-02-04' },
+  { studentNo: "TY202400209", studentName: "Pablo Alvarez", desc: 'Partial Payment - ACT-AD 2A', amount: '₱600.00', date: '2026-01-29' },
+  { studentNo: "TY202300301", studentName: "Antonio Guzman", desc: 'Partial Payment - BSCS 3A', amount: '₱300.00', date: '2026-01-21' },
+  { studentNo: "TY202300303", studentName: "Manuel Chavez", desc: 'Partial Payment - BSCS 3B', amount: '₱500.00', date: '2026-01-16' },
+  { studentNo: "TY202300305", studentName: "Javier Romero", desc: 'Partial Payment - BSIT 3A', amount: '₱250.00', date: '2026-01-24' },
+  { studentNo: "TY202300307", studentName: "Francisco Luna", desc: 'Partial Payment - BSIT 3B', amount: '₱850.00', date: '2026-02-11' },
+  { studentNo: "TY202300309", studentName: "Ricardo Cortes", desc: 'Partial Payment - ACT-NET 1A', amount: '₱450.00', date: '2026-01-14' },
+  { studentNo: "TY202200401", studentName: "Eduardo Rios", desc: 'Partial Payment - BSCS 4A', amount: '₱250.00', date: '2026-01-17' },
+  { studentNo: "TY202200403", studentName: "Hector Navarro", desc: 'Partial Payment - BSCS 4B', amount: '₱650.00', date: '2026-01-13' },
+  { studentNo: "TY202200405", studentName: "Raul Moreno", desc: 'Partial Payment - BSIT 4A', amount: '₱350.00', date: '2026-01-11' },
+  { studentNo: "TY202200407", studentName: "Oscar Peña", desc: 'Partial Payment - ACT-AD 1B', amount: '₱750.00', date: '2026-02-15' },
+  { studentNo: "TY202200409", studentName: "Victor Suarez", desc: 'Partial Payment - ACT-NET 1B', amount: '₱550.00', date: '2026-01-28' }
 ];
 
 // Pure rendering step: takes a list and turns it into payment item markup.
@@ -336,7 +367,7 @@ function renderPayments(list){
         <span class="pay-desc">${p.desc}</span>
         <span class="pay-amount">${p.amount}</span>
       </div>
-      <div class="payment-meta">${p.date}</div>
+      <div class="payment-meta">${p.studentNo} - ${p.studentName} | ${p.date}</div>
     </div>
   `).join('');
 }
@@ -459,4 +490,200 @@ function updateSections() {
 
   // Startup call so the AY badge is correct as soon as page loads.
 setSchoolYear();
+
+// =============================
+// FILTERS FUNCTIONALITY
+// =============================
+let activeFilters = {};
+
+function initializeFilters() {
+    const filtersBtn = document.getElementById('filtersBtn');
+    const filtersPopover = document.getElementById('filtersPopover');
+    const applyFiltersBtn = document.getElementById('applyFilters');
+    const resetFiltersBtn = document.getElementById('resetFilters');
+    const activeFiltersContainer = document.getElementById('activeFilters');
+    const filterCount = document.getElementById('filterCount');
+
+    if (!filtersBtn || !filtersPopover) return;
+
+    // Toggle popover
+    filtersBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        filtersPopover.classList.toggle('show');
+    });
+
+    // Close popover when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!filtersBtn.contains(e.target) && !filtersPopover.contains(e.target)) {
+            filtersPopover.classList.remove('show');
+        }
+    });
+
+    // Apply filters
+    applyFiltersBtn.addEventListener('click', () => {
+        activeFilters = {};
+        
+        // Get filter values
+        const yearLevel = document.getElementById('yearLevel').value;
+        const course = document.getElementById('course').value;
+        const section = document.getElementById('section').value;
+        const schoolYear = document.getElementById('schoolYear').value;
+        const semester = document.getElementById('semester').value;
+
+        if (yearLevel) activeFilters.yearLevel = yearLevel;
+        if (course) activeFilters.course = course;
+        if (section) activeFilters.section = section;
+        if (schoolYear) activeFilters.schoolYear = schoolYear;
+        if (semester) activeFilters.semester = semester;
+
+        updateActiveFiltersDisplay();
+        updateFilterCount();
+        filtersPopover.classList.remove('show');
+        applyTableFilters();
+    });
+
+    // Reset filters
+    resetFiltersBtn.addEventListener('click', () => {
+        activeFilters = {};
+        document.querySelectorAll('#filtersPopover select').forEach(select => {
+            select.value = '';
+        });
+        updateActiveFiltersDisplay();
+        updateFilterCount();
+        applyTableFilters();
+    });
+
+    function updateActiveFiltersDisplay() {
+        activeFiltersContainer.innerHTML = '';
+        Object.entries(activeFilters).forEach(([key, value]) => {
+            const tag = document.createElement('div');
+            tag.className = 'filter-tag';
+            tag.innerHTML = `${getFilterLabel(key)}: ${value} <span class="remove" data-filter="${key}">×</span>`;
+            activeFiltersContainer.appendChild(tag);
+        });
+
+        // Add remove event listeners
+        document.querySelectorAll('.filter-tag .remove').forEach(removeBtn => {
+            removeBtn.addEventListener('click', (e) => {
+                const filterKey = e.target.dataset.filter;
+                delete activeFilters[filterKey];
+                updateActiveFiltersDisplay();
+                updateFilterCount();
+                applyTableFilters();
+            });
+        });
+    }
+
+    function updateFilterCount() {
+        const count = Object.keys(activeFilters).length;
+        filterCount.textContent = count;
+        filterCount.style.display = count > 0 ? 'inline-block' : 'none';
+    }
+
+    function getFilterLabel(key) {
+        const labels = {
+            yearLevel: 'Year Level',
+            course: 'Course',
+            section: 'Section',
+            schoolYear: 'School Year',
+            semester: 'Semester'
+        };
+        return labels[key] || key;
+    }
+
+    function applyTableFilters() {
+        const rows = document.querySelectorAll('tbody tr');
+        const isPaymentHistory = window.location.pathname.includes('paymenthistory');
+        
+        rows.forEach(row => {
+            let show = true;
+            const cells = row.querySelectorAll('td');
+            
+            if (isPaymentHistory) {
+                // Payment history table structure: Student No.(0), Name(1), Course(2), Year & Section(3), School Year(4), Semester(5), Amount(6), Status(7)
+                if (activeFilters.yearLevel) {
+                    const yearSection = cells[3]?.textContent || '';
+                    if (!yearSection.includes(activeFilters.yearLevel)) show = false;
+                }
+                
+                if (activeFilters.course) {
+                    const course = cells[2]?.textContent || '';
+                    if (course !== activeFilters.course) show = false;
+                }
+                
+                if (activeFilters.section) {
+                    const yearSection = cells[3]?.textContent || '';
+                    if (!yearSection.includes(activeFilters.section)) show = false;
+                }
+                
+                if (activeFilters.schoolYear) {
+                    const schoolYear = cells[4]?.textContent || '';
+                    if (schoolYear !== activeFilters.schoolYear) show = false;
+                }
+                
+                if (activeFilters.semester) {
+                    const semester = cells[5]?.textContent || '';
+                    if (semester !== activeFilters.semester) show = false;
+                }
+            } else {
+                // Dashboard table structure: Student No.(0), Name(1), Year & Section(2), Amount Paid(3), Total Due(4), Status(5), Last Payment(6), Actions(7)
+                if (activeFilters.yearLevel) {
+                    const yearSection = cells[2]?.textContent || '';
+                    if (!yearSection.includes(activeFilters.yearLevel)) show = false;
+                }
+                
+                if (activeFilters.section) {
+                    const yearSection = cells[2]?.textContent || '';
+                    if (!yearSection.includes(activeFilters.section)) show = false;
+                }
+                
+                // Course, School Year, and Semester filters are not applicable on dashboard
+            }
+            
+            row.style.display = show ? '' : 'none';
+        });
+    }
+}
+
+// =============================
+// SEARCH FUNCTIONALITY
+// =============================
+function initializeSearch() {
+    const searchBtn = document.getElementById('searchBtn');
+    const searchInput = document.getElementById('searchInput');
+    const tableBody = document.querySelector('tbody');
+
+    if (!searchBtn || !searchInput || !tableBody) return;
+
+    searchBtn.addEventListener('click', () => {
+        const query = searchInput.value.toLowerCase().trim();
+        const rows = tableBody.querySelectorAll('tr');
+
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            let match = false;
+
+            cells.forEach(cell => {
+                if (cell.textContent.toLowerCase().includes(query)) {
+                    match = true;
+                }
+            });
+
+            row.style.display = match ? '' : 'none';
+        });
+    });
+}
+
+// Initialize search on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Existing code...
+    setTimeout(adjustHomeSectionMargin, 100);
+    setTimeout(() => {
+        syncProfileDetails();
+        initializeViewToggle();
+        initializeLogout();
+        initializeSearch(); // Add this
+    }, 120);
+});
+
 

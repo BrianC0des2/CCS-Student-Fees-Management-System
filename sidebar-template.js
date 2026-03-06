@@ -13,33 +13,19 @@
 // We inject this into #sidebar-container so we can reuse one sidebar layout across pages.
 const sidebarHTML = `
 <div class="sidebar close">
+<a href="financeDS.html">
     <div class="logo-details">
         <i class='bx bxl-c-plus-plus'></i>
         <span class="logo_name">Pay++</span>
     </div>
     <ul class="nav-links">
         <li>
-            <a href="#">
+            <a href="financeDS.html">
                 <i class='bx bx-grid-alt' ></i>
                 <span class="link_name">Dashboard</span>
             </a>
             <ul class="sub-menu blank">
-                <li><a class="link_name" href="#">Category</a></li>
-            </ul>
-        </li>
-        <li>
-            <div class="iocn-link">
-                <a href="#">
-                    <i class='bx bx-collection' ></i>
-                    <span class="link_name">Clearance</span>
-                </a>
-                <i class='bx bxs-chevron-down arrow' ></i>
-            </div>
-            <ul class="sub-menu">
-                <li><a class="link_name" href="#">Clearance</a></li>
-                <li><a href="#">View Status</a></li>
-                <li><a href="#">Requirements</a></li>
-                <li><a href="#">Track Progress</a></li>
+                <li><a class="link_name" href="#">Dashboard</a></li>
             </ul>
         </li>
         <li>
@@ -52,9 +38,7 @@ const sidebarHTML = `
             </div>
             <ul class="sub-menu">
                 <li><a class="link_name" href="#">Payments</a></li>
-                <li><a href="#">Outstanding Fees</a></li>
-                <li><a href="#">Payment History</a></li>
-                <li><a href="#">Receipt</a></li>
+                <li><a href="paymenthistory.html">Payment History</a></li>
             </ul>
         </li>
         <li>
@@ -66,15 +50,7 @@ const sidebarHTML = `
                 <li><a class="link_name" href="#">Analytics</a></li>
             </ul>
         </li>
-        <li>
-            <a href="#">
-                <i class='bx bx-line-chart' ></i>
-                <span class="link_name">Reports</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="#">Reports</a></li>
-            </ul>
-        </li>
+
         <li>
             <a href="#">
                 <i class='bx bx-cog' ></i>
@@ -174,12 +150,12 @@ function adjustHomeSectionMargin() {
     if (!sidebar || !homeSection) return;
     
     if (sidebar.classList.contains("close")) {
-        homeSection.style.marginLeft = "88px";
-        homeSection.style.width = "calc(100% - 88px)";
-    } else {
-        homeSection.style.marginLeft = "270px";
-        homeSection.style.width = "calc(100% - 270px)";
-    }
+        homeSection.style.marginLeft = "78px";
+        homeSection.style.width = "calc(100% - 78px)";
+    }  else {
+    homeSection.style.marginLeft = "260px";
+    homeSection.style.width = "calc(100% 260px)";
+}
 }
 
 // BOOTSTRAP FLOW

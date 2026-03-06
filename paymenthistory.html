@@ -1,61 +1,23 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-    <head>
-        <meta charset="UTF-8">
-        <title> CCS PAY++ - Finance </title>
-        <link rel="stylesheet" href="styles/style.css">
-        <link rel="stylesheet" href="FinanceDS-style.css">
-        <!-- Boxiocns CDN Link -->
-        <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body>
-        <div id="sidebar-container"></div>
+<head>
+    <meta charset="UTF-8">
+    <title>CCS PAY++ - Payment History</title>
+    <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="FinanceDS-style.css">
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div id="sidebar-container"></div>
 
-        <section class="home-section">
-            <div class="home-content">
-                <i class='bx bx-menu' ></i>
-                <span class="text">Organization Dashboard</span>
-            </div>
-
-
-        <div class="header">
-            <div class="header-left">
-                <img id="org-logo" src="/assets/images/org-ccs.png" alt="org-logo">
-                <div id="org-info">
-                    <h1>CCS Student Council</h1>
-                    <p>S.Y. 2025-2026 | 2nd Semester</p>
-                </div>
-            </div>
+    <section class="home-section">
+        <div class="home-content">
+            <i class='bx bx-menu'></i>
+            <span class="text">Payment History</span>
         </div>
 
-        
- 
-        
-        <div class="summary-cards">
-            <div class="card">
-                <i class='bx bx-money'></i>
-                <h3>Total Collected </h3>
-                <p>₱6,640</p>
-            </div>
-            <div class="card">
-                <i class='bx bx-time-five'></i>
-                <h3>Pending Payments</h3>
-                <p>16</p>
-            </div>
-            <div class="card">
-                <i class='bx bx-check-circle'></i>
-                <h3>Fully Paid</h3>
-                <p>4</p>
-            </div>
-            <div class="card">
-                <i class='bx bx-group'></i>
-                <h3>Total Students</h3>
-                <p>20</p>
-            </div>
-        </div>
-
-
+        <!-- SEARCH & FILTER -->
         <div class="search-filter">
             <input type="text" placeholder="Search by name or student no." id="searchInput">
             <button id="searchBtn">Search</button>
@@ -101,6 +63,22 @@
                                 <option value="CS 4-B">CS 4-B</option>
                             </select>
                         </div>
+                        <div class="filter-group">
+                            <label>School Year</label>
+                            <select id="schoolYear">
+                                <option value="">All</option>
+                                <option value="2025-2026">2025-2026</option>
+                                <option value="2024-2025">2024-2025</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Semester</label>
+                            <select id="semester">
+                                <option value="">All</option>
+                                <option value="1st">1st Semester</option>
+                                <option value="2nd">2nd Semester</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="filter-actions">
                         <button id="resetFilters" class="reset-btn">Reset</button>
@@ -113,10 +91,11 @@
         <!-- ACTIVE FILTERS -->
         <div id="activeFilters" class="active-filters"></div>
 
-    
+        <!-- STUDENT RECORDS -->
         <div class="members-table">
             <div class="table-header">
                 <h2>Student Records</h2>
+                <button class="export-btn">Export to Excel</button>
             </div>
             <div class="table-container">
                 <table>
@@ -124,214 +103,214 @@
                         <tr>
                             <th>Student No.</th>
                             <th>Name</th>
+                            <th>Course</th>
                             <th>Year & Section</th>
-                            <th>Amount Paid</th>
-                            <th>Total Due</th>
+                            <th>School Year</th>
+                            <th>Semester</th>
+                            <th>Amount</th>
                             <th>Status</th>
-                            <th>Last Payment</th>
-                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>2024-0001</td>
                             <td>Juan Dela Cruz</td>
+                            <td>BSCS</td>
                             <td>1st Year - CS 1-A</td>
+                            <td>2025-2026</td>
+                            <td>1st Semester</td>
                             <td>₱150</td>
-                            <td>₱500</td>
-                            <td><span class="status pending">Pending</span></td>
-                            <td>2025-08-15</td>
-                            <td><button class="action-btn">View Details</button></td>
+                            <td><span class="status-badge pending">Pending</span></td>
                         </tr>
                         <tr>
                             <td>2024-0002</td>
                             <td>Maria Santos</td>
+                            <td>BSCS</td>
                             <td>1st Year - CS 1-B</td>
+                            <td>2025-2026</td>
+                            <td>1st Semester</td>
                             <td>₱300</td>
-                            <td>₱500</td>
-                            <td><span class="status pending">Pending</span></td>
-                            <td>2025-09-10</td>
-                            <td><button class="action-btn">View Details</button></td>
+                            <td><span class="status-badge pending">Pending</span></td>
                         </tr>
                         <tr>
                             <td>2024-0003</td>
                             <td>Pedro Reyes</td>
+                            <td>BSCS</td>
                             <td>1st Year - CS 1-A</td>
+                            <td>2025-2026</td>
+                            <td>1st Semester</td>
                             <td>₱450</td>
-                            <td>₱500</td>
-                            <td><span class="status pending">Pending</span></td>
-                            <td>2025-10-05</td>
-                            <td><button class="action-btn">View Details</button></td>
+                            <td><span class="status-badge pending">Pending</span></td>
                         </tr>
                         <tr>
                             <td>2024-0004</td>
                             <td>Ana Garcia</td>
+                            <td>BSCS</td>
                             <td>1st Year - CS 1-B</td>
+                            <td>2025-2026</td>
+                            <td>1st Semester</td>
                             <td>₱200</td>
-                            <td>₱500</td>
-                            <td><span class="status pending">Pending</span></td>
-                            <td>2025-11-20</td>
-                            <td><button class="action-btn">View Details</button></td>
+                            <td><span class="status-badge pending">Pending</span></td>
                         </tr>
                         <tr>
                             <td>2024-0005</td>
                             <td>Jose Lopez</td>
+                            <td>BSCS</td>
                             <td>1st Year - CS 1-A</td>
+                            <td>2025-2026</td>
+                            <td>1st Semester</td>
                             <td>₱500</td>
-                            <td>₱500</td>
-                            <td><span class="status fully-paid">Fully Paid</span></td>
-                            <td>2025-12-01</td>
-                            <td><button class="action-btn">View Details</button></td>
+                            <td><span class="status-badge paid">Paid</span></td>
                         </tr>
                         <tr>
                             <td>2024-0006</td>
                             <td>Carmen Rivera</td>
+                            <td>BSCS</td>
                             <td>2nd Year - CS 2-A</td>
+                            <td>2025-2026</td>
+                            <td>1st Semester</td>
                             <td>₱120</td>
-                            <td>₱500</td>
-                            <td><span class="status pending">Pending</span></td>
-                            <td>2025-08-22</td>
-                            <td><button class="action-btn">View Details</button></td>
+                            <td><span class="status-badge pending">Pending</span></td>
                         </tr>
                         <tr>
                             <td>2024-0007</td>
                             <td>Roberto Cruz</td>
+                            <td>BSCS</td>
                             <td>2nd Year - CS 2-B</td>
+                            <td>2025-2026</td>
+                            <td>1st Semester</td>
                             <td>₱350</td>
-                            <td>₱500</td>
-                            <td><span class="status pending">Pending</span></td>
-                            <td>2025-09-18</td>
-                            <td><button class="action-btn">View Details</button></td>
+                            <td><span class="status-badge pending">Pending</span></td>
                         </tr>
                         <tr>
                             <td>2024-0008</td>
                             <td>Isabel Torres</td>
+                            <td>BSCS</td>
                             <td>2nd Year - CS 2-A</td>
+                            <td>2025-2026</td>
+                            <td>1st Semester</td>
                             <td>₱480</td>
-                            <td>₱500</td>
-                            <td><span class="status pending">Pending</span></td>
-                            <td>2025-10-12</td>
-                            <td><button class="action-btn">View Details</button></td>
+                            <td><span class="status-badge pending">Pending</span></td>
                         </tr>
                         <tr>
                             <td>2024-0009</td>
                             <td>Manuel Flores</td>
+                            <td>BSCS</td>
                             <td>2nd Year - CS 2-B</td>
+                            <td>2025-2026</td>
+                            <td>1st Semester</td>
                             <td>₱180</td>
-                            <td>₱500</td>
-                            <td><span class="status pending">Pending</span></td>
-                            <td>2025-11-08</td>
-                            <td><button class="action-btn">View Details</button></td>
+                            <td><span class="status-badge pending">Pending</span></td>
                         </tr>
                         <tr>
                             <td>2024-0010</td>
                             <td>Luisa Morales</td>
+                            <td>BSCS</td>
                             <td>2nd Year - CS 2-A</td>
+                            <td>2025-2026</td>
+                            <td>1st Semester</td>
                             <td>₱500</td>
-                            <td>₱500</td>
-                            <td><span class="status fully-paid">Fully Paid</span></td>
-                            <td>2025-12-15</td>
-                            <td><button class="action-btn">View Details</button></td>
+                            <td><span class="status-badge paid">Paid</span></td>
                         </tr>
                         <tr>
                             <td>2024-0011</td>
                             <td>Antonio Ramirez</td>
+                            <td>BSCS</td>
                             <td>3rd Year - CS 3-A</td>
+                            <td>2025-2026</td>
+                            <td>1st Semester</td>
                             <td>₱140</td>
-                            <td>₱500</td>
-                            <td><span class="status pending">Pending</span></td>
-                            <td>2025-08-30</td>
-                            <td><button class="action-btn">View Details</button></td>
+                            <td><span class="status-badge pending">Pending</span></td>
                         </tr>
                         <tr>
                             <td>2024-0012</td>
                             <td>Rosa Hernandez</td>
+                            <td>BSCS</td>
                             <td>3rd Year - CS 3-B</td>
+                            <td>2025-2026</td>
+                            <td>1st Semester</td>
                             <td>₱320</td>
-                            <td>₱500</td>
-                            <td><span class="status pending">Pending</span></td>
-                            <td>2025-09-25</td>
-                            <td><button class="action-btn">View Details</button></td>
+                            <td><span class="status-badge pending">Pending</span></td>
                         </tr>
                         <tr>
                             <td>2024-0013</td>
                             <td>Francisco Castillo</td>
+                            <td>BSCS</td>
                             <td>3rd Year - CS 3-A</td>
+                            <td>2025-2026</td>
+                            <td>1st Semester</td>
                             <td>₱460</td>
-                            <td>₱500</td>
-                            <td><span class="status pending">Pending</span></td>
-                            <td>2025-10-18</td>
-                            <td><button class="action-btn">View Details</button></td>
+                            <td><span class="status-badge pending">Pending</span></td>
                         </tr>
                         <tr>
                             <td>2024-0014</td>
                             <td>Patricia Alvarez</td>
+                            <td>BSCS</td>
                             <td>3rd Year - CS 3-B</td>
+                            <td>2025-2026</td>
+                            <td>1st Semester</td>
                             <td>₱220</td>
-                            <td>₱500</td>
-                            <td><span class="status pending">Pending</span></td>
-                            <td>2025-11-14</td>
-                            <td><button class="action-btn">View Details</button></td>
+                            <td><span class="status-badge pending">Pending</span></td>
                         </tr>
                         <tr>
                             <td>2024-0015</td>
                             <td>Carlos Mendoza</td>
+                            <td>BSCS</td>
                             <td>3rd Year - CS 3-A</td>
+                            <td>2025-2026</td>
+                            <td>1st Semester</td>
                             <td>₱500</td>
-                            <td>₱500</td>
-                            <td><span class="status fully-paid">Fully Paid</span></td>
-                            <td>2025-12-20</td>
-                            <td><button class="action-btn">View Details</button></td>
+                            <td><span class="status-badge paid">Paid</span></td>
                         </tr>
                         <tr>
                             <td>2024-0016</td>
                             <td>Victoria Ortiz</td>
+                            <td>BSCS</td>
                             <td>4th Year - CS 4-A</td>
+                            <td>2025-2026</td>
+                            <td>1st Semester</td>
                             <td>₱160</td>
-                            <td>₱500</td>
-                            <td><span class="status pending">Pending</span></td>
-                            <td>2025-08-28</td>
-                            <td><button class="action-btn">View Details</button></td>
+                            <td><span class="status-badge pending">Pending</span></td>
                         </tr>
                         <tr>
                             <td>2024-0017</td>
                             <td>Ricardo Silva</td>
+                            <td>BSCS</td>
                             <td>4th Year - CS 4-B</td>
+                            <td>2025-2026</td>
+                            <td>1st Semester</td>
                             <td>₱380</td>
-                            <td>₱500</td>
-                            <td><span class="status pending">Pending</span></td>
-                            <td>2025-09-22</td>
-                            <td><button class="action-btn">View Details</button></td>
+                            <td><span class="status-badge pending">Pending</span></td>
                         </tr>
                         <tr>
                             <td>2024-0018</td>
                             <td>Esperanza Gomez</td>
+                            <td>BSCS</td>
                             <td>4th Year - CS 4-A</td>
+                            <td>2025-2026</td>
+                            <td>1st Semester</td>
                             <td>₱490</td>
-                            <td>₱500</td>
-                            <td><span class="status pending">Pending</span></td>
-                            <td>2025-10-25</td>
-                            <td><button class="action-btn">View Details</button></td>
+                            <td><span class="status-badge pending">Pending</span></td>
                         </tr>
                         <tr>
                             <td>2024-0019</td>
                             <td>Alberto Vargas</td>
+                            <td>BSCS</td>
                             <td>4th Year - CS 4-B</td>
+                            <td>2025-2026</td>
+                            <td>1st Semester</td>
                             <td>₱240</td>
-                            <td>₱500</td>
-                            <td><span class="status pending">Pending</span></td>
-                            <td>2025-11-19</td>
-                            <td><button class="action-btn">View Details</button></td>
+                            <td><span class="status-badge pending">Pending</span></td>
                         </tr>
                         <tr>
                             <td>2024-0020</td>
                             <td>Sofia Delgado</td>
+                            <td>BSCS</td>
                             <td>4th Year - CS 4-A</td>
+                            <td>2025-2026</td>
+                            <td>1st Semester</td>
                             <td>₱500</td>
-                            <td>₱500</td>
-                            <td><span class="status fully-paid">Fully Paid</span></td>
-                            <td>2025-12-25</td>
-                            <td><button class="action-btn">View Details</button></td>
+                            <td><span class="status-badge paid">Paid</span></td>
                         </tr>
                     </tbody>
                 </table>
