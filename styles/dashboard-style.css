@@ -185,6 +185,7 @@
 }
 
 .payments-header{
+    border-top: 20px;
     position: sticky; /* keep header visible when scrolling */
     top: 0; /* sit at top of the container (no top padding now) */
     left: 12px; /* align with container padding */
@@ -194,8 +195,7 @@
     gap: 8px;
     padding: 10px 12px; /* fill the padded area so list doesn't show through */
     background: #ffffff; /* opaque background so list items don't show through */
-    z-index: 100; /* sit above list items */
-    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    z-index: 20; /* sit above list items */
 }
 
 .payments-label{
@@ -230,7 +230,6 @@
 }
 
 .payments-list .payment-item:hover{
-    transform: translateY(-4px);
     box-shadow: 0 8px 24px rgba(0,0,0,0.08);
     background-color:#f3f4f6;
 }
@@ -292,7 +291,7 @@
     line-height: 1.35;
 }
 
-.personels p{
+.pending{
     margin: 0;
     width: fit-content;
     padding: 4px 10px;
@@ -304,8 +303,24 @@
     border: 1px solid #ffe69c;
 }
 
-.personels p:empty::before{
-    content: "Pending";
+.personels h3{
+    font-weight:bold;
+    font-size: 13px;
+    color: #5f656d;
+}
+
+
+.cleared{
+    margin: 0;
+    width: fit-content;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #04c70a;
+    background-color: #a4fd65;
+    border: 1px solid #22ee22;
+
 }
 
 
@@ -319,5 +334,5 @@
 .payments-history,
 .approval-status
 {
-    margin: 15px 0;
+    margin: 10px 0;
 }
