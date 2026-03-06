@@ -12,7 +12,7 @@
 // HTML markup stored in a JavaScript template string.
 // We inject this into #sidebar-container so we can reuse one sidebar layout across pages.
 const sidebarHTML = `
-<div class="sidebar close">
+<div class="sidebar">
     <div class="logo-details">
         <i class='bx bxl-c-plus-plus'></i>
         <span class="logo_name">Pay++</span>
