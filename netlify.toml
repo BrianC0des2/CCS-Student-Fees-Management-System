@@ -1,6 +1,11 @@
 [build]
   publish = "."
 
+[[redirects]]
+  from = "/"
+  to = "/login-page.html"
+  status = 302
+
 [[headers]]
   for = "/*"
   [headers.values]
