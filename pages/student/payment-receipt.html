@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="UTF-8">
+        <title> CCS PAY++ - Receipt </title>
+        <link rel="stylesheet" href="../../styles/student-styles/payment-process.css">
+        <link rel="stylesheet" href="../../styles/sidebar.css">
+        <!-- Boxicons CDN Link -->
+        <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <nav class="navbar">
+            <a href="student-dashboard.html"><i class="bx bx-arrow-back"></i></a>
+            <div class="nav-title">
+                <h2>Payment Receipt</h2>
+                <p>Receipt #RCP-2026-001235</p>
+            </div>
+            <div class="navbar-actions">
+                <button class="nav-action-btn" onclick="alert('Share coming soon')">
+                    <i class='bx bx-share-alt'></i> Share
+                </button>
+                <button class="nav-action-btn" onclick="window.print()">
+                    <i class='bx bx-download'></i> Download PDF
+                </button>
+            </div>
+        </nav>
+
+        <!-- Success Banner -->
+        <div class="receipt-success-banner">
+            <div class="receipt-success-icon"><i class='bx bx-check-circle'></i></div>
+            <div>
+                <h2>Payment Successful!</h2>
+                <p>Your payment of <strong id="banner-total">₱0</strong> has been processed successfully. This receipt has been sent to your registered email.</p>
+            </div>
+        </div>
+
+        <!-- Receipt Card -->
+        <div class="receipt-card">
+
+            <!-- Header -->
+            <div class="receipt-org-header">
+                <div class="receipt-org-logo">W</div>
+                <div>
+                    <div class="receipt-org-name">WMSU</div>
+                    <div class="receipt-org-subtitle">Western Mindanao State University</div>
+                </div>
+            </div>
+            <div class="receipt-divider"></div>
+            <p class="receipt-office-label">Finance Office - Official Receipt</p>
+
+            <!-- Receipt Meta -->
+            <div class="receipt-meta-row">
+                <div class="receipt-meta-item">
+                    <span class="receipt-meta-label">Receipt Number</span>
+                    <span class="receipt-meta-value">WMSU-FO-2026-001235</span>
+                </div>
+                <div class="receipt-meta-item">
+                    <span class="receipt-meta-label">Date &amp; Time</span>
+                    <span class="receipt-meta-value" id="receipt-datetime">—</span>
+                </div>
+                <div class="receipt-meta-item">
+                    <span class="receipt-status-badge">Paid</span>
+                </div>
+            </div>
+
+            <div class="receipt-divider"></div>
+
+            <!-- Student Info -->
+            <h4 class="receipt-section-title">Student Information</h4>
+            <div class="receipt-info-grid">
+                <div class="receipt-info-item">
+                    <span class="receipt-meta-label">Student Name</span>
+                    <span class="receipt-meta-value" id="receipt-student-name">—</span>
+                </div>
+                <div class="receipt-info-item">
+                    <span class="receipt-meta-label">Student ID</span>
+                    <span class="receipt-meta-value" id="receipt-student-id">—</span>
+                </div>
+                <div class="receipt-info-item">
+                    <span class="receipt-meta-label">Course</span>
+                    <span class="receipt-meta-value">BS Computer Science</span>
+                </div>
+                <div class="receipt-info-item">
+                    <span class="receipt-meta-label">Year Level</span>
+                    <span class="receipt-meta-value">4th Year</span>
+                </div>
+            </div>
+
+            <div class="receipt-divider"></div>
+
+            <!-- Payment Details Table -->
+            <h4 class="receipt-section-title">Payment Details</h4>
+            <table class="receipt-table">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="receipt-fee-rows">
+                </tbody>
+                <tfoot>
+                    <tr class="receipt-table-total">
+                        <td>Total Amount Paid</td>
+                        <td id="receipt-total">₱0</td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <div class="receipt-divider"></div>
+
+            <!-- Payment Info -->
+            <div class="receipt-info-grid">
+                <div class="receipt-info-item">
+                    <span class="receipt-meta-label">Payment Method</span>
+                    <span class="receipt-meta-value" id="receipt-method">GCash</span>
+                </div>
+                <div class="receipt-info-item">
+                    <span class="receipt-meta-label">Transaction ID</span>
+                    <span class="receipt-meta-value">GCSH-20260205-123456</span>
+                </div>
+                <div class="receipt-info-item">
+                    <span class="receipt-meta-label">Processed By</span>
+                    <span class="receipt-meta-value">Ms. Jennifer Santos</span>
+                </div>
+                <div class="receipt-info-item">
+                    <span class="receipt-meta-label">Receipt Status</span>
+                    <span class="receipt-meta-value verified">Verified &amp; Approved</span>
+                </div>
+            </div>
+
+            <div class="receipt-divider"></div>
+
+            <!-- Notice -->
+            <p class="receipt-notice">
+                <i class='bx bx-info-circle'></i>
+                <strong>Important:</strong> This is an official electronic receipt. Please keep this for your records.
+                For any inquiries, please contact the Finance Office at
+                <a href="mailto:finance@wmsu.edu.ph">finance@wmsu.edu.ph</a>
+                or visit Room 101, Administration Building.
+            </p>
+
+            <p class="receipt-computer-note">This is a computer-generated receipt and does not require a physical signature.</p>
+
+            <div class="receipt-verified-row">
+                <i class='bx bx-shield-check'></i>
+                <span>Verified Digitally</span>
+            </div>
+
+            <div class="receipt-divider"></div>
+
+            <!-- Actions -->
+            <div class="action-row-col">
+                <a href="student-dashboard.html" class="continue-btn full-btn">Back to Dashboard</a>
+                <a href="make-payment.html" class="back-btn full-btn">Make Another Payment</a>
+            </div>
+            <p class="receipt-contact-note">Questions about this receipt? Contact us at <a href="mailto:finance@wmsu.edu.ph">finance@wmsu.edu.ph</a></p>
+        </div>
+
+    <script src="../../assets/scripts/sample-accounts.js"></script>
+    <script src="../../assets/scripts/auth.js"></script>
+    <script src="../../assets/scripts/script.js"></script>
+    <script>
+        // Load fees from localStorage
+        const fees = JSON.parse(localStorage.getItem('ccs.selected.fees') || '[]');
+        const method = localStorage.getItem('ccs.payment.method') || 'GCash';
+        const total = fees.reduce((s, f) => s + f.price, 0);
+
+        // Banner total
+        document.getElementById('banner-total').textContent = '₱' + total;
+
+        // Table rows
+        const tbody = document.getElementById('receipt-fee-rows');
+        tbody.innerHTML = fees.map(f =>
+            `<tr><td>${f.fee}</td><td>₱${f.price}</td></tr>`
+        ).join('');
+        document.getElementById('receipt-total').textContent = '₱' + total;
+
+        // Payment method label
+        const methodLabels = { gcash: 'GCash', bank: 'Bank Transfer', card: 'Credit/Debit Card' };
+        document.getElementById('receipt-method').textContent = methodLabels[method] || 'GCash';
+
+        // Date & time
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        document.getElementById('receipt-datetime').textContent = `${dateStr} • ${timeStr}`;
+
+        // Student info from Auth
+        const user = window.Auth ? window.Auth.getUser() : null;
+        if (user) {
+            document.getElementById('receipt-student-name').textContent = user.name || '—';
+            document.getElementById('receipt-student-id').textContent = user.id || '—';
+        }
+
+        // Clear fees from storage after rendering
+        localStorage.removeItem('ccs.selected.fees');
+        localStorage.removeItem('ccs.payment.method');
+    </script>
+    </body>
+</html>

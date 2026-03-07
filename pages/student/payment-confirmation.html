@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="UTF-8">
+        <title> CCS PAY++ - Confirmation </title>
+        <link rel="stylesheet" href="../../styles/student-styles/payment-process.css">
+        <link rel="stylesheet" href="../../styles/sidebar.css">
+        <!-- Boxicons CDN Link -->
+        <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <nav class="navbar">
+            <a href="payment-method.html"><i class="bx bx-arrow-back"></i></a>
+            <div class="nav-title">
+                <h2>Make Payment</h2>
+                <p>Complete your fee payment securely</p>
+            </div>
+        </nav>
+
+        <!-- Step Indicator -->
+        <div id="payment-process-container">
+            <div class="vis-container">
+                <div class="circle done"><i class='bx bx-check'></i></div>
+                <p class="texts">Select Fees</p>
+            </div>
+            <div class="line line-done"></div>
+
+            <div class="vis-container">
+                <div class="circle done"><i class='bx bx-check'></i></div>
+                <p class="texts">Payment Method</p>
+            </div>
+
+            <div class="line line-done"></div>
+
+            <div class="vis-container">
+                <div class="circle c3-active"><p>3</p></div>
+                <p class="texts t3-active">Confirmation</p>
+            </div>
+        </div>
+
+        <!-- Single Confirmation Card -->
+        <div class="confirm-card">
+            <div class="confirm-header">
+                <h2>Confirm Your Payment</h2>
+                <p>Please review your payment details before proceeding</p>
+            </div>
+
+            <h3 class="confirm-section-title">Payment Details</h3>
+
+<div id="confirm-fee-items"></div>
+                    <div class="summary-total">
+                        <span>Total Amount</span>
+                        <span id="confirm-total">₱0</span>
+            </div>
+
+            <div class="confirm-detail-row">
+                <span class="confirm-label">Payment Method</span>
+                <span class="confirm-value"><i class='bx bx-wallet'></i> GCash</span>
+            </div>
+            <div class="confirm-detail-row">
+                <span class="confirm-label">Transaction Fee</span>
+                <span class="confirm-value free">FREE</span>
+            </div>
+            <div class="confirm-detail-row">
+                <span class="confirm-label">GCash Mobile Number</span>
+                <input class="confirm-input" type="text" placeholder="09XX XXX XXXX">
+            </div>
+
+            <div class="action-row" style="margin-top: 24px;">
+                <a href="payment-method.html" class="back-btn">Back</a>
+                <button id="confirm-pay-btn" class="continue-btn" style="flex:1; margin:0;">Confirm &amp; Pay</button>
+            </div>
+            <p class="terms-note">By confirming this payment, you agree to WMSU's payment terms and conditions</p>
+        </div>
+
+    <script src="../../assets/scripts/sample-accounts.js"></script>
+    <script src="../../assets/scripts/auth.js"></script>
+    <script src="../../assets/scripts/script.js"></script>
+    <script>
+        const fees = JSON.parse(localStorage.getItem('ccs.selected.fees') || '[]');
+        const feeEl = document.getElementById('confirm-fee-items');
+        const totalEl = document.getElementById('confirm-total');
+        if (fees.length === 0) {
+            feeEl.innerHTML = '<p class="summary-empty">No fees selected.</p>';
+        } else {
+            feeEl.innerHTML = fees.map(f =>
+                `<div class="summary-item"><span>${f.fee}</span><span>&#8369;${f.price}</span></div>`
+            ).join('');
+            totalEl.textContent = '\u20B1' + fees.reduce((s, f) => s + f.price, 0);
+        }
+
+        document.getElementById('confirm-pay-btn').addEventListener('click', function() {
+            window.location.href = 'payment-receipt.html';
+        });
+    </script>
+    </body>
+</html>

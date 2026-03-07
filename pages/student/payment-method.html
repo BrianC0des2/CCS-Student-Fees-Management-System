@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="UTF-8">
+        <title> CCS PAY++ - Payment Method </title>
+        <link rel="stylesheet" href="../../styles/student-styles/payment-process.css">
+        <link rel="stylesheet" href="../../styles/sidebar.css">
+        <!-- Boxicons CDN Link -->
+        <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <nav class="navbar">
+            <a href="make-payment.html"><i class="bx bx-arrow-back"></i></a>
+            <div class="nav-title">
+                <h2>Make Payment</h2>
+                <p>Complete your fee payment securely</p>
+            </div>
+        </nav>
+
+        <!-- Step Indicator -->
+        <div id="payment-process-container">
+            <div class="vis-container">
+                <div class="circle done"><i class='bx bx-check'></i></div>
+                <p class="texts">Select Fees</p>
+            </div>
+            <div class="line line-done"></div>
+
+            <div class="vis-container">
+                <div class="circle c2"><p>2</p></div>
+                <p class="texts t2">Payment Method</p>
+            </div>
+
+            <div class="line l2"></div>
+
+            <div class="vis-container">
+                <div class="circle c3"><p>3</p></div>
+                <p class="texts t3">Confirmation</p>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="step-one-wrapper">
+
+            <!-- Payment Method Options -->
+            <div class="fee-selection-container">
+                <div style="width:100%">
+                    <h3>Choose Payment Method</h3>
+
+                    <div class="method-option selected" data-method="gcash">
+                        <div class="method-info">
+                            <i class='bx bx-wallet method-icon'></i>
+                            <div>
+                                <div class="method-name">GCash <span class="badge">Recommended</span></div>
+                                <p class="method-desc">Pay instantly using your GCash wallet</p>
+                            </div>
+                        </div>
+                        <input type="radio" name="payment-method" value="gcash" checked>
+                    </div>
+
+                    <div class="method-option" data-method="bank">
+                        <div class="method-info">
+                            <i class='bx bx-building method-icon'></i>
+                            <div>
+                                <div class="method-name">Bank Transfer</div>
+                                <p class="method-desc">Direct bank transfer or online banking</p>
+                            </div>
+                        </div>
+                        <input type="radio" name="payment-method" value="bank">
+                    </div>
+
+                    <div class="method-option" data-method="card">
+                        <div class="method-info">
+                            <i class='bx bx-credit-card method-icon'></i>
+                            <div>
+                                <div class="method-name">Credit/Debit Card</div>
+                                <p class="method-desc">Visa, Mastercard, and other major cards</p>
+                            </div>
+                        </div>
+                        <input type="radio" name="payment-method" value="card">
+                    </div>
+
+                    <!-- Security badges -->
+                    <div class="security-badges">
+                        <i class='bx bx-lock-alt'></i>
+                        <span>Secure Payment</span>
+                        <span class="badge-sep">•</span>
+                        <span>256-bit SSL Encrypted</span>
+                        <span class="badge-sep">•</span>
+                        <span>PCI DSS Compliant</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Summary -->
+            <div class="payment-summary">
+                <h3>Payment Summary</h3>
+                <div id="method-summary-items"></div>
+                <div class="summary-total">
+                    <span>Total Amount</span>
+                    <span id="method-summary-total">₱0</span>
+                </div>
+
+                <div class="action-row-col">
+                    <a href="payment-confirmation.html" class="continue-btn full-btn">Review Payment</a>
+                    <a href="make-payment.html" class="back-btn full-btn">Back to Fees</a>
+                </div>
+            </div>
+
+        </div>
+
+    <script src="../../assets/scripts/sample-accounts.js"></script>
+    <script src="../../assets/scripts/auth.js"></script>
+    <script src="../../assets/scripts/script.js"></script>
+    <script>
+        // Populate summary from localStorage
+        const fees = JSON.parse(localStorage.getItem('ccs.selected.fees') || '[]');
+        const summaryEl = document.getElementById('method-summary-items');
+        const totalEl = document.getElementById('method-summary-total');
+        if (fees.length === 0) {
+            summaryEl.innerHTML = '<p class="summary-empty">No fees selected.</p>';
+        } else {
+            summaryEl.innerHTML = fees.map(f =>
+                `<div class="summary-item"><span>${f.fee}</span><span>&#8369;${f.price}</span></div>`
+            ).join('');
+            totalEl.textContent = '\u20B1' + fees.reduce((s, f) => s + f.price, 0);
+        }
+
+        // Highlight selected method card
+        const options = document.querySelectorAll('.method-option');
+        options.forEach(option => {
+            option.addEventListener('click', () => {
+                options.forEach(o => o.classList.remove('selected'));
+                option.classList.add('selected');
+                option.querySelector('input[type="radio"]').checked = true;
+                localStorage.setItem('ccs.payment.method', option.dataset.method);
+            });
+        });
+    </script>
+    </body>
+</html>
