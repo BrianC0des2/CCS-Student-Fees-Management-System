@@ -1,22 +1,12 @@
-// Sidebar template loader
-// Usage: Add <div id="sidebar-container"></div> to your HTML, then call loadSidebar()
-// OVERALL FLOW
-// 1) Build sidebar from static template string.
-// 2) Inject template into #sidebar-container.
-// 3) Bind interactions (burger toggle + submenu arrows).
-// 4) Recalculate content width/margin based on sidebar state.
-// TYPE GUIDE (for this file)
-// - USER-DEFINED FUNCTION: loadSidebar, initializeSidebarEvents, adjustHomeSectionMargin.
-// - PREDEFINED API: document/querySelector/addEventListener/setTimeout are browser APIs.
 
-// HTML markup stored in a JavaScript template string.
-// We inject this into #sidebar-container so we can reuse one sidebar layout across pages.
 const sidebarHTML = `
 <div class="sidebar">
-    <div class="logo-details">
-        <i class='bx bxl-c-plus-plus'></i>
-        <span class="logo_name">Pay++</span>
-    </div>
+    <a href="organization-dashboard.html" style="text-decoration: none;">
+        <div class="logo-details">
+            <i class='bx bxl-c-plus-plus'></i>
+            <span class="logo_name">Pay++</span>
+        </div>
+    </a>
     <ul class="nav-links">
         <li>
             <a href="../organization/organization-dashboard.html">
@@ -27,21 +17,7 @@ const sidebarHTML = `
                 <li><a class="link_name" href="#">Dashboard</a></li>
             </ul>
         </li>
-        <li>
-            <div class="iocn-link">
-                <a href="#">
-                    <i class='bx bx-clipboard' ></i>
-                    <span class="link_name">Clearance</span>
-                </a>
-                <i class='bx bxs-chevron-down arrow' ></i>
-            </div>
-            <ul class="sub-menu">
-                <li><a class="link_name" href="#">Clearance</a></li>
-                <li><a href="#">View Status</a></li>
-                <li><a href="#">Requirements</a></li>
-                <li><a href="#">Track Progress</a></li>
-            </ul>
-        </li>
+       
         <li>
             <div class="iocn-link">
                 <a href="#">
@@ -52,18 +28,10 @@ const sidebarHTML = `
             </div>
             <ul class="sub-menu">
                 <li><a class="link_name" href="#">Payments</a></li>
-                <li><a href="../student/payment-history.html">Payment History</a></li>
+                <li><a href="../organization/payment-history.html">Payment History</a></li>
             </ul>
         </li>
-        <li>
-            <a href="#">
-                <i class='bx bx-bar-chart-alt-2' ></i>
-                <span class="link_name">Analytics</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="#">Analytics</a></li>
-            </ul>
-        </li>
+
         <li>
             <a href="#">
                 <i class='bx bx-file' ></i>

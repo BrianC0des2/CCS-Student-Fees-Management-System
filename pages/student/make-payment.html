@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="UTF-8">
+        <title> CCS PAY++ - Finance </title>
+        <link rel="stylesheet" href="../../styles/student-styles/payment-process.css">
+        <link rel="stylesheet" href="../../styles/sidebar.css">
+        <!-- Boxiocns CDN Link -->
+        <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <nav class="navbar">
+            <a href="student-dashboard.html"><i class="bx bx-arrow-back"></i></a>
+            <div class="nav-title">
+                <h2>Make Payment</h2>
+                <p>Complete your fee payment securely</p>
+            </div>
+        </nav>
+        <div id="payment-process-container">
+            <div class="vis-container">
+                <div class="circle c1"><p>1</p></div>
+                <p class="texts t1">Select Fees</p>
+            </div>
+            <div class="line l1"></div>
+            
+            <div class="vis-container">
+                <div class="circle c2"><p>2</p></div>
+                <p class="texts t2">Payment Method</p>
+            </div>
+            
+            <div class="line l2"></div>
+            
+            <div class="vis-container">
+                <div class="circle c3"><p>3</p></div>
+                <p class="texts t3">Confirmation</p>
+            </div>
+        
+        </div>
+
+        <div class="step-one-wrapper">
+            <div class="fee-selection-container">
+                <form action="">   
+                    <h3>Select Fees to Pay</h3> 
+                    <div class="fees-selection">
+                        <div class="fee-info">
+                            <input type="checkbox" data-fee="CSC Fee" data-price="200">
+                            <div class="cb">
+                                <h3>CSC Fee</h3>
+                                <p>Due: Feb 15, 2026</p>
+                            </div>
+                        </div>
+                        <p class="fee-prices">₱200</p>
+                    </div>
+                    <div class="fees-selection">
+                        <div class="fee-info">
+                            <input type="checkbox" data-fee="Gender Club Membership Fee" data-price="50">
+                            <div class="cb">
+                                <h3>Gender Club Membership Fee</h3>
+                                <p>Due: Feb 15, 2026</p>      
+                            </div>
+                        </div>
+                        <p class="fee-prices">₱50</p>
+                    </div>
+                    <div class="fees-selection">
+                        <div class="fee-info">
+                            <input type="checkbox" data-fee="Insurance (Whole Year)" data-price="40">
+                            <div class="cb">
+                                <h3>Insurance (Whole Year)</h3>
+                                <p>Due: Feb 15, 2026</p>
+                            </div>
+                        </div>
+                        <p class="fee-prices">₱40</p>
+                    </div>
+                    <div class="fees-selection">
+                        <div class="fee-info">
+                            <input type="checkbox" data-fee="Miscellaneous (10 booklets @ ₱6 each)" data-price="60">
+                            <div class="cb">   
+                                <h3>Miscellaneous (10 booklets @ ₱6 each)</h3>
+                                <p>Due: Feb 15, 2026</p>
+                            </div>
+                        </div>
+                        <p class="fee-prices">₱60</p>
+                    </div>
+                </form>
+            </div>
+
+            <div class="payment-summary">
+                <h3>Payment Summary</h3>
+                <div id="summary-items">
+                    <p class="summary-empty">No fees selected yet.</p>
+                </div>
+                <div class="summary-total">
+                    <span>Total Amount</span>
+                    <span id="summary-total-amount">₱0</span>
+                </div>
+                <a class="continue-btn" href="payment-method.html">Continue to Payment Method</a>
+            </div>
+        </div>
+
+    <script src="../../assets/scripts/sample-accounts.js"></script>
+    <script src="../../assets/scripts/auth.js"></script>
+    <script src="../../assets/scripts/script.js"></script>
+    <script>
+        const checkboxes = document.querySelectorAll('input[type="checkbox"][data-fee]');
+        const summaryItems = document.getElementById('summary-items');
+        const totalAmountEl = document.getElementById('summary-total-amount');
+        const continueBtn = document.querySelector('.continue-btn');
+
+        function getChecked() {
+            return Array.from(checkboxes).filter(cb => cb.checked);
+        }
+
+        function updateSummary() {
+            const checked = getChecked();
+            summaryItems.innerHTML = checked.length === 0
+                ? '<p class="summary-empty">No fees selected yet.</p>'
+                : checked.map(cb =>
+                    `<div class="summary-item">
+                        <span>${cb.dataset.fee}</span>
+                        <span>&#8369;${cb.dataset.price}</span>
+                    </div>`
+                  ).join('');
+            const total = checked.reduce((sum, cb) => sum + Number(cb.dataset.price), 0);
+            totalAmountEl.textContent = '\u20B1' + total;
+        }
+
+        checkboxes.forEach(cb => cb.addEventListener('change', updateSummary));
+
+        continueBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const checked = getChecked();
+            if (checked.length === 0) {
+                alert('Please select at least one fee.');
+                return;
+            }
+            const fees = checked.map(cb => ({ fee: cb.dataset.fee, price: Number(cb.dataset.price) }));
+            localStorage.setItem('ccs.selected.fees', JSON.stringify(fees));
+            window.location.href = 'payment-method.html';
+        });
+    </script>
+    </body>
+</html>
