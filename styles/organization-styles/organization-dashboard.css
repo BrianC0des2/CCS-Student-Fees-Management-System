@@ -571,3 +571,253 @@ tbody tr:hover { background: var(--bg); }
 .section.active {
     display: block;
 }
+
+/* Org Fees page */
+.org-fees-page .org-fees-section {
+    padding: 6px 0 20px;
+}
+
+.org-fees-page .org-fees-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.org-fees-page .org-fees-header h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+
+.org-fees-page .org-fees-header p {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.org-fees-page .add-fee-btn {
+    background: var(--accent);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.org-fees-page .add-fee-btn i {
+    font-size: 16px;
+}
+
+.org-fees-page .add-fee-btn:hover {
+    background: #007639;
+}
+
+.org-fees-page .org-fees-summary {
+    margin-bottom: 16px;
+}
+
+.org-fees-page .org-stat-card p {
+    font-size: 22px;
+}
+
+.org-fees-page .org-fees-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.org-fees-page .fee-item {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.org-fees-page .fee-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: var(--accent-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.org-fees-page .fee-icon i {
+    color: var(--accent);
+    font-size: 20px;
+}
+
+.org-fees-page .fee-info {
+    flex: 1;
+}
+
+.org-fees-page .fee-name-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+
+.org-fees-page .fee-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.org-fees-page .badge-active {
+    background: var(--accent-light);
+    color: var(--accent);
+    border-radius: 999px;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+.org-fees-page .fee-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+}
+
+.org-fees-page .progress-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.org-fees-page .progress-bar {
+    flex: 1;
+    max-width: 240px;
+    height: 7px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: #dbe4de;
+}
+
+.org-fees-page .progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--accent);
+}
+
+.org-fees-page .progress-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.org-fees-page .fee-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+}
+
+.org-fees-page .fee-amount {
+    color: var(--accent);
+    font-size: 18px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.org-fees-page .fee-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.org-fees-page .fee-actions button {
+    border: 1px solid var(--border);
+    background: var(--white);
+    border-radius: 8px;
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.org-fees-page .fee-actions button i {
+    font-size: 16px;
+    color: var(--text-muted);
+}
+
+.org-fees-page .fee-actions button:hover {
+    border-color: var(--accent);
+    background: var(--accent-light);
+}
+
+.org-fees-page .fee-actions button:hover i {
+    color: var(--accent);
+}
+
+@media (max-width: 1080px) {
+    .org-fees-page .summary-cards.org-fees-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .org-fees-page .fee-item {
+        flex-wrap: wrap;
+    }
+
+    .org-fees-page .fee-right {
+        width: 100%;
+        justify-content: space-between;
+        padding-top: 8px;
+        border-top: 1px solid var(--border);
+    }
+}
+
+@media (max-width: 640px) {
+    .org-fees-page .home-content {
+        gap: 10px;
+    }
+
+    .org-fees-page .org-fees-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .org-fees-page .add-fee-btn {
+        justify-content: center;
+    }
+
+    .org-fees-page .summary-cards.org-fees-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .org-fees-page .progress-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .org-fees-page .progress-bar {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .org-fees-page .fee-right {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}

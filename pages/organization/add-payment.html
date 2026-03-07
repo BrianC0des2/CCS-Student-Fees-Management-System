@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+	<meta charset="UTF-8">
+	<title>CCS PAY++</title>
+	<link rel="stylesheet" href="../../styles/sidebar.css">
+	<link rel="stylesheet" href="../../styles/organization-styles/organization-dashboard.css">
+	<link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body class="org-fees-page">
+	<div id="sidebar-container"></div>
+
+	<section class="home-section">
+		<div class="home-content">
+			<div>
+                <i class='bx bx-menu'></i>
+                <span class="text">Organization Fees</span>
+            </div>
+            <div class="org-header-card">
+                <a href="../organization/organization-dashboard.html">
+                <img src="../../assets/images/org-ccs.png" class="org-header-logo" alt="org-logo">
+                <div>
+                    <div class="org-header-name">CCS Student Council</div>
+                    <div class="org-header-sub" id="orgYearSem"></div>
+                </a>
+                </div>
+            </div>
+        </div>
+
+		<div class="org-fees-section">
+			<div class="org-fees-header">
+				<div>
+					<h2>CCS FEES</h2>
+					<p>Configure organization fee types, amounts, and collection due dates</p>
+				</div>
+				<button class="add-fee-btn" type="button">
+					<i class='bx bx-plus'></i>
+					Add Fees
+				</button>
+			</div>
+
+			<div class="summary-cards org-fees-summary">
+				<div class="card org-stat-card">
+					<i class='bx bx-wallet'></i>
+					<h3>Total per Student</h3>
+					<p>PHP 360.00</p>
+				</div>
+				<div class="card org-stat-card">
+					<i class='bx bx-layer'></i>
+					<h3>Active Fee Types</h3>
+					<p>3</p>
+				</div>
+				<div class="card org-stat-card">
+					<i class='bx bx-trending-up'></i>
+					<h3>Avg. Collection Rate</h3>
+					<p>100%</p>
+				</div>
+				<div class="card org-stat-card">
+					<i class='bx bx-error-circle'></i>
+					<h3>Fees with Unpaid</h3>
+					<p>3</p>
+				</div>
+			</div>
+
+			<div class="org-fees-list">
+				<article class="fee-item">
+					<div class="fee-icon"><i class='bx bx-money'></i></div>
+					<div class="fee-info">
+						<div class="fee-name-row">
+							<span class="fee-name">CSC Fee</span>
+							<span class="badge-active">Active</span>
+						</div>
+						<div class="fee-desc">College Student Council Fee | Due: Feb 15, 2026</div>
+						<div class="progress-row">
+							<div class="progress-bar"><div class="progress-fill" style="width: 85%"></div></div>
+							<span class="progress-label">289/342 collected</span>
+						</div>
+					</div>
+					<div class="fee-right">
+						<span class="fee-amount">PHP 200.00</span>
+						<div class="fee-actions">
+							<button type="button" aria-label="Edit CSC Fee"><i class='bx bx-edit-alt'></i></button>
+							<button type="button" aria-label="Hide CSC Fee"><i class='bx bx-hide'></i></button>
+							<button type="button" aria-label="Delete CSC Fee"><i class='bx bx-trash'></i></button>
+						</div>
+					</div>
+				</article>
+
+                <div class="org-fees-list">
+				<article class="fee-item">
+					<div class="fee-icon"><i class='bx bx-money'></i></div>
+					<div class="fee-info">
+						<div class="fee-name-row">
+							<span class="fee-name">Miscellaneous fee</span>
+							<span class="badge-active">Active</span>
+						</div>
+						<div class="fee-desc">CCS Faculty | Due: Feb 15, 2026</div>
+						<div class="progress-row">
+							<div class="progress-bar"><div class="progress-fill" style="width: 98%"></div></div>
+							<span class="progress-label">330/342 collected</span>
+						</div>
+					</div>
+					<div class="fee-right">
+						<span class="fee-amount">PHP 60.00</span>
+						<div class="fee-actions">
+							<button type="button" aria-label="Edit CSC Fee"><i class='bx bx-edit-alt'></i></button>
+							<button type="button" aria-label="Hide CSC Fee"><i class='bx bx-hide'></i></button>
+							<button type="button" aria-label="Delete CSC Fee"><i class='bx bx-trash'></i></button>
+						</div>
+					</div>
+				</article>
+
+				<article class="fee-item">
+					<div class="fee-icon"><i class='bx bx-money'></i></div>
+					<div class="fee-info">
+						<div class="fee-name-row">
+							<span class="fee-name">Insurance (Whole Year)</span>
+							<span class="badge-active">Active</span>
+						</div>
+						<div class="fee-desc">Annual Student Insurance Coverage | Due: Feb 15, 2026</div>
+						<div class="progress-row">
+							<div class="progress-bar"><div class="progress-fill" style="width: 87%"></div></div>
+							<span class="progress-label">298/342 collected</span>
+						</div>
+					</div>
+					<div class="fee-right">
+						<span class="fee-amount">PHP 100.00</span>
+						<div class="fee-actions">
+							<button type="button" aria-label="Edit Insurance"><i class='bx bx-edit-alt'></i></button>
+							<button type="button" aria-label="Hide Insurance"><i class='bx bx-hide'></i></button>
+							<button type="button" aria-label="Delete Insurance"><i class='bx bx-trash'></i></button>
+						</div>
+					</div>
+				</article>
+			</div>
+		</div>
+	</section>
+
+	<script src="../../assets/scripts/sample-accounts.js"></script>
+	<script src="../../assets/scripts/auth.js"></script>
+	<script src="../../assets/scripts/sidebar-template.js"></script>
+	<script src="../../assets/scripts/script.js"></script>
+</body>
+</html>

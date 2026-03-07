@@ -27,6 +27,8 @@ const sidebarHTML = `
                 <i class='bx bxs-chevron-down arrow' ></i>
             </div>
             <ul class="sub-menu">
+                <li><a class="link_name" href="#">Fees</a></li>
+                <li><a href="../organization/add-payment.html">Fees</a></li>
                 <li><a class="link_name" href="#">Payments</a></li>
                 <li><a href="../organization/payment-history.html">Payment History</a></li>
             </ul>
