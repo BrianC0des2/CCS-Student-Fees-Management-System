@@ -906,4 +906,3 @@ function initializeSearch() {
         });
     });
 }
-
