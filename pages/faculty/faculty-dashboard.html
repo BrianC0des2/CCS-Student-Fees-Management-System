@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+	<head>
+		<meta charset="UTF-8">
+		<title>CCS PAY++ - Faculty Dashboard</title>
+		<link rel="stylesheet" href="../../styles/sidebar.css">
+		<link rel="stylesheet" href="../../styles/faculty-styles/faculty-dashboard.css">
+		<link href="https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	</head>
+	<body>
+		<div id="sidebar-container"></div>
+
+		<section class="home-section faculty-home">
+			<div class="home-content">
+				<div class="home-heading">
+					<i class='bx bx-menu'></i>
+					<span class="text">Faculty Dashboard</span>
+				</div>
+				<div class="org-header-card">
+					<a href="faculty-dashboard.html">
+						<img src="../../assets/images/org-ccs.png" class="org-header-logo" alt="ccs-logo">
+						<div>
+							<div class="org-header-name">College of Computing Studies</div>
+							<div class="org-header-sub" id="orgYearSem"></div>
+						</div>
+					</a>
+				</div>
+			</div>
+
+			<div class="faculty-role-switch" role="tablist" aria-label="Faculty role switch">
+				<button id="professorViewBtn" class="role-btn active" type="button">Professor View</button>
+				<button id="deanViewBtn" class="role-btn" type="button">Dean View</button>
+			</div>
+
+			<div class="summary-cards" id="facultySummaryCards"></div>
+
+			<div class="search-filter faculty-search-filter">
+				<input type="text" id="facultySearchInput" placeholder="Search by name or student no.">
+				<div class="filters-container">
+					<button id="facultyFiltersBtn" class="filters-btn" type="button">
+						<i class='bx bx-filter-alt'></i>
+						Filters
+					</button>
+					<div id="facultyFiltersPopover" class="filters-popover">
+						<div class="filters-grid">
+							<div class="filter-group">
+								<label for="facultyFilterYear">Year Level</label>
+								<select id="facultyFilterYear">
+									<option value="">All</option>
+									<option value="1">1st Year</option>
+									<option value="2">2nd Year</option>
+									<option value="3">3rd Year</option>
+									<option value="4">4th Year</option>
+								</select>
+							</div>
+							<div class="filter-group">
+								<label for="facultyFilterCourse">Course</label>
+								<select id="facultyFilterCourse">
+									<option value="">All</option>
+									<option value="BSCS">BSCS</option>
+									<option value="BSIT">BSIT</option>
+									<option value="ACT-AD">ACT-AD</option>
+									<option value="ACT-NET">ACT-NET</option>
+								</select>
+							</div>
+							<div class="filter-group">
+								<label for="facultyFilterSection">Section</label>
+								<select id="facultyFilterSection">
+									<option value="">All</option>
+								</select>
+							</div>
+							<div class="filter-group">
+								<label for="facultyFilterClearance">Clearance Status</label>
+								<select id="facultyFilterClearance">
+									<option value="">All</option>
+									<option value="signed">Signed</option>
+									<option value="pending">Pending</option>
+									<option value="blocked">Blocked</option>
+									<option value="cleared">Cleared</option>
+								</select>
+							</div>
+						</div>
+						<div class="filter-actions">
+							<button id="facultyResetFilters" class="reset-btn" type="button">Reset</button>
+							<button id="facultyApplyFilters" class="apply-btn" type="button">Apply</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div id="facultyActiveFilters" class="active-filters"></div>
+
+			<div class="members-table faculty-table-card">
+				<div class="table-header">
+					<h2 id="facultyTableTitle">Professor Queue</h2>
+				</div>
+				<div class="table-container">
+					<table>
+						<thead id="facultyTableHead"></thead>
+						<tbody id="facultyTableBody"></tbody>
+					</table>
+				</div>
+			</div>
+		</section>
+
+		<div id="facultyConfirmModal" class="modal-overlay" aria-hidden="true">
+			<div class="modal-card">
+				<h3 id="facultyConfirmTitle">Confirm Action</h3>
+				<p id="facultyConfirmMessage"></p>
+				<div class="modal-actions">
+					<button id="facultyConfirmCancel" class="modal-btn modal-cancel" type="button">Cancel</button>
+					<button id="facultyConfirmSubmit" class="modal-btn modal-confirm" type="button">Confirm</button>
+				</div>
+			</div>
+		</div>
+
+		<div id="facultyActionModal" class="modal-overlay" aria-hidden="true">
+			<div class="modal-card">
+				<h3 id="facultyActionTitle">Student Action</h3>
+				<p class="modal-student" id="facultyActionStudent"></p>
+
+				<div id="facultyStatusField" class="modal-field">
+					<label for="facultyActionStatus">Status</label>
+					<select id="facultyActionStatus">
+						<option value="UW">UW</option>
+						<option value="AW">AW</option>
+						<option value="AWP">AWP</option>
+						<option value="INC">INC</option>
+						<option value="Failed">Failed</option>
+						<option value="Expelled">Expelled</option>
+					</select>
+				</div>
+
+				<div class="modal-field">
+					<label for="facultyActionNotes" id="facultyActionNotesLabel">Notes / Reason</label>
+					<textarea id="facultyActionNotes" rows="4" placeholder="Enter notes or reason"></textarea>
+				</div>
+
+				<div class="modal-actions">
+					<button id="facultyActionCancel" class="modal-btn modal-cancel" type="button">Cancel</button>
+					<button id="facultyActionSubmit" class="modal-btn modal-confirm" type="button">Submit</button>
+				</div>
+			</div>
+		</div>
+
+		<script src="../../assets/scripts/sample-accounts.js"></script>
+		<script src="../../assets/scripts/auth.js"></script>
+		<script src="../../assets/scripts/sidebar-template.js"></script>
+		<script src="../../assets/scripts/script.js"></script>
+	</body>
+</html>

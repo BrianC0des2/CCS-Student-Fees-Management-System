@@ -93,9 +93,48 @@ function loadSidebar() {
     }
     
     container.innerHTML = sidebarHTML;
+
+    applyRoleBasedSidebarAccess();
     
     // Re-attach sidebar event handlers after inserting HTML
     initializeSidebarEvents();
+}
+
+function applyRoleBasedSidebarAccess() {
+    if (!window.Auth || typeof window.Auth.getUser !== 'function') return;
+
+    const user = window.Auth.getUser();
+    if (!user || !user.permissions) return;
+
+    const logoLink = document.querySelector('.sidebar .logo-details').closest('a');
+
+    if (user.permissions.facultyView || user.permissions.deanView) {
+        if (logoLink) {
+            logoLink.setAttribute('href', '../faculty/faculty-dashboard.html');
+        }
+    } else if (user.permissions.organizationView) {
+        if (logoLink) {
+            logoLink.setAttribute('href', '../organization/organization-dashboard.html');
+        }
+    }
+
+    const isFacultyOrDean = Boolean(user.permissions.facultyView || user.permissions.deanView);
+    if (!isFacultyOrDean) return;
+
+    const dashboardLink = document.querySelector('.nav-links > li:first-child > a');
+    if (dashboardLink) {
+        dashboardLink.setAttribute('href', '../faculty/faculty-dashboard.html');
+    }
+
+    const feesLink = document.querySelector('a[href="../organization/add-payment.html"]');
+    if (feesLink) {
+        feesLink.remove();
+    }
+
+    const paymentHistoryLink = document.querySelector('a[href="../organization/payment-history.html"]');
+    if (paymentHistoryLink) {
+        paymentHistoryLink.remove();
+    }
 }
 
 // INTERACTION FLOW

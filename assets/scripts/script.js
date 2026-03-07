@@ -1,4 +1,3 @@
-
 // =============================
 // LOGIN FLOW
 // =============================
@@ -92,7 +91,18 @@ if (loginForm) {
 
     // Success path: route to personal/student dashboard.
     // (If needed, route protection below will still enforce proper page access.)
-    navigateTo('pages/student/student-dashboard.html');
+    const loggedUser = window.Auth.getUser();
+    if (loggedUser.permissions.deanView) {
+      navigateTo('pages/faculty/faculty-dashboard.html');
+    } else if (loggedUser.permissions.facultyView) {
+      navigateTo('pages/faculty/faculty-dashboard.html');
+    } else if (loggedUser.permissions.adminView) {
+      navigateTo('pages/admin/admin-dashboard.html');
+    } else if (loggedUser.permissions.organizationView) {
+      navigateTo('pages/organization/organization-dashboard.html');
+    } else {
+      navigateTo('pages/student/student-dashboard.html');
+    }
   });
 }
 
@@ -143,12 +153,22 @@ function enforceRouteAccess() {
     return;
   }
 
+  // Guard 4: faculty dashboard requires faculty permission.
+  if (page === 'faculty-dashboard.html' && !window.Auth.isFaculty() && !window.Auth.isDean()) {
+    navigateTo('pages/student/student-dashboard.html');
+    return;
+  }
+
   // State sync: keep stored view aligned with what page user is currently on.
   // This makes future redirects open the same context the user last used.
   if (page === 'organization-dashboard.html') {
     window.Auth.setView('organization');
   } else if (page === 'student-dashboard.html') {
     window.Auth.setView('student');
+  } else if (page === 'faculty-dashboard.html' && window.Auth.isFaculty()) {
+    window.Auth.setView('faculty');
+  } else if (page === 'faculty-dashboard.html' && window.Auth.isDean()) {
+    window.Auth.setView('dean');
   }
 
   try {
@@ -906,3 +926,895 @@ function initializeSearch() {
         });
     });
 }
+
+// =============================
+// FACULTY DASHBOARD
+// =============================
+let facultyRole = 'professor';
+
+const facultyStudents = [
+  {
+    id: 'f-001',
+    studentNo: '2025-1101',
+    name: 'Maria Santos',
+    yearLevel: '1',
+    course: 'BSCS',
+    section: 'BSCS 1A',
+    yearSection: '1st Year - CS 1-A',
+    paymentStatus: 'Fully Paid',
+    studentStatus: 'Clear',
+    assignedProfessors: ['prof-001', 'prof-002'],
+    professorSignatures: { 'prof-001': true, 'prof-002': true },
+    finalClearance: false,
+    flagNotes: '',
+    deanRejectReason: ''
+  },
+  {
+    id: 'f-002',
+    studentNo: '2025-1102',
+    name: 'John Dela Cruz',
+    yearLevel: '1',
+    course: 'BSIT',
+    section: 'BSIT 1B',
+    yearSection: '1st Year - IT 1-B',
+    paymentStatus: 'Pending',
+    studentStatus: 'Clear',
+    assignedProfessors: ['prof-001', 'prof-002'],
+    professorSignatures: { 'prof-001': false, 'prof-002': false },
+    finalClearance: false,
+    flagNotes: '',
+    deanRejectReason: ''
+  },
+  {
+    id: 'f-003',
+    studentNo: '2024-1103',
+    name: 'Angela Reyes',
+    yearLevel: '2',
+    course: 'BSCS',
+    section: 'BSCS 2A',
+    yearSection: '2nd Year - CS 2-A',
+    paymentStatus: 'Fully Paid',
+    studentStatus: 'Clear',
+    assignedProfessors: ['prof-001', 'prof-002'],
+    professorSignatures: { 'prof-001': false, 'prof-002': true },
+    finalClearance: false,
+    flagNotes: '',
+    deanRejectReason: ''
+  },
+  {
+    id: 'f-004',
+    studentNo: '2023-1104',
+    name: 'Kevin Flores',
+    yearLevel: '3',
+    course: 'BSIT',
+    section: 'BSIT 3B',
+    yearSection: '3rd Year - IT 3-B',
+    paymentStatus: 'Fully Paid',
+    studentStatus: 'UW',
+    assignedProfessors: ['prof-001', 'prof-002'],
+    professorSignatures: { 'prof-001': false, 'prof-002': false },
+    finalClearance: false,
+    flagNotes: 'Attendance warning',
+    deanRejectReason: ''
+  },
+  {
+    id: 'f-005',
+    studentNo: '2022-1105',
+    name: 'Sofia Martinez',
+    yearLevel: '4',
+    course: 'BSCS',
+    section: 'BSCS 4A',
+    yearSection: '4th Year - CS 4-A',
+    paymentStatus: 'Fully Paid',
+    studentStatus: 'Clear',
+    assignedProfessors: ['prof-001', 'prof-002'],
+    professorSignatures: { 'prof-001': true, 'prof-002': true },
+    finalClearance: true,
+    flagNotes: '',
+    deanRejectReason: ''
+  },
+  {
+    id: 'f-006',
+    studentNo: '2024-1106',
+    name: 'Liam Navarro',
+    yearLevel: '2',
+    course: 'ACT-NET',
+    section: 'ACT-NET 2A',
+    yearSection: '2nd Year - ACT-NET 2-A',
+    paymentStatus: 'Fully Paid',
+    studentStatus: 'Clear',
+    assignedProfessors: ['prof-001', 'prof-002'],
+    professorSignatures: { 'prof-001': true, 'prof-002': true },
+    finalClearance: false,
+    flagNotes: '',
+    deanRejectReason: ''
+  }
+];
+
+const blockedStatuses = ['UW', 'AW', 'AWP', 'INC', 'Failed', 'Expelled'];
+const currentProfessorId = 'prof-001';
+const facultyFilters = {
+  yearLevel: '',
+  course: '',
+  section: '',
+  clearanceStatus: ''
+};
+
+let facultyActionContext = null;
+let facultyConfirmHandler = null;
+
+function getFacultyStudent(studentId) {
+  return facultyStudents.find((student) => student.id === studentId);
+}
+
+function getProfessorClearanceState(student) {
+  if (!student) return 'pending';
+  if (student.paymentStatus !== 'Fully Paid') return 'blocked';
+  if (blockedStatuses.includes(student.studentStatus)) return 'blocked';
+  if (student.professorSignatures[currentProfessorId]) return 'signed';
+  return 'pending';
+}
+
+function getDeanClearanceState(student) {
+  if (!student) return 'pending';
+  if (student.finalClearance) return 'cleared';
+  return 'pending';
+}
+
+function checkAllProfessorsSigned(studentId) {
+  const student = getFacultyStudent(studentId);
+  if (!student || !Array.isArray(student.assignedProfessors)) return false;
+  return student.assignedProfessors.every((profId) => student.professorSignatures[profId]);
+}
+
+function toggleFacultyView(role) {
+  if (role !== 'professor' && role !== 'dean') return;
+  facultyRole = role;
+
+  const professorViewBtn = document.getElementById('professorViewBtn');
+  const deanViewBtn = document.getElementById('deanViewBtn');
+
+  if (professorViewBtn && deanViewBtn) {
+    professorViewBtn.classList.toggle('active', role === 'professor');
+    deanViewBtn.classList.toggle('active', role === 'dean');
+  }
+
+  renderFacultyDashboard();
+}
+
+function signClearance(studentId) {
+  const student = getFacultyStudent(studentId);
+  if (!student) return;
+
+  const isBlocked = getProfessorClearanceState(student) === 'blocked';
+  if (isBlocked) {
+    alert('This student cannot be signed because payment/status blocks clearance.');
+    return;
+  }
+
+  student.professorSignatures[currentProfessorId] = true;
+  renderFacultyDashboard();
+}
+
+function flagStudent(studentId, status, notes) {
+  const student = getFacultyStudent(studentId);
+  if (!student) return;
+
+  student.studentStatus = status;
+  student.flagNotes = notes || '';
+  student.professorSignatures[currentProfessorId] = false;
+  student.finalClearance = false;
+  renderFacultyDashboard();
+}
+
+function removeFlagStudent(studentId) {
+  const student = getFacultyStudent(studentId);
+  if (!student) return;
+
+  student.studentStatus = 'Clear';
+  student.flagNotes = '';
+  student.professorSignatures[currentProfessorId] = false;
+  student.finalClearance = false;
+  renderFacultyDashboard();
+}
+
+function deanFinalSign(studentId) {
+  const student = getFacultyStudent(studentId);
+  if (!student) return;
+
+  if (!checkAllProfessorsSigned(studentId)) {
+    alert('Dean can only sign when all professors have signed.');
+    return;
+  }
+
+  if (blockedStatuses.includes(student.studentStatus) || student.paymentStatus !== 'Fully Paid') {
+    alert('Student is blocked and cannot be final signed.');
+    return;
+  }
+
+  student.finalClearance = true;
+  renderFacultyDashboard();
+}
+
+function deanReject(studentId, reason) {
+  const student = getFacultyStudent(studentId);
+  if (!student) return;
+
+  student.deanRejectReason = reason || '';
+  student.finalClearance = false;
+  student.assignedProfessors.forEach((profId) => {
+    student.professorSignatures[profId] = false;
+  });
+  renderFacultyDashboard();
+}
+
+function filterFacultyTable() {
+  renderFacultyDashboard();
+}
+
+function getFilteredStudents() {
+  const searchValue = (document.getElementById('facultySearchInput')?.value || '').toLowerCase().trim();
+
+  return facultyStudents.filter((student) => {
+    const inRoleScope = facultyRole === 'professor'
+      ? true
+      : checkAllProfessorsSigned(student.id);
+
+    if (!inRoleScope) return false;
+
+    const searchable = `${student.studentNo} ${student.name}`.toLowerCase();
+    if (searchValue && !searchable.includes(searchValue)) return false;
+
+    if (facultyFilters.yearLevel && student.yearLevel !== facultyFilters.yearLevel) return false;
+    if (facultyFilters.course && student.course !== facultyFilters.course) return false;
+    if (facultyFilters.section && student.section !== facultyFilters.section) return false;
+
+    if (facultyFilters.clearanceStatus) {
+      if (facultyRole === 'professor') {
+        const state = getProfessorClearanceState(student);
+        if (facultyFilters.clearanceStatus !== state) return false;
+      } else {
+        const deanState = getDeanClearanceState(student);
+        if (facultyFilters.clearanceStatus === 'cleared' && deanState !== 'cleared') return false;
+        if (facultyFilters.clearanceStatus === 'pending' && deanState !== 'pending') return false;
+        if (facultyFilters.clearanceStatus === 'blocked') return false;
+        if (facultyFilters.clearanceStatus === 'signed') return false;
+      }
+    }
+
+    return true;
+  });
+}
+
+function renderFacultySummary(students) {
+  const summaryCards = document.getElementById('facultySummaryCards');
+  if (!summaryCards) return;
+
+  if (facultyRole === 'professor') {
+    const signedCount = students.filter((student) => getProfessorClearanceState(student) === 'signed').length;
+    const pendingCount = students.filter((student) => getProfessorClearanceState(student) === 'pending').length;
+    const blockedCount = students.filter((student) => getProfessorClearanceState(student) === 'blocked').length;
+
+    summaryCards.innerHTML = `
+      <div class="card">
+        <i class='bx bx-group'></i>
+        <h3>Total Students</h3>
+        <p>${students.length}</p>
+      </div>
+      <div class="card">
+        <i class='bx bx-time-five'></i>
+        <h3>Pending Clearance</h3>
+        <p>${pendingCount}</p>
+      </div>
+      <div class="card">
+        <i class='bx bx-check-circle'></i>
+        <h3>Signed</h3>
+        <p>${signedCount}</p>
+      </div>
+      <div class="card">
+        <i class='bx bx-error-circle'></i>
+        <h3>Flagged</h3>
+        <p>${blockedCount}</p>
+      </div>
+    `;
+  } else {
+    const awaitingFinalSign = students.filter((student) => !student.finalClearance).length;
+    const fullyCleared = students.filter((student) => student.finalClearance).length;
+
+    summaryCards.innerHTML = `
+      <div class="card">
+        <i class='bx bx-time-five'></i>
+        <h3>Awaiting Final Sign</h3>
+        <p>${awaitingFinalSign}</p>
+      </div>
+      <div class="card">
+        <i class='bx bx-badge-check'></i>
+        <h3>Fully Cleared</h3>
+        <p>${fullyCleared}</p>
+      </div>
+      <div class="card">
+        <i class='bx bx-group'></i>
+        <h3>Total Students</h3>
+        <p>${students.length}</p>
+      </div>
+      <div class="card">
+        <i class='bx bx-check-shield'></i>
+        <h3>Dean Queue</h3>
+        <p>${students.length - fullyCleared}</p>
+      </div>
+    `;
+  }
+}
+
+function renderProfessorTable(students) {
+  const tableHead = document.getElementById('facultyTableHead');
+  const tableBody = document.getElementById('facultyTableBody');
+  const tableTitle = document.getElementById('facultyTableTitle');
+  if (!tableHead || !tableBody) return;
+
+  if (tableTitle) tableTitle.textContent = 'Professor Queue';
+
+  tableHead.innerHTML = `
+    <tr>
+      <th>Student No.</th>
+      <th>Name</th>
+      <th>Year & Section</th>
+      <th>Payment Status</th>
+      <th>Student Status</th>
+      <th>Clearance</th>
+      <th>Actions</th>
+    </tr>
+  `;
+
+  if (!students.length) {
+    tableBody.innerHTML = '<tr><td colspan="7" class="empty-state">No students match your filters.</td></tr>';
+    return;
+  }
+
+  tableBody.innerHTML = students.map((student) => {
+    const clearance = getProfessorClearanceState(student);
+    const paymentBadge = student.paymentStatus === 'Fully Paid'
+      ? '<span class="status-badge badge-paid">Fully Paid</span>'
+      : '<span class="status-badge badge-pending-pay">Pending</span>';
+
+    const clearanceBadge = clearance === 'signed'
+      ? '<span class="status-badge badge-signed">Signed</span>'
+      : clearance === 'blocked'
+        ? '<span class="status-badge badge-blocked">Blocked</span>'
+        : '<span class="status-badge badge-pending-clearance">Pending</span>';
+
+    const canSign = student.paymentStatus === 'Fully Paid' && student.studentStatus === 'Clear';
+    const signed = student.professorSignatures[currentProfessorId];
+
+    return `
+      <tr>
+        <td>${student.studentNo}</td>
+        <td>${student.name}</td>
+        <td>${student.yearSection}</td>
+        <td>${paymentBadge}</td>
+        <td>
+          <select class="status-select" data-status-id="${student.id}">
+            <option value="Clear" ${student.studentStatus === 'Clear' ? 'selected' : ''}>Clear</option>
+            <option value="UW" ${student.studentStatus === 'UW' ? 'selected' : ''}>UW</option>
+            <option value="AW" ${student.studentStatus === 'AW' ? 'selected' : ''}>AW</option>
+            <option value="AWP" ${student.studentStatus === 'AWP' ? 'selected' : ''}>AWP</option>
+            <option value="INC" ${student.studentStatus === 'INC' ? 'selected' : ''}>INC</option>
+            <option value="Failed" ${student.studentStatus === 'Failed' ? 'selected' : ''}>Failed</option>
+            <option value="Expelled" ${student.studentStatus === 'Expelled' ? 'selected' : ''}>Expelled</option>
+          </select>
+        </td>
+        <td>${clearanceBadge}</td>
+        <td>
+          <div class="action-group">
+            <button class="btn btn-sign" data-sign-id="${student.id}" ${!canSign || signed ? 'disabled' : ''}>${signed ? 'Signed' : 'Sign'}</button>
+            <button class="btn btn-flag" data-flag-id="${student.id}">Flag</button>
+            ${student.studentStatus !== 'Clear' ? `<button class="btn btn-remove-flag" data-remove-flag-id="${student.id}">Remove Flag</button>` : ''}
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function renderDeanTable(students) {
+  const tableHead = document.getElementById('facultyTableHead');
+  const tableBody = document.getElementById('facultyTableBody');
+  const tableTitle = document.getElementById('facultyTableTitle');
+  if (!tableHead || !tableBody) return;
+
+  if (tableTitle) tableTitle.textContent = 'Dean Final Queue';
+
+  tableHead.innerHTML = `
+    <tr>
+      <th>Student No.</th>
+      <th>Name</th>
+      <th>Year & Section</th>
+      <th>Professors Signed</th>
+      <th>Payment Status</th>
+      <th>Final Clearance</th>
+      <th>Actions</th>
+    </tr>
+  `;
+
+  if (!students.length) {
+    tableBody.innerHTML = '<tr><td colspan="7" class="empty-state">No students awaiting dean action.</td></tr>';
+    return;
+  }
+
+  tableBody.innerHTML = students.map((student) => {
+    const signedCount = student.assignedProfessors.filter((profId) => student.professorSignatures[profId]).length;
+    const professorsSigned = `${signedCount}/${student.assignedProfessors.length}`;
+    const paymentBadge = student.paymentStatus === 'Fully Paid'
+      ? '<span class="status-badge badge-paid">Fully Paid</span>'
+      : '<span class="status-badge badge-pending-pay">Pending</span>';
+
+    const clearanceBadge = student.finalClearance
+      ? '<span class="status-badge badge-cleared">Cleared</span>'
+      : '<span class="status-badge badge-pending-clearance">Pending</span>';
+
+    return `
+      <tr>
+        <td>${student.studentNo}</td>
+        <td>${student.name}</td>
+        <td>${student.yearSection}</td>
+        <td>${professorsSigned}</td>
+        <td>${paymentBadge}</td>
+        <td>${clearanceBadge}</td>
+        <td>
+          <div class="action-group">
+            <button class="btn btn-final" data-final-sign-id="${student.id}" ${student.finalClearance ? 'disabled' : ''}>Final Sign</button>
+            <button class="btn btn-reject" data-reject-id="${student.id}" ${student.finalClearance ? 'disabled' : ''}>Reject</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function renderActiveFacultyFilters() {
+  const activeFiltersEl = document.getElementById('facultyActiveFilters');
+  if (!activeFiltersEl) return;
+
+  const entries = Object.entries(facultyFilters).filter(([, value]) => value);
+  if (!entries.length) {
+    activeFiltersEl.innerHTML = '';
+    return;
+  }
+
+  const labels = {
+    yearLevel: 'Year Level',
+    course: 'Course',
+    section: 'Section',
+    clearanceStatus: 'Clearance'
+  };
+
+  activeFiltersEl.innerHTML = entries.map(([key, value]) => `
+    <div class="filter-tag">${labels[key]}: ${value}<span class="remove" data-remove-filter="${key}">x</span></div>
+  `).join('');
+}
+
+function renderFacultyDashboard() {
+  const facultyTable = document.getElementById('facultyTableBody');
+  if (!facultyTable) return;
+
+  const students = getFilteredStudents();
+  renderFacultySummary(students);
+  renderActiveFacultyFilters();
+
+  if (facultyRole === 'professor') {
+    renderProfessorTable(students);
+  } else {
+    renderDeanTable(students);
+  }
+}
+
+function setFacultyConfirmModal(title, message, onConfirm) {
+  const modal = document.getElementById('facultyConfirmModal');
+  const titleEl = document.getElementById('facultyConfirmTitle');
+  const messageEl = document.getElementById('facultyConfirmMessage');
+
+  if (!modal || !titleEl || !messageEl) return;
+
+  titleEl.textContent = title;
+  messageEl.textContent = message;
+  facultyConfirmHandler = onConfirm;
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden', 'false');
+}
+
+function closeFacultyConfirmModal() {
+  const modal = document.getElementById('facultyConfirmModal');
+  if (!modal) return;
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden', 'true');
+  facultyConfirmHandler = null;
+}
+
+function openFacultyActionModal(mode, studentId) {
+  const student = getFacultyStudent(studentId);
+  if (!student) return;
+
+  const modal = document.getElementById('facultyActionModal');
+  const titleEl = document.getElementById('facultyActionTitle');
+  const studentEl = document.getElementById('facultyActionStudent');
+  const statusField = document.getElementById('facultyStatusField');
+  const notesLabel = document.getElementById('facultyActionNotesLabel');
+  const notesInput = document.getElementById('facultyActionNotes');
+  const statusSelect = document.getElementById('facultyActionStatus');
+
+  if (!modal || !titleEl || !studentEl || !statusField || !notesLabel || !notesInput || !statusSelect) return;
+
+  facultyActionContext = { mode, studentId };
+  studentEl.textContent = `${student.name} (${student.studentNo})`;
+  notesInput.value = '';
+
+  if (mode === 'flag') {
+    titleEl.textContent = 'Flag Student';
+    notesLabel.textContent = 'Notes / Reason';
+    statusField.style.display = '';
+    statusSelect.value = 'UW';
+  } else {
+    titleEl.textContent = 'Reject Final Clearance';
+    notesLabel.textContent = 'Reason';
+    statusField.style.display = 'none';
+  }
+
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden', 'false');
+}
+
+function closeFacultyActionModal() {
+  const modal = document.getElementById('facultyActionModal');
+  if (!modal) return;
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden', 'true');
+  facultyActionContext = null;
+}
+
+function initializeFacultyDashboard() {
+  const tableBody = document.getElementById('facultyTableBody');
+  if (!tableBody) return;
+
+  const professorViewBtn = document.getElementById('professorViewBtn');
+  const deanViewBtn = document.getElementById('deanViewBtn');
+  const searchInput = document.getElementById('facultySearchInput');
+  const filtersBtn = document.getElementById('facultyFiltersBtn');
+  const filtersPopover = document.getElementById('facultyFiltersPopover');
+
+  const applyFiltersBtn = document.getElementById('facultyApplyFilters');
+  const resetFiltersBtn = document.getElementById('facultyResetFilters');
+  const facultyFilterYear = document.getElementById('facultyFilterYear');
+  const facultyFilterCourse = document.getElementById('facultyFilterCourse');
+  const facultyFilterSection = document.getElementById('facultyFilterSection');
+
+  const confirmCancelBtn = document.getElementById('facultyConfirmCancel');
+  const confirmSubmitBtn = document.getElementById('facultyConfirmSubmit');
+
+  const actionCancelBtn = document.getElementById('facultyActionCancel');
+  const actionSubmitBtn = document.getElementById('facultyActionSubmit');
+
+  const loggedUser = window.Auth && typeof window.Auth.getUser === 'function'
+    ? window.Auth.getUser()
+    : null;
+  const hasFacultyView = Boolean(loggedUser && loggedUser.permissions && loggedUser.permissions.facultyView);
+  const hasDeanView = Boolean(loggedUser && loggedUser.permissions && loggedUser.permissions.deanView);
+
+  if (hasFacultyView && !hasDeanView) {
+    if (deanViewBtn) deanViewBtn.remove();
+    facultyRole = 'professor';
+  } else if (hasDeanView && !hasFacultyView) {
+    if (professorViewBtn) professorViewBtn.remove();
+    facultyRole = 'dean';
+  } else if (window.Auth && window.Auth.isDean && window.Auth.isDean()) {
+    facultyRole = 'dean';
+  }
+
+  if (professorViewBtn) {
+    professorViewBtn.addEventListener('click', () => toggleFacultyView('professor'));
+  }
+  if (deanViewBtn) {
+    deanViewBtn.addEventListener('click', () => toggleFacultyView('dean'));
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', filterFacultyTable);
+  }
+
+  function updateCourseOptions() {
+    const year = facultyFilterYear ? facultyFilterYear.value : '';
+    if (!facultyFilterCourse) return;
+
+    const options = facultyFilterCourse.querySelectorAll('option');
+    options.forEach((option) => {
+      const courseValue = option.value;
+      if ((year === '3' || year === '4') && (courseValue === 'ACT-AD' || courseValue === 'ACT-NET')) {
+        option.disabled = true;
+        option.style.display = 'none';
+        if (facultyFilterCourse.value === courseValue) {
+          facultyFilterCourse.value = '';
+        }
+      } else {
+        option.disabled = false;
+        option.style.display = '';
+      }
+    });
+  }
+
+  function updateYearLevelOptions() {
+    const course = facultyFilterCourse ? facultyFilterCourse.value : '';
+    if (!facultyFilterYear) return;
+
+    const options = facultyFilterYear.querySelectorAll('option');
+    options.forEach((option) => {
+      const yearValue = option.value;
+      if ((course === 'ACT-AD' || course === 'ACT-NET') && (yearValue === '3' || yearValue === '4')) {
+        option.disabled = true;
+        option.style.display = 'none';
+        if (facultyFilterYear.value === yearValue) {
+          facultyFilterYear.value = '';
+        }
+      } else {
+        option.disabled = false;
+        option.style.display = '';
+      }
+    });
+  }
+
+  function updateFacultyFilterSections() {
+    if (!facultyFilterSection) return;
+
+    const year = facultyFilterYear ? facultyFilterYear.value : '';
+    const course = facultyFilterCourse ? facultyFilterCourse.value : '';
+
+    facultyFilterSection.innerHTML = '<option value="">All</option>';
+
+    if (year && course) {
+      if ((course === 'ACT-AD' || course === 'ACT-NET') && (year === '3' || year === '4')) {
+        facultyFilterSection.innerHTML = '<option value="">Not available</option>';
+        return;
+      }
+
+      const key = `${course}-${year}`;
+      if (sections[key]) {
+        sections[key].forEach((sectionName) => {
+          const option = document.createElement('option');
+          option.value = sectionName;
+          option.textContent = sectionName;
+          facultyFilterSection.appendChild(option);
+        });
+      }
+      return;
+    }
+
+    const allSections = new Set();
+    Object.keys(sections).forEach((key) => {
+      if (year && !key.endsWith(`-${year}`)) return;
+      if (course && !key.startsWith(`${course}-`)) return;
+      sections[key].forEach((sectionName) => allSections.add(sectionName));
+    });
+
+    Array.from(allSections).sort().forEach((sectionName) => {
+      const option = document.createElement('option');
+      option.value = sectionName;
+      option.textContent = sectionName;
+      facultyFilterSection.appendChild(option);
+    });
+  }
+
+  function restoreFacultyFilterOptions() {
+    if (facultyFilterYear) {
+      facultyFilterYear.querySelectorAll('option').forEach((option) => {
+        option.disabled = false;
+        option.style.display = '';
+      });
+    }
+
+    if (facultyFilterCourse) {
+      facultyFilterCourse.querySelectorAll('option').forEach((option) => {
+        option.disabled = false;
+        option.style.display = '';
+      });
+    }
+  }
+
+  if (facultyFilterYear) {
+    facultyFilterYear.addEventListener('change', () => {
+      updateCourseOptions();
+      updateFacultyFilterSections();
+    });
+  }
+
+  if (facultyFilterCourse) {
+    facultyFilterCourse.addEventListener('change', () => {
+      updateYearLevelOptions();
+      updateFacultyFilterSections();
+    });
+  }
+
+  updateFacultyFilterSections();
+
+  if (filtersBtn && filtersPopover) {
+    filtersBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      filtersPopover.classList.toggle('show');
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!filtersPopover.contains(event.target) && !filtersBtn.contains(event.target)) {
+        filtersPopover.classList.remove('show');
+      }
+    });
+  }
+
+  if (applyFiltersBtn) {
+    applyFiltersBtn.addEventListener('click', () => {
+      facultyFilters.yearLevel = facultyFilterYear ? facultyFilterYear.value : '';
+      facultyFilters.course = facultyFilterCourse ? facultyFilterCourse.value : '';
+      facultyFilters.section = facultyFilterSection ? facultyFilterSection.value : '';
+      facultyFilters.clearanceStatus = document.getElementById('facultyFilterClearance')?.value || '';
+      if (filtersPopover) filtersPopover.classList.remove('show');
+      filterFacultyTable();
+    });
+  }
+
+  if (resetFiltersBtn) {
+    resetFiltersBtn.addEventListener('click', () => {
+      facultyFilters.yearLevel = '';
+      facultyFilters.course = '';
+      facultyFilters.section = '';
+      facultyFilters.clearanceStatus = '';
+      const facultyFilterClearance = document.getElementById('facultyFilterClearance');
+
+      if (facultyFilterYear) facultyFilterYear.value = '';
+      if (facultyFilterCourse) facultyFilterCourse.value = '';
+      if (facultyFilterSection) facultyFilterSection.value = '';
+      if (facultyFilterClearance) facultyFilterClearance.value = '';
+
+      restoreFacultyFilterOptions();
+      updateFacultyFilterSections();
+
+      filterFacultyTable();
+    });
+  }
+
+  tableBody.addEventListener('click', (event) => {
+    const signBtn = event.target.closest('[data-sign-id]');
+    if (signBtn) {
+      const studentId = signBtn.dataset.signId;
+      setFacultyConfirmModal('Sign Clearance', 'Sign this student\'s clearance?', () => {
+        signClearance(studentId);
+      });
+      return;
+    }
+
+    const flagBtn = event.target.closest('[data-flag-id]');
+    if (flagBtn) {
+      openFacultyActionModal('flag', flagBtn.dataset.flagId);
+      return;
+    }
+
+    const removeFlagBtn = event.target.closest('[data-remove-flag-id]');
+    if (removeFlagBtn) {
+      setFacultyConfirmModal('Remove Flag', 'Reset student status back to Clear?', () => {
+        removeFlagStudent(removeFlagBtn.dataset.removeFlagId);
+      });
+      return;
+    }
+
+    const finalBtn = event.target.closest('[data-final-sign-id]');
+    if (finalBtn) {
+      const studentId = finalBtn.dataset.finalSignId;
+      setFacultyConfirmModal('Final Sign', 'Finalize clearance for this student?', () => {
+        deanFinalSign(studentId);
+      });
+      return;
+    }
+
+    const rejectBtn = event.target.closest('[data-reject-id]');
+    if (rejectBtn) {
+      openFacultyActionModal('reject', rejectBtn.dataset.rejectId);
+    }
+  });
+
+  tableBody.addEventListener('change', (event) => {
+    const statusSelect = event.target.closest('[data-status-id]');
+    if (!statusSelect) return;
+
+    const studentId = statusSelect.dataset.statusId;
+    const nextStatus = statusSelect.value;
+
+    if (nextStatus === 'Clear') {
+      removeFlagStudent(studentId);
+      return;
+    }
+
+    flagStudent(studentId, nextStatus, 'Updated via status dropdown');
+  });
+
+  const activeFiltersContainer = document.getElementById('facultyActiveFilters');
+  if (activeFiltersContainer) {
+    activeFiltersContainer.addEventListener('click', (event) => {
+      const removeTag = event.target.closest('[data-remove-filter]');
+      if (!removeTag) return;
+
+      const key = removeTag.dataset.removeFilter;
+      if (!Object.prototype.hasOwnProperty.call(facultyFilters, key)) return;
+
+      facultyFilters[key] = '';
+
+      if (key === 'yearLevel') {
+        const facultyFilterYear = document.getElementById('facultyFilterYear');
+        if (facultyFilterYear) facultyFilterYear.value = '';
+      }
+      if (key === 'course') {
+        const facultyFilterCourse = document.getElementById('facultyFilterCourse');
+        if (facultyFilterCourse) facultyFilterCourse.value = '';
+      }
+      if (key === 'section') {
+        const facultyFilterSection = document.getElementById('facultyFilterSection');
+        if (facultyFilterSection) facultyFilterSection.value = '';
+      }
+      if (key === 'clearanceStatus') {
+        const facultyFilterClearance = document.getElementById('facultyFilterClearance');
+        if (facultyFilterClearance) facultyFilterClearance.value = '';
+      }
+
+      filterFacultyTable();
+    });
+  }
+
+  if (confirmCancelBtn) {
+    confirmCancelBtn.addEventListener('click', closeFacultyConfirmModal);
+  }
+
+  if (confirmSubmitBtn) {
+    confirmSubmitBtn.addEventListener('click', () => {
+      if (typeof facultyConfirmHandler === 'function') {
+        facultyConfirmHandler();
+      }
+      closeFacultyConfirmModal();
+    });
+  }
+
+  if (actionCancelBtn) {
+    actionCancelBtn.addEventListener('click', closeFacultyActionModal);
+  }
+
+  if (actionSubmitBtn) {
+    actionSubmitBtn.addEventListener('click', () => {
+      if (!facultyActionContext) return;
+
+      const notesValue = (document.getElementById('facultyActionNotes')?.value || '').trim();
+      if (!notesValue) {
+        alert('Please provide notes/reason before submitting.');
+        return;
+      }
+
+      if (facultyActionContext.mode === 'flag') {
+        const statusValue = document.getElementById('facultyActionStatus')?.value || 'UW';
+        flagStudent(facultyActionContext.studentId, statusValue, notesValue);
+      } else {
+        deanReject(facultyActionContext.studentId, notesValue);
+      }
+
+      closeFacultyActionModal();
+    });
+  }
+
+  if (hasDeanView && !hasFacultyView) {
+    toggleFacultyView('dean');
+  } else {
+    renderFacultyDashboard();
+  }
+}
+
+window.toggleFacultyView = toggleFacultyView;
+window.signClearance = signClearance;
+window.flagStudent = flagStudent;
+window.removeFlagStudent = removeFlagStudent;
+window.deanFinalSign = deanFinalSign;
+window.deanReject = deanReject;
+window.checkAllProfessorsSigned = checkAllProfessorsSigned;
+window.filterFacultyTable = filterFacultyTable;
+
+document.addEventListener('DOMContentLoaded', initializeFacultyDashboard);
