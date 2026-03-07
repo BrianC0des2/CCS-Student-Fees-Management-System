@@ -28,7 +28,7 @@ const sidebarHTML = `
             </div>
             <ul class="sub-menu">
                 <li><a class="link_name" href="#">Payments</a></li>
-                <li><a href="../student/payment-history.html">Payment History</a></li>
+                <li><a href="../organization/payment-history.html">Payment History</a></li>
             </ul>
         </li>
 
