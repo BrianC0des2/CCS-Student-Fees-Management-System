@@ -32,7 +32,10 @@ body {
     width: 60px;
     border-radius: 50%;
 }
-
+.org-header-card a {
+    text-decoration: none;
+    color: inherit;
+}
 .main-section {
     margin-left: 60x;
     padding: 28px 32px;
