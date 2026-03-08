@@ -1,0 +1,1404 @@
+'use strict';
+
+document.addEventListener('DOMContentLoaded', () => {
+
+/* ══════════════════════════════
+   ROUTE GUARD + SESSION SYNC
+══════════════════════════════ */
+
+(function guardAdmin() {
+    if (!window.Auth) {
+        window.location.replace('../../login-page.html');
+        return;
+    }
+    const user = window.Auth.getUser();
+    if (!user || !user.permissions || !user.permissions.adminView) {
+        window.location.replace('../../login-page.html');
+        return;
+    }
+
+    // Populate sidebar profile section with session data
+    const nameEl  = document.querySelector('.profile_name');
+    const emailEl = document.querySelector('.job');
+    if (nameEl)  nameEl.textContent  = user.name;
+    if (emailEl) emailEl.textContent = user.email;
+})();
+
+/* ══════════════════════════════
+   HELPER — BOXICON SHORTHAND
+══════════════════════════════ */
+const bxi = (name, extra = '') =>
+    `<i class='bx bx-${name}${extra ? ' ' + extra : ''}'></i>`;
+
+/* ══════════════════════════════
+   SECTION A — DATA
+══════════════════════════════ */
+
+const ROLE_LABELS = {
+    professor:       'Professor',
+    dept_head:       'Department Head',
+    adviser:         'Class Adviser',
+    coordinator:     'Student Affairs Coordinator',
+    dean:            'College Dean',
+    finance_officer: 'Finance Officer',
+};
+
+const ROLE_BADGE_CLASS = {
+    professor:       'badge-blue',
+    dept_head:       'badge-purple',
+    adviser:         'badge-green',
+    coordinator:     'badge-amber',
+    dean:            'badge-red',
+    finance_officer: 'badge-indigo',
+};
+
+const ALL_PERMISSIONS = [
+    { id: 'view_students',     label: 'View Students',       category: 'Student Management' },
+    { id: 'add_students',      label: 'Add Students',         category: 'Student Management' },
+    { id: 'edit_students',     label: 'Edit Student Info',    category: 'Student Management' },
+    { id: 'remove_students',   label: 'Remove Students',      category: 'Student Management' },
+    { id: 'manage_students',   label: 'Full Student Control', category: 'Student Management' },
+    { id: 'approve_clearance', label: 'Approve Clearance',    category: 'Clearance' },
+    { id: 'reject_clearance',  label: 'Reject Clearance',     category: 'Clearance' },
+    { id: 'sign_clearance',    label: 'Sign Clearance',       category: 'Clearance' },
+    { id: 'view_payments',     label: 'View Payments',        category: 'Finance' },
+    { id: 'process_payments',  label: 'Process Payments',     category: 'Finance' },
+    { id: 'manage_fees',       label: 'Manage Org Fees',      category: 'Finance' },
+    { id: 'generate_reports',  label: 'Generate Reports',     category: 'Reports' },
+    { id: 'export_data',       label: 'Export Data',          category: 'Reports' },
+    { id: 'view_audit',        label: 'View Audit Logs',      category: 'System' },
+    { id: 'manage_users',      label: 'Manage Users',         category: 'System' },
+];
+
+const STUDENT_PERM_DETAILS = {
+    view_students:   { icon: 'show',  desc: 'Can browse and search the student list',              risk: 'low' },
+    add_students:    { icon: 'plus',  desc: 'Can enroll new students into the system',             risk: 'medium' },
+    edit_students:   { icon: 'edit',  desc: 'Can update student info and enrollment status',       risk: 'medium' },
+    remove_students: { icon: 'trash', desc: 'Can permanently delete student records',              risk: 'high' },
+    manage_students: { icon: 'shield', desc: 'Full control — includes add, edit, remove, suspend', risk: 'high' },
+};
+
+let facultyList = [
+    { id: 'FAC-001', name: 'Prof. Mark L. Flores, PhD.',   email: 'ml.flores@wmsu.edu.ph',   phone: '+63-912-345-6789', role: 'dean',            department: 'College of Computer Studies',   status: 'active',   permissions: ['view_students','approve_clearance','reject_clearance','generate_reports','export_data','view_payments','view_audit'], dateAdded: 'Jun 1, 2022',  lastLogin: 'Mar 7, 2026' },
+    { id: 'FAC-002', name: 'Mr. Jaydee C. Ballaho, MIT',   email: 'jc.ballaho@wmsu.edu.ph',  phone: '+63-912-345-6790', role: 'dept_head',       department: 'BS Information Technology',      status: 'active',   permissions: ['view_students','approve_clearance','sign_clearance','generate_reports','view_payments'], dateAdded: 'Jun 1, 2022',  lastLogin: 'Mar 6, 2026' },
+    { id: 'FAC-003', name: 'Asst Prof Marjorie A. Rojas',  email: 'ma.rojas@wmsu.edu.ph',    phone: '+63-912-345-6791', role: 'coordinator',     department: 'College of Computer Studies',   status: 'active',   permissions: ['view_students','approve_clearance','sign_clearance','edit_students','generate_reports'], dateAdded: 'Jun 1, 2022',  lastLogin: 'Mar 5, 2026' },
+    { id: 'FAC-004', name: 'Ms. Jennifer Santos',           email: 'j.santos@wmsu.edu.ph',    phone: '+63-912-345-6792', role: 'finance_officer', department: 'Finance Office',                 status: 'active',   permissions: ['view_students','view_payments','process_payments','generate_reports','export_data','manage_fees'], dateAdded: 'Aug 15, 2022', lastLogin: 'Mar 7, 2026' },
+    { id: 'FAC-005', name: 'Prof. Ricardo Dela Cruz, MIT',  email: 'r.delacruz@wmsu.edu.ph',  phone: '+63-912-345-6793', role: 'adviser',         department: 'BS Computer Science',            status: 'active',   permissions: ['view_students','approve_clearance','sign_clearance'], dateAdded: 'Jan 10, 2023', lastLogin: 'Mar 4, 2026' },
+    { id: 'FAC-006', name: 'Prof. Elena Mercado',           email: 'e.mercado@wmsu.edu.ph',   phone: '+63-912-345-6794', role: 'professor',       department: 'BS Information Technology',      status: 'inactive', permissions: ['view_students','sign_clearance'], dateAdded: 'Mar 1, 2023',  lastLogin: 'Jan 20, 2026' },
+];
+
+let studentList = [
+    { id: '2022-00123', name: 'Maria Santos',   email: 'maria.santos@wmsu.edu.ph',  course: 'BS Computer Science',       year: '4th Year', section: 'A', status: 'active',    paymentStatus: 'pending', clearanceStatus: 'in_progress', permissions: ['view_dashboard','make_payment','view_receipt'], enrollmentDate: 'Aug 1, 2022' },
+    { id: '2022-00124', name: 'Juan Dela Cruz',  email: 'juan.delacruz@wmsu.edu.ph', course: 'BS Information Technology', year: '3rd Year', section: 'B', status: 'active',    paymentStatus: 'paid',    clearanceStatus: 'complete',    permissions: ['view_dashboard','make_payment','view_receipt'], enrollmentDate: 'Aug 1, 2022' },
+    { id: '2023-00211', name: 'Ana Reyes',       email: 'ana.reyes@wmsu.edu.ph',     course: 'BS Computer Science',       year: '2nd Year', section: 'A', status: 'active',    paymentStatus: 'overdue', clearanceStatus: 'not_started', permissions: ['view_dashboard'], enrollmentDate: 'Aug 1, 2023' },
+    { id: '2023-00212', name: 'Carlos Mendoza',  email: 'c.mendoza@wmsu.edu.ph',     course: 'BS Information Technology', year: '1st Year', section: 'C', status: 'suspended', paymentStatus: 'overdue', clearanceStatus: 'not_started', permissions: [], enrollmentDate: 'Aug 1, 2023' },
+    { id: '2024-00301', name: 'Liza Tan',        email: 'liza.tan@wmsu.edu.ph',      course: 'BS Computer Science',       year: '1st Year', section: 'A', status: 'active',    paymentStatus: 'pending', clearanceStatus: 'not_started', permissions: ['view_dashboard','make_payment'], enrollmentDate: 'Aug 1, 2024' },
+];
+
+let feeList = [
+    { id: 'csc',       name: 'CSC Fee',                                 amount: 200, description: 'College Student Council Fee',       dueDate: 'Feb 15, 2026', status: 'active' },
+    { id: 'gender',    name: 'Gender Club Membership Fee',              amount: 50,  description: 'CSC Gender Club Annual Membership', dueDate: 'Feb 15, 2026', status: 'active' },
+    { id: 'insurance', name: 'Insurance (Whole Year)',                  amount: 40,  description: 'Annual Student Insurance Coverage', dueDate: 'Feb 15, 2026', status: 'active' },
+    { id: 'misc',      name: 'Miscellaneous (10 booklets @ ₱6 each)', amount: 60,  description: '10 booklets at ₱6.00 each',         dueDate: 'Mar 1, 2026',  status: 'active' },
+];
+
+let signatoryList = [
+    { id: 'csc',           name: 'CSC - College Student Council', role: 'Student Organization',        type: 'organization', order: 1, status: 'active',   assignedTo: '' },
+    { id: 'phiccs',        name: 'PHICCS',                         role: 'Organization',                type: 'organization', order: 2, status: 'active',   assignedTo: '' },
+    { id: 'venom',         name: 'Venom Publication',              role: 'Publication Office',           type: 'organization', order: 3, status: 'active',   assignedTo: '' },
+    { id: 'gender_club',   name: 'CSC Gender Club',                role: 'Student Organization',        type: 'organization', order: 4, status: 'active',   assignedTo: '' },
+    { id: 'dept_head',     name: 'Mr. Jaydee C. Ballaho, MIT',     role: 'Department Head',              type: 'faculty',      order: 5, status: 'active',   assignedTo: 'FAC-002' },
+    { id: 'class_adviser', name: 'Class Adviser',                   role: 'Faculty',                      type: 'faculty',      order: 6, status: 'active',   assignedTo: '' },
+    { id: 'student_affairs', name: 'Asst Prof Marjorie A. Rojas',  role: 'Student Affairs Coordinator', type: 'faculty',      order: 7, status: 'active',   assignedTo: 'FAC-003' },
+    { id: 'dean',          name: 'Prof. Mark L. Flores, PhD.',     role: 'College Dean CCS',             type: 'dean',         order: 8, status: 'active',   assignedTo: 'FAC-001' },
+];
+
+const auditLogs = [
+    { id: 'LOG-001', timestamp: 'Mar 7, 2026 – 09:15 AM', user: 'Admin',                       role: 'System Admin',    action: 'Faculty Added',         details: 'Added Prof. Ricardo Dela Cruz to BS Computer Science department',         ipAddress: '192.168.1.1',   type: 'success' },
+    { id: 'LOG-002', timestamp: 'Mar 7, 2026 – 08:42 AM', user: 'Ms. Jennifer Santos',         role: 'Finance Officer', action: 'Payment Processed',      details: 'Processed payment of ₱350 for student 2022-00123',                       ipAddress: '192.168.1.22',  type: 'info' },
+    { id: 'LOG-003', timestamp: 'Mar 6, 2026 – 04:30 PM', user: 'Admin',                       role: 'System Admin',    action: 'Permission Modified',    details: 'Updated permissions for Carlos Mendoza (2023-00212) – account suspended', ipAddress: '192.168.1.1',   type: 'warning' },
+    { id: 'LOG-004', timestamp: 'Mar 6, 2026 – 02:11 PM', user: 'Prof. Mark L. Flores, PhD.',  role: 'College Dean',    action: 'Clearance Approved',     details: 'Approved clearance for Juan Dela Cruz (2022-00124)',                      ipAddress: '192.168.1.35',  type: 'success' },
+    { id: 'LOG-005', timestamp: 'Mar 5, 2026 – 11:00 AM', user: 'Admin',                       role: 'System Admin',    action: 'Fee Updated',            details: 'Updated Miscellaneous fee due date to Mar 1, 2026',                      ipAddress: '192.168.1.1',   type: 'info' },
+    { id: 'LOG-006', timestamp: 'Mar 5, 2026 – 09:00 AM', user: 'Admin',                       role: 'System Admin',    action: 'Login Failed',           details: 'Failed login attempt for unknown user from suspicious IP',               ipAddress: '203.100.45.67', type: 'error' },
+    { id: 'LOG-007', timestamp: 'Mar 4, 2026 – 03:20 PM', user: 'Asst Prof Marjorie A. Rojas', role: 'Student Affairs', action: 'Clearance Signed',        details: 'Signed clearance for Maria Santos (2022-00123)',                         ipAddress: '192.168.1.18',  type: 'success' },
+    { id: 'LOG-008', timestamp: 'Mar 3, 2026 – 10:45 AM', user: 'Admin',                       role: 'System Admin',    action: 'Student Status Changed', details: 'Changed Ana Reyes status to overdue due to unpaid fees',                 ipAddress: '192.168.1.1',   type: 'warning' },
+];
+
+const systemSettings = {
+    systemName:             'WMSU CCS Student Fees Management System',
+    academicYear:           '2025–2026',
+    semester:               '2nd Semester',
+    paymentGracePeriod:     7,
+    emailNotifications:     true,
+    smsNotifications:       false,
+    autoReminders:          true,
+    requireTwoFactor:       false,
+    allowNewRegistrations:  true,
+    maintenanceMode:        false,
+};
+
+/* ══════════════════════════════
+   SECTION B — UTILITIES
+══════════════════════════════ */
+
+function showToast(msg, isError = false) {
+    const t = document.getElementById('toast');
+    t.innerHTML = `${bxi(isError ? 'x-circle' : 'check-circle')} <span>${msg}</span>`;
+    t.className = 'toast' + (isError ? ' toast--error' : '');
+    setTimeout(() => { t.className = 'toast toast--hidden'; }, 3000);
+}
+
+function getInitials(name) {
+    return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+}
+
+function statusAvatarClass(status) {
+    if (status === 'active')   return 'mem-av--active';
+    if (status === 'inactive') return 'mem-av--inactive';
+    return 'mem-av--suspended';
+}
+
+function paymentBadgeClass(s) {
+    return s === 'paid' ? 'badge-green' : s === 'pending' ? 'badge-amber' : 'badge-red';
+}
+
+function clearanceBadgeClass(s) {
+    return s === 'complete' ? 'badge-green' : s === 'in_progress' ? 'badge-amber' : 'badge-gray';
+}
+
+function clearanceLabel(s) {
+    return s === 'complete' ? 'Complete' : s === 'in_progress' ? 'In Progress' : 'Not Started';
+}
+
+function clearanceTextClass(s) {
+    return s === 'complete' ? 'badge-green' : s === 'in_progress' ? 'badge-amber' : '';
+}
+
+function logTypeClass(type) {
+    return type === 'success' ? 'audit-icon--success'
+         : type === 'warning' ? 'audit-icon--warning'
+         : type === 'error'   ? 'audit-icon--error'
+         :                      'audit-icon--info';
+}
+
+function logTypeIcon(type) {
+    return type === 'success' ? 'check'
+         : type === 'warning' ? 'error'
+         : type === 'error'   ? 'x-circle'
+         :                      'info-circle';
+}
+
+function logBadgeClass(type) {
+    return type === 'success' ? 'badge-green'
+         : type === 'warning' ? 'badge-amber'
+         : type === 'error'   ? 'badge-red'
+         :                      'badge-blue';
+}
+
+function logRecentClass(type) {
+    return type === 'success' ? 'rmi--success'
+         : type === 'warning' ? 'rmi--warning'
+         : type === 'error'   ? 'rmi--error'
+         :                      'rmi--info';
+}
+
+function riskBadgeClass(r) {
+    return r === 'high' ? 'badge-red' : r === 'medium' ? 'badge-amber' : 'badge-green';
+}
+
+function riskCheckClass(r) {
+    return r === 'high' ? 'perm-checkbox--red' : r === 'medium' ? 'perm-checkbox--amber' : 'perm-checkbox--green';
+}
+
+/* ══════════════════════════════
+   SECTION C — TAB SWITCHING
+══════════════════════════════ */
+
+const TAB_LABELS = {
+    overview:    'Overview',
+    faculty:     'Faculty Management',
+    students:    'Student Accounts',
+    permissions: 'Permissions',
+    fees:        'Fee Configuration',
+    clearance:   'Clearance Setup',
+    system:      'System Settings',
+    audit:       'Audit Logs',
+};
+
+let activeTab = 'overview';
+
+function switchTab(tab) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('tab-panel--active'));
+    document.querySelectorAll('a[data-tab]').forEach(a => a.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('tab-panel--active');
+    const activeLink = document.querySelector(`a[data-tab="${tab}"]`);
+    if (activeLink) activeLink.classList.add('active');
+    document.getElementById('header-tab-label').textContent = TAB_LABELS[tab];
+    activeTab = tab;
+    renderTab(tab);
+}
+
+document.querySelectorAll('a[data-tab]').forEach(link => {
+    link.addEventListener('click', e => {
+        e.preventDefault();
+        switchTab(link.dataset.tab);
+    });
+});
+
+/* ══════════════════════════════
+   SECTION D — SIDEBAR TOGGLE
+══════════════════════════════ */
+
+const sidebarEl  = document.querySelector('.sidebar');
+const menuToggle = document.querySelector('.bx-menu');
+if (menuToggle) {
+    menuToggle.addEventListener('click', () => sidebarEl.classList.toggle('close'));
+}
+
+document.querySelector('.logout-section').addEventListener('click', () => {
+    if (window.Auth) window.Auth.logout();
+    window.location.replace('../../login-page.html');
+});
+
+/* ══════════════════════════════
+   SECTION E — RENDER FUNCTIONS
+══════════════════════════════ */
+
+function renderTab(tab) {
+    if (tab === 'overview')    renderOverview();
+    if (tab === 'faculty')     renderFaculty();
+    if (tab === 'students')    renderStudents();
+    if (tab === 'permissions') renderPermissions();
+    if (tab === 'fees')        renderFees();
+    if (tab === 'clearance')   renderClearance();
+    if (tab === 'system')      renderSystem();
+    if (tab === 'audit')       renderAudit();
+}
+
+/* ── OVERVIEW ─────────────────── */
+function renderOverview() {
+    const el = document.getElementById('tab-overview');
+    const activeFaculty  = facultyList.filter(f => f.status === 'active').length;
+    const activeStudents = studentList.filter(s => s.status === 'active').length;
+    const cleared        = studentList.filter(s => s.clearanceStatus === 'complete').length;
+    const inProgress     = studentList.filter(s => s.clearanceStatus === 'in_progress').length;
+
+    const systemStatuses = [
+        { label: 'Database',            icon: 'data',        status: 'Operational' },
+        { label: 'Payment Gateway',     icon: 'credit-card', status: 'Operational' },
+        { label: 'Email Notifications', icon: 'envelope',    status: 'Operational' },
+        { label: 'Clearance Module',    icon: 'clipboard',   status: 'Operational' },
+        { label: 'Report Generator',    icon: 'bar-chart-alt-2', status: 'Maintenance' },
+    ];
+
+    const stats = [
+        { label: 'Total Faculty',     value: activeFaculty,  sub: facultyList.length + ' total registered', cls: 'sib--green',   icon: 'group' },
+        { label: 'Total Students',    value: activeStudents, sub: studentList.length + ' total enrolled',   cls: 'sib--blue',    icon: 'user-check' },
+        { label: 'Cleared Students',  value: cleared,        sub: 'fully cleared this term',               cls: 'sib--emerald', icon: 'check-circle' },
+        { label: 'Pending Clearance', value: inProgress,     sub: 'awaiting completion',                   cls: 'sib--amber',   icon: 'time-five' },
+    ];
+
+    el.innerHTML = `
+        <div class="section-header">
+            <div>
+                <div class="section-title">System Overview</div>
+                <div class="section-sub">Manage all aspects of the WMSU CCS Student Fees Management System</div>
+            </div>
+        </div>
+
+        <div class="stat-grid">
+            ${stats.map(s => `
+            <div class="stat-card">
+                <div class="stat-icon-box ${s.cls}">${bxi(s.icon)}</div>
+                <div class="stat-value">${s.value}</div>
+                <div class="stat-label">${s.label}</div>
+                <div class="stat-sub">${s.sub}</div>
+            </div>`).join('')}
+        </div>
+
+        <div class="card" id="overview-quick-card">
+            <div class="card-title">Quick Actions</div>
+            <div class="quick-grid">
+                <button class="quick-btn qbtn--green" data-goto="faculty">${bxi('plus')} <span>Add Faculty</span></button>
+                <button class="quick-btn qbtn--blue"  data-goto="permissions">${bxi('key')} <span>Manage Permissions</span></button>
+                <button class="quick-btn qbtn--amber" data-goto="fees">${bxi('dollar-circle')} <span>Update Fees</span></button>
+                <button class="quick-btn qbtn--purple" data-goto="audit">${bxi('bar-chart-alt-2')} <span>View Audit Logs</span></button>
+            </div>
+        </div>
+
+        <div class="two-col">
+            <div class="card">
+                <div class="card-title">System Status</div>
+                ${systemStatuses.map(s => `
+                <div class="toggle-row">
+                    <span class="text-dark">${bxi(s.icon)} ${s.label}</span>
+                    <span class="badge ${s.status === 'Operational' ? 'badge-green' : 'badge-amber'}">${s.status}</span>
+                </div>`).join('')}
+            </div>
+            <div class="card">
+                <div class="card-title">Recent Activity</div>
+                ${auditLogs.slice(0, 5).map(log => `
+                <div class="recent-item">
+                    <div class="recent-mini-icon ${logRecentClass(log.type)}">${bxi(logTypeIcon(log.type))}</div>
+                    <div class="recent-mini-text">
+                        <div class="recent-mini-title">${log.action}</div>
+                        <div class="recent-mini-detail">${log.details}</div>
+                        <div class="recent-mini-time">${log.timestamp}</div>
+                    </div>
+                </div>`).join('')}
+            </div>
+        </div>
+    `;
+
+    el.querySelectorAll('.quick-btn[data-goto]').forEach(b => {
+        b.addEventListener('click', () => switchTab(b.dataset.goto));
+    });
+}
+
+/* ── FACULTY ──────────────────── */
+let facultySearch = '';
+let facultyRoleFilter = 'all';
+let facultyStatusFilter = 'all';
+let showAddFacultyForm = false;
+let editingFacultyId = null;
+let deleteConfirmFacultyId = null;
+let newFacultyData = { name: '', email: '', phone: '', role: 'professor', department: 'BS Computer Science' };
+
+function renderFaculty() {
+    const el = document.getElementById('tab-faculty');
+    const filtered = facultyList.filter(f => {
+        const q = facultySearch.toLowerCase();
+        return (f.name.toLowerCase().includes(q) || f.email.toLowerCase().includes(q))
+            && (facultyRoleFilter === 'all' || f.role === facultyRoleFilter)
+            && (facultyStatusFilter === 'all' || f.status === facultyStatusFilter);
+    });
+
+    el.innerHTML = `
+        <div class="section-header">
+            <div>
+                <div class="section-title">Faculty Management</div>
+                <div class="section-sub">Add, edit, or remove faculty members and assign their roles</div>
+            </div>
+            <button class="btn btn-green" id="show-add-faculty-btn">
+                ${bxi('plus')} Add Faculty
+            </button>
+        </div>
+
+        <div class="filters-row">
+            <div class="search-wrap">
+                <span class="search-icon">${bxi('search')}</span>
+                <input id="faculty-search" value="${facultySearch}" placeholder="Search by name or email…">
+            </div>
+            <select class="filter-select" id="faculty-role-filter">
+                <option value="all">All Roles</option>
+                ${Object.entries(ROLE_LABELS).map(([k, v]) =>
+                    `<option value="${k}"${facultyRoleFilter === k ? ' selected' : ''}>${v}</option>`
+                ).join('')}
+            </select>
+            <select class="filter-select" id="faculty-status-filter">
+                <option value="all">All Status</option>
+                <option value="active"${facultyStatusFilter === 'active' ? ' selected' : ''}>Active</option>
+                <option value="inactive"${facultyStatusFilter === 'inactive' ? ' selected' : ''}>Inactive</option>
+                <option value="suspended"${facultyStatusFilter === 'suspended' ? ' selected' : ''}>Suspended</option>
+            </select>
+        </div>
+
+        ${showAddFacultyForm ? `
+        <div class="form-box form-box--green" id="add-faculty-form">
+            <div class="form-box-header">
+                <span class="form-box-title form-box-title--green">${bxi('plus')} Add New Faculty Member</span>
+                <button class="form-close-btn" id="close-add-faculty">${bxi('x')}</button>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input id="nf-name" value="${newFacultyData.name}" placeholder="e.g. Prof. Juan Dela Cruz">
+                </div>
+                <div class="form-group">
+                    <label>Email Address *</label>
+                    <input id="nf-email" type="email" value="${newFacultyData.email}" placeholder="email@wmsu.edu.ph">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input id="nf-phone" value="${newFacultyData.phone}" placeholder="+63-912-345-6789">
+                </div>
+                <div class="form-group">
+                    <label>Role *</label>
+                    <select id="nf-role">
+                        ${Object.entries(ROLE_LABELS).map(([k, v]) =>
+                            `<option value="${k}"${newFacultyData.role === k ? ' selected' : ''}>${v}</option>`
+                        ).join('')}
+                    </select>
+                </div>
+                <div class="form-group col-span-2">
+                    <label>Department</label>
+                    <select id="nf-dept">
+                        ${['BS Computer Science', 'BS Information Technology', 'College of Computer Studies', 'Finance Office'].map(d =>
+                            `<option${newFacultyData.department === d ? ' selected' : ''}>${d}</option>`
+                        ).join('')}
+                    </select>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-outline" id="cancel-add-faculty">Cancel</button>
+                <button class="btn btn-green" id="save-add-faculty">${bxi('save')} Save Faculty</button>
+            </div>
+        </div>` : ''}
+
+        ${editingFacultyId ? (() => {
+            const f = facultyList.find(x => x.id === editingFacultyId);
+            return f ? `
+            <div class="form-box form-box--blue" id="edit-faculty-form">
+                <div class="form-box-header">
+                    <span class="form-box-title form-box-title--blue">${bxi('edit')} Edit Faculty – ${f.name}</span>
+                    <button class="form-close-btn" id="close-edit-faculty">${bxi('x')}</button>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Full Name</label><input id="ef-name" value="${f.name}"></div>
+                    <div class="form-group"><label>Email</label><input id="ef-email" type="email" value="${f.email}"></div>
+                    <div class="form-group"><label>Phone</label><input id="ef-phone" value="${f.phone}"></div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select id="ef-role">
+                            ${Object.entries(ROLE_LABELS).map(([k, v]) =>
+                                `<option value="${k}"${f.role === k ? ' selected' : ''}>${v}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="ef-status">
+                            <option value="active"${f.status === 'active' ? ' selected' : ''}>Active</option>
+                            <option value="inactive"${f.status === 'inactive' ? ' selected' : ''}>Inactive</option>
+                            <option value="suspended"${f.status === 'suspended' ? ' selected' : ''}>Suspended</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Department</label>
+                        <select id="ef-dept">
+                            ${['BS Computer Science', 'BS Information Technology', 'College of Computer Studies', 'Finance Office'].map(d =>
+                                `<option${f.department === d ? ' selected' : ''}>${d}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-outline" id="cancel-edit-faculty">Cancel</button>
+                    <button class="btn btn-blue" id="save-edit-faculty">${bxi('save')} Save Changes</button>
+                </div>
+            </div>` : '';
+        })() : ''}
+
+        <div id="faculty-list">
+            ${filtered.length === 0 ? `
+            <div class="card faculty-empty-state">No faculty members found.</div>` :
+            filtered.map(f => `
+            <div class="member-card" data-faculty-id="${f.id}">
+                <div class="member-row">
+                    <div class="member-avatar ${statusAvatarClass(f.status)}">${getInitials(f.name)}</div>
+                    <div class="member-info">
+                        <div class="member-name">
+                            ${f.name}
+                            <span class="badge ${ROLE_BADGE_CLASS[f.role]}">${ROLE_LABELS[f.role]}</span>
+                            <span class="badge ${f.status === 'active' ? 'badge-green' : f.status === 'inactive' ? 'badge-gray' : 'badge-red'}">
+                                ${f.status.charAt(0).toUpperCase() + f.status.slice(1)}
+                            </span>
+                        </div>
+                        <div class="member-meta">
+                            <span>${bxi('envelope')} ${f.email}</span>
+                            <span>${bxi('buildings')} ${f.department}</span>
+                            <span>${bxi('time-five')} Last login: ${f.lastLogin}</span>
+                        </div>
+                        <div class="member-perms">
+                            ${f.permissions.slice(0, 4).map(p => {
+                                const perm = ALL_PERMISSIONS.find(x => x.id === p);
+                                return perm ? `<span class="badge badge-gray">${perm.label}</span>` : '';
+                            }).join('')}
+                            ${f.permissions.length > 4 ? `<span class="badge badge-gray">+${f.permissions.length - 4} more</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="member-actions">
+                        <button class="icon-btn icon-btn--blue faculty-edit-btn" data-id="${f.id}" title="Edit">
+                            ${bxi('edit')}
+                        </button>
+                        <button class="icon-btn icon-btn--amber faculty-toggle-btn" data-id="${f.id}" title="${f.status === 'active' ? 'Deactivate' : 'Activate'}">
+                            ${f.status === 'active' ? bxi('lock') : bxi('lock-open')}
+                        </button>
+                        <button class="icon-btn icon-btn--red faculty-delete-btn" data-id="${f.id}" title="Remove">
+                            ${bxi('trash')}
+                        </button>
+                    </div>
+                </div>
+                ${deleteConfirmFacultyId === f.id ? `
+                <div class="confirm-box">
+                    <span>${bxi('error')} Remove <strong>${f.name}</strong> from the system? This cannot be undone.</span>
+                    <div class="confirm-box-actions">
+                        <button class="btn btn-outline faculty-cancel-delete" data-id="${f.id}">Cancel</button>
+                        <button class="btn btn-red faculty-confirm-delete" data-id="${f.id}">Remove</button>
+                    </div>
+                </div>` : ''}
+            </div>`).join('')}
+        </div>
+    `;
+
+    // Wire events
+    document.getElementById('show-add-faculty-btn')?.addEventListener('click', () => {
+        showAddFacultyForm = true; renderFaculty();
+    });
+    document.getElementById('close-add-faculty')?.addEventListener('click', () => {
+        showAddFacultyForm = false; renderFaculty();
+    });
+    document.getElementById('cancel-add-faculty')?.addEventListener('click', () => {
+        showAddFacultyForm = false; renderFaculty();
+    });
+    document.getElementById('save-add-faculty')?.addEventListener('click', () => {
+        const name  = document.getElementById('nf-name').value.trim();
+        const email = document.getElementById('nf-email').value.trim();
+        if (!name || !email) { showToast('Name and email are required.', true); return; }
+        const id = 'FAC-' + String(facultyList.length + 1).padStart(3, '0');
+        facultyList.push({
+            id, name, email,
+            phone:      document.getElementById('nf-phone').value,
+            role:       document.getElementById('nf-role').value,
+            department: document.getElementById('nf-dept').value,
+            status: 'active', permissions: [], dateAdded: 'Mar 8, 2026', lastLogin: 'Never',
+        });
+        showAddFacultyForm = false;
+        newFacultyData = { name: '', email: '', phone: '', role: 'professor', department: 'BS Computer Science' };
+        showToast('Faculty member ' + name + ' added.');
+        renderFaculty();
+    });
+
+    document.getElementById('close-edit-faculty')?.addEventListener('click', () => {
+        editingFacultyId = null; renderFaculty();
+    });
+    document.getElementById('cancel-edit-faculty')?.addEventListener('click', () => {
+        editingFacultyId = null; renderFaculty();
+    });
+    document.getElementById('save-edit-faculty')?.addEventListener('click', () => {
+        facultyList = facultyList.map(f => f.id !== editingFacultyId ? f : {
+            ...f,
+            name:       document.getElementById('ef-name').value,
+            email:      document.getElementById('ef-email').value,
+            phone:      document.getElementById('ef-phone').value,
+            role:       document.getElementById('ef-role').value,
+            status:     document.getElementById('ef-status').value,
+            department: document.getElementById('ef-dept').value,
+        });
+        editingFacultyId = null;
+        showToast('Faculty updated.');
+        renderFaculty();
+    });
+
+    document.getElementById('faculty-search')?.addEventListener('input', e => {
+        facultySearch = e.target.value; renderFaculty();
+    });
+    document.getElementById('faculty-role-filter')?.addEventListener('change', e => {
+        facultyRoleFilter = e.target.value; renderFaculty();
+    });
+    document.getElementById('faculty-status-filter')?.addEventListener('change', e => {
+        facultyStatusFilter = e.target.value; renderFaculty();
+    });
+
+    el.querySelectorAll('.faculty-edit-btn').forEach(b => b.addEventListener('click', () => {
+        editingFacultyId = b.dataset.id; showAddFacultyForm = false; renderFaculty();
+    }));
+    el.querySelectorAll('.faculty-toggle-btn').forEach(b => b.addEventListener('click', () => {
+        facultyList = facultyList.map(f =>
+            f.id === b.dataset.id ? { ...f, status: f.status === 'active' ? 'inactive' : 'active' } : f
+        );
+        showToast('Faculty status updated.'); renderFaculty();
+    }));
+    el.querySelectorAll('.faculty-delete-btn').forEach(b => b.addEventListener('click', () => {
+        deleteConfirmFacultyId = b.dataset.id; renderFaculty();
+    }));
+    el.querySelectorAll('.faculty-cancel-delete').forEach(b => b.addEventListener('click', () => {
+        deleteConfirmFacultyId = null; renderFaculty();
+    }));
+    el.querySelectorAll('.faculty-confirm-delete').forEach(b => b.addEventListener('click', () => {
+        facultyList = facultyList.filter(f => f.id !== b.dataset.id);
+        deleteConfirmFacultyId = null;
+        showToast('Faculty removed.'); renderFaculty();
+    }));
+}
+
+/* ── STUDENTS ─────────────────── */
+let studentSearch = '';
+let showAddStudentForm = false;
+let deleteConfirmStudentId = null;
+let newStudentData = { name: '', email: '', course: 'BS Computer Science', year: '1st Year', section: 'A' };
+
+function renderStudents() {
+    const el = document.getElementById('tab-students');
+    const filtered = studentList.filter(s => {
+        const q = studentSearch.toLowerCase();
+        return s.name.toLowerCase().includes(q)
+            || s.id.includes(q)
+            || s.course.toLowerCase().includes(q);
+    });
+
+    el.innerHTML = `
+        <div class="section-header">
+            <div>
+                <div class="section-title">Student Accounts</div>
+                <div class="section-sub">Manage student accounts, status, and system access</div>
+            </div>
+            <button class="btn btn-green" id="show-add-student-btn">
+                ${bxi('plus')} Add Student
+            </button>
+        </div>
+
+        <div class="filters-row">
+            <div class="search-wrap">
+                <span class="search-icon">${bxi('search')}</span>
+                <input id="student-search" value="${studentSearch}" placeholder="Search by name, ID, or course…">
+            </div>
+        </div>
+
+        ${showAddStudentForm ? `
+        <div class="form-box form-box--green">
+            <div class="form-box-header">
+                <span class="form-box-title form-box-title--green">${bxi('plus')} Add New Student</span>
+                <button class="form-close-btn" id="close-add-student">${bxi('x')}</button>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input id="ns-name" value="${newStudentData.name}" placeholder="Full name">
+                </div>
+                <div class="form-group">
+                    <label>Email Address *</label>
+                    <input id="ns-email" type="email" value="${newStudentData.email}" placeholder="student@wmsu.edu.ph">
+                </div>
+                <div class="form-group">
+                    <label>Course</label>
+                    <select id="ns-course">
+                        <option>BS Computer Science</option>
+                        <option>BS Information Technology</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Year Level</label>
+                    <select id="ns-year">
+                        <option>1st Year</option>
+                        <option>2nd Year</option>
+                        <option>3rd Year</option>
+                        <option>4th Year</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Section</label>
+                    <select id="ns-section">
+                        <option>A</option>
+                        <option>B</option>
+                        <option>C</option>
+                        <option>D</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-outline" id="cancel-add-student">Cancel</button>
+                <button class="btn btn-green" id="save-add-student">${bxi('save')} Save Student</button>
+            </div>
+        </div>` : ''}
+
+        <div id="student-list">
+            ${filtered.map(s => `
+            <div class="member-card">
+                <div class="member-row">
+                    <div class="member-avatar ${statusAvatarClass(s.status)}">${getInitials(s.name)}</div>
+                    <div class="member-info">
+                        <div class="member-name">
+                            ${s.name}
+                            <span class="badge badge-gray student-id-badge">#${s.id}</span>
+                            <span class="badge ${s.status === 'active' ? 'badge-green' : 'badge-red'}">
+                                ${s.status.charAt(0).toUpperCase() + s.status.slice(1)}
+                            </span>
+                            <span class="badge ${paymentBadgeClass(s.paymentStatus)}">
+                                ${s.paymentStatus.charAt(0).toUpperCase() + s.paymentStatus.slice(1)}
+                            </span>
+                        </div>
+                        <div class="member-meta">
+                            <span>${s.course} – ${s.year}, Sec. ${s.section}</span>
+                            <span>
+                                ${bxi('clipboard')} Clearance:
+                                <span class="badge ${clearanceBadgeClass(s.clearanceStatus)}">${clearanceLabel(s.clearanceStatus)}</span>
+                            </span>
+                        </div>
+                        <div class="member-perms">
+                            ${['view_dashboard', 'make_payment', 'view_receipt'].map(p => `
+                            <button class="badge ${s.permissions.includes(p) ? 'badge-green' : 'badge-gray'} student-perm-toggle"
+                                data-sid="${s.id}" data-perm="${p}">
+                                ${p === 'view_dashboard' ? 'Dashboard' : p === 'make_payment' ? 'Payments' : 'Receipts'}
+                            </button>`).join('')}
+                        </div>
+                    </div>
+                    <div class="member-actions">
+                        <button class="icon-btn icon-btn--amber student-toggle-btn" data-id="${s.id}" title="${s.status === 'active' ? 'Suspend' : 'Activate'}">
+                            ${s.status === 'active' ? bxi('block') : bxi('check')}
+                        </button>
+                        <button class="icon-btn icon-btn--red student-delete-btn" data-id="${s.id}" title="Remove">
+                            ${bxi('trash')}
+                        </button>
+                    </div>
+                </div>
+                ${deleteConfirmStudentId === s.id ? `
+                <div class="confirm-box">
+                    <span>${bxi('error')} Remove <strong>${s.name}</strong>?</span>
+                    <div class="confirm-box-actions">
+                        <button class="btn btn-outline student-cancel-delete" data-id="${s.id}">Cancel</button>
+                        <button class="btn btn-red student-confirm-delete" data-id="${s.id}">Remove</button>
+                    </div>
+                </div>` : ''}
+            </div>`).join('')}
+        </div>
+    `;
+
+    document.getElementById('show-add-student-btn')?.addEventListener('click', () => {
+        showAddStudentForm = true; renderStudents();
+    });
+    document.getElementById('close-add-student')?.addEventListener('click', () => {
+        showAddStudentForm = false; renderStudents();
+    });
+    document.getElementById('cancel-add-student')?.addEventListener('click', () => {
+        showAddStudentForm = false; renderStudents();
+    });
+    document.getElementById('save-add-student')?.addEventListener('click', () => {
+        const name  = document.getElementById('ns-name').value.trim();
+        const email = document.getElementById('ns-email').value.trim();
+        if (!name || !email) { showToast('Name and email are required.', true); return; }
+        const id = '2026-' + String(Math.floor(Math.random() * 90000) + 10000);
+        studentList.push({
+            id, name, email,
+            course: document.getElementById('ns-course').value,
+            year:   document.getElementById('ns-year').value,
+            section: document.getElementById('ns-section').value,
+            status: 'active', paymentStatus: 'pending', clearanceStatus: 'not_started',
+            permissions: ['view_dashboard', 'make_payment'], enrollmentDate: 'Mar 8, 2026',
+        });
+        showAddStudentForm = false;
+        showToast('Student ' + name + ' added.');
+        renderStudents();
+    });
+
+    document.getElementById('student-search')?.addEventListener('input', e => {
+        studentSearch = e.target.value; renderStudents();
+    });
+    el.querySelectorAll('.student-toggle-btn').forEach(b => b.addEventListener('click', () => {
+        studentList = studentList.map(s =>
+            s.id === b.dataset.id ? { ...s, status: s.status === 'active' ? 'suspended' : 'active' } : s
+        );
+        showToast('Student status updated.'); renderStudents();
+    }));
+    el.querySelectorAll('.student-delete-btn').forEach(b => b.addEventListener('click', () => {
+        deleteConfirmStudentId = b.dataset.id; renderStudents();
+    }));
+    el.querySelectorAll('.student-cancel-delete').forEach(b => b.addEventListener('click', () => {
+        deleteConfirmStudentId = null; renderStudents();
+    }));
+    el.querySelectorAll('.student-confirm-delete').forEach(b => b.addEventListener('click', () => {
+        studentList = studentList.filter(s => s.id !== b.dataset.id);
+        deleteConfirmStudentId = null;
+        showToast('Student removed.'); renderStudents();
+    }));
+    el.querySelectorAll('.student-perm-toggle').forEach(b => b.addEventListener('click', () => {
+        const sid = b.dataset.sid, perm = b.dataset.perm;
+        studentList = studentList.map(s => {
+            if (s.id !== sid) return s;
+            const perms = s.permissions.includes(perm)
+                ? s.permissions.filter(p => p !== perm)
+                : [...s.permissions, perm];
+            return { ...s, permissions: perms };
+        });
+        renderStudents();
+    }));
+}
+
+/* ── PERMISSIONS ──────────────── */
+let expandedFacultyPermId = null;
+const studentMgmtPerms = ALL_PERMISSIONS.filter(p => p.category === 'Student Management');
+const otherPerms       = ALL_PERMISSIONS.filter(p => p.category !== 'Student Management');
+const otherCategories  = [...new Set(otherPerms.map(p => p.category))];
+
+function toggleFacultyPerm(facultyId, permId) {
+    facultyList = facultyList.map(f => {
+        if (f.id !== facultyId) return f;
+        const perms = f.permissions.includes(permId)
+            ? f.permissions.filter(p => p !== permId)
+            : [...f.permissions, permId];
+        return { ...f, permissions: perms };
+    });
+    renderPermissions();
+}
+
+function renderPermissions() {
+    const el = document.getElementById('tab-permissions');
+
+    el.innerHTML = `
+        <div class="section-header">
+            <div>
+                <div class="section-title">Role Permissions</div>
+                <div class="section-sub">Configure what each role can access and do in the system</div>
+            </div>
+        </div>
+
+        <div class="info-banner info-banner--amber">
+            <span class="info-banner-icon">${bxi('error')}</span>
+            <p>Changing permissions affects all users with the corresponding role immediately. Changes are logged in the Audit trail.</p>
+        </div>
+
+        <div class="card" id="perm-matrix-card">
+            <div class="perm-section-head">
+                <span class="perm-section-head-icon">${bxi('graduation')}</span>
+                <div>
+                    <div class="perm-section-head-title">Student Management Permissions</div>
+                    <div class="perm-section-head-sub">Control who can add, edit, or remove students</div>
+                </div>
+            </div>
+            <div class="perm-legend-row">
+                ${studentMgmtPerms.map(p => {
+                    const d = STUDENT_PERM_DETAILS[p.id];
+                    return `<div class="perm-legend-item">
+                        <span class="perm-legend-icon">${bxi(d.icon)}</span>
+                        <span class="perm-legend-item-label">${p.label}</span>
+                        <span class="badge ${riskBadgeClass(d.risk)}">${d.risk}</span>
+                    </div>`;
+                }).join('')}
+            </div>
+            <div class="perm-table-overflow">
+                <table class="perm-table">
+                    <thead>
+                        <tr>
+                            <th>Faculty / Role</th>
+                            ${studentMgmtPerms.map(p => {
+                                const d = STUDENT_PERM_DETAILS[p.id];
+                                return `<th class="th-center">
+                                    <div class="perm-th-cell">
+                                        ${bxi(d.icon)}
+                                        <span>${p.label}</span>
+                                        <span class="badge ${riskBadgeClass(d.risk)}">${d.risk}</span>
+                                    </div>
+                                </th>`;
+                            }).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${facultyList.map(f => `
+                        <tr>
+                            <td>
+                                <div class="perm-table-faculty-cell">
+                                    <div class="member-avatar mem-av--active perm-table-avatar">${getInitials(f.name)}</div>
+                                    <div>
+                                        <div class="perm-table-fname">${f.name.split(',')[0]}</div>
+                                        <span class="badge ${ROLE_BADGE_CLASS[f.role]}">${ROLE_LABELS[f.role]}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            ${studentMgmtPerms.map(p => {
+                                const has = f.permissions.includes(p.id);
+                                const d   = STUDENT_PERM_DETAILS[p.id];
+                                return `<td class="th-center">
+                                    <button class="perm-checkbox ${has ? riskCheckClass(d.risk) : ''} matrix-perm-toggle"
+                                        data-fid="${f.id}" data-pid="${p.id}" title="${d.desc}">
+                                        ${has ? bxi('check') : ''}
+                                    </button>
+                                </td>`;
+                            }).join('')}
+                        </tr>`).join('')}
+                    </tbody>
+                </table>
+            </div>
+            <div class="perm-desc-footer">
+                <div class="perm-desc-footer-title">Permission Descriptions</div>
+                <div class="perm-desc-grid">
+                    ${studentMgmtPerms.map(p => {
+                        const d = STUDENT_PERM_DETAILS[p.id];
+                        return `<div class="perm-desc-item ${d.risk === 'high' ? 'perm-desc-item--red' : 'perm-desc-item--blue'}">
+                            <span class="perm-desc-item-icon">${bxi(d.icon)}</span>
+                            <div>
+                                <div class="perm-desc-item-name">${p.label}</div>
+                                <div class="perm-desc-item-text">${d.desc}</div>
+                            </div>
+                        </div>`;
+                    }).join('')}
+                </div>
+            </div>
+        </div>
+
+        <div class="perm-save-row">
+            <button class="btn btn-blue" id="save-student-perms">
+                ${bxi('save')} Save Student Permissions
+            </button>
+        </div>
+
+        <div>
+            <div class="perm-other-title">Other Role Permissions</div>
+            <div class="perm-other-sub">Configure clearance, finance, report, and system access per faculty member</div>
+        </div>
+
+        ${facultyList.map(f => {
+            const isExp = expandedFacultyPermId === f.id;
+            const studentPermCount = f.permissions.filter(p =>
+                ['add_students','edit_students','remove_students','manage_students'].includes(p)
+            ).length;
+            const otherPermCount = f.permissions.filter(p =>
+                !['view_students','add_students','edit_students','remove_students','manage_students'].includes(p)
+            ).length;
+            return `
+            <div class="accordion-card">
+                <button class="accordion-btn accordion-perm-btn" data-fid="${f.id}">
+                    <div class="accordion-btn-left">
+                        <div class="member-avatar mem-av--active">${getInitials(f.name)}</div>
+                        <div class="accordion-btn-info">
+                            <div class="accordion-btn-name">${f.name}</div>
+                            <div class="accordion-btn-sub">
+                                ${ROLE_LABELS[f.role]} –
+                                <span class="accordion-btn-sub-blue">${studentPermCount} student perm(s)</span>,
+                                ${otherPermCount} other
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-btn-right">
+                        <span class="badge ${ROLE_BADGE_CLASS[f.role]}">${ROLE_LABELS[f.role]}</span>
+                        <span class="accordion-chevron ${isExp ? 'open' : ''}">${bxi('chevron-down')}</span>
+                    </div>
+                </button>
+                <div class="accordion-body ${isExp ? 'accordion-body--expanded' : ''}" id="perm-body-${f.id}">
+                    ${otherCategories.map(cat => `
+                    <div class="accordion-category">
+                        <div class="accordion-category-title">${cat}</div>
+                        <div class="accordion-category-pills">
+                            ${otherPerms.filter(p => p.category === cat).map(p => {
+                                const has = f.permissions.includes(p.id);
+                                return `<button class="perm-pill ${has ? 'perm-pill--on' : 'perm-pill--off'} other-perm-toggle"
+                                    data-fid="${f.id}" data-pid="${p.id}">
+                                    <span class="perm-pill-check">${has ? bxi('check') : ''}</span>
+                                    <span>${p.label}</span>
+                                </button>`;
+                            }).join('')}
+                        </div>
+                    </div>`).join('')}
+                    <div class="accordion-save-row">
+                        <button class="btn btn-green save-other-perms" data-fid="${f.id}">
+                            ${bxi('save')} Save Permissions
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+        }).join('')}
+    `;
+
+    document.getElementById('save-student-perms')?.addEventListener('click', () =>
+        showToast('Student management permissions saved.')
+    );
+    el.querySelectorAll('.matrix-perm-toggle').forEach(b => b.addEventListener('click', () => {
+        toggleFacultyPerm(b.dataset.fid, b.dataset.pid);
+    }));
+    el.querySelectorAll('.accordion-perm-btn').forEach(b => b.addEventListener('click', () => {
+        expandedFacultyPermId = expandedFacultyPermId === b.dataset.fid ? null : b.dataset.fid;
+        renderPermissions();
+    }));
+    el.querySelectorAll('.other-perm-toggle').forEach(b => b.addEventListener('click', () => {
+        toggleFacultyPerm(b.dataset.fid, b.dataset.pid);
+    }));
+    el.querySelectorAll('.save-other-perms').forEach(b => b.addEventListener('click', () => {
+        const f = facultyList.find(x => x.id === b.dataset.fid);
+        showToast('Permissions saved for ' + (f?.name || '') + '.');
+        expandedFacultyPermId = null;
+        renderPermissions();
+    }));
+}
+
+/* ── FEES ─────────────────────── */
+let editingFeeId = null;
+
+function renderFees() {
+    const el = document.getElementById('tab-fees');
+    const activeFees = feeList.filter(f => f.status === 'active');
+    const total = activeFees.reduce((s, f) => s + f.amount, 0);
+
+    el.innerHTML = `
+        <div class="section-header">
+            <div>
+                <div class="section-title">Fee Configuration</div>
+                <div class="section-sub">Manage fee types, amounts, and due dates</div>
+            </div>
+            <button class="btn btn-green" id="add-fee-btn">
+                ${bxi('plus')} Add Fee
+            </button>
+        </div>
+        <div id="fee-list">
+            ${feeList.map(f => `
+            <div class="fee-card" data-fee-id="${f.id}">
+                ${editingFeeId === f.id ? `
+                <div class="form-grid">
+                    <div class="form-group"><label>Fee Name</label><input id="ef-fname" value="${f.name}"></div>
+                    <div class="form-group"><label>Amount (₱)</label><input id="ef-famount" type="number" value="${f.amount}"></div>
+                    <div class="form-group"><label>Description</label><input id="ef-fdesc" value="${f.description}"></div>
+                    <div class="form-group"><label>Due Date</label><input id="ef-fdue" value="${f.dueDate}"></div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-outline fee-cancel-edit">Cancel</button>
+                    <button class="btn btn-green fee-save-edit" data-id="${f.id}">${bxi('save')} Save</button>
+                </div>` : `
+                <div class="fee-row">
+                    <div class="fee-icon">${bxi('dollar-circle')}</div>
+                    <div class="fee-info">
+                        <div class="fee-name">
+                            ${f.name}
+                            <span class="badge ${f.status === 'active' ? 'badge-green' : 'badge-gray'}">${f.status}</span>
+                        </div>
+                        <div class="fee-desc">${f.description} • Due: ${f.dueDate}</div>
+                    </div>
+                    <div class="fee-amount">₱${f.amount.toFixed(2)}</div>
+                    <div class="fee-actions">
+                        <button class="icon-btn icon-btn--blue fee-edit-btn" data-id="${f.id}" title="Edit">${bxi('edit')}</button>
+                        <button class="icon-btn icon-btn--amber fee-toggle-btn" data-id="${f.id}" title="${f.status === 'active' ? 'Disable' : 'Enable'}">
+                            ${f.status === 'active' ? bxi('hide') : bxi('show')}
+                        </button>
+                        <button class="icon-btn icon-btn--red fee-delete-btn" data-id="${f.id}" title="Remove">${bxi('trash')}</button>
+                    </div>
+                </div>`}
+            </div>`).join('')}
+        </div>
+        <div class="total-bar">
+            <div>
+                <div class="total-bar-label">Total Active Fees</div>
+                <div class="total-bar-sub">${activeFees.length} active fee type(s)</div>
+            </div>
+            <div class="total-bar-value">₱${total.toFixed(2)}</div>
+        </div>
+    `;
+
+    document.getElementById('add-fee-btn')?.addEventListener('click', () => {
+        const newFee = { id: 'fee-' + Date.now(), name: 'New Fee', amount: 0, description: '', dueDate: 'Mar 15, 2026', status: 'active' };
+        feeList.push(newFee);
+        editingFeeId = newFee.id;
+        renderFees();
+    });
+    el.querySelectorAll('.fee-edit-btn').forEach(b => b.addEventListener('click', () => {
+        editingFeeId = b.dataset.id; renderFees();
+    }));
+    el.querySelectorAll('.fee-cancel-edit').forEach(b => b.addEventListener('click', () => {
+        editingFeeId = null; renderFees();
+    }));
+    el.querySelectorAll('.fee-save-edit').forEach(b => b.addEventListener('click', () => {
+        feeList = feeList.map(f => f.id !== b.dataset.id ? f : {
+            ...f,
+            name:        document.getElementById('ef-fname').value,
+            amount:      parseFloat(document.getElementById('ef-famount').value) || 0,
+            description: document.getElementById('ef-fdesc').value,
+            dueDate:     document.getElementById('ef-fdue').value,
+        });
+        editingFeeId = null;
+        showToast('Fee updated.'); renderFees();
+    }));
+    el.querySelectorAll('.fee-toggle-btn').forEach(b => b.addEventListener('click', () => {
+        feeList = feeList.map(f =>
+            f.id === b.dataset.id ? { ...f, status: f.status === 'active' ? 'inactive' : 'active' } : f
+        );
+        renderFees();
+    }));
+    el.querySelectorAll('.fee-delete-btn').forEach(b => b.addEventListener('click', () => {
+        feeList = feeList.filter(f => f.id !== b.dataset.id);
+        showToast('Fee removed.'); renderFees();
+    }));
+}
+
+/* ── CLEARANCE SETUP ─────────── */
+function renderClearance() {
+    const el = document.getElementById('tab-clearance');
+    const activeCount = signatoryList.filter(s => s.status === 'active').length;
+    const typeBadge   = { organization: 'badge-blue', faculty: 'badge-green', dean: 'badge-purple' };
+
+    el.innerHTML = `
+        <div class="section-header">
+            <div>
+                <div class="section-title">Clearance Setup</div>
+                <div class="section-sub">Configure clearance signatories and their approval workflow order</div>
+            </div>
+        </div>
+        <div class="info-banner info-banner--blue">
+            <span class="info-banner-icon">${bxi('info-circle')}</span>
+            <p>The clearance workflow has <strong>${activeCount} active signatories</strong>. Disabling a signatory removes them from the student clearance checklist.</p>
+        </div>
+        <div id="signatory-list">
+            ${signatoryList.map(s => `
+            <div class="signatory-card ${s.status === 'inactive' ? 'signatory-card--disabled' : ''}">
+                <div class="signatory-num ${s.status === 'active' ? 'signatory-num--active' : 'signatory-num--inactive'}">${s.order}</div>
+                <div class="signatory-info">
+                    <div class="signatory-name-row">
+                        <span class="signatory-name">${s.name}</span>
+                        <span class="badge ${typeBadge[s.type]}">${s.type.charAt(0).toUpperCase() + s.type.slice(1)}</span>
+                    </div>
+                    <div class="signatory-role">${s.role}</div>
+                </div>
+                <div class="signatory-actions">
+                    ${(s.type === 'faculty' || s.type === 'dean') ? `
+                    <select class="filter-select signatory-assign" data-id="${s.id}">
+                        <option value="">Assign to…</option>
+                        ${facultyList.filter(f => f.status === 'active').map(f =>
+                            `<option value="${f.id}"${s.assignedTo === f.id ? ' selected' : ''}>${f.name}</option>`
+                        ).join('')}
+                    </select>` : ''}
+                    <button class="btn ${s.status === 'active' ? 'btn-green' : 'btn-outline'} signatory-toggle-btn" data-id="${s.id}">
+                        ${s.status === 'active' ? bxi('check') + ' Active' : bxi('x') + ' Disabled'}
+                    </button>
+                </div>
+            </div>`).join('')}
+        </div>
+        <div class="clearance-save-row">
+            <button class="btn btn-green" id="save-clearance-btn">
+                ${bxi('save')} Save Workflow
+            </button>
+        </div>
+    `;
+
+    document.getElementById('save-clearance-btn')?.addEventListener('click', () =>
+        showToast('Clearance workflow configuration saved.')
+    );
+    el.querySelectorAll('.signatory-toggle-btn').forEach(b => b.addEventListener('click', () => {
+        signatoryList = signatoryList.map(s =>
+            s.id === b.dataset.id ? { ...s, status: s.status === 'active' ? 'inactive' : 'active' } : s
+        );
+        showToast('Signatory status updated.'); renderClearance();
+    }));
+    el.querySelectorAll('.signatory-assign').forEach(sel => sel.addEventListener('change', () => {
+        signatoryList = signatoryList.map(s =>
+            s.id === sel.dataset.id ? { ...s, assignedTo: sel.value } : s
+        );
+    }));
+}
+
+/* ── SYSTEM SETTINGS ─────────── */
+function renderSystem() {
+    const el = document.getElementById('tab-system');
+
+    const notifToggles = [
+        { key: 'emailNotifications', label: 'Email Notifications',  desc: 'Send payment and clearance updates via email' },
+        { key: 'smsNotifications',   label: 'SMS Notifications',    desc: 'Send SMS alerts for important deadlines' },
+        { key: 'autoReminders',      label: 'Automatic Reminders',  desc: 'Auto-send reminders before payment due dates' },
+    ];
+    const secToggles = [
+        { key: 'requireTwoFactor',      label: 'Two-Factor Authentication', desc: 'Require 2FA for all admin accounts',                    danger: false },
+        { key: 'allowNewRegistrations', label: 'Allow New Registrations',   desc: 'Allow new students to self-register',                    danger: false },
+        { key: 'maintenanceMode',       label: 'Maintenance Mode',          desc: 'Temporarily disable access for non-admin users',        danger: true },
+    ];
+
+    el.innerHTML = `
+        <div class="section-header">
+            <div>
+                <div class="section-title">System Settings</div>
+                <div class="section-sub">Configure global system preferences and behavior</div>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <div class="settings-card-title">${bxi('cog')} General</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>System Name</label>
+                    <input id="sys-name" value="${systemSettings.systemName}">
+                </div>
+                <div class="form-group">
+                    <label>Academic Year</label>
+                    <input id="sys-year" value="${systemSettings.academicYear}">
+                </div>
+                <div class="form-group">
+                    <label>Current Semester</label>
+                    <select id="sys-sem">
+                        <option${systemSettings.semester === '1st Semester' ? ' selected' : ''}>1st Semester</option>
+                        <option${systemSettings.semester === '2nd Semester' ? ' selected' : ''}>2nd Semester</option>
+                        <option${systemSettings.semester === 'Summer'       ? ' selected' : ''}>Summer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Payment Grace Period (days)</label>
+                    <input id="sys-grace" type="number" value="${systemSettings.paymentGracePeriod}">
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <div class="settings-card-title">${bxi('bell')} Notifications</div>
+            ${notifToggles.map(item => `
+            <div class="toggle-row">
+                <div>
+                    <div class="toggle-label">${item.label}</div>
+                    <div class="toggle-desc">${item.desc}</div>
+                </div>
+                <button class="toggle-switch ${systemSettings[item.key] ? 'toggle-switch--on' : 'toggle-switch--off'} sys-toggle"
+                    data-key="${item.key}">
+                    <div class="toggle-knob"></div>
+                </button>
+            </div>`).join('')}
+        </div>
+
+        <div class="settings-card">
+            <div class="settings-card-title">${bxi('shield')} Security &amp; Access</div>
+            ${secToggles.map(item => `
+            <div class="toggle-row${item.danger && systemSettings[item.key] ? ' toggle-row--maintenance' : ''}">
+                <div>
+                    <div class="toggle-label${item.danger && systemSettings[item.key] ? ' toggle-label--danger' : ''}">${item.label}</div>
+                    <div class="toggle-desc">${item.desc}</div>
+                </div>
+                <button class="toggle-switch ${systemSettings[item.key] ? (item.danger ? 'toggle-switch--maintenance' : 'toggle-switch--on') : 'toggle-switch--off'} sys-toggle"
+                    data-key="${item.key}">
+                    <div class="toggle-knob"></div>
+                </button>
+            </div>`).join('')}
+        </div>
+
+        <div class="danger-zone">
+            <div class="danger-zone-title">${bxi('error-circle')} Danger Zone</div>
+            <div class="danger-row">
+                <div>
+                    <div class="danger-row-title">Reset All Student Clearances</div>
+                    <div class="danger-row-sub">Reset all clearance statuses to Not Started for the new term</div>
+                </div>
+                <button class="btn-danger-outline" id="reset-clearance-btn">
+                    ${bxi('refresh')} Reset
+                </button>
+            </div>
+            <div class="danger-row">
+                <div>
+                    <div class="danger-row-title">Export All System Data</div>
+                    <div class="danger-row-sub">Download a full backup of all students, payments, and clearance records</div>
+                </div>
+                <button class="btn-danger-outline" id="export-all-btn">
+                    ${bxi('download')} Export
+                </button>
+            </div>
+        </div>
+
+        <div class="settings-card">
+            <div class="settings-card-title">${bxi('palette')} Appearance</div>
+            <div class="toggle-row">
+                <div>
+                    <div class="toggle-label">Theme &amp; Font</div>
+                    <div class="toggle-desc">Switch between Light and Dark theme, or enable the dyslexia-friendly font</div>
+                </div>
+                <button class="btn btn-outline" id="open-appearance-btn">
+                    ${bxi('cog')} Customize
+                </button>
+            </div>
+        </div>
+
+        <div class="settings-save-row">
+            <button class="btn btn-green" id="save-system-btn">
+                ${bxi('save')} Save Settings
+            </button>
+        </div>
+    `;
+
+    el.querySelectorAll('.sys-toggle').forEach(btn => btn.addEventListener('click', () => {
+        systemSettings[btn.dataset.key] = !systemSettings[btn.dataset.key];
+        renderSystem();
+    }));
+    document.getElementById('save-system-btn')?.addEventListener('click', () => {
+        systemSettings.systemName         = document.getElementById('sys-name').value;
+        systemSettings.academicYear       = document.getElementById('sys-year').value;
+        systemSettings.semester           = document.getElementById('sys-sem').value;
+        systemSettings.paymentGracePeriod = parseInt(document.getElementById('sys-grace').value) || 7;
+        showToast('System settings saved successfully.');
+    });
+    document.getElementById('reset-clearance-btn')?.addEventListener('click', () =>
+        showToast('Clearance reset scheduled. This will take effect at midnight.')
+    );
+    document.getElementById('export-all-btn')?.addEventListener('click', () =>
+        showToast("Export queued. You'll receive a download link via email.")
+    );
+    document.getElementById('open-appearance-btn')?.addEventListener('click', () => {
+        if (typeof window.openSettingsPanel === 'function') window.openSettingsPanel();
+    });
+}
+
+/* ── AUDIT LOGS ───────────────── */
+function renderAudit() {
+    const el = document.getElementById('tab-audit');
+    const counts = { success: 0, info: 0, warning: 0, error: 0 };
+    auditLogs.forEach(l => counts[l.type]++);
+
+    const countCards = [
+        { type: 'success', label: 'Successful Actions', cls: 'badge-green' },
+        { type: 'info',    label: 'Info Events',        cls: 'badge-blue'  },
+        { type: 'warning', label: 'Warnings',           cls: 'badge-amber' },
+        { type: 'error',   label: 'Errors',             cls: 'badge-red'   },
+    ];
+
+    el.innerHTML = `
+        <div class="section-header">
+            <div>
+                <div class="section-title">Audit Logs</div>
+                <div class="section-sub">Track all system actions and changes</div>
+            </div>
+            <button class="btn btn-outline" id="export-log-btn">
+                ${bxi('download')} Export Log
+            </button>
+        </div>
+
+        <div class="audit-count-grid">
+            ${countCards.map(s => `
+            <div class="audit-count-card badge ${s.cls}">
+                <div class="audit-count-value">${counts[s.type]}</div>
+                <div class="audit-count-label">${s.label}</div>
+            </div>`).join('')}
+        </div>
+
+        <div id="audit-list">
+            ${auditLogs.map(log => `
+            <div class="audit-card">
+                <div class="audit-row">
+                    <div class="audit-icon ${logTypeClass(log.type)}">${bxi(logTypeIcon(log.type))}</div>
+                    <div class="audit-content">
+                        <div class="audit-top-row">
+                            <div class="audit-action-row">
+                                <span class="audit-action">${log.action}</span>
+                                <span class="badge ${logBadgeClass(log.type)}">${log.type.charAt(0).toUpperCase() + log.type.slice(1)}</span>
+                            </div>
+                            <span class="audit-time">${log.timestamp}</span>
+                        </div>
+                        <div class="audit-detail">${log.details}</div>
+                        <div class="audit-meta">
+                            <span>${bxi('user')} ${log.user} (${log.role})</span>
+                            <span>${bxi('desktop')} ${log.ipAddress}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>`).join('')}
+        </div>
+    `;
+
+    document.getElementById('export-log-btn')?.addEventListener('click', () =>
+        showToast('Audit log exported as CSV.')
+    );
+}
+
+/* ══════════════════════════════
+   ADDITIONAL CSS CLASSES injected
+   for elements only resolvable at runtime
+══════════════════════════════ */
+
+// Utility classes added dynamically that supplement admin-dashboard.css
+const runtimeStyles = `
+    .faculty-empty-state { text-align: center; color: var(--text-muted); padding: 40px; }
+    .perm-table-faculty-cell { display: flex; align-items: center; gap: 8px; }
+    .perm-table-avatar { width: 28px; height: 28px; font-size: 11px; }
+    .perm-table-fname { font-size: 12px; font-weight: 600; }
+    .perm-th-cell { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .student-id-badge { font-size: 12px; }
+    .clearance-save-row { display: flex; justify-content: flex-end; margin-top: 16px; }
+    .text-dark { font-size: 13px; color: var(--text-dark); display: flex; align-items: center; gap: 6px; }
+    .text-dark i { font-size: 15px; }
+`;
+
+const styleTag = document.createElement('style');
+styleTag.textContent = runtimeStyles;
+document.head.appendChild(styleTag);
+
+/* ══════════════════════════════
+   SECTION F — INIT
+══════════════════════════════ */
+renderTab('overview');
+
+}); // end DOMContentLoaded

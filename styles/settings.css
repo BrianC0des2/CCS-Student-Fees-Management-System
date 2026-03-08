@@ -1,0 +1,631 @@
+/* Google Fonts – Atkinson Hyperlegible (dyslexia-friendly) */
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap');
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   SETTINGS PANEL OVERLAY + SLIDE-IN PANEL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+#settings-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
+}
+#settings-overlay.sp-open { display: block; }
+
+#settings-panel {
+    position: fixed;
+    top: 0;
+    right: -340px;
+    width: 300px;
+    height: 100vh;
+    background: #ffffff;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+    transition: right 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+}
+#settings-panel.sp-open { right: 0; }
+
+.sp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e7eb;
+    flex-shrink: 0;
+}
+.sp-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.sp-title i { font-size: 18px; color: #007639; }
+
+.sp-close-btn {
+    background: none;
+    border: none;
+    font-size: 22px;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+}
+.sp-close-btn:hover { background: #f3f4f6; color: #111827; }
+
+.sp-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.sp-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: #9ca3af;
+    margin-bottom: 10px;
+}
+
+.sp-option-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.sp-opt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 10px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    background: #f9fafb;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    font-family: inherit;
+}
+.sp-opt:hover { border-color: #007639; background: #f0fdf4; }
+.sp-opt.active { border-color: #007639; background: #f0fdf4; }
+.sp-opt i { font-size: 24px; color: #374151; }
+.sp-opt.active i { color: #007639; }
+.sp-opt-label { font-size: 12px; font-weight: 600; color: #374151; }
+.sp-opt.active .sp-opt-label { color: #007639; }
+.sp-opt-sub { font-size: 10px; color: #9ca3af; text-align: center; }
+
+/* Dyslexic preview – button label uses that font */
+.sp-opt.font-dyslexic-preview .sp-opt-label,
+.sp-opt.font-dyslexic-preview .sp-opt-sub {
+    font-family: 'Atkinson Hyperlegible', sans-serif;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   DYSLEXIC FONT OVERRIDE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+html.font-dyslexic,
+html.font-dyslexic * {
+    font-family: 'Atkinson Hyperlegible', sans-serif !important;
+    letter-spacing: 0.03em;
+    word-spacing: 0.1em;
+    line-height: 1.7;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   DARK THEME — ACCESSIBLE STANDARD PALETTE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+html.theme-dark {
+    color-scheme: dark;
+    --dm-bg: #0b1220;
+    --dm-surface: #111827;
+    --dm-surface-alt: #1f2937;
+    --dm-surface-soft: #293548;
+    --dm-border: #334155;
+    --dm-text: #e5e7eb;
+    --dm-text-soft: #cbd5e1;
+    --dm-text-muted: #94a3b8;
+    --dm-heading: #f8fafc;
+    --dm-accent: #22c55e;
+    --dm-accent-soft: rgba(34, 197, 94, 0.18);
+}
+
+html.theme-dark body,
+html.theme-dark .home-section,
+html.theme-dark .home-content {
+    background: var(--dm-bg);
+    color: var(--dm-text);
+}
+
+html.theme-dark .home-section .home-content .bx-menu,
+html.theme-dark .home-section .home-content .text {
+    color: var(--dm-heading);
+}
+
+/* Typography hierarchy */
+html.theme-dark h1,
+html.theme-dark h2,
+html.theme-dark h3,
+html.theme-dark h4,
+html.theme-dark h5,
+html.theme-dark h6,
+html.theme-dark .section-title,
+html.theme-dark .card-title,
+html.theme-dark .settings-card-title,
+html.theme-dark .member-name,
+html.theme-dark .fee-name,
+html.theme-dark .stat-value,
+html.theme-dark .danger-row-title {
+    color: var(--dm-heading) !important;
+}
+
+html.theme-dark p,
+html.theme-dark span,
+html.theme-dark li,
+html.theme-dark td,
+html.theme-dark .section-sub,
+html.theme-dark .member-meta,
+html.theme-dark .toggle-desc,
+html.theme-dark .stat-sub,
+html.theme-dark .fee-desc,
+html.theme-dark .danger-row-sub,
+html.theme-dark .recent-mini-detail,
+html.theme-dark .recent-mini-time {
+    color: var(--dm-text-soft);
+}
+
+html.theme-dark label,
+html.theme-dark th,
+html.theme-dark .toggle-label,
+html.theme-dark .stat-label,
+html.theme-dark .total-bar-sub,
+html.theme-dark .sp-section-label {
+    color: var(--dm-text-muted) !important;
+}
+
+/* Navbar (payment flow pages) */
+html.theme-dark .navbar {
+    background: var(--dm-surface);
+    border-bottom: 1px solid var(--dm-border);
+}
+html.theme-dark .navbar a,
+html.theme-dark .navbar h2,
+html.theme-dark .navbar p,
+html.theme-dark .navbar i {
+    color: var(--dm-heading);
+}
+
+/* Surface blocks */
+html.theme-dark .summary-cards .card,
+html.theme-dark .card,
+html.theme-dark .card-sm,
+html.theme-dark .progress-card,
+html.theme-dark .clearance-card,
+html.theme-dark .student-card,
+html.theme-dark .profile-card,
+html.theme-dark .stat-card,
+html.theme-dark .fee-card,
+html.theme-dark .receipt-container,
+html.theme-dark .receipt-success-banner,
+html.theme-dark .step-card,
+html.theme-dark .payment-card,
+html.theme-dark .settings-card,
+html.theme-dark .member-card,
+html.theme-dark .accordion-card,
+html.theme-dark .danger-zone,
+html.theme-dark .form-box,
+html.theme-dark .signatory-card,
+html.theme-dark .total-bar,
+html.theme-dark .students-table-wrap,
+html.theme-dark .table-wrapper,
+html.theme-dark .filters-popover,
+html.theme-dark .org-header-card,
+html.theme-dark .search-filter {
+    background: var(--dm-surface) !important;
+    border-color: var(--dm-border) !important;
+    color: var(--dm-text);
+}
+
+/* Table readability */
+html.theme-dark table {
+    background: var(--dm-surface);
+    color: var(--dm-text);
+}
+html.theme-dark th {
+    background: var(--dm-surface-alt);
+    border-color: var(--dm-border);
+}
+html.theme-dark td {
+    color: var(--dm-text-soft);
+    border-color: var(--dm-border);
+}
+html.theme-dark tbody tr:nth-child(even) {
+    background: rgba(41, 53, 72, 0.48);
+}
+html.theme-dark tbody tr:hover {
+    background: var(--dm-surface-soft) !important;
+}
+
+/* Form controls */
+html.theme-dark input:not([type="checkbox"]):not([type="radio"]),
+html.theme-dark select,
+html.theme-dark textarea {
+    background: var(--dm-surface-alt);
+    color: var(--dm-text);
+    border-color: var(--dm-border);
+}
+html.theme-dark input::placeholder,
+html.theme-dark textarea::placeholder {
+    color: var(--dm-text-muted);
+}
+
+/* Links and plain buttons */
+html.theme-dark a { color: #93c5fd; }
+html.theme-dark .sidebar a,
+html.theme-dark .logo-details,
+html.theme-dark .nav-links a {
+    color: inherit;
+}
+html.theme-dark .btn-outline,
+html.theme-dark .btn-danger-outline,
+html.theme-dark .icon-btn {
+    border-color: var(--dm-border);
+}
+html.theme-dark .btn-outline,
+html.theme-dark .icon-btn {
+    color: var(--dm-text);
+    background: transparent;
+}
+html.theme-dark .btn-outline:hover,
+html.theme-dark .icon-btn:hover,
+html.theme-dark .btn-danger-outline:hover {
+    background: var(--dm-surface-soft);
+}
+
+/* Badges in dark mode (maintain meaning + contrast) */
+html.theme-dark .badge-green {
+    background: rgba(22, 163, 74, 0.2) !important;
+    color: #bbf7d0 !important;
+}
+html.theme-dark .badge-blue {
+    background: rgba(37, 99, 235, 0.22) !important;
+    color: #bfdbfe !important;
+}
+html.theme-dark .badge-amber {
+    background: rgba(217, 119, 6, 0.24) !important;
+    color: #fde68a !important;
+}
+html.theme-dark .badge-red {
+    background: rgba(220, 38, 38, 0.22) !important;
+    color: #fecaca !important;
+}
+html.theme-dark .badge-gray {
+    background: rgba(148, 163, 184, 0.22) !important;
+    color: #cbd5e1 !important;
+}
+
+/* Student dashboard + payment pages */
+html.theme-dark .payment-process-container,
+html.theme-dark #payment-process-container {
+    background: transparent;
+}
+html.theme-dark .circle {
+    background: var(--dm-surface-alt);
+    color: var(--dm-text);
+}
+html.theme-dark .receipt-header {
+    background: var(--dm-surface) !important;
+}
+html.theme-dark .receipt-header *,
+html.theme-dark .receipt-item-row span {
+    color: var(--dm-text);
+}
+html.theme-dark .receipt-item-row {
+    border-color: var(--dm-border);
+}
+
+/* Settings panel in dark mode */
+html.theme-dark #settings-panel {
+    background: var(--dm-surface);
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.45);
+}
+html.theme-dark .sp-header {
+    border-color: var(--dm-border);
+}
+html.theme-dark .sp-title {
+    color: var(--dm-heading);
+}
+html.theme-dark .sp-title i {
+    color: var(--dm-accent);
+}
+html.theme-dark .sp-close-btn {
+    color: var(--dm-text-muted);
+}
+html.theme-dark .sp-close-btn:hover {
+    background: var(--dm-surface-soft);
+    color: var(--dm-heading);
+}
+html.theme-dark .sp-opt {
+    background: var(--dm-surface-alt);
+    border-color: var(--dm-border);
+}
+html.theme-dark .sp-opt:hover,
+html.theme-dark .sp-opt.active {
+    border-color: var(--dm-accent);
+    background: var(--dm-accent-soft);
+}
+html.theme-dark .sp-opt i,
+html.theme-dark .sp-opt-label {
+    color: var(--dm-text);
+}
+html.theme-dark .sp-opt.active i,
+html.theme-dark .sp-opt.active .sp-opt-label {
+    color: var(--dm-accent);
+}
+html.theme-dark .sp-opt-sub {
+    color: var(--dm-text-muted);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   DARK THEME REFINEMENT
+   - tone down hover brightness
+   - remove remaining white surfaces
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* Remaining white containers across modules */
+html.theme-dark .members-table,
+html.theme-dark .payment-history,
+html.theme-dark .faculty-search-filter,
+html.theme-dark .faculty-table-card,
+html.theme-dark .receipt-card,
+html.theme-dark .profile-section-card,
+html.theme-dark .faculty-role-switch,
+html.theme-dark .history-filter,
+html.theme-dark .org-fees-page .org-fees-table,
+html.theme-dark .org-fees-page .org-fees-empty,
+html.theme-dark .receipt-meta-item,
+html.theme-dark .receipt-info-item {
+    background: var(--dm-surface) !important;
+    border-color: var(--dm-border) !important;
+    color: var(--dm-text) !important;
+}
+
+html.theme-dark .org-header-name,
+html.theme-dark #facultyWelcomeName,
+html.theme-dark .receipt-org-name,
+html.theme-dark .receipt-section-title,
+html.theme-dark .receipt-meta-value,
+html.theme-dark .receipt-item,
+html.theme-dark .info-value,
+html.theme-dark .security-title {
+    color: var(--dm-heading) !important;
+}
+
+html.theme-dark .org-header-sub,
+html.theme-dark #facultyWelcomeSub,
+html.theme-dark .receipt-org-subtitle,
+html.theme-dark .receipt-meta-label,
+html.theme-dark .receipt-notice,
+html.theme-dark .receipt-contact-note,
+html.theme-dark .receipt-computer-note,
+html.theme-dark .info-label,
+html.theme-dark .security-sub {
+    color: var(--dm-text-muted) !important;
+}
+
+/* Inputs and utility controls that still looked light */
+html.theme-dark .faculty-search-filter input,
+html.theme-dark .filter-group select,
+html.theme-dark .history-filter select,
+html.theme-dark .search-wrap input,
+html.theme-dark .search-filter input {
+    background: var(--dm-surface-alt) !important;
+    border-color: var(--dm-border) !important;
+    color: var(--dm-text) !important;
+}
+
+/* Buttons: neutralize bright hover flashes */
+html.theme-dark .nav-action-btn,
+html.theme-dark .filters-btn,
+html.theme-dark .reset-btn,
+html.theme-dark .search-filter button,
+html.theme-dark .history-filter button,
+html.theme-dark .export-btn,
+html.theme-dark .action-btn,
+html.theme-dark .org-fees-page .add-fee-btn,
+html.theme-dark #facultySearchBtn,
+html.theme-dark .bulk-action-btn,
+html.theme-dark .edit-btn,
+html.theme-dark .change-password-btn {
+    background: var(--dm-surface-alt) !important;
+    border-color: var(--dm-border) !important;
+    color: var(--dm-text) !important;
+}
+
+html.theme-dark .btn-green,
+html.theme-dark .btn-blue,
+html.theme-dark .btn-red,
+html.theme-dark .apply-btn {
+    color: #f8fafc !important;
+}
+
+html.theme-dark .btn-green,
+html.theme-dark .search-filter button,
+html.theme-dark .history-filter button,
+html.theme-dark .export-btn,
+html.theme-dark .action-btn,
+html.theme-dark .org-fees-page .add-fee-btn,
+html.theme-dark #facultySearchBtn,
+html.theme-dark .bulk-action-btn,
+html.theme-dark .apply-btn,
+html.theme-dark .change-password-btn {
+    background: #166534 !important;
+    border-color: #166534 !important;
+}
+
+html.theme-dark .nav-action-btn:hover,
+html.theme-dark .filters-btn:hover,
+html.theme-dark .reset-btn:hover,
+html.theme-dark .search-filter button:hover,
+html.theme-dark .history-filter button:hover,
+html.theme-dark .export-btn:hover,
+html.theme-dark .action-btn:hover,
+html.theme-dark .org-fees-page .add-fee-btn:hover,
+html.theme-dark #facultySearchBtn:hover,
+html.theme-dark .bulk-action-btn:hover,
+html.theme-dark .btn-green:hover,
+html.theme-dark .btn-blue:hover,
+html.theme-dark .btn-red:hover,
+html.theme-dark .apply-btn:hover,
+html.theme-dark .edit-btn:hover,
+html.theme-dark .change-password-btn:hover {
+    background: var(--dm-surface-soft) !important;
+    color: var(--dm-heading) !important;
+    border-color: var(--dm-border) !important;
+}
+
+/* Admin quick/action hover tones */
+html.theme-dark .qbtn--green:hover  { background: rgba(34, 197, 94, 0.14) !important; }
+html.theme-dark .qbtn--blue:hover   { background: rgba(59, 130, 246, 0.14) !important; }
+html.theme-dark .qbtn--amber:hover  { background: rgba(245, 158, 11, 0.16) !important; }
+html.theme-dark .qbtn--purple:hover { background: rgba(168, 85, 247, 0.16) !important; }
+
+html.theme-dark .icon-btn--blue:hover {
+    background: rgba(59, 130, 246, 0.2) !important;
+    color: #bfdbfe !important;
+}
+html.theme-dark .icon-btn--amber:hover {
+    background: rgba(245, 158, 11, 0.22) !important;
+    color: #fde68a !important;
+}
+html.theme-dark .icon-btn--red:hover {
+    background: rgba(239, 68, 68, 0.2) !important;
+    color: #fecaca !important;
+}
+
+/* Interactive rows/cards hover in dark mode */
+html.theme-dark .member-card:hover,
+html.theme-dark .accordion-btn:hover,
+html.theme-dark .perm-table tr:hover td,
+html.theme-dark .card-header:hover,
+html.theme-dark .students-table tbody tr:hover {
+    background: var(--dm-surface-soft) !important;
+    border-color: var(--dm-border) !important;
+}
+
+/* Student profile notice card was too bright in dark mode */
+html.theme-dark .registrar-notice {
+    background: rgba(217, 119, 6, 0.14) !important;
+    border-color: rgba(217, 119, 6, 0.35) !important;
+    color: #fde68a !important;
+}
+html.theme-dark .registrar-notice p,
+html.theme-dark .registrar-notice i {
+    color: #fde68a !important;
+}
+
+/* Permission tab specific dark-mode tuning */
+html.theme-dark .perm-table-overflow {
+    background: var(--dm-surface) !important;
+    border: 1px solid var(--dm-border);
+    border-radius: 10px;
+}
+
+html.theme-dark .perm-checkbox {
+    background: var(--dm-surface-alt) !important;
+    border-color: var(--dm-border) !important;
+}
+html.theme-dark .perm-checkbox:hover:not(.perm-checkbox--green):not(.perm-checkbox--amber):not(.perm-checkbox--red) {
+    background: var(--dm-surface-soft) !important;
+    border-color: var(--dm-text-muted) !important;
+}
+
+html.theme-dark .perm-pill--on {
+    background: rgba(22, 163, 74, 0.16) !important;
+    border-color: rgba(34, 197, 94, 0.34) !important;
+    color: #bbf7d0 !important;
+}
+html.theme-dark .perm-pill--off {
+    background: rgba(148, 163, 184, 0.14) !important;
+    border-color: rgba(148, 163, 184, 0.28) !important;
+    color: var(--dm-text-muted) !important;
+}
+html.theme-dark .perm-pill--on .perm-pill-check {
+    background: rgba(22, 163, 74, 0.9) !important;
+    border-color: rgba(134, 239, 172, 0.85) !important;
+    color: #f0fdf4 !important;
+}
+html.theme-dark .perm-pill--off .perm-pill-check {
+    border-color: rgba(148, 163, 184, 0.45) !important;
+}
+
+html.theme-dark .perm-section-head {
+    background: rgba(37, 99, 235, 0.16) !important;
+    border-color: rgba(59, 130, 246, 0.35) !important;
+}
+html.theme-dark .perm-section-head-icon,
+html.theme-dark .perm-section-head-sub,
+html.theme-dark .perm-legend-icon {
+    color: #93c5fd !important;
+}
+html.theme-dark .perm-section-head-title,
+html.theme-dark .perm-legend-item-label,
+html.theme-dark .perm-desc-item-name {
+    color: #dbeafe !important;
+}
+
+html.theme-dark .perm-legend-row,
+html.theme-dark .perm-desc-footer {
+    background: var(--dm-surface-alt) !important;
+    border-color: var(--dm-border) !important;
+}
+html.theme-dark .perm-desc-item--blue {
+    background: rgba(37, 99, 235, 0.14) !important;
+    border-color: rgba(59, 130, 246, 0.3) !important;
+}
+html.theme-dark .perm-desc-item--red {
+    background: rgba(220, 38, 38, 0.14) !important;
+    border-color: rgba(248, 113, 113, 0.3) !important;
+}
+html.theme-dark .perm-desc-item-text,
+html.theme-dark .perm-desc-footer-title,
+html.theme-dark .perm-other-sub,
+html.theme-dark .accordion-category-title,
+html.theme-dark .accordion-btn-sub {
+    color: var(--dm-text-muted) !important;
+}
+
+html.theme-dark .info-banner--blue {
+    background: rgba(37, 99, 235, 0.14) !important;
+    border-color: rgba(59, 130, 246, 0.32) !important;
+}
+html.theme-dark .info-banner--amber {
+    background: rgba(217, 119, 6, 0.14) !important;
+    border-color: rgba(251, 191, 36, 0.3) !important;
+}
+html.theme-dark .info-banner--green {
+    background: rgba(22, 163, 74, 0.14) !important;
+    border-color: rgba(134, 239, 172, 0.3) !important;
+}
+html.theme-dark .info-banner--blue .info-banner-icon,
+html.theme-dark .info-banner--green .info-banner-icon,
+html.theme-dark .info-banner--amber .info-banner-icon {
+    color: var(--dm-text-soft) !important;
+}
+html.theme-dark .info-banner p,
+html.theme-dark .info-banner--blue p,
+html.theme-dark .info-banner--green p,
+html.theme-dark .info-banner--amber p {
+    color: var(--dm-text-soft) !important;
+}

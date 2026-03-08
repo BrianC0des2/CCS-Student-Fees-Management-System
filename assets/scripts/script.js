@@ -159,6 +159,12 @@ function enforceRouteAccess() {
     return;
   }
 
+  // Guard 5: admin dashboard requires adminView permission.
+  if (page === 'admin-dashboard.html' && !window.Auth.isAdmin()) {
+    navigateTo('pages/student/student-dashboard.html');
+    return;
+  }
+
   // State sync: keep stored view aligned with what page user is currently on.
   // This makes future redirects open the same context the user last used.
   if (page === 'organization-dashboard.html') {

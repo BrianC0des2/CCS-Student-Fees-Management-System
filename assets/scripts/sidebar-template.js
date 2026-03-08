@@ -44,12 +44,12 @@ const sidebarHTML = `
             </ul>
         </li>
         <li>
-            <a href="#">
+            <a href="#" class="js-settings-open">
                 <i class='bx bx-cog' ></i>
                 <span class="link_name">Settings</span>
             </a>
             <ul class="sub-menu blank">
-                <li><a class="link_name" href="#">Settings</a></li>
+                <li><a class="link_name js-settings-open" href="#">Settings</a></li>
             </ul>
         </li>
         <li>

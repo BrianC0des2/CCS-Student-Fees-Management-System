@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CCS PAY++ · Admin Panel</title>
+    <link rel="stylesheet" href="../../styles/sidebar.css">
+    <link rel="stylesheet" href="../../styles/admin-styles/admin-dashboard.css">
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="../../styles/settings.css">
+  </head>
+  <body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="logo-details">
+        <i class='bx bxl-c-plus-plus'></i>
+        <span class="logo_name">Pay++</span>
+      </div>
+      <ul class="nav-links">
+        <li>
+          <a href="#" data-tab="overview">
+            <i class='bx bx-home-alt'></i>
+            <span class="link_name">Overview</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" href="#">Overview</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#" data-tab="faculty">
+            <i class='bx bx-group'></i>
+            <span class="link_name">Faculty</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" href="#">Faculty</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#" data-tab="students">
+            <i class='bx bx-user-check'></i>
+            <span class="link_name">Students</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" href="#">Students</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#" data-tab="permissions">
+            <i class='bx bx-key'></i>
+            <span class="link_name">Permissions</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" href="#">Permissions</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#" data-tab="fees">
+            <i class='bx bx-dollar-circle'></i>
+            <span class="link_name">Fees</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" href="#">Fees</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#" data-tab="clearance">
+            <i class='bx bx-clipboard'></i>
+            <span class="link_name">Clearance</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" href="#">Clearance</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#" data-tab="system">
+            <i class='bx bx-cog'></i>
+            <span class="link_name">System</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" href="#">System</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#" data-tab="audit">
+            <i class='bx bx-bar-chart-alt-2'></i>
+            <span class="link_name">Audit Logs</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" href="#">Audit Logs</a></li>
+          </ul>
+        </li>
+        <li>
+          <div class="profile-details">
+            <div class="profile-main">
+              <div class="profile-content">
+                <img src="../../assets/images/profile.png" alt="profileImg">
+              </div>
+              <div class="name-job">
+                <div class="name-with-switch">
+                  <div class="profile_name">Admin</div>
+                </div>
+                <div class="job">admin@wmsu.edu.ph</div>
+              </div>
+            </div>
+            <a class="logout-section">
+              <span>Sign out</span>
+              <i class='bx bx-log-out'></i>
+            </a>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Main content -->
+    <section class="home-section">
+      <div class="home-content">
+        <i class='bx bx-menu'></i>
+        <span class="text" id="header-tab-label">Overview</span>
+      </div>
+
+      <div id="toast" class="toast toast--hidden"></div>
+
+      <main id="page-content">
+        <div id="tab-overview"    class="tab-panel tab-panel--active"></div>
+        <div id="tab-faculty"     class="tab-panel"></div>
+        <div id="tab-students"    class="tab-panel"></div>
+        <div id="tab-permissions" class="tab-panel"></div>
+        <div id="tab-fees"        class="tab-panel"></div>
+        <div id="tab-clearance"   class="tab-panel"></div>
+        <div id="tab-system"      class="tab-panel"></div>
+        <div id="tab-audit"       class="tab-panel"></div>
+      </main>
+    </section>
+
+    <script src="../../assets/scripts/settings.js"></script>
+    <script src="../../assets/scripts/sample-accounts.js"></script>
+    <script src="../../assets/scripts/auth.js"></script>
+    <script src="../../assets/scripts/admin-dashboard.js"></script>
+    </body>
+</html>
