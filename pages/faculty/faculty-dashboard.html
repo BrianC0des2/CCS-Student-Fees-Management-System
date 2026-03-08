@@ -28,18 +28,19 @@
 				</div>
 			</div>
 
-			<div class="faculty-role-switch" role="tablist" aria-label="Faculty role switch">
-				<button id="professorViewBtn" class="role-btn active" type="button">Professor View</button>
-				<button id="deanViewBtn" class="role-btn" type="button">Dean View</button>
+			<div id="facultyWelcome">
+				<h2 id="facultyWelcomeName"></h2>
+				<p id="facultyWelcomeSub"></p>
 			</div>
 
 			<div class="summary-cards" id="facultySummaryCards"></div>
 
 			<div class="search-filter faculty-search-filter">
 				<input type="text" id="facultySearchInput" placeholder="Search by name or student no.">
+				<button id="facultySearchBtn" type="button">Search</button>
 				<div class="filters-container">
 					<button id="facultyFiltersBtn" class="filters-btn" type="button">
-						<i class='bx bx-filter-alt'></i>
+						<i class='bx bx-sort-alt-2'></i>
 						Filters
 					</button>
 					<div id="facultyFiltersPopover" class="filters-popover">

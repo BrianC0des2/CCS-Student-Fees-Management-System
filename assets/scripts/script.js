@@ -1252,7 +1252,7 @@ function renderProfessorTable(students) {
   const tableTitle = document.getElementById('facultyTableTitle');
   if (!tableHead || !tableBody) return;
 
-  if (tableTitle) tableTitle.textContent = 'Professor Queue';
+  if (tableTitle) tableTitle.textContent = 'Clearance Queue';
 
   tableHead.innerHTML = `
     <tr>
@@ -1307,8 +1307,6 @@ function renderProfessorTable(students) {
         <td>
           <div class="action-group">
             <button class="btn btn-sign" data-sign-id="${student.id}" ${!canSign || signed ? 'disabled' : ''}>${signed ? 'Signed' : 'Sign'}</button>
-            <button class="btn btn-flag" data-flag-id="${student.id}">Flag</button>
-            ${student.studentStatus !== 'Clear' ? `<button class="btn btn-remove-flag" data-remove-flag-id="${student.id}">Remove Flag</button>` : ''}
           </div>
         </td>
       </tr>
@@ -1475,6 +1473,9 @@ function initializeFacultyDashboard() {
   const tableBody = document.getElementById('facultyTableBody');
   if (!tableBody) return;
 
+  const facultyWelcomeName = document.getElementById('facultyWelcomeName');
+  const facultyWelcomeSub = document.getElementById('facultyWelcomeSub');
+  const facultySearchBtn = document.getElementById('facultySearchBtn');
   const professorViewBtn = document.getElementById('professorViewBtn');
   const deanViewBtn = document.getElementById('deanViewBtn');
   const searchInput = document.getElementById('facultySearchInput');
@@ -1499,6 +1500,19 @@ function initializeFacultyDashboard() {
   const hasFacultyView = Boolean(loggedUser && loggedUser.permissions && loggedUser.permissions.facultyView);
   const hasDeanView = Boolean(loggedUser && loggedUser.permissions && loggedUser.permissions.deanView);
 
+  if (loggedUser && facultyWelcomeName) {
+    facultyWelcomeName.textContent = `Welcome, ${loggedUser.name}!`;
+  }
+  if (facultyWelcomeSub) {
+    if (hasDeanView) {
+      facultyWelcomeSub.textContent = "Here's the final clearance queue";
+    } else if (hasFacultyView) {
+      facultyWelcomeSub.textContent = "Here's your student clearance queue";
+    } else {
+      facultyWelcomeSub.textContent = '';
+    }
+  }
+
   if (hasFacultyView && !hasDeanView) {
     if (deanViewBtn) deanViewBtn.remove();
     facultyRole = 'professor';
@@ -1518,6 +1532,9 @@ function initializeFacultyDashboard() {
 
   if (searchInput) {
     searchInput.addEventListener('input', filterFacultyTable);
+  }
+  if (facultySearchBtn) {
+    facultySearchBtn.addEventListener('click', filterFacultyTable);
   }
 
   function updateCourseOptions() {

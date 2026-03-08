@@ -126,14 +126,10 @@ function applyRoleBasedSidebarAccess() {
         dashboardLink.setAttribute('href', '../faculty/faculty-dashboard.html');
     }
 
-    const feesLink = document.querySelector('a[href="../organization/add-payment.html"]');
-    if (feesLink) {
-        feesLink.remove();
-    }
-
-    const paymentHistoryLink = document.querySelector('a[href="../organization/payment-history.html"]');
-    if (paymentHistoryLink) {
-        paymentHistoryLink.remove();
+    const walletIcon = document.querySelector('.nav-links .bx-wallet');
+    const paymentsListItem = walletIcon ? walletIcon.closest('li') : null;
+    if (paymentsListItem) {
+        paymentsListItem.remove();
     }
 }
 
