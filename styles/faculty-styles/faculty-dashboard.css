@@ -300,6 +300,22 @@ body {
 	font-size: 16px;
 }
 
+.bulk-action-btn {
+	background: #16a34a;
+	color: #fff;
+	border: none;
+	border-radius: 8px;
+	padding: 8px 16px;
+	font-size: 0.8rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.2s;
+}
+
+.bulk-action-btn:hover {
+	background: #15803d;
+}
+
 .table-container {
 	overflow: auto;
 	max-height: 64vh;
@@ -391,6 +407,9 @@ tbody tr:hover {
 	border-bottom: 1px solid #e5e7eb;
 	background: #fff;
 	border-radius: 10px 10px 0 0;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 }
 
 .action-group {
