@@ -27,30 +27,6 @@
                 font-size: 16px;
                 border-top: 2px solid #2e7d52;
             }
-            .collection-date-section {
-                background: white;
-                padding: 20px;
-                border-radius: 12px;
-                border: 1px solid #d4e2d8;
-                margin-bottom: 20px;
-            }
-            .collection-date-section label {
-                display: block;
-                margin-bottom: 8px;
-                color: #5a7a66;
-                font-weight: 600;
-                font-size: 12px;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            }
-            .collection-date-section input[type="date"] {
-                padding: 8px 12px;
-                border: 1px solid #d4e2d8;
-                border-radius: 8px;
-                font-size: 14px;
-                width: 200px;
-                outline: none;
-            }
             .comparison-section {
                 background: white;
                 padding: 20px;
@@ -127,8 +103,6 @@
                 .bx-menu,
                 #sidebar-container,
                 .button-row,
-                .collection-date-section,
-                .success-summary,
                 .denomination-input,
                 .summary-cards,
                 .comparison-section {
@@ -202,15 +176,22 @@
                 </div>
             </div>
 
-            <div class="collection-date-section">
-                <label for="collectionDate">Collection Date</label>
-                <input type="date" id="collectionDate">
-            </div>
-
             <div class="members-table">
                 <div class="table-header">
-                    <h2>Cash Count Sheet</h2>
-                    <button id="printCollectionBtn" class="export-btn">Print</button>
+                    <div>
+                        <h2>Cash Count Sheet</h2>
+                        <div style="display:flex; align-items:center; gap:10px; margin-top:8px;">
+                            <label for="collectionDate" 
+                                   style="font-size:12px; font-weight:600; color:#5a7a66; 
+                                          text-transform:uppercase; letter-spacing:0.5px;">
+                                Collection Date:
+                            </label>
+                            <input type="date" id="collectionDate" 
+                                   style="padding:6px 10px; border:1px solid #d4e2d8; 
+                                          border-radius:8px; font-size:13px; outline:none;">
+                        </div>
+                    </div>
+                    <button id="saveCollectionBtn" class="export-btn">Save Report</button>
                 </div>
                 <div class="table-container">
                     <table>
@@ -294,19 +275,23 @@
                     </div>
                     <div class="button-row">
                         <button id="clearCollectionBtn" class="reset-btn">Clear</button>
-                        <button id="saveCollectionBtn" class="apply-btn">Save Report</button>
                         <button id="printCollectionBtn2" class="export-btn">Print</button>
                     </div>
                 </div>
             </div>
 
             <div id="successSummary" class="success-summary">
-                <h3>✅ Collection Report Saved</h3>
+                <h3>Collection Report Saved</h3>
                 <p><strong>Collection Date:</strong> <span id="savedDate"></span></p>
                 <p><strong>Total Counted:</strong> <span id="savedCounted"></span></p>
                 <p><strong>System Total:</strong> ₱6,640</p>
                 <p><strong>Status:</strong> <span id="savedStatus"></span></p>
                 <p><strong>Prepared by:</strong> <span id="savedPreparedBy"></span></p>
+                <div style="margin-top:15px;">
+                    <button id="printSavedCollectionBtn" class="export-btn">
+                        Print Report
+                    </button>
+                </div>
             </div>
 
             <div class="print-summary">
@@ -410,8 +395,9 @@
                 window.print();
             }
 
-            document.getElementById('printCollectionBtn').addEventListener('click', printCollection);
             document.getElementById('printCollectionBtn2').addEventListener('click', printCollection);
+            document.getElementById('printSavedCollectionBtn')
+                .addEventListener('click', printCollection);
         </script>
         <script src="../../assets/scripts/settings.js"></script>
     </body>

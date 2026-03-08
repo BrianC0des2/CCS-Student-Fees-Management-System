@@ -45,7 +45,7 @@ const sidebarHTML = `
              <ul class="sub-menu">
                <li><a class="link_name" href="#">Reports</a></li>
               <li><a href="../organization/expense-report.html">Expense Report</a></li>
-              <li><a href="../organization/collection.html">Collection</a></li>
+              <li><a href="../organization/collection.html">Collection Report</a></li>
             </ul>
         </li>
         <li>

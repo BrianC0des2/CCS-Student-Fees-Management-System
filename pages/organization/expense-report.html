@@ -139,6 +139,7 @@
                 .home-content,
                 .search-filter,
                 .success-message,
+                #saveExpenseReportBtn,
                 .edit-btn,
                 .void-btn,
                 .voided-badge,
@@ -225,7 +226,14 @@
             <div class="members-table">
                 <div class="table-header">
                     <h2>Expense Records</h2>
-                    <button id="printExpenseBtn" class="export-btn">Print Report</button>
+                    <div style="display:flex; gap:10px;">
+                        <button id="saveExpenseReportBtn" class="export-btn">
+                            Save Report
+                        </button>
+                        <button id="printExpenseBtn" class="export-btn">
+                            Print Report
+                        </button>
+                    </div>
                 </div>
                 <div class="table-container">
                     <table id="expenseTable">
@@ -276,6 +284,41 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <div id="expenseReportSummary" 
+                 style="display:none; background:white; padding:20px; 
+                        border-radius:12px; border:1px solid #d4e2d8;
+                        border-left:4px solid #2e7d52; margin-top:20px;">
+                <h3 style="color:#2e7d52; margin-top:0; 
+                           margin-bottom:15px; font-size:15px;">
+                    Expense Report Saved
+                </h3>
+                <p style="margin:5px 0; color:#5a7a66; font-size:13px;">
+                    <strong>Date Generated:</strong> 
+                    <span id="savedExpenseDate"></span>
+                </p>
+                <p style="margin:5px 0; color:#5a7a66; font-size:13px;">
+                    <strong>Total Collected:</strong> 
+                    <span id="savedExpenseCollected"></span>
+                </p>
+                <p style="margin:5px 0; color:#5a7a66; font-size:13px;">
+                    <strong>Total Expenses:</strong> 
+                    <span id="savedExpenseTotal"></span>
+                </p>
+                <p style="margin:5px 0; color:#5a7a66; font-size:13px;">
+                    <strong>Remaining Balance:</strong> 
+                    <span id="savedExpenseBalance"></span>
+                </p>
+                <p style="margin:5px 0; color:#5a7a66; font-size:13px;">
+                    <strong>Prepared by:</strong> 
+                    <span id="savedExpenseBy"></span>
+                </p>
+                <div style="margin-top:15px;">
+                    <button id="printSavedExpenseBtn" class="export-btn">
+                        Print Report
+                    </button>
                 </div>
             </div>
 
@@ -503,9 +546,47 @@
                 }
             });
 
+            document.getElementById('saveExpenseReportBtn')
+                .addEventListener('click', function() {
+                const today = new Date();
+                const dateStr = today.toLocaleDateString('en-US', {
+                    year: 'numeric', month: 'long', day: 'numeric'
+                });
+                let userName = 'Admin User';
+                if (window.Auth && typeof window.Auth.getUser === 'function') {
+                    const user = window.Auth.getUser();
+                    if (user && user.name) userName = user.name;
+                }
+                document.getElementById('savedExpenseDate')
+                    .textContent = dateStr;
+                document.getElementById('savedExpenseCollected')
+                    .textContent = document.getElementById('totalCollected').textContent;
+                document.getElementById('savedExpenseTotal')
+                    .textContent = document.getElementById('totalExpenses').textContent;
+                document.getElementById('savedExpenseBalance')
+                    .textContent = document.getElementById('remainingBalance').textContent;
+                document.getElementById('savedExpenseBy')
+                    .textContent = userName;
+                const summary = document.getElementById('expenseReportSummary');
+                summary.style.display = 'block';
+                summary.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            });
+
             document.getElementById('printExpenseBtn').addEventListener('click', function() {
                 const today = new Date();
                 document.getElementById('printDate').textContent = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                window.print();
+            });
+
+            document.getElementById('printSavedExpenseBtn')
+                .addEventListener('click', function() {
+                const today = new Date();
+                document.getElementById('printDate').textContent = 
+                    today.toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    });
                 window.print();
             });
         </script>
