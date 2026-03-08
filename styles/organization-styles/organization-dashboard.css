@@ -306,6 +306,13 @@ tbody td {
 tbody tr:last-child td { border-bottom: none; }
 tbody tr:hover { background: var(--bg); }
 
+.no-results-row td {
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 18px 16px;
+}
+
 /* Status badges */
 .status {
     padding: 4px 8px;

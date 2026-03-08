@@ -3,25 +3,14 @@
 document.addEventListener('DOMContentLoaded', () => {
 
 /* ══════════════════════════════
-   ROUTE GUARD + SESSION SYNC
+   STATIC PROFILE SETUP
 ══════════════════════════════ */
 
-(function guardAdmin() {
-    if (!window.Auth) {
-        window.location.replace('../../login-page.html');
-        return;
-    }
-    const user = window.Auth.getUser();
-    if (!user || !user.permissions || !user.permissions.adminView) {
-        window.location.replace('../../login-page.html');
-        return;
-    }
-
-    // Populate sidebar profile section with session data
+(function setupStaticProfile() {
     const nameEl  = document.querySelector('.profile_name');
     const emailEl = document.querySelector('.job');
-    if (nameEl)  nameEl.textContent  = user.name;
-    if (emailEl) emailEl.textContent = user.email;
+    if (nameEl)  nameEl.textContent  = 'Admin';
+    if (emailEl) emailEl.textContent = 'admin@wmsu.edu.ph';
 })();
 
 /* ══════════════════════════════
@@ -256,7 +245,6 @@ if (menuToggle) {
 }
 
 document.querySelector('.logout-section').addEventListener('click', () => {
-    if (window.Auth) window.Auth.logout();
     window.location.replace('../../login-page.html');
 });
 

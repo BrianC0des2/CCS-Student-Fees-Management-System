@@ -390,10 +390,7 @@
             </div>
         </div>
 
-        <script src="../../assets/scripts/sample-accounts.js"></script>
-        <script src="../../assets/scripts/auth.js"></script>
         <script src="../../assets/scripts/sidebar-template.js"></script>
-        <script src="../../assets/scripts/script.js"></script>
 
         <script>
             const addExpenseModal = document.getElementById('addExpenseModal');
@@ -552,11 +549,7 @@
                 const dateStr = today.toLocaleDateString('en-US', {
                     year: 'numeric', month: 'long', day: 'numeric'
                 });
-                let userName = 'Admin User';
-                if (window.Auth && typeof window.Auth.getUser === 'function') {
-                    const user = window.Auth.getUser();
-                    if (user && user.name) userName = user.name;
-                }
+                const userName = 'Admin User';
                 document.getElementById('savedExpenseDate')
                     .textContent = dateStr;
                 document.getElementById('savedExpenseCollected')
@@ -590,6 +583,5 @@
                 window.print();
             });
         </script>
-        <script src="../../assets/scripts/settings.js"></script>
     </body>
 </html>

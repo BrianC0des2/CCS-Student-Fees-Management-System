@@ -99,41 +99,35 @@ function loadSidebar() {
     
     container.innerHTML = sidebarHTML;
 
-    applyRoleBasedSidebarAccess();
+    applyPageBasedSidebarAccess();
     
     // Re-attach sidebar event handlers after inserting HTML
     initializeSidebarEvents();
 }
 
-function applyRoleBasedSidebarAccess() {
-    if (!window.Auth || typeof window.Auth.getUser !== 'function') return;
-
-    const user = window.Auth.getUser();
-    if (!user || !user.permissions) return;
+function applyPageBasedSidebarAccess() {
+    const currentPath = (window.location.pathname || '').toLowerCase();
+    const isFacultyPage = currentPath.includes('/pages/faculty/');
 
     const logoLink = document.querySelector('.sidebar .logo-details').closest('a');
 
-    if (user.permissions.facultyView || user.permissions.deanView) {
-        if (logoLink) {
-            logoLink.setAttribute('href', '../faculty/faculty-dashboard.html');
-        }
-    } else if (user.permissions.organizationView) {
-        if (logoLink) {
-            logoLink.setAttribute('href', '../organization/organization-dashboard.html');
-        }
+    if (logoLink) {
+        logoLink.setAttribute(
+            'href',
+            isFacultyPage
+                ? '../faculty/faculty-dashboard.html'
+                : '../organization/organization-dashboard.html'
+        );
     }
 
-    const isFacultyOrDean = Boolean(user.permissions.facultyView || user.permissions.deanView);
-    if (!isFacultyOrDean) return;
-
     const dashboardLink = document.querySelector('.nav-links > li:first-child > a');
-    if (dashboardLink) {
+    if (dashboardLink && isFacultyPage) {
         dashboardLink.setAttribute('href', '../faculty/faculty-dashboard.html');
     }
 
     const walletIcon = document.querySelector('.nav-links .bx-wallet');
     const paymentsListItem = walletIcon ? walletIcon.closest('li') : null;
-    if (paymentsListItem) {
+    if (paymentsListItem && isFacultyPage) {
         paymentsListItem.remove();
     }
 }
@@ -166,6 +160,18 @@ function initializeSidebarEvents() {
             let arrowParent = e.target.parentElement.parentElement;
             arrowParent.classList.toggle("showMenu");
         });
+    }
+
+    const logoutSection = document.querySelector('.logout-section');
+    if (logoutSection) {
+        logoutSection.addEventListener('click', () => {
+            window.location.href = '../../login-page.html';
+        });
+    }
+
+    const orgYearSem = document.getElementById('orgYearSem');
+    if (orgYearSem) {
+        orgYearSem.textContent = 'AY 2025-2026 • 2nd Semester';
     }
 }
 

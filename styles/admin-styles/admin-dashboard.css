@@ -470,6 +470,9 @@ select.filter-select:focus {
 .member-card:hover {
     border-color: var(--green-border);
 }
+.member-card.is-hidden {
+    display: none;
+}
 .member-row {
     display: flex;
     align-items: flex-start;
@@ -549,6 +552,20 @@ select.filter-select:focus {
 .icon-btn--blue:hover  { background: var(--blue-light); color: var(--blue); }
 .icon-btn--amber:hover { background: var(--amber-light); color: var(--amber); }
 .icon-btn--red:hover   { background: var(--red-light); color: var(--red); }
+
+.filter-empty {
+    display: none;
+    margin-top: 12px;
+    border-radius: 10px;
+    border: 1px dashed var(--border);
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    background: var(--bg-muted);
+}
+.filter-empty.is-visible {
+    display: block;
+}
 
 /* ══════════════════════════════════════
    BADGES

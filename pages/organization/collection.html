@@ -304,10 +304,7 @@
 
         </section>
 
-        <script src="../../assets/scripts/sample-accounts.js"></script>
-        <script src="../../assets/scripts/auth.js"></script>
         <script src="../../assets/scripts/sidebar-template.js"></script>
-        <script src="../../assets/scripts/script.js"></script>
 
         <script>
             document.getElementById('collectionDate').valueAsDate = new Date();
@@ -363,11 +360,7 @@
                 if (!collectionDate) { alert('Please select a collection date.'); return; }
                 const { grandTotal, difference } = computeTotals();
                 const dateStr = new Date(collectionDate + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-                let userName = 'Admin User';
-                if (window.Auth && typeof window.Auth.getUser === 'function') {
-                    const user = window.Auth.getUser();
-                    if (user && user.name) userName = user.name;
-                }
+                const userName = 'Admin User';
                 document.getElementById('savedDate').textContent = dateStr;
                 document.getElementById('savedCounted').textContent = '₱' + grandTotal.toLocaleString('en-PH');
                 document.getElementById('savedStatus').textContent = difference === 0 ? 'MATCHED' : 'DISCREPANCY';
@@ -381,11 +374,7 @@
                 if (!collectionDate) { alert('Please select a collection date.'); return; }
                 const { grandTotal, difference } = computeTotals();
                 const dateStr = new Date(collectionDate + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-                let userName = 'Admin User';
-                if (window.Auth && typeof window.Auth.getUser === 'function') {
-                    const user = window.Auth.getUser();
-                    if (user && user.name) userName = user.name;
-                }
+                const userName = 'Admin User';
                 document.getElementById('printDateHeader').textContent = dateStr;
                 document.getElementById('printPreparedBy').textContent = userName;
                 document.getElementById('printTotalCounted').textContent = '₱' + grandTotal.toLocaleString('en-PH');
@@ -399,6 +388,5 @@
             document.getElementById('printSavedCollectionBtn')
                 .addEventListener('click', printCollection);
         </script>
-        <script src="../../assets/scripts/settings.js"></script>
     </body>
 </html>

@@ -159,10 +159,6 @@
             <p class="receipt-contact-note">Questions about this receipt? Contact us at <a href="mailto:finance@wmsu.edu.ph">finance@wmsu.edu.ph</a></p>
         </div>
 
-    <script src="../../assets/scripts/settings.js"></script>
-    <script src="../../assets/scripts/sample-accounts.js"></script>
-    <script src="../../assets/scripts/auth.js"></script>
-    <script src="../../assets/scripts/script.js"></script>
     <script>
         // Load fees from localStorage
         const fees = JSON.parse(localStorage.getItem('ccs.selected.fees') || '[]');
@@ -189,12 +185,8 @@
         const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
         document.getElementById('receipt-datetime').textContent = `${dateStr} • ${timeStr}`;
 
-        // Student info from Auth
-        const user = window.Auth ? window.Auth.getUser() : null;
-        if (user) {
-            document.getElementById('receipt-student-name').textContent = user.name || '—';
-            document.getElementById('receipt-student-id').textContent = user.id || '—';
-        }
+        document.getElementById('receipt-student-name').textContent = 'Maria Dela Santos';
+        document.getElementById('receipt-student-id').textContent = '2022-00123';
 
         // Clear fees from storage after rendering
         localStorage.removeItem('ccs.selected.fees');
