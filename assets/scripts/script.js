@@ -1148,6 +1148,29 @@ function deanReject(studentId, reason) {
   renderFacultyDashboard();
 }
 
+function signAllEligible() {
+  facultyStudents.forEach((student) => {
+    if (student.paymentStatus === 'Fully Paid' &&
+        student.studentStatus === 'Clear' &&
+        student.professorSignatures[currentProfessorId] === false) {
+      student.professorSignatures[currentProfessorId] = true;
+    }
+  });
+  renderFacultyDashboard();
+}
+
+function finalSignAll() {
+  facultyStudents.forEach((student) => {
+    if (checkAllProfessorsSigned(student.id) &&
+        student.finalClearance === false &&
+        student.paymentStatus === 'Fully Paid' &&
+        !blockedStatuses.includes(student.studentStatus)) {
+      student.finalClearance = true;
+    }
+  });
+  renderFacultyDashboard();
+}
+
 function filterFacultyTable() {
   renderFacultyDashboard();
 }
@@ -1252,7 +1275,12 @@ function renderProfessorTable(students) {
   const tableTitle = document.getElementById('facultyTableTitle');
   if (!tableHead || !tableBody) return;
 
-  if (tableTitle) tableTitle.textContent = 'Clearance Queue';
+  if (tableTitle) {
+    tableTitle.innerHTML = `
+      <span>Clearance Queue</span>
+      <button id="signAllEligibleBtn" class="bulk-action-btn" type="button">Sign All Eligible</button>
+    `;
+  }
 
   tableHead.innerHTML = `
     <tr>
@@ -1320,7 +1348,12 @@ function renderDeanTable(students) {
   const tableTitle = document.getElementById('facultyTableTitle');
   if (!tableHead || !tableBody) return;
 
-  if (tableTitle) tableTitle.textContent = 'Dean Final Queue';
+  if (tableTitle) {
+    tableTitle.innerHTML = `
+      <span>Dean Final Queue</span>
+      <button id="finalSignAllBtn" class="bulk-action-btn" type="button">Final Sign All</button>
+    `;
+  }
 
   tableHead.innerHTML = `
     <tr>
@@ -1693,6 +1726,20 @@ function initializeFacultyDashboard() {
       filterFacultyTable();
     });
   }
+
+  document.addEventListener('click', (event) => {
+    const signAllBtn = event.target.closest('#signAllEligibleBtn');
+    if (signAllBtn) {
+      setFacultyConfirmModal('Sign All Eligible', 'Sign clearance for all eligible students?', signAllEligible);
+      return;
+    }
+
+    const finalSignAllBtn = event.target.closest('#finalSignAllBtn');
+    if (finalSignAllBtn) {
+      setFacultyConfirmModal('Final Sign All', 'Give final clearance to all eligible students?', finalSignAll);
+      return;
+    }
+  });
 
   tableBody.addEventListener('click', (event) => {
     const signBtn = event.target.closest('[data-sign-id]');
