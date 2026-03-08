@@ -1,0 +1,472 @@
+/* ─── Clearance-specific Variables ─────────────────────────────────── */
+:root {
+  --green-primary:   #16a34a;
+  --green-dark1:     #15803d;
+  --green-dark2:     #166534;
+  --green-darker:    #14532d;
+  --yellow-fill:     #facc15;
+  --blue-org:        #2563eb;
+  --purple-dean:     #9333ea;
+
+  --complete-bg:     #dcfce7;
+  --complete-text:   #15803d;
+  --complete-border: #86efac;
+
+  --pending-bg:      #fef3c7;
+  --pending-text:    #b45309;
+  --pending-border:  #fcd34d;
+
+  --locked-bg:       #f3f4f6;
+  --locked-text:     #6b7280;
+  --locked-border:   #e5e7eb;
+
+  --card-bg:         #ffffff;
+  --text-primary:    #111827;
+  --text-secondary:  #6b7280;
+  --text-muted:      #9ca3af;
+  --border-color:    #e5e7eb;
+}
+
+/* ─── Page Content ─────────────────────────────────────────────────── */
+#page-content {
+  max-width: 896px;
+  margin: 12px auto 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 40px;
+}
+
+/* ─── Page Title ───────────────────────────────────────────────────── */
+.page-title-section h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+
+.page-title-section p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ─── Progress Card ────────────────────────────────────────────────── */
+.progress-card {
+  background: linear-gradient(to right, var(--green-dark1), var(--green-dark2));
+  border-radius: 16px;
+  padding: 20px 24px;
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.progress-left,
+.progress-right {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.progress-right {
+  align-items: flex-end;
+}
+
+.progress-label {
+  font-size: 13px;
+  color: #bbf7d0;
+}
+
+.progress-count {
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.progress-sub {
+  font-size: 13px;
+  color: #86efac;
+}
+
+.progress-percent {
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.progress-bar-track {
+  width: 192px;
+  height: 12px;
+  background: var(--green-darker);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--yellow-fill);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.download-btn {
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-family: inherit;
+}
+
+.download-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ─── Legend Row ───────────────────────────────────────────────────── */
+.legend-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.legend-pills {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.pill-complete {
+  background: var(--complete-bg);
+  color: var(--complete-text);
+  border-color: var(--complete-border);
+}
+
+.pill-pending {
+  background: var(--pending-bg);
+  color: var(--pending-text);
+  border-color: var(--pending-border);
+}
+
+.pill-locked {
+  background: var(--locked-bg);
+  color: var(--locked-text);
+  border-color: var(--locked-border);
+}
+
+.type-legend {
+  display: flex;
+  gap: 16px;
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+}
+
+.type-legend span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.dot-blue   { background: var(--blue-org); }
+.dot-green  { background: var(--green-primary); }
+.dot-purple { background: var(--purple-dean); }
+
+/* ─── Signatories List ─────────────────────────────────────────────── */
+#signatories-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ─── Signatory Card ───────────────────────────────────────────────── */
+.signatory-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.signatory-card.status-complete { border-color: var(--complete-border); }
+.signatory-card.status-pending  { border-color: var(--pending-border); }
+.signatory-card.status-locked   { border-color: var(--border-color); opacity: 0.75; }
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  cursor: pointer;
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  font-family: inherit;
+}
+
+.card-header:hover {
+  background: #f9fafb;
+}
+
+.step-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.step-circle.type-org     { background: var(--blue-org); }
+.step-circle.type-faculty { background: var(--green-primary); }
+.step-circle.type-dean    { background: var(--purple-dean); }
+
+.card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-name-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.card-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.card-role {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-left: 6px;
+}
+
+.card-org {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.card-signed {
+  font-size: 11px;
+  color: var(--green-primary);
+  margin-top: 4px;
+}
+
+.card-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.badge-complete {
+  background: var(--complete-bg);
+  color: var(--complete-text);
+  border-color: var(--complete-border);
+}
+
+.badge-pending {
+  background: var(--pending-bg);
+  color: var(--pending-text);
+  border-color: var(--pending-border);
+}
+
+.badge-locked {
+  background: var(--locked-bg);
+  color: var(--locked-text);
+  border-color: var(--locked-border);
+}
+
+.chevron {
+  font-size: 16px;
+  color: var(--text-muted);
+  transition: transform 0.25s ease;
+  display: inline-block;
+  line-height: 1;
+}
+
+.chevron.open {
+  transform: rotate(90deg);
+}
+
+/* ─── Card Details ─────────────────────────────────────────────────── */
+.card-details {
+  display: none;
+  border-top: 1px solid #f3f4f6;
+  padding: 16px;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card-details.expanded {
+  display: flex;
+}
+
+.detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.detail-icon {
+  font-size: 15px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  line-height: 1;
+}
+
+.detail-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.detail-value {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.detail-value.contact-email {
+  color: var(--green-primary);
+}
+
+.status-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid;
+  margin-top: 4px;
+}
+
+.banner-complete {
+  background: var(--complete-bg);
+  color: var(--complete-text);
+  border-color: var(--complete-border);
+}
+
+.banner-pending {
+  background: var(--pending-bg);
+  color: var(--pending-text);
+  border-color: var(--pending-border);
+}
+
+.banner-locked {
+  background: var(--locked-bg);
+  color: var(--locked-text);
+  border-color: var(--locked-border);
+}
+
+/* ─── Info Box ─────────────────────────────────────────────────────── */
+.info-box {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.info-icon {
+  font-size: 18px;
+  color: #3b82f6;
+  flex-shrink: 0;
+  margin-top: 2px;
+  line-height: 1;
+}
+
+.info-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e3a5f;
+  margin-bottom: 4px;
+}
+
+.info-text {
+  font-size: 12px;
+  color: #1d4ed8;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ─── Responsive ───────────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+  .type-legend {
+    display: none;
+  }
+
+  .status-badge {
+    display: none;
+  }
+
+  .progress-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .progress-right {
+    align-items: flex-start;
+  }
+
+  .progress-bar-track {
+    width: 100%;
+  }
+}
