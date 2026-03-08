@@ -25,7 +25,7 @@ window.SAMPLE_ACCOUNTS = [
     permissions: {
       studentView: true,
       organizationView: false,
-      adminView: true,
+      adminView: false,
       facultyView: false,
       deanView:false
       

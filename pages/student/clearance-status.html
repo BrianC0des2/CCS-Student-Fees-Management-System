@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CCS PAY++ · Clearance Status</title>
+    <link rel="stylesheet" href="../../styles/sidebar.css">
+    <link rel="stylesheet" href="../../styles/student-styles/clearance-status.css" />
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="../../styles/settings.css">
+  </head>
+  <body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo-details">
+            <i class='bx bxl-c-plus-plus'></i>
+            <span class="logo_name">Pay++</span>
+        </div>
+        <ul class="nav-links">
+            <li>
+                <a href="student-dashboard.html">
+                    <i class='bx bx-grid-alt'></i>
+                    <span class="link_name">Dashboard</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="student-dashboard.html">Dashboard</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="make-payment.html">
+                    <i class='bx bx-wallet'></i>
+                    <span class="link_name">Payments</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="make-payment.html">Payments</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="payment-receipt.html">
+                    <i class='bx bx-receipt'></i>
+                    <span class="link_name">Receipts</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="payment-receipt.html">Receipts</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="clearance-status.html">
+                    <i class='bx bx-clipboard'></i>
+                    <span class="link_name">Clearance</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="clearance-status.html">Clearance</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="#" class="js-settings-open">
+                    <i class='bx bx-cog'></i>
+                    <span class="link_name">Settings</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name js-settings-open" href="#">Settings</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="student-profile.html">
+                    <i class='bx bx-user-circle'></i>
+                    <span class="link_name">Profile</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="student-profile.html">Profile</a></li>
+                </ul>
+            </li>
+            <li>
+                <div class="profile-details">
+                    <div class="profile-main">
+                        <div class="profile-content">
+                            <img src="../../assets/images/profile.png" alt="profileImg">
+                        </div>
+                        <div class="name-job">
+                            <div class="name-with-switch">
+                                <div class="profile_name">Maria</div>
+                                <button type="button" class="view-switch-container" aria-label="Switch view">
+                                    <i class='bx bx-chevron-up view-switch-icon'></i>
+                                </button>
+                            </div>
+                            <div class="job">2022-00123</div>
+                        </div>
+                    </div>
+                    <a class="logout-section">
+                        <span>Sign out</span>
+                        <i class='bx bx-log-out'></i>
+                    </a>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main content -->
+    <section class="home-section">
+        <div class="home-content">
+            <i class='bx bx-menu'></i>
+            <span class="text">Clearance Status</span>
+        </div>
+
+      <!-- Page content -->
+      <div id="page-content">
+
+       
+
+        <!-- Progress card -->
+        <div class="progress-card">
+          <div class="progress-left">
+            <div class="progress-label">Overall Progress</div>
+            <div class="progress-count" id="progress-count">2 / 8</div>
+            <div class="progress-sub">signatories completed</div>
+          </div>
+          <div class="progress-right">
+            <div class="progress-percent" id="progress-percent">25%</div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" id="progress-bar-fill"></div>
+            </div>
+            <button class="download-btn">&#11015; Download Clearance Form</button>
+          </div>
+        </div>
+
+        <!-- Status legend -->
+        <div class="legend-row">
+          <div class="legend-pills">
+            <span class="pill pill-complete">&#10003; Signed</span>
+            <span class="pill pill-pending">&#9200; Pending</span>
+            <span class="pill pill-locked">&#128274; Locked</span>
+          </div>
+          <div class="type-legend">
+            <span><span class="dot dot-blue"></span> Organization</span>
+            <span><span class="dot dot-green"></span> Faculty</span>
+            <span><span class="dot dot-purple"></span> Dean</span>
+          </div>
+        </div>
+
+        <!-- Signatories list — rendered by clearance-status.js -->
+        <div id="signatories-list"></div>
+
+        <!-- How clearance works info box -->
+        <div class="info-box">
+          <span class="info-icon">&#8505;</span>
+          <div>
+            <div class="info-title">How Clearance Works</div>
+            <p class="info-text">
+              Clearance must be completed in order. Start with the 4 organization
+              signatories (Steps 1&ndash;4), then proceed to faculty signatures (Steps 5&ndash;7),
+              and finally the Dean&rsquo;s approval (Step 8). Each signatory will only sign
+              once all their listed requirements are satisfied.
+            </p>
+          </div>
+        </div>
+
+      </div><!-- end #page-content -->
+    </section><!-- end .home-section -->
+
+    <script src="../../assets/scripts/settings.js"></script>
+    <script src="../../assets/scripts/sample-accounts.js"></script>
+    <script src="../../assets/scripts/auth.js"></script>
+    <script src="../../assets/scripts/script.js"></script>
+    <script src="../../assets/scripts/clearance-status.js"></script>
+  </body>
+</html>

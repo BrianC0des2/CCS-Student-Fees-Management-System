@@ -1,0 +1,323 @@
+/* ─── Profile Page Layout ──────────────────────────────────────────── */
+.profile-page-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 24px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ─── Hero Card ────────────────────────────────────────────────────── */
+.profile-hero-card {
+    background: linear-gradient(135deg, var(--color-primary), #005a2b);
+    border-radius: 20px;
+    padding: 28px 32px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    color: var(--color-white);
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-hero-card::before {
+    content: '';
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    pointer-events: none;
+}
+
+/* Avatar */
+.hero-avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.hero-avatar {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.avatar-edit-btn {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--color-white);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary);
+    font-size: 13px;
+    transition: background 150ms;
+}
+
+.avatar-edit-btn:hover {
+    background: var(--color-light);
+}
+
+/* Text info */
+.hero-info {
+    flex: 1;
+}
+
+.hero-name {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.hero-id,
+.hero-course,
+.hero-year {
+    font-size: 13px;
+    opacity: 0.85;
+    margin: 2px 0;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 8px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-badge.active {
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: var(--color-white);
+}
+
+/* GPA block */
+.hero-gpa {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 16px;
+    padding: 16px 28px;
+    flex-shrink: 0;
+}
+
+.gpa-value {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.gpa-label {
+    font-size: 11px;
+    opacity: 0.8;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 4px;
+}
+
+/* ─── Section Cards ────────────────────────────────────────────────── */
+.profile-section-card {
+    background: var(--color-white);
+    border-radius: 20px;
+    border: 2px solid rgba(var(--color-dark-rgb), 0.1);
+    padding: 22px 26px;
+}
+
+/* Section header row */
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+
+.section-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-dark);
+}
+
+.section-header h2 i {
+    color: var(--color-primary);
+    font-size: 18px;
+}
+
+/* Edit button */
+.edit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 14px;
+    border-radius: 10px;
+    border: 1.5px solid var(--color-primary);
+    background: transparent;
+    color: var(--color-primary);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 150ms, color 150ms;
+}
+
+.edit-btn:hover {
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+
+/* Managed-by-registrar badge */
+.managed-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 10px;
+    background: rgba(var(--color-dark-rgb), 0.06);
+    font-size: 12px;
+    color: rgba(var(--color-dark-rgb), 0.65);
+    font-weight: 500;
+}
+
+/* Registrar notice banner */
+.registrar-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: #fff8e1;
+    border: 1px solid #ffe082;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 18px;
+    color: #6d4c00;
+    font-size: 13px;
+}
+
+.registrar-notice i {
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: #f59e0b;
+}
+
+.registrar-notice p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ─── Info Grid ────────────────────────────────────────────────────── */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px 20px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+/* Full-width item (spans all columns) */
+.info-item--full {
+    grid-column: 1 / -1;
+}
+
+.info-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: rgba(var(--color-dark-rgb), 0.5);
+}
+
+.info-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-dark);
+}
+
+/* ─── Security Row ─────────────────────────────────────────────────── */
+.security-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.security-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.security-icon {
+    font-size: 30px;
+    color: var(--color-primary);
+}
+
+.security-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-dark);
+    margin-bottom: 2px;
+}
+
+.security-sub {
+    font-size: 12px;
+    color: rgba(var(--color-dark-rgb), 0.55);
+}
+
+.change-password-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border-radius: 12px;
+    background: var(--color-primary);
+    color: var(--color-white);
+    border: none;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 150ms;
+}
+
+.change-password-btn:hover {
+    background: #005a2b;
+}
+
+/* ─── Responsive tweaks ────────────────────────────────────────────── */
+@media (max-width: 620px) {
+    .profile-hero-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .hero-gpa {
+        width: 100%;
+    }
+
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}

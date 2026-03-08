@@ -7,6 +7,7 @@
         <link rel="stylesheet" href="../../styles/student-styles/student-dashboard.css">
         <!-- Boxiocns CDN Link -->
         <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+        <link rel="stylesheet" href="../../styles/settings.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
@@ -56,7 +57,7 @@
                     </ul>
                 </li> -->
                 <li>
-                    <a href="#">
+                    <a href="make-payment.html">
                         <i class='bx bx-wallet' ></i>
                         <span class="link_name">Payments</span>
                     </a>
@@ -65,12 +66,12 @@
                     </ul>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="payment-receipt.html">
                         <i class='bx bx-receipt' ></i>
                         <span class="link_name">Receipts</span>
                     </a>
                     <ul class="sub-menu blank">
-                        <li><a class="link_name" href="#">Receipts</a></li>
+                        <li><a class="link_name" href="payment-receipt.html">Receipts</a></li>
                     </ul>
                 </li>
                 <!-- <li>
@@ -89,30 +90,30 @@
                     </ul>
                 </li> -->
                 <li>
-                    <a href="#">
+                    <a href="clearance-status.html">
                         <i class='bx bx-clipboard' ></i>
                         <span class="link_name">Clearance</span>
                     </a>
                     <ul class="sub-menu blank">
-                        <li><a class="link_name" href="#">Clearance</a></li>
+                        <li><a class="link_name" href="clearance-status.html">Clearance</a></li>
                     </ul>
                 </li>
                 <li>
-                    <a href="#">
-                        <i class='bx bx-history'></i>
-                        <span class="link_name">History</span>
-                    </a>
-                    <ul class="sub-menu blank">
-                        <li><a class="link_name" href="#">History</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="#">
+                    <a href="#" class="js-settings-open">
                         <i class='bx bx-cog' ></i>
-                        <span class="link_name">Setting</span>
+                        <span class="link_name">Settings</span>
                     </a>
                     <ul class="sub-menu blank">
-                        <li><a class="link_name" href="#">Setting</a></li>
+                        <li><a class="link_name js-settings-open" href="#">Settings</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="student-profile.html">
+                        <i class='bx bx-user-circle'></i>
+                        <span class="link_name">Profile</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name" href="student-profile.html">Profile</a></li>
                     </ul>
                 </li>
                 <li>
@@ -265,6 +266,7 @@
             </div>
         </section>
 
+        <script src="../../assets/scripts/settings.js"></script>
         <script src="../../assets/scripts/sample-accounts.js"></script>
         <script src="../../assets/scripts/auth.js"></script>
         <script src="../../assets/scripts/script.js"></script>

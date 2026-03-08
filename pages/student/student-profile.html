@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="UTF-8">
+        <title>CCS PAY++ · Profile</title>
+        <link rel="stylesheet" href="../../styles/sidebar.css">
+        <link rel="stylesheet" href="../../styles/student-styles/student-profile.css">
+        <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+        <link rel="stylesheet" href="../../styles/settings.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <!-- ─── Sidebar ─────────────────────────────────────────────── -->
+        <div class="sidebar">
+            <div class="logo-details">
+                <i class='bx bxl-c-plus-plus'></i>
+                <span class="logo_name">Pay++</span>
+            </div>
+            <ul class="nav-links">
+                <li>
+                    <a href="student-dashboard.html">
+                        <i class='bx bx-grid-alt'></i>
+                        <span class="link_name">Dashboard</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name" href="student-dashboard.html">Dashboard</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="make-payment.html">
+                        <i class='bx bx-wallet'></i>
+                        <span class="link_name">Payments</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name" href="make-payment.html">Payments</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="payment-receipt.html">
+                        <i class='bx bx-receipt'></i>
+                        <span class="link_name">Receipts</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name" href="payment-receipt.html">Receipts</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="clearance-status.html">
+                        <i class='bx bx-clipboard'></i>
+                        <span class="link_name">Clearance</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name" href="clearance-status.html">Clearance</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#" class="js-settings-open">
+                        <i class='bx bx-cog'></i>
+                        <span class="link_name">Settings</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name js-settings-open" href="#">Settings</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="student-profile.html">
+                        <i class='bx bx-user-circle'></i>
+                        <span class="link_name">Profile</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name" href="student-profile.html">Profile</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <div class="profile-details">
+                        <div class="profile-main">
+                            <div class="profile-content">
+                                <img src="../../assets/images/profile.png" alt="profileImg">
+                            </div>
+                            <div class="name-job">
+                                <div class="name-with-switch">
+                                    <div class="profile_name">Maria</div>
+                                    <button type="button" class="view-switch-container" aria-label="Switch view">
+                                        <i class='bx bx-chevron-up view-switch-icon'></i>
+                                    </button>
+                                </div>
+                                <div class="job">2022-00123</div>
+                            </div>
+                        </div>
+                        <a class="logout-section">
+                            <span>Sign out</span>
+                            <i class='bx bx-log-out'></i>
+                        </a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- ─── Main content ─────────────────────────────────────────── -->
+        <section class="home-section">
+            <div class="home-content">
+                <i class='bx bx-menu'></i>
+                <span class="text">Student Profile</span>
+            </div>
+
+            <div class="profile-page-container">
+
+                <!-- ── Profile Hero Card ───────────────────────────────── -->
+                <div class="profile-hero-card">
+                    <div class="hero-avatar-wrap">
+                        <img src="../../assets/images/profile.png" alt="Profile Photo" class="hero-avatar">
+                        <button class="avatar-edit-btn" title="Change photo">
+                            <i class='bx bx-camera'></i>
+                        </button>
+                    </div>
+                    <div class="hero-info">
+                        <h1 class="hero-name">Maria Dela Santos</h1>
+                        <p class="hero-id">2022-00123</p>
+                        <p class="hero-course">BS Computer Science</p>
+                        <p class="hero-year">4th Year &middot; Sec 4A</p>
+                        <span class="status-badge active"><i class='bx bx-check-circle'></i> Active</span>
+                    </div>
+                    <div class="hero-gpa">
+                        <span class="gpa-value">1.75</span>
+                        <span class="gpa-label">GPA</span>
+                    </div>
+                </div>
+
+                <!-- ── Personal Information ────────────────────────────── -->
+                <div class="profile-section-card">
+                    <div class="section-header">
+                        <h2><i class='bx bx-user'></i> Personal Information</h2>
+                        <button class="edit-btn"><i class='bx bx-edit-alt'></i> Edit</button>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Full Name</span>
+                            <span class="info-value">Maria Dela Santos</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Date of Birth</span>
+                            <span class="info-value">2003-08-14</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Place of Birth</span>
+                            <span class="info-value">Zamboanga City</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Sex</span>
+                            <span class="info-value">Female</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Civil Status</span>
+                            <span class="info-value">Single</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Nationality</span>
+                            <span class="info-value">Filipino</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Religion</span>
+                            <span class="info-value">Roman Catholic</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Academic Information ────────────────────────────── -->
+                <div class="profile-section-card">
+                    <div class="section-header">
+                        <h2><i class='bx bx-book-open'></i> Academic Information</h2>
+                        <span class="managed-badge"><i class='bx bx-building'></i> Managed by Registrar</span>
+                    </div>
+                    <div class="registrar-notice">
+                        <i class='bx bx-info-circle'></i>
+                        <p>Academic records are maintained by the Registrar's Office. Contact them for any corrections.</p>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Student ID</span>
+                            <span class="info-value">2022-00123</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Course</span>
+                            <span class="info-value">BS Computer Science</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Major</span>
+                            <span class="info-value">Software Engineering</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Year &amp; Section</span>
+                            <span class="info-value">4th Year – Section 4A</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">College</span>
+                            <span class="info-value">College of Computer Studies</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Semester</span>
+                            <span class="info-value">2nd Semester, AY 2025–2026</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Date Enrolled</span>
+                            <span class="info-value">August 14, 2022</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Class Adviser</span>
+                            <span class="info-value">Prof. Ricardo Dela Cruz</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Units Enrolled</span>
+                            <span class="info-value">21 units</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">GPA</span>
+                            <span class="info-value">1.75</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Contact Information ─────────────────────────────── -->
+                <div class="profile-section-card">
+                    <div class="section-header">
+                        <h2><i class='bx bx-phone'></i> Contact Information</h2>
+                        <button class="edit-btn"><i class='bx bx-edit-alt'></i> Edit</button>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Email Address</span>
+                            <span class="info-value">maria.santos@wmsu.edu.ph</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Primary Phone</span>
+                            <span class="info-value">09171234567</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Alternate Phone</span>
+                            <span class="info-value">09201234567</span>
+                        </div>
+                        <div class="info-item info-item--full">
+                            <span class="info-label">Address</span>
+                            <span class="info-value">123 Rizal St., Zone 3, Zamboanga City 7000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Emergency Contact / Guardian ───────────────────── -->
+                <div class="profile-section-card">
+                    <div class="section-header">
+                        <h2><i class='bx bx-shield'></i> Emergency Contact / Guardian</h2>
+                        <button class="edit-btn"><i class='bx bx-edit-alt'></i> Edit</button>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Name</span>
+                            <span class="info-value">Rosa M. Santos</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Relationship</span>
+                            <span class="info-value">Mother</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Phone</span>
+                            <span class="info-value">09187654321</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Email</span>
+                            <span class="info-value">rosa.santos@gmail.com</span>
+                        </div>
+                        <div class="info-item info-item--full">
+                            <span class="info-label">Address</span>
+                            <span class="info-value">123 Rizal St., Zone 3, Zamboanga City</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Password & Security ────────────────────────────── -->
+                <div class="profile-section-card">
+                    <div class="section-header">
+                        <h2><i class='bx bx-lock-alt'></i> Password &amp; Security</h2>
+                    </div>
+                    <div class="security-row">
+                        <div class="security-info">
+                            <i class='bx bx-check-shield security-icon'></i>
+                            <div>
+                                <p class="security-title">Password is set</p>
+                                <p class="security-sub">Last changed 30 days ago</p>
+                            </div>
+                        </div>
+                        <button class="change-password-btn">
+                            <i class='bx bx-key'></i> Change Password
+                        </button>
+                    </div>
+                </div>
+
+            </div><!-- end .profile-page-container -->
+        </section>
+
+        <script src="../../assets/scripts/settings.js"></script>
+        <script src="../../assets/scripts/sample-accounts.js"></script>
+        <script src="../../assets/scripts/auth.js"></script>
+        <script src="../../assets/scripts/script.js"></script>
+    </body>
+</html>
