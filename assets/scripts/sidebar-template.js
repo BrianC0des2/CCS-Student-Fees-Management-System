@@ -27,20 +27,25 @@ const sidebarHTML = `
                 <i class='bx bxs-chevron-down arrow' ></i>
             </div>
             <ul class="sub-menu">
-                <li><a class="link_name" href="#">Fees</a></li>
-                <li><a href="../organization/add-payment.html">Fees</a></li>
-                <li><a class="link_name" href="#">Payments</a></li>
-                <li><a href="../organization/payment-history.html">Payment History</a></li>
+            <li><a class="link_name" href="#">Payments</a></li>
+             <li><a href="../organization/add-payment.html">Org Fees</a></li>
+            <li><a href="../organization/payment-history.html">Payment History</a></li>     
             </ul>
         </li>
 
+    
         <li>
-            <a href="#">
-                <i class='bx bx-file' ></i>
-                <span class="link_name">Reports</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="#">Reports</a></li>
+          <div class="iocn-link">
+             <a href="#">
+              <i class='bx bx-file' ></i>
+             <span class="link_name">Reports</span>
+             </a>
+                 <i class='bx bxs-chevron-down arrow'></i>
+            </div>
+             <ul class="sub-menu">
+               <li><a class="link_name" href="#">Reports</a></li>
+              <li><a href="../organization/expense-report.html">Expense Report</a></li>
+              <li><a href="../organization/collection.html">Collection</a></li>
             </ul>
         </li>
         <li>
