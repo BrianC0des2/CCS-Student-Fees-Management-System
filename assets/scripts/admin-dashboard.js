@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // Populate sidebar profile section with session data
     const nameEl  = document.querySelector('.profile_name');
     const emailEl = document.querySelector('.job');
     if (nameEl)  nameEl.textContent  = user.name;
@@ -541,7 +540,6 @@ function renderFaculty() {
         </div>
     `;
 
-    // Wire events
     document.getElementById('show-add-faculty-btn')?.addEventListener('click', () => {
         showAddFacultyForm = true; renderFaculty();
     });
@@ -1379,7 +1377,6 @@ function renderAudit() {
    for elements only resolvable at runtime
 ══════════════════════════════ */
 
-// Utility classes added dynamically that supplement admin-dashboard.css
 const runtimeStyles = `
     .faculty-empty-state { text-align: center; color: var(--text-muted); padding: 40px; }
     .perm-table-faculty-cell { display: flex; align-items: center; gap: 8px; }

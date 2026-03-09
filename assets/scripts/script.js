@@ -1,14 +1,3 @@
-// =============================
-// LOGIN FLOW
-// =============================
-// FLOW SUMMARY
-// 1) This script runs on multiple pages, so we first check if #login-form exists.
-// 2) If it exists, we intercept submit, validate inputs, and delegate auth to window.Auth.
-// 3) On successful login, routing moves user to the main student dashboard.
-// 4) If the form does not exist (non-login pages), this block safely does nothing.
-// TYPE GUIDE (for this file)
-// - USER-DEFINED FUNCTION: functions declared in this file (enforceRouteAccess, renderPayments, etc.).
-// - PREDEFINED API: browser/JS built-ins (document, window, localStorage, Date, setTimeout, Array.map/filter).
 function appPath(targetPath) {
   const isInsidePagesDir = window.location.pathname.includes('/pages/');
   if (!isInsidePagesDir) return targetPath;
@@ -59,11 +48,8 @@ function navigateTo(targetPath) {
 
 const loginForm = document.getElementById("login-form");
 if (loginForm) {
-  // Submit flow starts only when the user clicks login/presses Enter in the form.
   loginForm.addEventListener("submit", (e) => {
-    // Keep control in JS first so we can validate before any navigation happens.
     e.preventDefault();
-    // Normalize values by trimming spaces to avoid false-empty and typo-like issues.
     const email = document.getElementById("user-email").value.trim();
     const password = document.getElementById("user-password").value.trim();
     
@@ -72,10 +58,6 @@ if (loginForm) {
       return;
     }
 
-    // Auth handshake:
-    // - window.Auth.login(...) checks account + password
-    // - result.ok tells us if login should continue
-    // - result.message gives user-friendly failure reason
     if (!window.Auth) {
       alert("Authentication module failed to load. Please refresh and try again.");
       return;
@@ -89,11 +71,9 @@ if (loginForm) {
       }
     }
 
-    // Success path: route to personal/student dashboard.
-    // (If needed, route protection below will still enforce proper page access.)
     const loggedUser = window.Auth.getUser();
     if (loggedUser.permissions.deanView) {
-      navigateTo('pages/faculty/faculty-dashboard.html');
+      navigateTo('pages/dean/dean-dashboard.html');
     } else if (loggedUser.permissions.facultyView) {
       navigateTo('pages/faculty/faculty-dashboard.html');
     } else if (loggedUser.permissions.adminView) {
@@ -106,28 +86,13 @@ if (loginForm) {
   });
 }
 
-// =============================
-// ROUTE PROTECTION
-// =============================
-// FLOW SUMMARY
-// This function is a page guard that runs on every page load:
-// A) Detect current page
-// B) Read current user session
-// C) Redirect if page is not allowed for that session/role
-// D) Sync persisted preferred view (student vs organization)
-// TYPE: USER-DEFINED FUNCTION
-// PURPOSE: Enforce authentication/authorization rules per page at load time.
-// PREDEFINED APIS USED: window.location, String.toLowerCase.
 function enforceRouteAccess() {
   if (!window.Auth) return;
 
-  // Get current file name from URL (example: student-dashboard.html)
   const page = (window.location.pathname.split('/').pop() || 'student-dashboard.html').toLowerCase();
   const isLoginPage = page === 'login-page.html';
   const user = window.Auth.getUser();
 
-  // Guard 1: login page is only for guests.
-  // If a user is already authenticated, redirect them away from login.
   if (isLoginPage) {
     if (!user) return;
 
@@ -137,43 +102,75 @@ function enforceRouteAccess() {
       return;
     }
 
+    if (preferredView === 'dean' && window.Auth.isDean()) {
+      navigateTo('pages/dean/dean-dashboard.html');
+      return;
+    }
+
+    if (preferredView === 'faculty' && window.Auth.isFaculty()) {
+      navigateTo('pages/faculty/faculty-dashboard.html');
+      return;
+    }
+
+    if (window.Auth.isDean()) {
+      navigateTo('pages/dean/dean-dashboard.html');
+      return;
+    }
+
+    if (window.Auth.isFaculty()) {
+      navigateTo('pages/faculty/faculty-dashboard.html');
+      return;
+    }
+
+    if (window.Auth.isAdmin()) {
+      navigateTo('pages/admin/admin-dashboard.html');
+      return;
+    }
+
     navigateTo('pages/student/student-dashboard.html');
     return;
   }
 
-  // Guard 2: every protected page requires an active session.
   if (!user) {
     navigateTo('login-page.html');
     return;
   }
 
-  // Guard 3: finance/organization dashboard requires org-management permission.
   if (page === 'organization-dashboard.html' && !window.Auth.canManageOrg()) {
     navigateTo('pages/student/student-dashboard.html');
     return;
   }
 
-  // Guard 4: faculty dashboard requires faculty permission.
-  if (page === 'faculty-dashboard.html' && !window.Auth.isFaculty() && !window.Auth.isDean()) {
-    navigateTo('pages/student/student-dashboard.html');
+  if (page === 'faculty-dashboard.html' && !window.Auth.isFaculty()) {
+    if (window.Auth.isDean()) {
+      navigateTo('pages/dean/dean-dashboard.html');
+    } else {
+      navigateTo('pages/student/student-dashboard.html');
+    }
     return;
   }
 
-  // Guard 5: admin dashboard requires adminView permission.
+  if (page === 'dean-dashboard.html' && !window.Auth.isDean()) {
+    if (window.Auth.isFaculty()) {
+      navigateTo('pages/faculty/faculty-dashboard.html');
+    } else {
+      navigateTo('pages/student/student-dashboard.html');
+    }
+    return;
+  }
+
   if (page === 'admin-dashboard.html' && !window.Auth.isAdmin()) {
     navigateTo('pages/student/student-dashboard.html');
     return;
   }
 
-  // State sync: keep stored view aligned with what page user is currently on.
-  // This makes future redirects open the same context the user last used.
   if (page === 'organization-dashboard.html') {
     window.Auth.setView('organization');
   } else if (page === 'student-dashboard.html') {
     window.Auth.setView('student');
   } else if (page === 'faculty-dashboard.html' && window.Auth.isFaculty()) {
     window.Auth.setView('faculty');
-  } else if (page === 'faculty-dashboard.html' && window.Auth.isDean()) {
+  } else if (page === 'dean-dashboard.html' && window.Auth.isDean()) {
     window.Auth.setView('dean');
   }
 
@@ -183,16 +180,8 @@ function enforceRouteAccess() {
   }
 }
 
-// Route checks run immediately so unauthorized views are blocked early.
 enforceRouteAccess();
 
-// =============================
-// SIDEBAR INTERACTIONS
-// =============================
-// FLOW SUMMARY
-// - Arrow click toggles nested menu visibility.
-// - Burger icon toggles sidebar width (expanded/collapsed).
-// - After toggle, content container dimensions are recalculated.
 let arrow = document.querySelectorAll(".arrow");
 for (var i = 0; i < arrow.length; i++) {
   arrow[i].addEventListener("click", (e)=>{
@@ -200,10 +189,8 @@ for (var i = 0; i < arrow.length; i++) {
  arrowParent.classList.toggle("showMenu");
   });
 }
-// Sidebar burger button: collapse/expand sidebar.
 let sidebarBtn = document.querySelector(".bx-menu");
 if (sidebarBtn && !sidebarBtn.dataset.sidebarInitialized) {
-  // Prevent duplicate event listener registration
   sidebarBtn.dataset.sidebarInitialized = 'true';
   sidebarBtn.addEventListener("click", ()=>{
     const sidebar = document.querySelector(".sidebar");
@@ -213,7 +200,6 @@ if (sidebarBtn && !sidebarBtn.dataset.sidebarInitialized) {
   });
 }
 
-// Layout sync helper used after sidebar state changes.
 function adjustHomeSectionMargin() {
   const sidebar = document.querySelector(".sidebar");
   const homeSection = document.querySelector(".home-section");
@@ -228,17 +214,6 @@ function adjustHomeSectionMargin() {
   }
 }
 
-// =============================
-// PROFILE UI HELPERS
-// =============================
-// FLOW SUMMARY
-// 1) Read logged-in user details from Auth.
-// 2) Paint identity fields in sidebar/profile slots.
-// 3) Enable view-switch dropdown (if role allows).
-// 4) Bind logout action to clear session and return to login.
-// TYPE: USER-DEFINED FUNCTION
-// PURPOSE: Fill profile UI elements with current user details.
-// PREDEFINED APIS USED: document.querySelectorAll, NodeList.forEach.
 function syncProfileDetails() {
   if (!window.Auth) return;
   const user = window.Auth.getUser();
@@ -256,18 +231,10 @@ function syncProfileDetails() {
   });
 }
 
-// View switch flow:
-// - Only visible for users with org privilege.
-// - Clicking container opens a temporary dropdown.
-// - Selecting target view persists preference and redirects immediately.
-// TYPE: USER-DEFINED FUNCTION
-// PURPOSE: Handle profile dropdown for switching between student and organization views.
-// PREDEFINED APIS USED: document.querySelector, createElement, addEventListener, setTimeout.
 function initializeViewToggle() {
   const switchContainer = document.querySelector('.view-switch-container');
   if (!switchContainer) return;
 
-  // Hide toggle for users that do not have organization access.
   if (!window.Auth || !window.Auth.canManageOrg()) {
     switchContainer.style.display = 'none';
     return;
@@ -276,18 +243,12 @@ function initializeViewToggle() {
   const switchIcon = switchContainer.querySelector('.view-switch-icon');
   if (!switchIcon) return;
 
-  // Local cleanup utility so all close paths behave consistently.
-  // TYPE: USER-DEFINED LOCAL FUNCTION
-  // PURPOSE: Remove dropdown and reset open state classes.
   const closeDropdown = () => {
     const dropdown = switchContainer.querySelector('.view-switch-dropdown');
     if (dropdown) dropdown.remove();
     switchContainer.classList.remove('is-open');
   };
 
-  // Close dropdown when user clicks outside of it.
-  // TYPE: USER-DEFINED LOCAL FUNCTION
-  // PURPOSE: Detect outside clicks and close the dropdown.
   const handleOutsideClick = (event) => {
     if (!switchContainer.contains(event.target)) {
       closeDropdown();
@@ -295,7 +256,6 @@ function initializeViewToggle() {
     }
   };
 
-  // Main toggle handler: open if closed, close if open.
   switchContainer.addEventListener('click', (event) => {
     event.stopPropagation();
 
@@ -329,14 +289,12 @@ function initializeViewToggle() {
       if (!button) return;
 
       const nextView = button.dataset.view;
-      // If user selected current view, just close menu.
       if (nextView === currentView) {
         closeDropdown();
         document.removeEventListener('click', handleOutsideClick);
         return;
       }
 
-      // Commit selected view to Auth storage, then route to matching page.
       const allowed = window.Auth.setView(nextView);
       if (!allowed) return;
 
@@ -353,12 +311,6 @@ function initializeViewToggle() {
   });
 }
 
-// Logout flow:
-// - Clear session via Auth helper
-// - Always redirect user to login screen
-// TYPE: USER-DEFINED FUNCTION
-// PURPOSE: Bind sign-out action to session cleanup and login redirect.
-// PREDEFINED APIS USED: document.querySelector, addEventListener, window.location.href.
 function initializeLogout() {
   const logoutSection = document.querySelector('.profile-details .logout-section');
   if (!logoutSection) return;
@@ -371,45 +323,28 @@ function initializeLogout() {
   });
 }
 
-// STARTUP FLOW (post-DOM render)
-// We delay a little so elements are mounted and measurable before UI setup.
 document.addEventListener('DOMContentLoaded', function() {
-  // Step 1: sync layout with sidebar state.
   setTimeout(adjustHomeSectionMargin, 100);
   setTimeout(() => {
-    // Step 2: initialize auth-dependent profile interactions.
     syncProfileDetails();
     initializeViewToggle();
     initializeLogout();
-    // Step 3: initialize page tools
     initializeFilters();
     initializeSearch();
   }, 120);
 });
 
-// =============================
-// PAYMENTS HISTORY (DEMO)
-// =============================
-// FLOW SUMMARY
-// - samplePayments is source-of-truth demo data.
-// - renderPayments(...) paints list from whichever array is passed.
-// - filterPayments(...) computes filtered array then calls render.
-// - dropdown change event triggers filter + re-render.
 const paymentsFilter = document.getElementById('payments-filter');
 const paymentsListEl = document.querySelector('.payments-history .payments-list');
 
-// sample data (date in YYYY-MM-DD)
 const samplePayments = [
-  // Payments for student1@demo.com (TY202500100)
   { studentNo: "TY202500100", studentName: "Bryan", desc: 'CCSC Fee - BSCS 1A', amount: '₱1,000.00', date: '2026-02-14' },
   { studentNo: "TY202500100", studentName: "Bryan", desc: 'Insurance - BSCS 1A', amount: '₱150.00', date: '2026-02-10' },
   { studentNo: "TY202500100", studentName: "Bryan", desc: 'Miscellaneous - BSCS 1A', amount: '₱850.00', date: '2026-01-20' },
   { studentNo: "TY202500100", studentName: "Bryan", desc: 'Gender Club - BSCS 1A', amount: '₱1,000.00', date: '2026-01-10' },
-  // Payments for studentorg@demo.com (TY202500101)
   { studentNo: "TY202500101", studentName: "Bryan", desc: 'CCSC Fee - BSCS 1B', amount: '₱1,000.00', date: '2026-02-13' },
   { studentNo: "TY202500101", studentName: "Bryan", desc: 'Insurance - BSCS 1B', amount: '₱150.00', date: '2026-02-08' },
   { studentNo: "TY202500101", studentName: "Bryan", desc: 'Partial Payment - BSCS 1B', amount: '₱500.00', date: '2026-01-15' },
-  // Recent payments from various students (for org/admin view)
   { studentNo: "TY202500102", studentName: "Maria Santos", desc: 'CCSC Fee - BSCS 1A', amount: '₱1,000.00', date: '2026-02-10' },
   { studentNo: "TY202500104", studentName: "Ana Garcia", desc: 'Insurance - BSCS 1B', amount: '₱150.00', date: '2026-02-05' },
   { studentNo: "TY202500106", studentName: "Sofia Martinez", desc: 'Miscellaneous - BSIT 1A', amount: '₱850.00', date: '2026-02-01' },
@@ -430,7 +365,6 @@ const samplePayments = [
   { studentNo: "TY202200406", studentName: "Beatriz Leon", desc: 'Insurance - BSIT 4A', amount: '₱150.00', date: '2026-01-30' },
   { studentNo: "TY202200408", studentName: "Alicia Rubio", desc: 'Miscellaneous - ACT-AD 1B', amount: '₱850.00', date: '2026-01-25' },
   { studentNo: "TY202200410", studentName: "Natalia Gil", desc: 'Gender Club - ACT-NET 1B', amount: '₱1,000.00', date: '2026-02-16' },
-  // Older payments
   { studentNo: "TY202500111", studentName: "Juan Dela Cruz", desc: 'Partial Payment - BSCS 1A', amount: '₱500.00', date: '2026-01-15' },
   { studentNo: "TY202500103", studentName: "Pedro Reyes", desc: 'Partial Payment - BSCS 1B', amount: '₱700.00', date: '2026-01-20' },
   { studentNo: "TY202500105", studentName: "Carlos Lopez", desc: 'Partial Payment - BSIT 1A', amount: '₱300.00', date: '2026-01-25' },
@@ -453,10 +387,6 @@ const samplePayments = [
   { studentNo: "TY202200409", studentName: "Victor Suarez", desc: 'Partial Payment - ACT-NET 1B', amount: '₱550.00', date: '2026-01-28' }
 ];
 
-// Pure rendering step: takes a list and turns it into payment item markup.
-// TYPE: USER-DEFINED FUNCTION
-// PURPOSE: Render payment records into the payments list container.
-// PREDEFINED APIS USED: Array.map, Element.innerHTML.
 function renderPayments(list){
   if (!paymentsListEl) return;
   paymentsListEl.innerHTML = list.map(p => `
@@ -470,10 +400,6 @@ function renderPayments(list){
   `).join('');
 }
 
-// Decision step: derive which records should be shown based on selected range.
-// TYPE: USER-DEFINED FUNCTION
-// PURPOSE: Select which payments to show based on filter option.
-// PREDEFINED APIS USED: Date, Array.filter.
 function filterPayments(value){
   if (value === 'all') {
     renderPayments(myPayments);
@@ -485,7 +411,6 @@ function filterPayments(value){
 
   const filtered = myPayments.filter(p => {
     const d = new Date(p.date + 'T00:00:00');
-    // recent = within last 30 days, old = older than 30 days
     if (value === 'recent') return d >= recentThreshold;
     if (value === 'old') return d < recentThreshold;
     return true;
@@ -494,30 +419,19 @@ function filterPayments(value){
   renderPayments(filtered);
 }
 
-// Scope payments to the currently logged-in student only.
-// Each entry in samplePayments has a studentNo that maps to a user's studentId.
 const currentUser = window.Auth ? window.Auth.getUser() : null;
 const myPayments = currentUser
   ? samplePayments.filter(p => p.studentNo === currentUser.studentId)
   : samplePayments;
 
-// Initial paint so list is visible before user interaction.
 renderPayments(myPayments);
 if (paymentsFilter) {
-  // Recalculate and repaint every time the selected filter changes.
   paymentsFilter.addEventListener('change', (e) => {
     filterPayments(e.target.value);
   });
-  // Ensure startup view reflects preselected option in the dropdown.
   filterPayments(paymentsFilter.value || 'recent');
 }
 
-// Section navigation flow:
-// 1) remove active state from all sections
-// 2) activate exactly one section by id
-// TYPE: USER-DEFINED FUNCTION
-// PURPOSE: Switch visible content section by id.
-// PREDEFINED APIS USED: document.querySelectorAll, classList, document.getElementById.
 function showSection(sectionId) {
     document.querySelectorAll('.section').forEach(function(sec) {
         sec.classList.remove('active');
@@ -525,13 +439,6 @@ function showSection(sectionId) {
     document.getElementById(sectionId).classList.add('active');
 }
 
-// School year badge flow:
-// - Get current date
-// - Derive semester window using month
-// - Build AY range and inject into badge element
-// TYPE: USER-DEFINED FUNCTION
-// PURPOSE: Compute and display current school year and semester badge text.
-// PREDEFINED APIS USED: Date, document.querySelector.
 function setSchoolYear() {
     const today = new Date();
     const year = today.getFullYear();
@@ -554,7 +461,6 @@ function setSchoolYear() {
     }
 }
 
-// List of available sections per course-year combination.
 const sections = {
     "BSCS-1": ["BSCS 1A", "BSCS 1B"],
     "BSCS-2": ["BSCS 2A", "BSCS 2B"],
@@ -570,13 +476,6 @@ const sections = {
     "ACT-NET-2": ["ACT-NET 2A", "ACT-NET 2B"],
 };
 
-  // Course/year -> section options flow:
-  // - reset dropdown
-  // - reject unavailable ACT years (3/4)
-  // - map valid key to section options and append each option node
-  // TYPE: USER-DEFINED FUNCTION
-  // PURPOSE: Populate section dropdown based on selected course and year level.
-  // PREDEFINED APIS USED: document.getElementById, document.createElement, Array.forEach.
 function updateSections() {
     const year = document.getElementById('yearLevel').value;
     const course = document.getElementById('course').value;
@@ -584,7 +483,6 @@ function updateSections() {
 
     sectionSelect.innerHTML = '<option value="">Section</option>';
 
-  // In this setup, ACT-AD and ACT-NET only have year levels 1 and 2.
     if ((course === "ACT-AD" || course === "ACT-NET") && (year === "3" || year === "4")) {
         sectionSelect.innerHTML = '<option value="">Not available</option>';
         return;
@@ -601,12 +499,8 @@ function updateSections() {
     }
 }
 
-  // Startup call so the AY badge is correct as soon as page loads.
 setSchoolYear();
 
-// =============================
-// FILTERS FUNCTIONALITY
-// =============================
 let activeFilters = {};
 
 function initializeFilters() {
@@ -619,24 +513,20 @@ function initializeFilters() {
 
     if (!filtersBtn || !filtersPopover) return;
 
-    // Toggle popover
     filtersBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         filtersPopover.classList.toggle('show');
     });
 
-    // Close popover when clicking outside
     document.addEventListener('click', (e) => {
         if (!filtersBtn.contains(e.target) && !filtersPopover.contains(e.target)) {
             filtersPopover.classList.remove('show');
         }
     });
 
-    // Apply filters
     applyFiltersBtn.addEventListener('click', () => {
         activeFilters = {};
         
-        // Get filter values
         const yearLevel = document.getElementById('yearLevel').value;
         const course = document.getElementById('course').value;
         const section = document.getElementById('section').value;
@@ -655,7 +545,6 @@ function initializeFilters() {
         applyTableFilters();
     });
 
-    // Reset filters
     resetFiltersBtn.addEventListener('click', () => {
         activeFilters = {};
         document.querySelectorAll('#filtersPopover select').forEach(select => {
@@ -668,7 +557,6 @@ function initializeFilters() {
         updateFilterSections(); // Reset sections to show all
     });
 
-    // Update sections dropdown when Year Level or Course changes
     const yearLevelSelect = document.getElementById('yearLevel');
     const courseSelect = document.getElementById('course');
     
@@ -685,27 +573,22 @@ function initializeFilters() {
         });
     }
 
-    // Initialize sections dropdown with all options
     updateFilterSections();
 
-    // Filter Course options based on selected Year Level
     function updateCourseOptions() {
         const year = document.getElementById('yearLevel')?.value;
         const courseSelect = document.getElementById('course');
         
         if (!courseSelect) return;
 
-        // Get all options
         const options = courseSelect.querySelectorAll('option');
         
         options.forEach(option => {
             const courseValue = option.value;
             
-            // If year is 3 or 4, hide ACT courses (they only have years 1 and 2)
             if ((year === "3" || year === "4") && (courseValue === "ACT-AD" || courseValue === "ACT-NET")) {
                 option.disabled = true;
                 option.style.display = 'none';
-                // If this option was selected, deselect it
                 if (courseSelect.value === courseValue) {
                     courseSelect.value = '';
                 }
@@ -716,24 +599,20 @@ function initializeFilters() {
         });
     }
 
-    // Filter Year Level options based on selected Course
     function updateYearLevelOptions() {
         const course = document.getElementById('course')?.value;
         const yearLevelSelect = document.getElementById('yearLevel');
         
         if (!yearLevelSelect) return;
 
-        // Get all options
         const options = yearLevelSelect.querySelectorAll('option');
         
         options.forEach(option => {
             const yearValue = option.value;
             
-            // If course is ACT-AD or ACT-NET, hide years 3 and 4
             if ((course === "ACT-AD" || course === "ACT-NET") && (yearValue === "3" || yearValue === "4")) {
                 option.disabled = true;
                 option.style.display = 'none';
-                // If this option was selected, deselect it
                 if (yearLevelSelect.value === yearValue) {
                     yearLevelSelect.value = '';
                 }
@@ -744,7 +623,6 @@ function initializeFilters() {
         });
     }
 
-    // Restore all options in dropdowns
     function restoreAllOptions() {
         const yearLevelSelect = document.getElementById('yearLevel');
         const courseSelect = document.getElementById('course');
@@ -771,12 +649,9 @@ function initializeFilters() {
 
         if (!sectionSelect) return;
 
-        // Reset to "All" option
         sectionSelect.innerHTML = '<option value="">All</option>';
 
-        // If both year and course are selected, show only matching sections
         if (year && course) {
-            // Check if ACT courses have invalid year levels
             if ((course === "ACT-AD" || course === "ACT-NET") && (year === "3" || year === "4")) {
                 sectionSelect.innerHTML = '<option value="">Not available</option>';
                 return;
@@ -792,17 +667,14 @@ function initializeFilters() {
                 });
             }
         } else {
-            // Show all sections from all combinations
             const allSections = new Set();
             Object.keys(sections).forEach(key => {
-                // Filter based on what's selected
                 if (year && !key.endsWith('-' + year)) return;
                 if (course && !key.startsWith(course + '-')) return;
                 
                 sections[key].forEach(s => allSections.add(s));
             });
 
-            // Sort and add all sections
             Array.from(allSections).sort().forEach(s => {
                 const opt = document.createElement('option');
                 opt.value = s;
@@ -821,7 +693,6 @@ function initializeFilters() {
             activeFiltersContainer.appendChild(tag);
         });
 
-        // Add remove event listeners
         document.querySelectorAll('.filter-tag .remove').forEach(removeBtn => {
             removeBtn.addEventListener('click', (e) => {
                 const filterKey = e.target.dataset.filter;
@@ -859,7 +730,6 @@ function initializeFilters() {
             const cells = row.querySelectorAll('td');
             
             if (isPaymentHistory) {
-                // Payment history table structure: Student No.(0), Name(1), Course(2), Year & Section(3), School Year(4), Semester(5), Amount(6), Status(7)
                 if (activeFilters.yearLevel) {
                     const yearSection = cells[3]?.textContent || '';
                     if (!yearSection.includes(activeFilters.yearLevel)) show = false;
@@ -885,7 +755,6 @@ function initializeFilters() {
                     if (semester !== activeFilters.semester) show = false;
                 }
             } else {
-                // Dashboard table structure: Student No.(0), Name(1), Year & Section(2), Amount Paid(3), Total Due(4), Status(5), Last Payment(6), Actions(7)
                 if (activeFilters.yearLevel) {
                     const yearSection = cells[2]?.textContent || '';
                     if (!yearSection.includes(activeFilters.yearLevel)) show = false;
@@ -896,7 +765,6 @@ function initializeFilters() {
                     if (!yearSection.includes(activeFilters.section)) show = false;
                 }
                 
-                // Course, School Year, and Semester filters are not applicable on dashboard
             }
             
             row.style.display = show ? '' : 'none';
@@ -904,9 +772,6 @@ function initializeFilters() {
     }
 }
 
-// =============================
-// SEARCH FUNCTIONALITY
-// =============================
 function initializeSearch() {
     const searchBtn = document.getElementById('searchBtn');
     const searchInput = document.getElementById('searchInput');
@@ -933,9 +798,6 @@ function initializeSearch() {
     });
 }
 
-// =============================
-// FACULTY DASHBOARD
-// =============================
 let facultyRole = 'professor';
 
 const facultyStudents = [

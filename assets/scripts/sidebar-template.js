@@ -83,13 +83,6 @@ const sidebarHTML = `
 </div>
 `;
 
-// LOAD FLOW
-// - Verify target container exists
-// - Inject shared sidebar markup
-// - Bind all interaction handlers after injection
-// TYPE: USER-DEFINED FUNCTION
-// PURPOSE: Mount shared sidebar markup into the page and initialize behavior.
-// PREDEFINED APIS USED: document.getElementById, console.warn.
 function loadSidebar() {
     const container = document.getElementById('sidebar-container');
     if (!container) {
@@ -101,7 +94,6 @@ function loadSidebar() {
 
     applyRoleBasedSidebarAccess();
     
-    // Re-attach sidebar event handlers after inserting HTML
     initializeSidebarEvents();
 }
 
@@ -111,11 +103,20 @@ function applyRoleBasedSidebarAccess() {
     const user = window.Auth.getUser();
     if (!user || !user.permissions) return;
 
+    const hasFacultyView = Boolean(user.permissions.facultyView);
+    const hasDeanView = Boolean(user.permissions.deanView);
+    const hasFacultyOrDeanView = hasFacultyView || hasDeanView;
+    const currentPage = (window.location.pathname.split('/').pop() || '').toLowerCase();
+    const useDeanDashboard = hasDeanView && (!hasFacultyView || currentPage === 'dean-dashboard.html');
+    const dashboardHref = useDeanDashboard
+        ? '../dean/dean-dashboard.html'
+        : '../faculty/faculty-dashboard.html';
+
     const logoLink = document.querySelector('.sidebar .logo-details').closest('a');
 
-    if (user.permissions.facultyView || user.permissions.deanView) {
+    if (hasFacultyOrDeanView) {
         if (logoLink) {
-            logoLink.setAttribute('href', '../faculty/faculty-dashboard.html');
+            logoLink.setAttribute('href', dashboardHref);
         }
     } else if (user.permissions.organizationView) {
         if (logoLink) {
@@ -123,12 +124,12 @@ function applyRoleBasedSidebarAccess() {
         }
     }
 
-    const isFacultyOrDean = Boolean(user.permissions.facultyView || user.permissions.deanView);
+    const isFacultyOrDean = hasFacultyOrDeanView;
     if (!isFacultyOrDean) return;
 
     const dashboardLink = document.querySelector('.nav-links > li:first-child > a');
     if (dashboardLink) {
-        dashboardLink.setAttribute('href', '../faculty/faculty-dashboard.html');
+        dashboardLink.setAttribute('href', dashboardHref);
     }
 
     const walletIcon = document.querySelector('.nav-links .bx-wallet');
@@ -138,28 +139,17 @@ function applyRoleBasedSidebarAccess() {
     }
 }
 
-// INTERACTION FLOW
-// - Burger button toggles collapsed/expanded state
-// - Arrow buttons toggle submenu visibility
-// - Each toggle keeps layout synced via adjustHomeSectionMargin()
-// TYPE: USER-DEFINED FUNCTION
-// PURPOSE: Attach click handlers for sidebar open/close and submenu expansion.
-// PREDEFINED APIS USED: document.querySelector, addEventListener, classList.toggle.
 function initializeSidebarEvents() {
-    // Sidebar toggle
     let sidebar = document.querySelector(".sidebar");
     let sidebarBtn = document.querySelector(".bx-menu");
-    // dataset flag prevents adding duplicate click listeners when this runs multiple times
     if (sidebarBtn && !sidebarBtn.dataset.sidebarInitialized) {
         sidebarBtn.dataset.sidebarInitialized = 'true';
         sidebarBtn.addEventListener("click", () => {
             sidebar.classList.toggle("close");
-            // Adjust home-section margin based on sidebar state
             adjustHomeSectionMargin();
         });
     }
     
-    // Dropdown menus
     let arrow = document.querySelectorAll(".arrow");
     for (let i = 0; i < arrow.length; i++) {
         arrow[i].addEventListener("click", (e) => {
@@ -169,13 +159,6 @@ function initializeSidebarEvents() {
     }
 }
 
-// LAYOUT FLOW
-// - Read current sidebar mode (`close` or expanded)
-// - Apply matching margin/width to `.home-section`
-// - Prevent overlap so main content remains readable
-// TYPE: USER-DEFINED FUNCTION
-// PURPOSE: Keep main content dimensions synchronized with sidebar width.
-// PREDEFINED APIS USED: document.querySelector, classList.contains.
 function adjustHomeSectionMargin() {
     const sidebar = document.querySelector(".sidebar");
     const homeSection = document.querySelector(".home-section");
@@ -190,19 +173,12 @@ function adjustHomeSectionMargin() {
 }
 }
 
-// BOOTSTRAP FLOW
-// - If DOM is still loading, wait for DOMContentLoaded
-// - Otherwise load immediately
 if (document.readyState === 'loading') {
-    // Wait for full HTML to be parsed first
     document.addEventListener('DOMContentLoaded', loadSidebar);
 } else {
-    // DOM already loaded, we can insert sidebar immediately
     loadSidebar();
 }
 
-// Final layout sync on startup (small delay helps with initial element sizing).
 document.addEventListener('DOMContentLoaded', function() {
-    // Small delay helps ensure layout elements are already present
     setTimeout(adjustHomeSectionMargin, 100);
 });
