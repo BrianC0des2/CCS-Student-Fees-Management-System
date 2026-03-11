@@ -137,6 +137,38 @@ function applyRoleBasedSidebarAccess() {
     if (paymentsListItem) {
         paymentsListItem.remove();
     }
+
+    // Remove Reports for faculty and dean
+    const fileIcon = document.querySelector(
+        '.nav-links .bx-file'
+    );
+    const reportsListItem = fileIcon ? 
+        fileIcon.closest('li') : null;
+    if (reportsListItem) reportsListItem.remove();
+
+    // Add My Students link for faculty only (not dean)
+    const isFacultyOnly = hasFacultyView && !hasDeanView;
+    if (isFacultyOnly) {
+        const dashLi = document.querySelector(
+            '.nav-links > li:first-child'
+        );
+        const myStudentsLi = document.createElement('li');
+        myStudentsLi.innerHTML = `
+            <li>
+                <a href="../faculty/students.html">
+                    <i class='bx bx-group'></i>
+                    <span class="link_name">My Students</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" 
+                           href="../faculty/students.html">
+                        My Students
+                    </a></li>
+                </ul>
+            </li>
+        `;
+        dashLi.insertAdjacentElement('afterend', myStudentsLi);
+    }
 }
 
 function initializeSidebarEvents() {

@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <title>CCS PAY++ - My Students</title>
+    <link rel="stylesheet" href="../../styles/sidebar.css">
+    <link rel="stylesheet" 
+          href="../../styles/faculty-styles/faculty-dashboard.css">
+    <link href="https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css" 
+          rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/settings.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Member card styles */
+        .member-card {
+            background: var(--faculty-card);
+            border: 1px solid var(--faculty-border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 10px;
+            transition: border-color 0.2s;
+        }
+        .member-card:hover {
+            border-color: var(--faculty-green);
+        }
+        .member-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .member-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--faculty-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .member-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .member-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--faculty-text);
+            margin-bottom: 4px;
+        }
+        .member-meta {
+            font-size: 12px;
+            color: var(--faculty-muted);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 3px;
+        }
+        .member-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .member-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            color: var(--faculty-muted);
+        }
+        .icon-btn:hover {
+            background: #fee2e2;
+            color: var(--faculty-red);
+        }
+        /* Form box styles */
+        .form-box {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .form-box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        .form-box-title {
+            font-weight: 600;
+            color: #14532d;
+            font-size: 14px;
+        }
+        .form-close-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--faculty-muted);
+            line-height: 1;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--faculty-muted);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid var(--faculty-border);
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+            background: white;
+            box-sizing: border-box;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--faculty-green);
+        }
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        /* Section filter tabs */
+        .section-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .section-tab {
+            padding: 6px 16px;
+            border-radius: 999px;
+            border: 1px solid var(--faculty-border);
+            background: white;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--faculty-muted);
+        }
+        .section-tab.active {
+            background: var(--faculty-green);
+            color: white;
+            border-color: var(--faculty-green);
+        }
+        /* Confirm remove box */
+        .confirm-box {
+            margin-top: 12px;
+            padding: 10px 14px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--faculty-red);
+        }
+        .confirm-box-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--faculty-text);
+        }
+        .section-sub {
+            font-size: 13px;
+            color: var(--faculty-muted);
+            margin-top: 2px;
+        }
+        .search-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 200px;
+        }
+        .search-wrap input {
+            width: 100%;
+            padding: 9px 12px 9px 36px;
+            border: 1px solid var(--faculty-border);
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+            background: white;
+            box-sizing: border-box;
+        }
+        .search-wrap input:focus {
+            border-color: var(--faculty-green);
+        }
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            color: var(--faculty-muted);
+            pointer-events: none;
+        }
+        .filters-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .empty-state {
+            text-align: center;
+            color: var(--faculty-muted);
+            padding: 40px;
+            font-size: 14px;
+        }
+        .student-count-badge {
+            background: #e7f7ed;
+            color: var(--faculty-green);
+            border-radius: 999px;
+            padding: 2px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar-container"></div>
+
+    <section class="home-section faculty-home">
+        <div class="home-content">
+            <div class="home-heading">
+                <i class='bx bx-menu'></i>
+                <span class="text">My Students</span>
+            </div>
+            <div class="org-header-card">
+                <a href="faculty-dashboard.html">
+                    <img src="../../assets/images/org-ccs.png" 
+                         class="org-header-logo" alt="ccs-logo">
+                    <div>
+                        <div class="org-header-name">
+                            College of Computing Studies
+                        </div>
+                        <div class="org-header-sub" 
+                             id="orgYearSem"></div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Page content -->
+        <div id="pageContent" style="padding: 0 4px;">
+
+            <div class="section-header">
+                <div>
+                    <div class="section-title">My Students</div>
+                    <div class="section-sub">
+                        Manage your class roster — CS 1-A and CS 1-B
+                    </div>
+                </div>
+                <button class="bulk-action-btn" 
+                        id="showAddStudentBtn">
+                    + Add Student
+                </button>
+            </div>
+
+            <div class="summary-cards" style="margin-bottom:16px;">
+                <div class="card">
+                    <i class='bx bx-group'></i>
+                    <h3>Total Students</h3>
+                    <p id="countTotal">0</p>
+                </div>
+                <div class="card">
+                    <i class='bx bx-book'></i>
+                    <h3>CS 1-A</h3>
+                    <p id="countCS1A">0</p>
+                </div>
+                <div class="card">
+                    <i class='bx bx-book'></i>
+                    <h3>CS 1-B</h3>
+                    <p id="countCS1B">0</p>
+                </div>
+            </div>
+
+            <!-- Add Student Form -->
+            <div id="addStudentForm" class="form-box" 
+                 style="display:none;">
+                <div class="form-box-header">
+                    <span class="form-box-title">
+                        + Add New Student
+                    </span>
+                    <button class="form-close-btn" 
+                            id="closeAddStudentForm">
+                        ×
+                    </button>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" id="nsName" 
+                               placeholder="Full name">
+                    </div>
+                    <div class="form-group">
+                        <label>Student No. *</label>
+                        <input type="text" id="nsStudentNo" 
+                               placeholder="e.g. 2025-1101">
+                    </div>
+                    <div class="form-group">
+                        <label>Course</label>
+                        <select id="nsCourse">
+                            <option>BS Computer Science</option>
+                            <option>BS Information Technology</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Year Level</label>
+                        <select id="nsYear">
+                            <option>1st Year</option>
+                            <option>2nd Year</option>
+                            <option>3rd Year</option>
+                            <option>4th Year</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Section</label>
+                        <select id="nsSection">
+                            <option>CS 1-A</option>
+                            <option>CS 1-B</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>School Email *</label>
+                        <input type="email" id="nsEmail" 
+                               placeholder="Auto-generated from name">
+                    </div>
+                    <div class="form-group">
+                        <label>Initial Password</label>
+                        <input type="text" id="nsPassword" 
+                               value="123456" 
+                               disabled
+                               style="background:#f3f4f6; 
+                                      color:#6b7280; cursor:not-allowed;">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button class="reset-btn" 
+                            id="cancelAddStudent">
+                        Cancel
+                    </button>
+                    <button class="apply-btn" 
+                            id="saveAddStudent">
+                        Save Student
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search and section filter -->
+            <div class="filters-row">
+                <div class="search-wrap">
+                    <i class='bx bx-search search-icon'></i>
+                    <input type="text" id="studentSearchInput"
+                           placeholder="Search by name or student no.">
+                </div>
+            </div>
+
+            <div class="section-tabs">
+                <button class="section-tab active" 
+                    data-section="all"
+                    id="tabAll">All (0)</button>
+                <button class="section-tab" 
+                    data-section="CS 1-A"
+                    id="tabCS1A">CS 1-A (0)</button>
+                <button class="section-tab" 
+                    data-section="CS 1-B"
+                    id="tabCS1B">CS 1-B (0)</button>
+            </div>
+
+            <!-- Student list -->
+            <div id="studentList"></div>
+
+        </div>
+    </section>
+
+    <script src="../../assets/scripts/sample-accounts.js"></script>
+    <script src="../../assets/scripts/auth.js"></script>
+    <script src="../../assets/scripts/sidebar-template.js"></script>
+    <script src="../../assets/scripts/script.js"></script>
+    <script src="../../assets/scripts/settings.js"></script>
+
+    <script>
+        // Set year/sem in header
+        if (window.Auth && window.Auth.getAcademicYear) {
+            document.getElementById('orgYearSem').textContent =
+                window.Auth.getAcademicYear();
+        }
+
+        // Student data stored in memory
+        let myStudents = [
+            {
+                id: '2025-1101',
+                name: 'Maria Santos',
+                email: 'ty20251101@wmsu.edu.ph',
+                course: 'BS Computer Science',
+                year: '1st Year',
+                section: 'CS 1-A',
+                password: '123456'
+            },
+            {
+                id: '2025-1102',
+                name: 'John Dela Cruz',
+                email: 'ty20251102@wmsu.edu.ph',
+                course: 'BS Computer Science',
+                year: '1st Year',
+                section: 'CS 1-A',
+                password: '123456'
+            },
+            {
+                id: '2025-1103',
+                name: 'Ana Reyes',
+                email: 'ty20251103@wmsu.edu.ph',
+                course: 'BS Computer Science',
+                year: '1st Year',
+                section: 'CS 1-B',
+                password: '123456'
+            },
+            {
+                id: '2025-1104',
+                name: 'Carlos Mendoza',
+                email: 'ty20251104@wmsu.edu.ph',
+                course: 'BS Computer Science',
+                year: '1st Year',
+                section: 'CS 1-B',
+                password: '123456'
+            }
+        ];
+
+        let activeSection = 'all';
+        let searchTerm = '';
+        let deleteConfirmId = null;
+
+        function getInitials(name) {
+            return name.split(' ')
+                .map(n => n[0]).join('')
+                .slice(0, 2).toUpperCase();
+        }
+
+        function generateEmail(studentId) {
+            const cleaned = studentId.replace(/-/g, '');
+            return 'ty' + cleaned + '@wmsu.edu.ph';
+        }
+
+        document.getElementById('nsStudentNo')
+            .addEventListener('input', function() {
+            if (this.value.trim()) {
+                document.getElementById('nsEmail').value = 
+                    generateEmail(this.value.trim());
+            } else {
+                document.getElementById('nsEmail').value = '';
+            }
+        });
+
+        function renderStudents() {
+            const list = document.getElementById('studentList');
+
+            document.getElementById('countTotal')
+                .textContent = myStudents.length;
+            document.getElementById('countCS1A')
+                .textContent = myStudents.filter(
+                    s => s.section === 'CS 1-A').length;
+            document.getElementById('countCS1B')
+                .textContent = myStudents.filter(
+                    s => s.section === 'CS 1-B').length;
+
+            document.getElementById('tabAll')
+                .textContent = 'All (' + myStudents.length + ')';
+            document.getElementById('tabCS1A')
+                .textContent = 'CS 1-A (' + myStudents.filter(
+                    s => s.section === 'CS 1-A').length + ')';
+            document.getElementById('tabCS1B')
+                .textContent = 'CS 1-B (' + myStudents.filter(
+                    s => s.section === 'CS 1-B').length + ')';
+
+            let filtered = myStudents.filter(s => {
+                const matchSection = activeSection === 'all' || 
+                    s.section === activeSection;
+                const matchSearch = 
+                    s.name.toLowerCase()
+                        .includes(searchTerm.toLowerCase()) ||
+                    s.id.includes(searchTerm);
+                return matchSection && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        No students found. 
+                        Click + Add Student to get started.
+                    </div>`;
+                return;
+            }
+
+            list.innerHTML = filtered.map(s => `
+                <div class="member-card" 
+                     data-id="${s.id}">
+                    <div class="member-row">
+                        <div class="member-avatar">
+                            ${getInitials(s.name)}
+                        </div>
+                        <div class="member-info">
+                            <div class="member-name">
+                                ${s.name}
+                                <span class="status-badge 
+                                    badge-pending-clearance"
+                                    style="margin-left:6px;">
+                                    #${s.id}
+                                </span>
+                            </div>
+                            <div class="member-meta">
+                                <span>
+                                    <i class='bx bx-book'></i>
+                                    ${s.course}
+                                </span>
+                                <span>
+                                    <i class='bx bx-buildings'></i>
+                                    ${s.year} — ${s.section}
+                                </span>
+                                <span>
+                                    <i class='bx bx-envelope'></i>
+                                    ${s.email}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="member-actions">
+                            <button class="icon-btn remove-btn" 
+                                    data-id="${s.id}" 
+                                    title="Remove">
+                                <i class='bx bx-trash'></i>
+                            </button>
+                        </div>
+                    </div>
+                    ${deleteConfirmId === s.id ? `
+                    <div class="confirm-box">
+                        <span>
+                            Remove <strong>${s.name}</strong> 
+                            from your class roster?
+                        </span>
+                        <div class="confirm-box-actions">
+                            <button class="reset-btn 
+                                cancel-delete" 
+                                data-id="${s.id}">
+                                Cancel
+                            </button>
+                            <button class="btn btn-reject 
+                                confirm-delete" 
+                                data-id="${s.id}">
+                                Remove
+                            </button>
+                        </div>
+                    </div>` : ''}
+                </div>
+            `).join('');
+
+            // Remove button listeners
+            document.querySelectorAll('.remove-btn')
+                .forEach(btn => {
+                btn.addEventListener('click', () => {
+                    deleteConfirmId = btn.dataset.id;
+                    renderStudents();
+                });
+            });
+
+            document.querySelectorAll('.cancel-delete')
+                .forEach(btn => {
+                btn.addEventListener('click', () => {
+                    deleteConfirmId = null;
+                    renderStudents();
+                });
+            });
+
+            document.querySelectorAll('.confirm-delete')
+                .forEach(btn => {
+                btn.addEventListener('click', () => {
+                    myStudents = myStudents.filter(
+                        s => s.id !== btn.dataset.id
+                    );
+                    deleteConfirmId = null;
+                    renderStudents();
+                });
+            });
+        }
+
+        // Show/hide add form
+        document.getElementById('showAddStudentBtn')
+            .addEventListener('click', () => {
+            document.getElementById('addStudentForm')
+                .style.display = 'block';
+        });
+
+        document.getElementById('closeAddStudentForm')
+            .addEventListener('click', () => {
+            document.getElementById('addStudentForm')
+                .style.display = 'none';
+        });
+
+        document.getElementById('cancelAddStudent')
+            .addEventListener('click', () => {
+            document.getElementById('addStudentForm')
+                .style.display = 'none';
+        });
+
+        // Save student
+        document.getElementById('saveAddStudent')
+            .addEventListener('click', () => {
+            const name = document.getElementById('nsName')
+                .value.trim();
+            const studentNo = document.getElementById('nsStudentNo')
+                .value.trim();
+            const email = document.getElementById('nsEmail')
+                .value.trim();
+
+            if (!name || !studentNo || !email) {
+                alert('Full name, student number, and email are required.');
+                return;
+            }
+            const exists = myStudents.find(s => s.id === studentNo);
+            if (exists) {
+                alert('Student number already exists.');
+                return;
+            }
+            const emailExists = myStudents.find(s => s.email === email);
+            if (emailExists) {
+                alert('Email already exists.');
+                return;
+            }
+
+            myStudents.push({
+                id: studentNo,
+                name: name,
+                email: email,
+                course: document.getElementById('nsCourse').value,
+                year: document.getElementById('nsYear').value,
+                section: document.getElementById('nsSection').value,
+                password: '123456'
+            });
+
+            // Reset form
+            document.getElementById('nsName').value = '';
+            document.getElementById('nsStudentNo').value = '';
+            document.getElementById('nsEmail').value = '';
+            document.getElementById('addStudentForm')
+                .style.display = 'none';
+            renderStudents();
+        });
+
+        // Search
+        document.getElementById('studentSearchInput')
+            .addEventListener('input', function() {
+            searchTerm = this.value;
+            renderStudents();
+        });
+
+        // Section filter tabs
+        document.querySelectorAll('.section-tab')
+            .forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.section-tab')
+                    .forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                activeSection = tab.dataset.section;
+                renderStudents();
+            });
+        });
+
+        // Initial render
+        renderStudents();
+    </script>
+</body>
+</html>
