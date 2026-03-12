@@ -328,22 +328,23 @@
                     </button>
                 </div>
                 <div class="form-grid">
+                     <div class="form-group">
+                        <label>School Email *</label>
+                        <input type="email" id="nsEmail" 
+                               placeholder="Auto-generated from Student ID">
+                    </div>
                     <div class="form-group">
-                        <label>Full Name *</label>
+                        <label>Initial Password</label>
+                        <input type="text" id="nsPassword" 
+                               value="123456" 
+                               disabled
+                               style="background:#f3f4f6; 
+                                      color:#6b7280; cursor:not-allowed;">
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name *</label>
                         <input type="text" id="nsName" 
-                               placeholder="Full name">
-                    </div>
-                    <div class="form-group">
-                        <label>Student No. *</label>
-                        <input type="text" id="nsStudentNo" 
-                               placeholder="e.g. 2025-1101">
-                    </div>
-                    <div class="form-group">
-                        <label>Course</label>
-                        <select id="nsCourse">
-                            <option>BS Computer Science</option>
-                            <option>BS Information Technology</option>
-                        </select>
+                               placeholder="Last Name">
                     </div>
                     <div class="form-group">
                         <label>Year Level</label>
@@ -354,26 +355,40 @@
                             <option>4th Year</option>
                         </select>
                     </div>
+                    
                     <div class="form-group">
+                        <label>First Name *</label>
+                        <input type="text" id="nsName" 
+                               placeholder="First Name">
+                    </div>
+                    <div class="form-group">
+                        <label>Course</label>
+                        <select id="nsCourse">
+                            <option>BS Computer Science</option>
+                            <option>BS Information Technology</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Middle Name *</label>
+                        <input type="text" id="nsName" 
+                               placeholder="Middle Name">
+                    </div>
+                    
+                     <div class="form-group">
                         <label>Section</label>
                         <select id="nsSection">
                             <option>CS 1-A</option>
                             <option>CS 1-B</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>School Email *</label>
-                        <input type="email" id="nsEmail" 
-                               placeholder="Auto-generated from name">
+                    
+                     <div class="form-group">
+                        <label>Student No. *</label>
+                        <input type="text" id="nsStudentNo" 
+                               placeholder="e.g. 2025-1101">
                     </div>
-                    <div class="form-group">
-                        <label>Initial Password</label>
-                        <input type="text" id="nsPassword" 
-                               value="123456" 
-                               disabled
-                               style="background:#f3f4f6; 
-                                      color:#6b7280; cursor:not-allowed;">
-                    </div>
+                   
+                   
                 </div>
                 <div class="form-actions">
                     <button class="reset-btn" 
