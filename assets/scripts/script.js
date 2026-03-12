@@ -89,8 +89,8 @@ if (loginForm) {
 function enforceRouteAccess() {
   if (!window.Auth) return;
 
-  const page = (window.location.pathname.split('/').pop() || 'student-dashboard.html').toLowerCase();
-  const isLoginPage = page === 'login-page.html';
+  const page = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+  const isLoginPage = page === 'index.html';
   const user = window.Auth.getUser();
 
   if (isLoginPage) {
@@ -101,7 +101,7 @@ function enforceRouteAccess() {
   }
 
   if (!user) {
-    navigateTo('login-page.html');
+    navigateTo('index.html');
     return;
   }
 
@@ -288,7 +288,7 @@ function initializeLogout() {
     if (window.Auth) {
       window.Auth.logout();
     }
-    navigateTo('login-page.html');
+    navigateTo('index.html');
   });
 }
 

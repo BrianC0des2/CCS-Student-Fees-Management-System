@@ -8,12 +8,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 (function guardAdmin() {
     if (!window.Auth) {
-        window.location.replace('../../login-page.html');
+        window.location.replace('../../index.html');
         return;
     }
     const user = window.Auth.getUser();
     if (!user || !user.permissions || !user.permissions.adminView) {
-        window.location.replace('../../login-page.html');
+        window.location.replace('../../index.html');
         return;
     }
 
@@ -256,7 +256,7 @@ if (menuToggle) {
 
 document.querySelector('.logout-section').addEventListener('click', () => {
     if (window.Auth) window.Auth.logout();
-    window.location.replace('../../login-page.html');
+    window.location.replace('../../index.html');
 });
 
 /* ══════════════════════════════
