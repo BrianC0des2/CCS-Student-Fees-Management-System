@@ -94,40 +94,9 @@ function enforceRouteAccess() {
   const user = window.Auth.getUser();
 
   if (isLoginPage) {
-    if (!user) return;
-
-    const preferredView = window.Auth.getView();
-    if (preferredView === 'organization' && window.Auth.canManageOrg()) {
-      navigateTo('pages/organization/organization-dashboard.html');
-      return;
+    if (user) {
+      window.Auth.logout();
     }
-
-    if (preferredView === 'dean' && window.Auth.isDean()) {
-      navigateTo('pages/dean/dean-dashboard.html');
-      return;
-    }
-
-    if (preferredView === 'faculty' && window.Auth.isFaculty()) {
-      navigateTo('pages/faculty/faculty-dashboard.html');
-      return;
-    }
-
-    if (window.Auth.isDean()) {
-      navigateTo('pages/dean/dean-dashboard.html');
-      return;
-    }
-
-    if (window.Auth.isFaculty()) {
-      navigateTo('pages/faculty/faculty-dashboard.html');
-      return;
-    }
-
-    if (window.Auth.isAdmin()) {
-      navigateTo('pages/admin/admin-dashboard.html');
-      return;
-    }
-
-    navigateTo('pages/student/student-dashboard.html');
     return;
   }
 
