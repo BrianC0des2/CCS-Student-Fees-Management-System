@@ -151,6 +151,18 @@ function getInitials(name) {
     return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
 }
 
+function joinPersonName(lastName, firstName, middleName = '') {
+    return [firstName, middleName, lastName].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+}
+
+function studentEmailFromId(studentId) {
+    return 'ty' + studentId.replace(/-/g, '') + '@wmsu.edu.ph';
+}
+
+function facultyEmailFromId(facultyId) {
+    return facultyId.toLowerCase().replace(/[^a-z0-9]/g, '') + '@wmsu.edu.ph';
+}
+
 function statusAvatarClass(status) {
     if (status === 'active')   return 'mem-av--active';
     if (status === 'inactive') return 'mem-av--inactive';
@@ -361,7 +373,16 @@ let facultyStatusFilter = 'all';
 let showAddFacultyForm = false;
 let editingFacultyId = null;
 let deleteConfirmFacultyId = null;
-let newFacultyData = { name: '', email: '', phone: '', role: 'professor', department: 'BS Computer Science' };
+let newFacultyData = {
+    facultyId: '',
+    lastName: '',
+    firstName: '',
+    middleName: '',
+    email: '',
+    phone: '',
+    role: 'professor',
+    department: 'BS Computer Science'
+};
 
 function renderFaculty() {
     const el = document.getElementById('tab-faculty');
@@ -410,16 +431,16 @@ function renderFaculty() {
             </div>
             <div class="form-grid">
                 <div class="form-group">
-                    <label>Full Name *</label>
-                    <input id="nf-name" value="${newFacultyData.name}" placeholder="e.g. Prof. Juan Dela Cruz">
+                    <label>School Email *</label>
+                    <input id="nf-email" type="email" value="${newFacultyData.email}" placeholder="Auto-generated from Faculty ID">
                 </div>
                 <div class="form-group">
-                    <label>Email Address *</label>
-                    <input id="nf-email" type="email" value="${newFacultyData.email}" placeholder="email@wmsu.edu.ph">
+                    <label>Initial Password</label>
+                    <input value="123456" disabled class="input-disabled">
                 </div>
                 <div class="form-group">
-                    <label>Phone Number</label>
-                    <input id="nf-phone" value="${newFacultyData.phone}" placeholder="+63-912-345-6789">
+                    <label>Last Name *</label>
+                    <input id="nf-last-name" value="${newFacultyData.lastName}" placeholder="Last Name">
                 </div>
                 <div class="form-group">
                     <label>Role *</label>
@@ -429,13 +450,29 @@ function renderFaculty() {
                         ).join('')}
                     </select>
                 </div>
-                <div class="form-group col-span-2">
+                <div class="form-group">
+                    <label>First Name *</label>
+                    <input id="nf-first-name" value="${newFacultyData.firstName}" placeholder="First Name">
+                </div>
+                <div class="form-group">
                     <label>Department</label>
                     <select id="nf-dept">
                         ${['BS Computer Science', 'BS Information Technology', 'College of Computer Studies', 'Finance Office'].map(d =>
                             `<option${newFacultyData.department === d ? ' selected' : ''}>${d}</option>`
                         ).join('')}
                     </select>
+                </div>
+                <div class="form-group">
+                    <label>Middle Name</label>
+                    <input id="nf-middle-name" value="${newFacultyData.middleName}" placeholder="Middle Name">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input id="nf-phone" value="${newFacultyData.phone}" placeholder="+63-912-345-6789">
+                </div>
+                <div class="form-group">
+                    <label>Faculty ID *</label>
+                    <input id="nf-id" value="${newFacultyData.facultyId}" placeholder="e.g. FAC-007">
                 </div>
             </div>
             <div class="form-actions">
@@ -549,20 +586,36 @@ function renderFaculty() {
     document.getElementById('cancel-add-faculty')?.addEventListener('click', () => {
         showAddFacultyForm = false; renderFaculty();
     });
+    document.getElementById('nf-id')?.addEventListener('input', e => {
+        const generated = facultyEmailFromId(e.target.value.trim());
+        document.getElementById('nf-email').value = e.target.value.trim() ? generated : '';
+    });
     document.getElementById('save-add-faculty')?.addEventListener('click', () => {
-        const name  = document.getElementById('nf-name').value.trim();
-        const email = document.getElementById('nf-email').value.trim();
-        if (!name || !email) { showToast('Name and email are required.', true); return; }
-        const id = 'FAC-' + String(facultyList.length + 1).padStart(3, '0');
+        const facultyId = document.getElementById('nf-id').value.trim() || ('FAC-' + String(facultyList.length + 1).padStart(3, '0'));
+        const lastName = document.getElementById('nf-last-name').value.trim();
+        const firstName = document.getElementById('nf-first-name').value.trim();
+        const middleName = document.getElementById('nf-middle-name').value.trim();
+        const email = document.getElementById('nf-email').value.trim() || facultyEmailFromId(facultyId);
+        if (!facultyId || !lastName || !firstName || !email) { showToast('Faculty ID, name, and email are required.', true); return; }
+        const name = joinPersonName(lastName, firstName, middleName);
         facultyList.push({
-            id, name, email,
+            id: facultyId, name, email,
             phone:      document.getElementById('nf-phone').value,
             role:       document.getElementById('nf-role').value,
             department: document.getElementById('nf-dept').value,
             status: 'active', permissions: [], dateAdded: 'Mar 8, 2026', lastLogin: 'Never',
         });
         showAddFacultyForm = false;
-        newFacultyData = { name: '', email: '', phone: '', role: 'professor', department: 'BS Computer Science' };
+        newFacultyData = {
+            facultyId: '',
+            lastName: '',
+            firstName: '',
+            middleName: '',
+            email: '',
+            phone: '',
+            role: 'professor',
+            department: 'BS Computer Science'
+        };
         showToast('Faculty member ' + name + ' added.');
         renderFaculty();
     });
@@ -624,7 +677,16 @@ function renderFaculty() {
 let studentSearch = '';
 let showAddStudentForm = false;
 let deleteConfirmStudentId = null;
-let newStudentData = { name: '', email: '', course: 'BS Computer Science', year: '1st Year', section: 'A' };
+let newStudentData = {
+    studentId: '',
+    lastName: '',
+    firstName: '',
+    middleName: '',
+    email: '',
+    course: 'BS Computer Science',
+    year: '1st Year',
+    section: 'A'
+};
 
 function renderStudents() {
     const el = document.getElementById('tab-students');
@@ -661,37 +723,52 @@ function renderStudents() {
             </div>
             <div class="form-grid">
                 <div class="form-group">
-                    <label>Full Name *</label>
-                    <input id="ns-name" value="${newStudentData.name}" placeholder="Full name">
+                    <label>School Email *</label>
+                    <input id="ns-email" type="email" value="${newStudentData.email}" placeholder="Auto-generated from Student ID">
                 </div>
                 <div class="form-group">
-                    <label>Email Address *</label>
-                    <input id="ns-email" type="email" value="${newStudentData.email}" placeholder="student@wmsu.edu.ph">
+                    <label>Initial Password</label>
+                    <input value="123456" disabled class="input-disabled">
                 </div>
                 <div class="form-group">
-                    <label>Course</label>
-                    <select id="ns-course">
-                        <option>BS Computer Science</option>
-                        <option>BS Information Technology</option>
-                    </select>
+                    <label>Last Name *</label>
+                    <input id="ns-last-name" value="${newStudentData.lastName}" placeholder="Last Name">
                 </div>
                 <div class="form-group">
                     <label>Year Level</label>
                     <select id="ns-year">
-                        <option>1st Year</option>
-                        <option>2nd Year</option>
-                        <option>3rd Year</option>
-                        <option>4th Year</option>
+                        ${['1st Year', '2nd Year', '3rd Year', '4th Year'].map(year =>
+                            `<option${newStudentData.year === year ? ' selected' : ''}>${year}</option>`
+                        ).join('')}
                     </select>
+                </div>
+                <div class="form-group">
+                    <label>First Name *</label>
+                    <input id="ns-first-name" value="${newStudentData.firstName}" placeholder="First Name">
+                </div>
+                <div class="form-group">
+                    <label>Course</label>
+                    <select id="ns-course">
+                        ${['BS Computer Science', 'BS Information Technology'].map(course =>
+                            `<option${newStudentData.course === course ? ' selected' : ''}>${course}</option>`
+                        ).join('')}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Middle Name</label>
+                    <input id="ns-middle-name" value="${newStudentData.middleName}" placeholder="Middle Name">
                 </div>
                 <div class="form-group">
                     <label>Section</label>
                     <select id="ns-section">
-                        <option>A</option>
-                        <option>B</option>
-                        <option>C</option>
-                        <option>D</option>
+                        ${['A', 'B', 'C', 'D'].map(section =>
+                            `<option${newStudentData.section === section ? ' selected' : ''}>${section}</option>`
+                        ).join('')}
                     </select>
+                </div>
+                <div class="form-group">
+                    <label>Student No. *</label>
+                    <input id="ns-id" value="${newStudentData.studentId}" placeholder="e.g. 2025-1101">
                 </div>
             </div>
             <div class="form-actions">
@@ -761,11 +838,18 @@ function renderStudents() {
     document.getElementById('cancel-add-student')?.addEventListener('click', () => {
         showAddStudentForm = false; renderStudents();
     });
+    document.getElementById('ns-id')?.addEventListener('input', e => {
+        const generated = studentEmailFromId(e.target.value.trim());
+        document.getElementById('ns-email').value = e.target.value.trim() ? generated : '';
+    });
     document.getElementById('save-add-student')?.addEventListener('click', () => {
-        const name  = document.getElementById('ns-name').value.trim();
-        const email = document.getElementById('ns-email').value.trim();
-        if (!name || !email) { showToast('Name and email are required.', true); return; }
-        const id = '2026-' + String(Math.floor(Math.random() * 90000) + 10000);
+        const id = document.getElementById('ns-id').value.trim() || ('2026-' + String(Math.floor(Math.random() * 90000) + 10000));
+        const lastName = document.getElementById('ns-last-name').value.trim();
+        const firstName = document.getElementById('ns-first-name').value.trim();
+        const middleName = document.getElementById('ns-middle-name').value.trim();
+        const email = document.getElementById('ns-email').value.trim() || studentEmailFromId(id);
+        if (!id || !lastName || !firstName || !email) { showToast('Student number, name, and email are required.', true); return; }
+        const name = joinPersonName(lastName, firstName, middleName);
         studentList.push({
             id, name, email,
             course: document.getElementById('ns-course').value,
@@ -775,6 +859,16 @@ function renderStudents() {
             permissions: ['view_dashboard', 'make_payment'], enrollmentDate: 'Mar 8, 2026',
         });
         showAddStudentForm = false;
+        newStudentData = {
+            studentId: '',
+            lastName: '',
+            firstName: '',
+            middleName: '',
+            email: '',
+            course: 'BS Computer Science',
+            year: '1st Year',
+            section: 'A'
+        };
         showToast('Student ' + name + ' added.');
         renderStudents();
     });
