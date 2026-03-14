@@ -154,20 +154,61 @@ function applyRoleBasedSidebarAccess() {
         );
         const myStudentsLi = document.createElement('li');
         myStudentsLi.innerHTML = `
-            <li>
-                <a href="../faculty/students.html">
-                    <i class='bx bx-group'></i>
-                    <span class="link_name">My Students</span>
-                </a>
-                <ul class="sub-menu blank">
-                    <li><a class="link_name" 
-                           href="../faculty/students.html">
-                        My Students
-                    </a></li>
-                </ul>
-            </li>
+            <a id="myStudentsSidebarLink" href="../faculty/students.html">
+                <i class='bx bx-group'></i>
+                <span class="link_name">My Students</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" 
+                       href="../faculty/students.html">
+                    My Students
+                </a></li>
+            </ul>
         `;
         dashLi.insertAdjacentElement('afterend', myStudentsLi);
+    }
+
+    if (isFacultyOnly) {
+        const myStudentsLi = document.getElementById(
+            'myStudentsSidebarLink'
+        ).closest('li');
+        const historyLi = document.createElement('li');
+        historyLi.innerHTML = `
+            <a href="../faculty/clearance-history.html">
+                <i class='bx bx-history'></i>
+                <span class="link_name">History</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" 
+                       href="../faculty/clearance-history.html">
+                    History
+                </a></li>
+            </ul>
+        `;
+        myStudentsLi.insertAdjacentElement(
+            'afterend', historyLi
+        );
+    }
+
+    const isDeanOnly = hasDeanView && !hasFacultyView;
+    if (isDeanOnly) {
+        const dashLi = document.querySelector(
+            '.nav-links > li:first-child'
+        );
+        const deanHistoryLi = document.createElement('li');
+        deanHistoryLi.innerHTML = `
+            <a href="../dean/clearance-history.html">
+                <i class='bx bx-history'></i>
+                <span class="link_name">History</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" 
+                       href="../dean/clearance-history.html">
+                    History
+                </a></li>
+            </ul>
+        `;
+        dashLi.insertAdjacentElement('afterend', deanHistoryLi);
     }
 }
 

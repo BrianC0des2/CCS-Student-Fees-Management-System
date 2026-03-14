@@ -510,8 +510,17 @@ function initializeFilters() {
     const resetFiltersBtn = document.getElementById('resetFilters');
     const activeFiltersContainer = document.getElementById('activeFilters');
     const filterCount = document.getElementById('filterCount');
+    const yearLevelSelect = document.getElementById('yearLevel');
+    const courseSelect = document.getElementById('course');
+    const sectionSelect = document.getElementById('section');
+    const schoolYearSelect = document.getElementById('schoolYear');
+    const semesterSelect = document.getElementById('semester');
 
     if (!filtersBtn || !filtersPopover) return;
+    if (!applyFiltersBtn || !resetFiltersBtn) return;
+    if (!activeFiltersContainer) return;
+    if (!yearLevelSelect || !courseSelect || !sectionSelect) return;
+    if (!schoolYearSelect || !semesterSelect) return;
 
     filtersBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -557,9 +566,6 @@ function initializeFilters() {
         updateFilterSections(); // Reset sections to show all
     });
 
-    const yearLevelSelect = document.getElementById('yearLevel');
-    const courseSelect = document.getElementById('course');
-    
     if (yearLevelSelect) {
         yearLevelSelect.addEventListener('change', () => {
             updateCourseOptions();
@@ -705,9 +711,11 @@ function initializeFilters() {
     }
 
     function updateFilterCount() {
+        if (!filterCount) return;
         const count = Object.keys(activeFilters).length;
         filterCount.textContent = count;
-        filterCount.style.display = count > 0 ? 'inline-block' : 'none';
+        filterCount.style.display = count > 0 
+            ? 'inline-block' : 'none';
     }
 
     function getFilterLabel(key) {
@@ -1129,7 +1137,7 @@ function renderFacultySummary(students) {
         <p>${students.length}</p>
       </div>
       <div class="card">
-        <i class='bx bx-check-shield'></i>
+        <i class='bx bx-notepad'></i>
         <h3>Dean Queue</h3>
         <p>${students.length - fullyCleared}</p>
       </div>

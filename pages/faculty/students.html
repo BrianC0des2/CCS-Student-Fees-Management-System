@@ -388,11 +388,55 @@
             </div>
 
             <!-- Search and section filter -->
-            <div class="filters-row">
-                <div class="search-wrap">
-                    <i class='bx bx-search search-icon'></i>
-                    <input type="text" id="studentSearchInput"
-                           placeholder="Search by name or student no.">
+            <div class="faculty-search-filter" 
+                 style="margin-bottom:16px;">
+                <input type="text" 
+                       id="studentSearchInput"
+                       placeholder="Search by name or student no.">
+                <button id="studentSearchBtn">Search</button>
+                <div class="filters-container">
+                    <button id="studentFiltersBtn" 
+                            class="filters-btn" type="button">
+                        <i class='bx bx-sort-alt-2'></i>
+                        Filters
+                    </button>
+                    <div id="studentFiltersPopover" 
+                         class="filters-popover">
+                        <div class="filters-grid">
+                            <div class="filter-group">
+                                <label>Year Level</label>
+                                <select id="studentFilterYear">
+                                    <option value="">All</option>
+                                    <option value="1st Year">1st Year</option>
+                                    <option value="2nd Year">2nd Year</option>
+                                    <option value="3rd Year">3rd Year</option>
+                                    <option value="4th Year">4th Year</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label>Course</label>
+                                <select id="studentFilterCourse">
+                                    <option value="">All</option>
+                                    <option value="BS Computer Science">BS Computer Science</option>
+                                    <option value="BS Information Technology">BS Information Technology</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label>Section</label>
+                                <select id="studentFilterSection">
+                                    <option value="">All</option>
+                                    <option value="CS 1-A">CS 1-A</option>
+                                    <option value="CS 1-B">CS 1-B</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="filter-actions">
+                            <button id="studentResetFilters" 
+                                    class="reset-btn" type="button">Reset</button>
+                            <button id="studentApplyFilters" 
+                                    class="apply-btn" type="button">Apply</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -469,6 +513,9 @@
 
         let activeSection = 'all';
         let searchTerm = '';
+        let activeYearFilter = '';
+        let activeCourseFilter = '';
+        let activeSectionFilter = '';
         let deleteConfirmId = null;
 
         function getInitials(name) {
@@ -520,7 +567,15 @@
                     s.name.toLowerCase()
                         .includes(searchTerm.toLowerCase()) ||
                     s.id.includes(searchTerm);
-                return matchSection && matchSearch;
+                const matchYear = !activeYearFilter ||
+                    s.year === activeYearFilter;
+                const matchCourse = !activeCourseFilter ||
+                    s.course === activeCourseFilter;
+                const matchFilterSection = !activeSectionFilter ||
+                    s.section === activeSectionFilter;
+                return matchSection && matchSearch &&
+                    matchYear && matchCourse &&
+                    matchFilterSection;
             });
 
             if (filtered.length === 0) {
@@ -689,6 +744,60 @@
         document.getElementById('studentSearchInput')
             .addEventListener('input', function() {
             searchTerm = this.value;
+            renderStudents();
+        });
+
+        document.getElementById('studentSearchBtn')
+            .addEventListener('click', function() {
+            searchTerm = document.getElementById(
+                'studentSearchInput'
+            ).value;
+            renderStudents();
+        });
+
+        const studentFiltersBtn = document.getElementById(
+            'studentFiltersBtn'
+        );
+        const studentFiltersPopover = document.getElementById(
+            'studentFiltersPopover'
+        );
+
+        studentFiltersBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            studentFiltersPopover.classList.toggle('show');
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!studentFiltersBtn.contains(e.target) &&
+                !studentFiltersPopover.contains(e.target)) {
+                studentFiltersPopover.classList.remove('show');
+            }
+        });
+
+        document.getElementById('studentApplyFilters')
+            .addEventListener('click', function() {
+            activeYearFilter = document.getElementById(
+                'studentFilterYear'
+            ).value;
+            activeCourseFilter = document.getElementById(
+                'studentFilterCourse'
+            ).value;
+            activeSectionFilter = document.getElementById(
+                'studentFilterSection'
+            ).value;
+            studentFiltersPopover.classList.remove('show');
+            renderStudents();
+        });
+
+        document.getElementById('studentResetFilters')
+            .addEventListener('click', function() {
+            activeYearFilter = '';
+            activeCourseFilter = '';
+            activeSectionFilter = '';
+            document.getElementById('studentFilterYear').value = '';
+            document.getElementById('studentFilterCourse').value = '';
+            document.getElementById('studentFilterSection').value = '';
+            studentFiltersPopover.classList.remove('show');
             renderStudents();
         });
 
