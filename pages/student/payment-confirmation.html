@@ -75,6 +75,43 @@
                        placeholder="09XX XXX XXXX">
             </div>
 
+            <div class="confirm-detail-row" 
+                 id="selectBankRow"
+                 style="display:none;">
+                <span class="confirm-label">
+                    Select Bank
+                </span>
+                <select class="confirm-input" id="selectBank"
+                        style="cursor:pointer; width:220px;">
+                    <option value="">Select your bank</option>
+                    <option value="BPI">BPI</option>
+                    <option value="LandBank">LandBank</option>
+                    <option value="PNB">PNB</option>
+                </select>
+            </div>
+
+            <div class="confirm-detail-row" 
+                 id="bankAccountRow"
+                 style="display:none;">
+                <span class="confirm-label">
+                    Bank Account Number
+                </span>
+                <input class="confirm-input" type="text" 
+                       id="bankAccountInput"
+                       placeholder="Account Number">
+            </div>
+
+            <div class="confirm-detail-row" 
+                 id="transactionRefRow"
+                 style="display:none;">
+                <span class="confirm-label">
+                    Transaction Reference No.
+                </span>
+                <input class="confirm-input" type="text" 
+                       id="transactionRefInput"
+                       placeholder="e.g. TRF-20260316-001">
+            </div>
+
             <div class="action-row" style="margin-top: 24px;">
                 <a href="payment-method.html" class="back-btn">Back</a>
                 <button id="confirm-pay-btn" class="continue-btn" style="flex:1; margin:0;">Confirm &amp; Pay</button>
@@ -135,6 +172,29 @@
         document.getElementById('mobileNumberInput')
             .placeholder = mobilePlaceholders[method] || 
                 mobilePlaceholders.gcash;
+
+        const isBankTransfer = method === 'bank';
+        const selectBankRow = document.getElementById(
+            'selectBankRow'
+        );
+        const bankAccountRow = document.getElementById(
+            'bankAccountRow'
+        );
+        const transactionRefRow = document.getElementById(
+            'transactionRefRow'
+        );
+
+        if (isBankTransfer) {
+            document.getElementById('mobileNumberRow')
+                .style.display = 'none';
+            selectBankRow.style.display = '';
+            bankAccountRow.style.display = '';
+            transactionRefRow.style.display = '';
+        } else {
+            selectBankRow.style.display = 'none';
+            bankAccountRow.style.display = 'none';
+            transactionRefRow.style.display = 'none';
+        }
 
         document.getElementById('confirm-pay-btn')
             .addEventListener('click', function() {

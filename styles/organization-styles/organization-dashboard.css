@@ -460,6 +460,17 @@ tbody tr:hover { background: var(--bg); }
     background: #e0e0e0;
 }
 
+#resetPaymentFilter {
+    background: var(--accent);
+    color: #ffffff;
+    border: 1px solid var(--accent);
+}
+
+#resetPaymentFilter:hover {
+    background: var(--highlight);
+    border-color: var(--highlight);
+}
+
 .apply-btn {
     background: var(--accent);
     color: white;

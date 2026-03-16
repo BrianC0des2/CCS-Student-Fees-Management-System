@@ -193,7 +193,7 @@
         const user = window.Auth ? window.Auth.getUser() : null;
         if (user) {
             document.getElementById('receipt-student-name').textContent = user.name || '—';
-            document.getElementById('receipt-student-id').textContent = user.id || '—';
+            document.getElementById('receipt-student-id').textContent = user.studentId || user.id || '—';
         }
 
         // Clear fees from storage after rendering
