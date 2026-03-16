@@ -57,15 +57,22 @@
 
             <div class="confirm-detail-row">
                 <span class="confirm-label">Payment Method</span>
-                <span class="confirm-value"><i class='bx bx-wallet'></i> GCash</span>
+                <span class="confirm-value" id="confirm-method-label">
+                    <i class='bx bx-wallet'></i> GCash
+                </span>
             </div>
             <div class="confirm-detail-row">
                 <span class="confirm-label">Transaction Fee</span>
                 <span class="confirm-value free">FREE</span>
             </div>
-            <div class="confirm-detail-row">
-                <span class="confirm-label">GCash Mobile Number</span>
-                <input class="confirm-input" type="text" placeholder="09XX XXX XXXX">
+            <div class="confirm-detail-row" id="mobileNumberRow">
+                <span class="confirm-label" 
+                      id="mobileNumberLabel">
+                    GCash Mobile Number
+                </span>
+                <input class="confirm-input" type="text" 
+                       id="mobileNumberInput"
+                       placeholder="09XX XXX XXXX">
             </div>
 
             <div class="action-row" style="margin-top: 24px;">
@@ -80,19 +87,57 @@
     <script src="../../assets/scripts/auth.js"></script>
     <script src="../../assets/scripts/script.js"></script>
     <script>
-        const fees = JSON.parse(localStorage.getItem('ccs.selected.fees') || '[]');
+        const fees = JSON.parse(
+            localStorage.getItem('ccs.selected.fees') || '[]'
+        );
+        const method = localStorage.getItem(
+            'ccs.payment.method'
+        ) || 'gcash';
+        
         const feeEl = document.getElementById('confirm-fee-items');
         const totalEl = document.getElementById('confirm-total');
+        
         if (fees.length === 0) {
-            feeEl.innerHTML = '<p class="summary-empty">No fees selected.</p>';
+            feeEl.innerHTML = 
+                '<p class="summary-empty">No fees selected.</p>';
         } else {
             feeEl.innerHTML = fees.map(f =>
-                `<div class="summary-item"><span>${f.fee}</span><span>&#8369;${f.price}</span></div>`
+                `<div class="summary-item">
+                    <span>${f.fee}</span>
+                    <span>&#8369;${f.price}</span>
+                </div>`
             ).join('');
-            totalEl.textContent = '\u20B1' + fees.reduce((s, f) => s + f.price, 0);
+            totalEl.textContent = '\u20B1' + 
+                fees.reduce((s, f) => s + f.price, 0);
         }
 
-        document.getElementById('confirm-pay-btn').addEventListener('click', function() {
+        const methodLabels = {
+            gcash: '<i class="bx bx-wallet"></i> GCash',
+            paymaya: '<i class="bx bx-wallet"></i> PayMaya',
+            bank: '<i class="bx bx-building"></i> Bank Transfer'
+        };
+        const mobileLabels = {
+            gcash: 'GCash Mobile Number',
+            paymaya: 'PayMaya Mobile Number',
+            bank: 'Bank Account Number'
+        };
+        const mobilePlaceholders = {
+            gcash: '09XX XXX XXXX',
+            paymaya: '09XX XXX XXXX',
+            bank: 'Account Number'
+        };
+
+        document.getElementById('confirm-method-label')
+            .innerHTML = methodLabels[method] || methodLabels.gcash;
+        document.getElementById('mobileNumberLabel')
+            .textContent = mobileLabels[method] || 
+                mobileLabels.gcash;
+        document.getElementById('mobileNumberInput')
+            .placeholder = mobilePlaceholders[method] || 
+                mobilePlaceholders.gcash;
+
+        document.getElementById('confirm-pay-btn')
+            .addEventListener('click', function() {
             window.location.href = 'payment-receipt.html';
         });
     </script>

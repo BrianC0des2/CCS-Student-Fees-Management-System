@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <title>CCS PAY++ - Cash Payment</title>
+    <link rel="stylesheet" 
+          href="../../styles/student-styles/payment-process.css">
+    <link rel="stylesheet" href="../../styles/sidebar.css">
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' 
+          rel='stylesheet'>
+    <link rel="stylesheet" href="../../styles/settings.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="payment-method.html">
+            <i class="bx bx-arrow-back"></i>
+        </a>
+        <div class="nav-title">
+            <h2>Cash Payment</h2>
+            <p>Show this reference to the org office</p>
+        </div>
+    </nav>
+
+    <!-- Step Indicator -->
+    <div id="payment-process-container">
+        <div class="vis-container">
+            <div class="circle done">
+                <i class='bx bx-check'></i>
+            </div>
+            <p class="texts">Select Fees</p>
+        </div>
+        <div class="line line-done"></div>
+        <div class="vis-container">
+            <div class="circle done">
+                <i class='bx bx-check'></i>
+            </div>
+            <p class="texts">Payment Method</p>
+        </div>
+        <div class="line line-done"></div>
+        <div class="vis-container">
+            <div class="circle c3-active"><p>3</p></div>
+            <p class="texts t3-active">Confirmation</p>
+        </div>
+    </div>
+
+    <div class="confirm-card" 
+         style="text-align:center;">
+        
+        <div style="font-size:48px; color:#2e7d52; 
+                    margin-bottom:8px;">
+            <i class='bx bx-money'></i>
+        </div>
+        
+        <h2 style="font-size:20px; font-weight:700; 
+                   margin-bottom:4px;">
+            Cash Payment Reference
+        </h2>
+        <p style="color:#5a7a66; font-size:13px; 
+                  margin-bottom:24px;">
+            Show this screen to the CCS Student 
+            Council office to complete your payment
+        </p>
+
+        <!-- Reference Number Box -->
+        <div style="background:#f0fdf4; 
+                    border:2px solid #2e7d52;
+                    border-radius:12px; 
+                    padding:24px; 
+                    margin-bottom:24px;">
+            <p style="font-size:12px; color:#5a7a66; 
+                      font-weight:600; 
+                      text-transform:uppercase; 
+                      letter-spacing:1px; 
+                      margin-bottom:8px;">
+                Reference Number
+            </p>
+            <p id="refNumber" 
+               style="font-size:32px; font-weight:800; 
+                      color:#2e7d52; 
+                      letter-spacing:2px; 
+                      margin-bottom:0;">
+                CASH-2026-0000
+            </p>
+        </div>
+
+        <!-- Fee Details -->
+        <div id="cash-fee-items" 
+             style="text-align:left; 
+                    margin-bottom:16px;"></div>
+        
+        <div class="summary-total" 
+             style="margin-bottom:24px;">
+            <span>Total Amount Due</span>
+            <span id="cash-total">₱0</span>
+        </div>
+
+        <!-- Instructions -->
+        <div style="background:#fff; 
+                    border:1px solid #d4e2d8;
+                    border-radius:12px; 
+                    padding:16px; 
+                    text-align:left; 
+                    margin-bottom:24px;">
+            <p style="font-weight:700; 
+                      font-size:13px; 
+                      margin-bottom:10px;">
+                Instructions:
+            </p>
+            <p style="font-size:13px; 
+                      color:#5a7a66; 
+                      margin-bottom:6px;">
+                1. Show this screen to the CCS 
+                   Student Council officer
+            </p>
+            <p style="font-size:13px; 
+                      color:#5a7a66; 
+                      margin-bottom:6px;">
+                2. Pay the exact amount in cash
+            </p>
+            <p style="font-size:13px; 
+                      color:#5a7a66; 
+                      margin-bottom:6px;">
+                3. Wait for the officer to confirm 
+                   your payment
+            </p>
+            <p style="font-size:13px; 
+                      color:#5a7a66; 
+                      margin-bottom:16px;">
+                4. Keep your reference number 
+                   until payment is confirmed
+            </p>
+            <div style="border-top:1px solid #d4e2d8; 
+                        padding-top:12px;">
+                <p style="font-size:12px; 
+                          color:#5a7a66;">
+                    <strong>Office Hours:</strong> 
+                    Mon-Fri 8AM-5PM
+                </p>
+                <p style="font-size:12px; 
+                          color:#5a7a66;">
+                    <strong>Location:</strong> 
+                    CCS Building, Student Council Office
+                </p>
+            </div>
+        </div>
+
+        <!-- Valid Until -->
+        <p style="font-size:12px; color:#5a7a66; 
+                  margin-bottom:24px;">
+            Valid until: 
+            <strong id="validUntil">—</strong> 
+            (7 days)
+        </p>
+
+        <div class="action-row-col">
+            <a href="student-dashboard.html" 
+               class="continue-btn full-btn">
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script src="../../assets/scripts/settings.js"></script>
+    <script src="../../assets/scripts/sample-accounts.js"></script>
+    <script src="../../assets/scripts/auth.js"></script>
+    <script src="../../assets/scripts/script.js"></script>
+    <script>
+        // Get ref number and fees
+        const refNum = localStorage.getItem('ccs.cash.ref') 
+            || 'CASH-2026-0000';
+        const fees = JSON.parse(
+            localStorage.getItem('ccs.selected.fees') || '[]'
+        );
+        const total = fees.reduce((s, f) => s + f.price, 0);
+
+        // Display ref number
+        document.getElementById('refNumber')
+            .textContent = refNum;
+
+        // Display fees
+        const feeEl = document.getElementById('cash-fee-items');
+        feeEl.innerHTML = fees.map(f =>
+            `<div class="summary-item">
+                <span>${f.fee}</span>
+                <span>&#8369;${f.price}</span>
+            </div>`
+        ).join('');
+
+        // Display total
+        document.getElementById('cash-total')
+            .textContent = '₱' + total;
+
+        // Valid until (7 days from now)
+        const validDate = new Date();
+        validDate.setDate(validDate.getDate() + 7);
+        document.getElementById('validUntil')
+            .textContent = validDate.toLocaleDateString(
+                'en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                }
+            );
+    </script>
+</body>
+</html>

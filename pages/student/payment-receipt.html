@@ -180,7 +180,7 @@
         document.getElementById('receipt-total').textContent = '₱' + total;
 
         // Payment method label
-        const methodLabels = { gcash: 'GCash', bank: 'Bank Transfer', card: 'Credit/Debit Card' };
+        const methodLabels = { gcash: 'GCash', paymaya: 'PayMaya', bank: 'Bank Transfer', cash: 'Cash' };
         document.getElementById('receipt-method').textContent = methodLabels[method] || 'GCash';
 
         // Date & time
