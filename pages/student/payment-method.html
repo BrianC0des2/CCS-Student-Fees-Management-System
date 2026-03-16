@@ -136,62 +136,76 @@
     <script src="../../assets/scripts/auth.js"></script>
     <script src="../../assets/scripts/script.js"></script>
     <script>
-        const fees = JSON.parse(
-            localStorage.getItem('ccs.selected.fees') || '[]'
-        );
-        const summaryEl = document.getElementById(
-            'method-summary-items'
-        );
-        const totalEl = document.getElementById(
-            'method-summary-total'
-        );
-        if (fees.length === 0) {
-            summaryEl.innerHTML = 
-                '<p class="summary-empty">No fees selected.</p>';
-        } else {
-            summaryEl.innerHTML = fees.map(f =>
-                `<div class="summary-item">
-                    <span>${f.fee}</span>
-                    <span>&#8369;${f.price}</span>
-                </div>`
-            ).join('');
-            totalEl.textContent = '\u20B1' + 
-                fees.reduce((s, f) => s + f.price, 0);
-        }
+    const fees = JSON.parse(
+        localStorage.getItem('ccs.selected.fees') || '[]'
+    );
+    const summaryEl = document.getElementById(
+        'method-summary-items'
+    );
+    const totalEl = document.getElementById(
+        'method-summary-total'
+    );
+    const total = fees.reduce((s, f) => s + f.price, 0);
 
-        const options = document.querySelectorAll('.method-option');
-        options.forEach(option => {
-            option.addEventListener('click', () => {
-                options.forEach(o => o.classList.remove('selected'));
-                option.classList.add('selected');
-                option.querySelector('input[type="radio"]').checked = true;
-                localStorage.setItem(
-                    'ccs.payment.method', option.dataset.method
-                );
-            });
-        });
+    if (fees.length === 0) {
+        summaryEl.innerHTML = 
+            '<p class="summary-empty">No fees selected.</p>';
+    } else {
+        summaryEl.innerHTML = fees.map(f =>
+            `<div class="summary-item">
+                <span>${f.fee}</span>
+                <span>&#8369;${f.price}</span>
+            </div>`
+        ).join('');
+        totalEl.textContent = '\u20B1' + total;
+    }
 
-        document.getElementById('reviewPaymentBtn')
-            .addEventListener('click', function() {
-            const selected = document.querySelector(
-                '.method-option.selected'
+    // Highlight selected method card
+    const options = document.querySelectorAll(
+        '.method-option'
+    );
+    options.forEach(option => {
+        option.addEventListener('click', () => {
+            options.forEach(o => 
+                o.classList.remove('selected')
             );
-            const method = selected ? 
-                selected.dataset.method : 'gcash';
-            
-            localStorage.setItem('ccs.payment.method', method);
-
-            if (method === 'cash') {
-                // Generate ref number
-                const refNum = 'CASH-' + 
-                    new Date().getFullYear() + '-' +
-                    String(Math.floor(Math.random() * 9000) + 1000);
-                localStorage.setItem('ccs.cash.ref', refNum);
-                window.location.href = 'cash-reference.html';
-            } else {
-                window.location.href = 'payment-confirmation.html';
-            }
+            option.classList.add('selected');
+            option.querySelector(
+                'input[type="radio"]'
+            ).checked = true;
+            localStorage.setItem(
+                'ccs.payment.method', 
+                option.dataset.method
+            );
         });
-    </script>
+    });
+
+    document.getElementById('reviewPaymentBtn')
+        .addEventListener('click', function() {
+        const selected = document.querySelector(
+            '.method-option.selected'
+        );
+        const method = selected ? 
+            selected.dataset.method : 'gcash';
+        
+        localStorage.setItem(
+            'ccs.payment.method', method
+        );
+
+        if (method === 'cash') {
+            const refNum = 'CASH-' + 
+                new Date().getFullYear() + '-' +
+                String(
+                    Math.floor(Math.random() * 9000) + 1000
+                );
+            localStorage.setItem('ccs.cash.ref', refNum);
+            window.location.href = 'cash-reference.html';
+        } else {
+            window.location.href = 
+                'payment-confirmation.html';
+        }
+    });
+
+</script>
     </body>
 </html>
