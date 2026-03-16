@@ -1009,6 +1009,7 @@ function renderPermissions() {
 
 /* ── FEES ─────────────────────── */
 let editingFeeId = null;
+let showAddFeeModal = false;
 
 function renderFees() {
     const el = document.getElementById('tab-fees');
@@ -1025,6 +1026,80 @@ function renderFees() {
                 ${bxi('plus')} Add Fee
             </button>
         </div>
+
+        ${showAddFeeModal ? `
+        <div class="admin-fee-modal-overlay active" id="add-fee-modal">
+            <div class="admin-fee-modal-container">
+                <div class="admin-fee-modal-header">
+                    <div>
+                        <h3>Add New Fee</h3>
+                        <p>Fill in the details for the new organization fee</p>
+                    </div>
+                    <button class="admin-fee-modal-close" type="button" id="close-add-fee-modal" aria-label="Close add fee form">
+                        ${bxi('x')}
+                    </button>
+                </div>
+
+                <div class="admin-fee-modal-body">
+                    <div class="admin-fee-form-group">
+                        <label for="nf-fee-name">Fee Name <span class="admin-fee-required">*</span></label>
+                        <input type="text" id="nf-fee-name" placeholder="e.g. CSC Fee" />
+                    </div>
+                    <div class="admin-fee-form-group">
+                        <label for="nf-fee-desc">Description <span class="admin-fee-required">*</span></label>
+                        <input type="text" id="nf-fee-desc" placeholder="e.g. College Student Council Fee" />
+                    </div>
+
+                    <div class="admin-fee-form-row">
+                        <div class="admin-fee-form-group">
+                            <label for="nf-fee-amount">Amount (PHP) <span class="admin-fee-required">*</span></label>
+                            <div class="admin-fee-input-prefix">
+                                <span>₱</span>
+                                <input type="number" id="nf-fee-amount" placeholder="0.00" min="0" step="0.01" />
+                            </div>
+                        </div>
+                        <div class="admin-fee-form-group">
+                            <label for="nf-fee-due">Due Date <span class="admin-fee-required">*</span></label>
+                            <input type="date" id="nf-fee-due" />
+                        </div>
+                    </div>
+
+                    <div class="admin-fee-form-group">
+                        <label for="nf-fee-category">Assigned To / Category</label>
+                        <select id="nf-fee-category">
+                            <option value="">Select category...</option>
+                            <option value="CCS Student Council">CCS Student Council</option>
+                            <option value="CCS Faculty">CCS Faculty</option>
+                            <option value="Insurance">Insurance</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="admin-fee-form-group">
+                        <label>Status</label>
+                        <div class="admin-fee-toggle-group">
+                            <label class="admin-fee-toggle">
+                                <input type="checkbox" id="nf-fee-status" checked />
+                                <span class="admin-fee-toggle-slider"></span>
+                            </label>
+                            <span class="admin-fee-status-label" id="nf-fee-status-label">Active</span>
+                        </div>
+                    </div>
+
+                    <div class="admin-fee-note">
+                        ${bxi('info-circle')}
+                        This fee will appear on every student's dashboard as an unpaid item to settle.
+                    </div>
+                </div>
+
+                <div class="admin-fee-modal-footer">
+                    <button class="btn btn-outline" type="button" id="cancel-add-fee-modal">Cancel</button>
+                    <button class="btn btn-green" type="button" id="submit-add-fee">${bxi('plus')} Add Fee</button>
+                </div>
+            </div>
+        </div>
+        ` : ''}
+
         <div id="fee-list">
             ${feeList.map(f => `
             <div class="fee-card" data-fee-id="${f.id}">
@@ -1069,11 +1144,69 @@ function renderFees() {
     `;
 
     document.getElementById('add-fee-btn')?.addEventListener('click', () => {
-        const newFee = { id: 'fee-' + Date.now(), name: 'New Fee', amount: 0, description: '', dueDate: 'Mar 15, 2026', status: 'active' };
-        feeList.push(newFee);
-        editingFeeId = newFee.id;
+        showAddFeeModal = true;
+        editingFeeId = null;
         renderFees();
     });
+
+    const addFeeModal = document.getElementById('add-fee-modal');
+    const closeAddFeeModal = () => {
+        showAddFeeModal = false;
+        renderFees();
+    };
+
+    document.getElementById('close-add-fee-modal')?.addEventListener('click', closeAddFeeModal);
+    document.getElementById('cancel-add-fee-modal')?.addEventListener('click', closeAddFeeModal);
+
+    addFeeModal?.addEventListener('click', e => {
+        if (e.target === addFeeModal) closeAddFeeModal();
+    });
+
+    document.getElementById('nf-fee-status')?.addEventListener('change', e => {
+        const label = document.getElementById('nf-fee-status-label');
+        if (label) label.textContent = e.target.checked ? 'Active' : 'Inactive';
+    });
+
+    document.getElementById('submit-add-fee')?.addEventListener('click', () => {
+        const nameInput = document.getElementById('nf-fee-name');
+        const descInput = document.getElementById('nf-fee-desc');
+        const amountInput = document.getElementById('nf-fee-amount');
+        const dueInput = document.getElementById('nf-fee-due');
+        const categoryInput = document.getElementById('nf-fee-category');
+        const statusInput = document.getElementById('nf-fee-status');
+
+        const name = nameInput?.value.trim() || '';
+        const desc = descInput?.value.trim() || '';
+        const amount = parseFloat(amountInput?.value || '0');
+        const dueRaw = dueInput?.value || '';
+
+        if (!name || !desc || !dueRaw || amount <= 0) {
+            showToast('Please fill in all required fields with valid values.', true);
+            return;
+        }
+
+        const dueDate = new Date(dueRaw + 'T00:00:00');
+        const dueDateFormatted = dueDate.toLocaleDateString('en-US', {
+            month: 'short', day: 'numeric', year: 'numeric',
+        });
+
+        const category = categoryInput?.value || '';
+        const fullDesc = category ? `${desc} | ${category}` : desc;
+
+        feeList.push({
+            id: 'fee-' + Date.now(),
+            name,
+            amount,
+            description: fullDesc,
+            dueDate: dueDateFormatted,
+            status: statusInput?.checked ? 'active' : 'inactive',
+        });
+
+        showAddFeeModal = false;
+        showToast('Fee added successfully.');
+        renderFees();
+    });
+
     el.querySelectorAll('.fee-edit-btn').forEach(b => b.addEventListener('click', () => {
         editingFeeId = b.dataset.id; renderFees();
     }));

@@ -976,6 +976,230 @@ select.filter-select:focus {
 }
 
 /* ══════════════════════════════════════
+   ADD FEE MODAL
+══════════════════════════════════════ */
+.admin-fee-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 1100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+}
+
+.admin-fee-modal-overlay.active {
+    display: flex;
+}
+
+.admin-fee-modal-container {
+    background: white;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 500px;
+    margin: 1rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.admin-fee-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px 20px 0;
+}
+
+.admin-fee-modal-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 3px;
+}
+
+.admin-fee-modal-header p {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.admin-fee-modal-close {
+    background: var(--page-bg);
+    border: none;
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--text-secondary);
+}
+
+.admin-fee-modal-close:hover {
+    background: var(--border);
+}
+
+.admin-fee-modal-body {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.admin-fee-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.admin-fee-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.admin-fee-form-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.admin-fee-required {
+    color: var(--red);
+}
+
+.admin-fee-form-group input,
+.admin-fee-form-group select {
+    padding: 9px 11px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text-primary);
+    outline: none;
+    background: var(--page-bg);
+    font-family: inherit;
+}
+
+.admin-fee-form-group input:focus,
+.admin-fee-form-group select:focus {
+    border-color: var(--green);
+    background: white;
+}
+
+.admin-fee-input-prefix {
+    display: flex;
+    align-items: center;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--page-bg);
+    overflow: hidden;
+}
+
+.admin-fee-input-prefix:focus-within {
+    border-color: var(--green);
+    background: white;
+}
+
+.admin-fee-input-prefix span {
+    padding: 9px 6px 9px 11px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.admin-fee-input-prefix input {
+    border: none;
+    background: transparent;
+    flex: 1;
+    padding: 9px 11px 9px 0;
+}
+
+.admin-fee-input-prefix input:focus {
+    border: none;
+    background: transparent;
+}
+
+.admin-fee-toggle-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 0;
+}
+
+.admin-fee-toggle {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+    flex-shrink: 0;
+}
+
+.admin-fee-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.admin-fee-toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: var(--border);
+    border-radius: 22px;
+    cursor: pointer;
+}
+
+.admin-fee-toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 3px;
+    top: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.25s;
+}
+
+.admin-fee-toggle input:checked + .admin-fee-toggle-slider {
+    background: var(--green);
+}
+
+.admin-fee-toggle input:checked + .admin-fee-toggle-slider::before {
+    transform: translateX(18px);
+}
+
+.admin-fee-status-label {
+    font-size: 13px;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.admin-fee-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: var(--green-light);
+    border: 1px solid var(--green-border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 12px;
+    color: var(--green-dark);
+}
+
+.admin-fee-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 14px 20px 20px;
+    border-top: 1px solid var(--border);
+}
+
+@media (max-width: 480px) {
+    .admin-fee-form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ══════════════════════════════════════
    SIGNATORY CARD
 ══════════════════════════════════════ */
 .signatory-card {
