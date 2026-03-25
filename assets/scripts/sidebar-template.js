@@ -3,6 +3,7 @@ const sidebarHTML = `
 <div class="sidebar">
     <a href="organization-dashboard.html" style="text-decoration: none;">
         <div class="logo-details">
+            <img src="../../assets/images/pyt.png" alt="Pay++ Logo" class="sidebar-logo-img">
             <span class="logo_name">Pay++</span>
         </div>
     </a>
