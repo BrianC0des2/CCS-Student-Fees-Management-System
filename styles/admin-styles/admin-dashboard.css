@@ -1,54 +1,55 @@
 /* Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('../theme.css');
 
 /* ══════════════════════════════════════
    CSS CUSTOM PROPERTIES
 ══════════════════════════════════════ */
 :root {
-    --green:           #16a34a;
-    --green-dark:      #15803d;
-    --green-darker:    #14532d;
-    --green-light:     #dcfce7;
-    --green-bg:        #f0fdf4;
+    --green:           #2e7d52;
+    --green-dark:      #1a5c3a;
+    --green-darker:    var(--brand-800);
+    --green-light:     var(--brand-100);
+    --green-bg:        var(--brand-50);
     --green-border:    #bbf7d0;
     --green-border2:   #86efac;
-    --blue:            #2563eb;
-    --blue-dark:       #1d4ed8;
-    --blue-light:      #eff6ff;
-    --blue-border:     #bfdbfe;
-    --blue-text:       #1e40af;
-    --blue-dark-text:  #1e3a5f;
-    --amber:           #d97706;
-    --amber-light:     #fef3c7;
-    --amber-border:    #fde68a;
-    --amber-dark:      #b45309;
-    --amber-text:      #92400e;
-    --red:             #dc2626;
-    --red-dark:        #b91c1c;
+    --blue:            var(--brand-600);
+    --blue-dark:       var(--brand-700);
+    --blue-light:      var(--brand-50);
+    --blue-border:     var(--green-border);
+    --blue-text:       var(--brand-800);
+    --blue-dark-text:  var(--brand-900);
+    --amber:           var(--brand-600);
+    --amber-light:     var(--brand-50);
+    --amber-border:    var(--green-border);
+    --amber-dark:      var(--brand-700);
+    --amber-text:      var(--brand-800);
+    --red:             var(--danger-600);
+    --red-dark:        var(--danger-700);
     --red-darker:      #991b1b;
-    --red-light:       #fef2f2;
-    --red-border:      #fecaca;
+    --red-light:       var(--danger-50);
+    --red-border:      var(--danger-100);
     --red-mid:         #fee2e2;
     --red-subtle:      #fca5a5;
-    --purple:          #9333ea;
-    --purple-dark:     #7c3aed;
-    --purple-light:    #f5f3ff;
-    --purple-border:   #e9d5ff;
-    --indigo:          #4f46e5;
-    --indigo-dark:     #4338ca;
-    --indigo-light:    #e0e7ff;
+    --purple:          var(--brand-600);
+    --purple-dark:     var(--brand-700);
+    --purple-light:    var(--brand-50);
+    --purple-border:   var(--green-border);
+    --indigo:          var(--brand-600);
+    --indigo-dark:     var(--brand-700);
+    --indigo-light:    var(--brand-50);
     --emerald:         #059669;
-    --page-bg:         #f9fafb;
-    --card-bg:         #ffffff;
-    --border:          #e5e7eb;
-    --border-inner:    #f3f4f6;
-    --bg-muted:        #f9fafb;
-    --bg-hover:        #f3f4f6;
-    --text-primary:    #111827;
-    --text-secondary:  #6b7280;
-    --text-muted:      #9ca3af;
-    --text-dark:       #374151;
-    --text-medium:     #4b5563;
+    --page-bg:         var(--sys-page-bg);
+    --card-bg:         var(--sys-surface);
+    --border:          var(--sys-border);
+    --border-inner:    var(--sys-surface-muted);
+    --bg-muted:        var(--sys-page-bg);
+    --bg-hover:        var(--sys-surface-muted);
+    --text-primary:    var(--sys-text-900);
+    --text-secondary:  var(--sys-text-500);
+    --text-muted:      var(--sys-text-400);
+    --text-dark:       var(--sys-text-700);
+    --text-medium:     var(--sys-text-600);
     --sidebar-width:   288px;
 }
 
@@ -490,7 +491,7 @@ select.filter-select:focus {
 }
 .mem-av--active    { background: var(--green); }
 .mem-av--inactive  { background: var(--text-muted); }
-.mem-av--suspended { background: #f87171; }
+.mem-av--suspended { background: var(--red); }
 
 .member-info {
     flex: 1;
@@ -563,7 +564,7 @@ select.filter-select:focus {
     font-weight: 500;
 }
 .badge-green  { background: var(--green-light); color: var(--green-dark); }
-.badge-blue   { background: #dbeafe; color: var(--blue-dark); }
+.badge-blue   { background: var(--blue-light); color: var(--blue-dark); }
 .badge-amber  { background: var(--amber-light); color: var(--amber-dark); }
 .badge-red    { background: var(--red-mid); color: var(--red-dark); }
 .badge-gray   { background: var(--bg-hover); color: var(--text-secondary); }

@@ -1,13 +1,14 @@
 /* Google Fonts Import Link */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('./theme.css');
 :root{
-  --color-primary: #007639;
-  --color-dark: #1d1b31;
-  --color-light: #E4E9F7;
+  --color-primary: var(--brand-700);
+  --color-dark: var(--sys-text-900);
+  --color-light: #e4e9f7;
   --color-white:white;
-  --color-orange:#ff5601;
-  --color-primary-rgb: 0, 118, 57;
-  --color-dark-rgb: 29, 27, 49;
+  --color-orange: var(--accent-amber-600);
+  --color-primary-rgb: var(--brand-rgb);
+  --color-dark-rgb: var(--text-rgb);
   --color-light-rgb: 228, 233, 247;
 }
 *{
@@ -34,6 +35,8 @@ body{
   width: 78px;
 }
 .sidebar .logo-details{
+  display: flex;
+  justify-content: center;
   height: 60px;
   width: 100%;
   display: flex;
@@ -48,7 +51,7 @@ body{
   line-height: 50px;
 }
 .sidebar .logo-details .logo_name{
-  font-size: 22px;
+  font-size: 30px;
   color: var(--color-light);
   font-weight: 600;
   transition: 0.3s ease;

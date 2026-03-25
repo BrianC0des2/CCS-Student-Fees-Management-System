@@ -1,3 +1,5 @@
+@import url('../theme.css');
+
 * {
     margin: 0;
     padding: 0;
@@ -6,18 +8,18 @@
 
 
 :root {
-    --bg: #f5f5f5;          
-    --white: #ffffff;        
-    --sidebar: #1a3c2e;      
-    --accent: #2e7d52;       
-    --accent-light: #e8f5e8; 
-    --text: #1a2420;         
-    --text-muted: #5a7a66;   
-    --border: #d4e2d8;       
-    --highlight: #2e7d52;    
-    --highlight-light: #e8f5e8;
-    --yellow: #f57c00;
-    --green: #2e7d32;
+    --bg: var(--sys-page-bg);
+    --white: var(--sys-surface);
+    --sidebar: var(--brand-900);
+    --accent: var(--brand-450);
+    --accent-light: var(--brand-50);
+    --text: var(--sys-text-900);
+    --text-muted: var(--sys-text-500);
+    --border: var(--sys-border);
+    --highlight: var(--brand-450);
+    --highlight-light: var(--brand-50);
+    --yellow: var(--accent-amber-600);
+    --green: var(--brand-600);
 }
 body {
     font-family: 'Segoe UI', sans-serif;

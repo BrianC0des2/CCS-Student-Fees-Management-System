@@ -3,7 +3,6 @@ const sidebarHTML = `
 <div class="sidebar">
     <a href="organization-dashboard.html" style="text-decoration: none;">
         <div class="logo-details">
-            <i class='bx bxl-c-plus-plus'></i>
             <span class="logo_name">Pay++</span>
         </div>
     </a>

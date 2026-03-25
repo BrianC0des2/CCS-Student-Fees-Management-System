@@ -329,9 +329,24 @@
                 </div>
                 <div class="form-grid">
                     <div class="form-group">
-                        <label>Full Name *</label>
-                        <input type="text" id="nsName" 
-                               placeholder="Full name">
+                        <label>Last Name *</label>
+                        <input type="text" id="nsLastName" 
+                               placeholder="e.g. Santos">
+                    </div>
+                    <div class="form-group">
+                        <label>First Name *</label>
+                        <input type="text" id="nsFirstName" 
+                               placeholder="e.g. Maria">
+                    </div>
+                    <div class="form-group">
+                        <label>Middle Initial (Optional)</label>
+                        <input type="text" id="nsMi" 
+                               placeholder="e.g. A">
+                    </div>
+                    <div class="form-group">
+                        <label>Suffix (Optional)</label>
+                        <input type="text" id="nsSuffix" 
+                               placeholder="e.g. Jr., III">
                     </div>
                     <div class="form-group">
                         <label>Student No. *</label>
@@ -699,17 +714,31 @@
         // Save student
         document.getElementById('saveAddStudent')
             .addEventListener('click', () => {
-            const name = document.getElementById('nsName')
+            const lastname = document.getElementById('nsLastName')
+                .value.trim();
+            const firstname = document.getElementById('nsFirstName')
+                .value.trim();
+            const mi = document.getElementById('nsMi')
+                .value.trim();
+            const suffix = document.getElementById('nsSuffix')
                 .value.trim();
             const studentNo = document.getElementById('nsStudentNo')
                 .value.trim();
             const email = document.getElementById('nsEmail')
                 .value.trim();
 
-            if (!name || !studentNo || !email) {
-                alert('Full name, student number, and email are required.');
+            if (!lastname || !firstname || !studentNo || !email) {
+                alert('Last name, first name, student number, and email are required.');
                 return;
             }
+
+            const name = [
+                lastname + ',',
+                firstname,
+                mi ? mi + '.' : '',
+                suffix || ''
+            ].filter(Boolean).join(' ').trim();
+
             const exists = myStudents.find(s => s.id === studentNo);
             if (exists) {
                 alert('Student number already exists.');
@@ -732,7 +761,10 @@
             });
 
             // Reset form
-            document.getElementById('nsName').value = '';
+            document.getElementById('nsLastName').value = '';
+            document.getElementById('nsFirstName').value = '';
+            document.getElementById('nsMi').value = '';
+            document.getElementById('nsSuffix').value = '';
             document.getElementById('nsStudentNo').value = '';
             document.getElementById('nsEmail').value = '';
             document.getElementById('addStudentForm')

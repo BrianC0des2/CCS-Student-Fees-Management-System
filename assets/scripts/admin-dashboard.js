@@ -410,8 +410,20 @@ function renderFaculty() {
             </div>
             <div class="form-grid">
                 <div class="form-group">
-                    <label>Full Name *</label>
-                    <input id="nf-name" value="${newFacultyData.name}" placeholder="e.g. Prof. Juan Dela Cruz">
+                    <label>Last Name *</label>
+                    <input id="nf-lastname" value="${newFacultyData.lastname || ''}" placeholder="e.g. Dela Cruz">
+                </div>
+                <div class="form-group">
+                    <label>First Name *</label>
+                    <input id="nf-firstname" value="${newFacultyData.firstname || ''}" placeholder="e.g. Juan">
+                </div>
+                <div class="form-group">
+                    <label>Middle Initial (Optional)</label>
+                    <input id="nf-mi" value="${newFacultyData.mi || ''}" placeholder="e.g. C">
+                </div>
+                <div class="form-group">
+                    <label>Suffix (Optional)</label>
+                    <input id="nf-suffix" value="${newFacultyData.suffix || ''}" placeholder="e.g. PhD., MIT, Jr.">
                 </div>
                 <div class="form-group">
                     <label>Email Address *</label>
@@ -453,7 +465,10 @@ function renderFaculty() {
                     <button class="form-close-btn" id="close-edit-faculty">${bxi('x')}</button>
                 </div>
                 <div class="form-grid">
-                    <div class="form-group"><label>Full Name</label><input id="ef-name" value="${f.name}"></div>
+                    <div class="form-group"><label>Last Name *</label><input id="ef-lastname" value="${f.name.split(',')[0] || ''}"></div>
+                    <div class="form-group"><label>First Name *</label><input id="ef-firstname" value="${f.name.split(',')[1]?.trim().split(' ')[0] || ''}"></div>
+                    <div class="form-group"><label>Middle Initial (Optional)</label><input id="ef-mi" value="${f.name.split(',')[1]?.trim().split(' ')[1] || ''}"></div>
+                    <div class="form-group"><label>Suffix (Optional)</label><input id="ef-suffix" value="${f.name.split(',')[1]?.trim().split(' ')[2] || ''}"></div>
                     <div class="form-group"><label>Email</label><input id="ef-email" type="email" value="${f.email}"></div>
                     <div class="form-group"><label>Phone</label><input id="ef-phone" value="${f.phone}"></div>
                     <div class="form-group">
@@ -550,9 +565,21 @@ function renderFaculty() {
         showAddFacultyForm = false; renderFaculty();
     });
     document.getElementById('save-add-faculty')?.addEventListener('click', () => {
-        const name  = document.getElementById('nf-name').value.trim();
+        const lastname = document.getElementById('nf-lastname').value.trim();
+        const firstname = document.getElementById('nf-firstname').value.trim();
+        const mi = document.getElementById('nf-mi').value.trim();
+        const suffix = document.getElementById('nf-suffix').value.trim();
         const email = document.getElementById('nf-email').value.trim();
-        if (!name || !email) { showToast('Name and email are required.', true); return; }
+        if (!lastname || !firstname || !email) {
+            showToast('Last name, first name and email are required.', true);
+            return;
+        }
+        const name = [
+            lastname + ',',
+            firstname,
+            mi ? mi + '.' : '',
+            suffix || ''
+        ].filter(Boolean).join(' ').trim();
         const id = 'FAC-' + String(facultyList.length + 1).padStart(3, '0');
         facultyList.push({
             id, name, email,
@@ -576,7 +603,12 @@ function renderFaculty() {
     document.getElementById('save-edit-faculty')?.addEventListener('click', () => {
         facultyList = facultyList.map(f => f.id !== editingFacultyId ? f : {
             ...f,
-            name:       document.getElementById('ef-name').value,
+            name: [
+                document.getElementById('ef-lastname').value.trim() + ',',
+                document.getElementById('ef-firstname').value.trim(),
+                document.getElementById('ef-mi').value.trim() ? document.getElementById('ef-mi').value.trim() + '.' : '',
+                document.getElementById('ef-suffix').value.trim() || ''
+            ].filter(Boolean).join(' ').trim(),
             email:      document.getElementById('ef-email').value,
             phone:      document.getElementById('ef-phone').value,
             role:       document.getElementById('ef-role').value,
@@ -661,8 +693,20 @@ function renderStudents() {
             </div>
             <div class="form-grid">
                 <div class="form-group">
-                    <label>Full Name *</label>
-                    <input id="ns-name" value="${newStudentData.name}" placeholder="Full name">
+                    <label>Last Name *</label>
+                    <input id="ns-lastname" value="${newStudentData.lastname || ''}" placeholder="e.g. Santos">
+                </div>
+                <div class="form-group">
+                    <label>First Name *</label>
+                    <input id="ns-firstname" value="${newStudentData.firstname || ''}" placeholder="e.g. Maria">
+                </div>
+                <div class="form-group">
+                    <label>Middle Initial (Optional)</label>
+                    <input id="ns-mi" value="${newStudentData.mi || ''}" placeholder="e.g. A">
+                </div>
+                <div class="form-group">
+                    <label>Suffix (Optional)</label>
+                    <input id="ns-suffix" value="${newStudentData.suffix || ''}" placeholder="e.g. Jr., III">
                 </div>
                 <div class="form-group">
                     <label>Email Address *</label>
@@ -762,9 +806,21 @@ function renderStudents() {
         showAddStudentForm = false; renderStudents();
     });
     document.getElementById('save-add-student')?.addEventListener('click', () => {
-        const name  = document.getElementById('ns-name').value.trim();
+        const lastname = document.getElementById('ns-lastname').value.trim();
+        const firstname = document.getElementById('ns-firstname').value.trim();
+        const mi = document.getElementById('ns-mi').value.trim();
+        const suffix = document.getElementById('ns-suffix').value.trim();
         const email = document.getElementById('ns-email').value.trim();
-        if (!name || !email) { showToast('Name and email are required.', true); return; }
+        if (!lastname || !firstname || !email) {
+            showToast('Last name, first name and email are required.', true);
+            return;
+        }
+        const name = [
+            lastname + ',',
+            firstname,
+            mi ? mi + '.' : '',
+            suffix || ''
+        ].filter(Boolean).join(' ').trim();
         const id = '2026-' + String(Math.floor(Math.random() * 90000) + 10000);
         studentList.push({
             id, name, email,

@@ -130,6 +130,18 @@
                                 <option value="CS 4-B">CS 4-B</option>
                             </select>
                         </div>
+                        <div class="filter-group">
+                            <label>Mode of Payment</label>
+                            <select id="paymentMethodFilter">
+                                <option value="">All</option>
+                                <option value="GCash">GCash</option>
+                                <option value="PayMaya">PayMaya</option>
+                                <option value="Bank Transfer">
+                                    Bank Transfer
+                                </option>
+                                <option value="Cash">Cash</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="filter-actions">
                         <button id="resetFilters" class="reset-btn">Reset</button>
@@ -146,37 +158,6 @@
         <div class="members-table">
             <div class="table-header">
                 <h2>Student Records</h2>
-                <div class="filters-container">
-                    <button id="paymentMethodFilterBtn" 
-                            class="filters-btn">
-                        <i class='bx bx-sort-alt-2'></i>
-                        Filters
-                    </button>
-                    <div id="paymentMethodPopover" 
-                         class="filters-popover">
-                        <div class="filters-grid" 
-                             style="grid-template-columns:1fr;">
-                            <div class="filter-group">
-                                <label>Mode of Payment</label>
-                                <select id="paymentMethodFilter">
-                                    <option value="">All</option>
-                                    <option value="GCash">GCash</option>
-                                    <option value="PayMaya">PayMaya</option>
-                                    <option value="Bank Transfer">
-                                        Bank Transfer
-                                    </option>
-                                    <option value="Cash">Cash</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="filter-actions">
-                            <button id="resetPaymentFilter" 
-                                    class="reset-btn">Reset</button>
-                            <button id="applyPaymentFilter" 
-                                    class="apply-btn">Apply</button>
-                        </div>
-                    </div>
-                </div>
             </div>
             <div class="table-container">
                 <table>
@@ -427,56 +408,90 @@
     <script src="../../assets/scripts/sidebar-template.js"></script>
     <script src="../../assets/scripts/script.js"></script>
     <script>
-    const pmFilterBtn = document.getElementById(
-        'paymentMethodFilterBtn'
-    );
-    const pmPopover = document.getElementById(
-        'paymentMethodPopover'
-    );
+    const filtersBtn = document.getElementById('filtersBtn');
+    const filtersPopover = document.getElementById('filtersPopover');
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const yearLevelSelect = document.getElementById('yearLevel');
+    const courseSelect = document.getElementById('course');
+    const sectionSelect = document.getElementById('section');
+    const paymentMethodSelect = document.getElementById('paymentMethodFilter');
 
-    pmFilterBtn.addEventListener('click', function(e) {
+    const yearLabelMap = {
+        '1': '1st Year',
+        '2': '2nd Year',
+        '3': '3rd Year',
+        '4': '4th Year'
+    };
+
+    function matchesCourse(yearSection, course) {
+        if (!course) return true;
+        if (course === 'BSCS') return yearSection.includes('CS ');
+        if (course === 'BSIT') return yearSection.includes('IT ');
+        return yearSection.includes(course);
+    }
+
+    function applyStudentFilters() {
+        const searchQuery = searchInput.value.toLowerCase().trim();
+        const yearLevel = yearLevelSelect.value;
+        const course = courseSelect.value;
+        const section = sectionSelect.value;
+        const paymentMethod = paymentMethodSelect.value;
+        const yearLabel = yearLabelMap[yearLevel] || '';
+
+        document.querySelectorAll('tbody tr').forEach(row => {
+            const cells = row.querySelectorAll('td');
+            const rowText = row.textContent.toLowerCase();
+            const yearSection = cells[2]?.textContent.trim() || '';
+            const method = cells[7]?.textContent.trim() || '';
+
+            let show = true;
+
+            if (searchQuery && !rowText.includes(searchQuery)) show = false;
+            if (yearLabel && !yearSection.includes(yearLabel)) show = false;
+            if (!matchesCourse(yearSection, course)) show = false;
+            if (section && !yearSection.includes(section)) show = false;
+            if (paymentMethod && method !== paymentMethod) show = false;
+
+            row.style.display = show ? '' : 'none';
+        });
+    }
+
+    filtersBtn.addEventListener('click', function(e) {
         e.stopPropagation();
-        pmPopover.classList.toggle('show');
+        filtersPopover.classList.toggle('show');
     });
 
     document.addEventListener('click', function(e) {
-        if (!pmFilterBtn.contains(e.target) && 
-            !pmPopover.contains(e.target)) {
-            pmPopover.classList.remove('show');
+        if (!filtersBtn.contains(e.target) &&
+            !filtersPopover.contains(e.target)) {
+            filtersPopover.classList.remove('show');
         }
     });
 
-    document.getElementById('resetPaymentFilter')
-        .addEventListener('click', function() {
-        document.getElementById(
-            'paymentMethodFilter'
-        ).value = '';
-        pmPopover.classList.remove('show');
-        filterByPaymentMethod('');
+    document.getElementById('applyFilters').addEventListener('click', function() {
+        filtersPopover.classList.remove('show');
+        applyStudentFilters();
     });
 
-    document.getElementById('applyPaymentFilter')
-        .addEventListener('click', function() {
-        const val = document.getElementById(
-            'paymentMethodFilter'
-        ).value;
-        pmPopover.classList.remove('show');
-        filterByPaymentMethod(val);
+    document.getElementById('resetFilters').addEventListener('click', function() {
+        yearLevelSelect.value = '';
+        courseSelect.value = '';
+        sectionSelect.value = '';
+        paymentMethodSelect.value = '';
+        filtersPopover.classList.remove('show');
+        applyStudentFilters();
     });
 
-    function filterByPaymentMethod(method) {
-        document.querySelectorAll('tbody tr')
-            .forEach(row => {
-            const cells = row.querySelectorAll('td');
-            const paymentMethod = cells[7]?.textContent
-                .trim() || '';
-            if (!method || paymentMethod === method) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
-        });
-    }
+    searchBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        applyStudentFilters();
+    }, true);
+
+    searchInput.addEventListener('input', function() {
+        applyStudentFilters();
+    });
     </script>
 </body>
 </html>

@@ -1,14 +1,16 @@
+@import url('../theme.css');
+
 :root {
-	--faculty-bg: #f0f2f8;
-	--faculty-card: #ffffff;
-	--faculty-border: #dbe2ef;
-	--faculty-text: #1f2937;
-	--faculty-muted: #64748b;
-	--faculty-green: #2e7d52;
-	--faculty-green-dark: #1a5c3a;
-	--faculty-orange: #f59e0b;
-	--faculty-red: #dc2626;
-	--faculty-gray: #6b7280;
+	--faculty-bg: var(--sys-page-bg);
+	--faculty-card: var(--sys-surface);
+	--faculty-border: var(--sys-border);
+	--faculty-text: var(--sys-text-900);
+	--faculty-muted: var(--sys-text-500);
+	--faculty-green: var(--brand-450);
+	--faculty-green-dark: var(--brand-800);
+	--faculty-orange: var(--accent-amber-600);
+	--faculty-red: var(--danger-600);
+	--faculty-gray: var(--sys-text-500);
 }
 
 body {
@@ -203,7 +205,7 @@ body {
 }
 
 .filters-btn {
-	border: 1px solid var(--faculty-green-dark);
+	border: 1px solid green;
 	border-radius: 10px;
 	background: var(--faculty-green);
 	color: #ffffff;

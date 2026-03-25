@@ -71,6 +71,7 @@
       name: account.name,
       studentId: account.studentId,
       email: account.email,
+      isFirstLogin: Boolean(account.isFirstLogin),
       permissions: account.permissions
     };
 
@@ -78,6 +79,40 @@
     writeStorage(AUTH_VIEW_KEY, "student");
 
     return { ok: true, user };
+  }
+
+  function isFirstLogin() {
+    const user = getStoredUser();
+    return Boolean(user && user.isFirstLogin === true);
+  }
+
+  function changePassword(newPassword) {
+    const trimmedPassword = String(newPassword || "").trim();
+    if (trimmedPassword.length < 6) {
+      return { ok: false, message: "Password must be at least 6 characters." };
+    }
+
+    const user = getStoredUser();
+    if (!user) {
+      return { ok: false, message: "No active session user." };
+    }
+
+    const accounts = window.SAMPLE_ACCOUNTS || [];
+    const account = accounts.find((item) => item.id === user.id || item.email === user.email);
+    if (!account) {
+      return { ok: false, message: "Account not found." };
+    }
+
+    account.password = trimmedPassword;
+    account.isFirstLogin = false;
+
+    const updatedUser = {
+      ...user,
+      isFirstLogin: false
+    };
+    setStoredUser(updatedUser);
+
+    return { ok: true, user: updatedUser };
   }
 
   function getUser() {
@@ -137,6 +172,8 @@
 
   window.Auth = {
     login,
+    isFirstLogin,
+    changePassword,
     getUser,
     canManageOrg,
     isAdmin,
