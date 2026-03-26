@@ -94,7 +94,8 @@ body{
 
 
 input[type="email"],
-input[type="password"]{
+input[type="password"],
+input[type="text"]{
     border-radius: 15px;
     border: 1px solid var(--first-color);
     width: 100%;
@@ -184,7 +185,8 @@ input[type="submit"]:hover{
     }
 
     input[type="email"],
-    input[type="password"] {
+    input[type="password"],
+    input[type="text"] {
         height: 35px;
         font-size: 13px;
     }

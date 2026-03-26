@@ -56,7 +56,7 @@
         .flp-title {
             font-size: 1.2rem;
             font-weight: 700;
-            color: #1e1b4b;
+            color: #1a2420;
             letter-spacing: 0.01em;
             margin: 0;
         }
@@ -73,8 +73,8 @@
 
         .flp-group label {
             display: block;
-            font-size: 0.86rem;
-            color: #1e1b4b;
+            font-size: 13px;
+            color: #1a2420;
             font-weight: 600;
             margin-bottom: 6px;
         }
@@ -83,24 +83,24 @@
             display: flex;
             align-items: center;
             background: #ffffff;
-            border: 1.5px solid rgba(0, 0, 0, 0.15);
-            border-radius: 9px;
+            border: 1px solid #2e7d52;
+            border-radius: 15px;
             padding: 0 8px 0 12px;
             transition: border-color 140ms ease, box-shadow 140ms ease;
         }
 
         .flp-input-wrap:focus-within {
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08);
+            border-color: #2e7d52;
+            box-shadow: 0 0 0 3px rgba(46, 125, 82, 0.08);
         }
 
         .flp-input-wrap input {
             border: 0;
             outline: 0;
             width: 100%;
-            height: 42px;
-            font-size: 0.95rem;
-            color: #1e1b4b;
+            height: 40px;
+            font-size: 14px;
+            color: #1a2420;
             background: transparent;
         }
 
@@ -123,8 +123,8 @@
         }
 
         .flp-toggle:hover {
-            color: #4f46e5;
-            background: rgba(79, 70, 229, 0.08);
+            color: #2e7d52;
+            background: rgba(46, 125, 82, 0.08);
         }
 
         .flp-toggle i {
@@ -166,10 +166,10 @@
         .flp-submit {
             width: 100%;
             border: 0;
-            border-radius: 9px;
+            border-radius: 20px;
             padding: 11px 16px;
             color: #ffffff;
-            background: #15803d;
+            background: #2e7d52;
             font-weight: 600;
             font-size: 0.95rem;
             cursor: pointer;
@@ -182,11 +182,11 @@
         }
 
         .flp-submit:not(:disabled):hover {
-            background: #166534;
+            background: #1a5c3a;
         }
 
         .flp-submit:not(:disabled):active {
-            background: #166534;
+            background: #1a5c3a;
         }
 
         .flp-success {
@@ -235,7 +235,29 @@
             <input type="email" name="user-email" id="user-email" placeholder="@wmsu.edu.ph"><br/>
             
             <label class="user-inputs" for="user-password">Password</label>
-            <input type="password" name="user-password" id="user-password" placeholder="password">
+                 <div style="position:relative; width:100%;">
+                <input type="password" name="user-password" 
+                       id="user-password" placeholder="password"
+                      style="width:100%; 
+                          padding-right:44px;
+                          box-sizing:border-box;
+                          display:block;">
+                <button type="button" id="togglePassword"
+                        style="position:absolute;
+                               right:12px;
+                               top:50%;
+                               transform:translateY(-50%);
+                               background:none;
+                               border:none;
+                               cursor:pointer;
+                               color:#2e7d52;
+                               font-size:20px;
+                               display:flex;
+                               align-items:center;
+                               padding:0;">
+                    <i class='bx bx-hide'></i>
+                </button>
+            </div>
             <div id="forgot">
                 <a href="#">Forgot Password?</a><br>
             </div>
@@ -468,5 +490,24 @@
             updateValidation();
         })();
     </script>
+    <script>
+const togglePassword = document.getElementById(
+    'togglePassword'
+);
+const passwordField = document.getElementById(
+    'user-password'
+);
+const toggleIcon = togglePassword.querySelector('i');
+
+togglePassword.addEventListener('click', function() {
+    if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        toggleIcon.className = 'bx bx-show';
+    } else {
+        passwordField.type = 'password';
+        toggleIcon.className = 'bx bx-hide';
+    }
+});
+</script>
 </body>
 </html>
