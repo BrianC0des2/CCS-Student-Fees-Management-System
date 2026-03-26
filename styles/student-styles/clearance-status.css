@@ -1,30 +1,32 @@
+@import url('../theme.css');
+
 /* ─── Clearance-specific Variables ─────────────────────────────────── */
 :root {
-  --green-primary:   #16a34a;
-  --green-dark1:     #15803d;
-  --green-dark2:     #166534;
-  --green-darker:    #14532d;
-  --yellow-fill:     #facc15;
-  --blue-org:        #2563eb;
+  --green-primary:   var(--brand-500);
+  --green-dark1:     var(--brand-600);
+  --green-dark2:     var(--brand-700);
+  --green-darker:    var(--brand-800);
+  --yellow-fill:     var(--accent-amber-100);
+  --blue-org:        var(--accent-blue-600);
   --purple-dean:     #9333ea;
 
-  --complete-bg:     #dcfce7;
-  --complete-text:   #15803d;
+  --complete-bg:     var(--brand-100);
+  --complete-text:   var(--brand-600);
   --complete-border: #86efac;
 
-  --pending-bg:      #fef3c7;
-  --pending-text:    #b45309;
+  --pending-bg:      var(--accent-amber-50);
+  --pending-text:    var(--accent-amber-700);
   --pending-border:  #fcd34d;
 
-  --locked-bg:       #f3f4f6;
-  --locked-text:     #6b7280;
-  --locked-border:   #e5e7eb;
+  --locked-bg:       var(--sys-surface-muted);
+  --locked-text:     var(--sys-text-500);
+  --locked-border:   var(--sys-border);
 
-  --card-bg:         #ffffff;
-  --text-primary:    #111827;
-  --text-secondary:  #6b7280;
-  --text-muted:      #9ca3af;
-  --border-color:    #e5e7eb;
+  --card-bg:         var(--sys-surface);
+  --text-primary:    var(--sys-text-900);
+  --text-secondary:  var(--sys-text-500);
+  --text-muted:      var(--sys-text-400);
+  --border-color:    var(--sys-border);
 }
 
 /* ─── Page Content ─────────────────────────────────────────────────── */

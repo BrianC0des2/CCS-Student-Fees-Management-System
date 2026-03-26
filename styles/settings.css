@@ -1,5 +1,6 @@
 /* Google Fonts – Atkinson Hyperlegible (dyslexia-friendly) */
 @import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap');
+@import url('./theme.css');
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    SETTINGS PANEL OVERLAY + SLIDE-IN PANEL
@@ -34,24 +35,24 @@
     align-items: center;
     justify-content: space-between;
     padding: 16px 20px;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--sys-border);
     flex-shrink: 0;
 }
 .sp-title {
     font-size: 15px;
     font-weight: 600;
-    color: #111827;
+    color: var(--sys-text-900);
     display: flex;
     align-items: center;
     gap: 8px;
 }
-.sp-title i { font-size: 18px; color: #007639; }
+.sp-title i { font-size: 18px; color: var(--brand-700); }
 
 .sp-close-btn {
     background: none;
     border: none;
     font-size: 22px;
-    color: #6b7280;
+    color: var(--sys-text-500);
     cursor: pointer;
     padding: 4px;
     border-radius: 6px;
@@ -59,7 +60,7 @@
     display: flex;
     align-items: center;
 }
-.sp-close-btn:hover { background: #f3f4f6; color: #111827; }
+.sp-close-btn:hover { background: var(--sys-surface-muted); color: var(--sys-text-900); }
 
 .sp-body {
     flex: 1;
@@ -75,7 +76,7 @@
     font-weight: 700;
     letter-spacing: 0.8px;
     text-transform: uppercase;
-    color: #9ca3af;
+    color: var(--sys-text-400);
     margin-bottom: 10px;
 }
 
@@ -91,20 +92,20 @@
     align-items: center;
     gap: 6px;
     padding: 14px 10px;
-    border: 2px solid #e5e7eb;
+    border: 2px solid var(--sys-border);
     border-radius: 10px;
-    background: #f9fafb;
+    background: var(--sys-page-bg);
     cursor: pointer;
     transition: border-color 0.15s, background 0.15s;
     font-family: inherit;
 }
-.sp-opt:hover { border-color: #007639; background: #f0fdf4; }
-.sp-opt.active { border-color: #007639; background: #f0fdf4; }
-.sp-opt i { font-size: 24px; color: #374151; }
-.sp-opt.active i { color: #007639; }
-.sp-opt-label { font-size: 12px; font-weight: 600; color: #374151; }
-.sp-opt.active .sp-opt-label { color: #007639; }
-.sp-opt-sub { font-size: 10px; color: #9ca3af; text-align: center; }
+.sp-opt:hover { border-color: var(--brand-700); background: #f0fdf4; }
+.sp-opt.active { border-color: var(--brand-700); background: #f0fdf4; }
+.sp-opt i { font-size: 24px; color: var(--sys-text-700); }
+.sp-opt.active i { color: var(--brand-700); }
+.sp-opt-label { font-size: 12px; font-weight: 600; color: var(--sys-text-700); }
+.sp-opt.active .sp-opt-label { color: var(--brand-700); }
+.sp-opt-sub { font-size: 10px; color: var(--sys-text-400); text-align: center; }
 
 /* Dyslexic preview – button label uses that font */
 .sp-opt.font-dyslexic-preview .sp-opt-label,
@@ -129,11 +130,11 @@ html.font-dyslexic * {
 html.theme-dark {
     color-scheme: dark;
     --dm-bg: #0b1220;
-    --dm-surface: #111827;
+    --dm-surface: var(--sys-text-900);
     --dm-surface-alt: #1f2937;
     --dm-surface-soft: #293548;
     --dm-border: #334155;
-    --dm-text: #e5e7eb;
+    --dm-text: var(--sys-border);
     --dm-text-soft: #cbd5e1;
     --dm-text-muted: #94a3b8;
     --dm-heading: #f8fafc;

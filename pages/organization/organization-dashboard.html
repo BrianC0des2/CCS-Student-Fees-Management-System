@@ -9,6 +9,38 @@
         <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
         <link rel="stylesheet" href="../../styles/settings.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            .table-container {
+                max-height: 500px;
+                overflow-y: auto;
+            }
+            .members-table thead th {
+                position: sticky;
+                top: 0;
+                z-index: 10;
+                background: #f5f5f5;
+            }
+            .apply-btn {
+                background: #2e7d52 !important;
+                color: #ffffff !important;
+            }
+            .reset-btn {
+                background: #f5f5f5;
+                color: #1a2420;
+                border: 1px solid #d4e2d8;
+            }
+            .filters-btn {
+                background: #2e7d52 !important;
+                color: #ffffff !important;
+                border: 1px solid #2e7d52 !important;
+            }
+            .filters-btn:hover {
+                background: #1a5c3a !important;
+            }
+            .apply-btn:hover {
+                background: #1a5c3a !important;
+            }
+        </style>
     </head>
     <body>
         <div id="sidebar-container"></div>
@@ -98,6 +130,18 @@
                                 <option value="CS 4-B">CS 4-B</option>
                             </select>
                         </div>
+                        <div class="filter-group">
+                            <label>Mode of Payment</label>
+                            <select id="paymentMethodFilter">
+                                <option value="">All</option>
+                                <option value="GCash">GCash</option>
+                                <option value="PayMaya">PayMaya</option>
+                                <option value="Bank Transfer">
+                                    Bank Transfer
+                                </option>
+                                <option value="Cash">Cash</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="filter-actions">
                         <button id="resetFilters" class="reset-btn">Reset</button>
@@ -126,6 +170,7 @@
                             <th>Total Due</th>
                             <th>Status</th>
                             <th>Last Payment</th>
+                            <th>Payment Method</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -138,6 +183,7 @@
                             <td>₱500</td>
                             <td><span class="status pending">Pending</span></td>
                             <td>2025-08-15</td>
+                            <td>GCash</td>
                             <td><button class="action-btn">View Details</button></td>
                         </tr>
                         <tr>
@@ -148,6 +194,7 @@
                             <td>₱500</td>
                             <td><span class="status pending">Pending</span></td>
                             <td>2025-09-10</td>
+                            <td>PayMaya</td>
                             <td><button class="action-btn">View Details</button></td>
                         </tr>
                         <tr>
@@ -158,6 +205,7 @@
                             <td>₱500</td>
                             <td><span class="status pending">Pending</span></td>
                             <td>2025-10-05</td>
+                            <td>Cash</td>
                             <td><button class="action-btn">View Details</button></td>
                         </tr>
                         <tr>
@@ -168,6 +216,7 @@
                             <td>₱500</td>
                             <td><span class="status pending">Pending</span></td>
                             <td>2025-11-20</td>
+                            <td>Bank Transfer</td>
                             <td><button class="action-btn">View Details</button></td>
                         </tr>
                         <tr>
@@ -178,6 +227,7 @@
                             <td>₱500</td>
                             <td><span class="status fully-paid">Fully Paid</span></td>
                             <td>2025-12-01</td>
+                            <td>GCash</td>
                             <td><button class="action-btn">View Details</button></td>
                         </tr>
                         <tr>
@@ -188,6 +238,7 @@
                             <td>₱500</td>
                             <td><span class="status pending">Pending</span></td>
                             <td>2025-08-22</td>
+                            <td>Cash</td>
                             <td><button class="action-btn">View Details</button></td>
                         </tr>
                         <tr>
@@ -198,6 +249,7 @@
                             <td>₱500</td>
                             <td><span class="status pending">Pending</span></td>
                             <td>2025-09-18</td>
+                            <td>PayMaya</td>
                             <td><button class="action-btn">View Details</button></td>
                         </tr>
                         <tr>
@@ -208,6 +260,7 @@
                             <td>₱500</td>
                             <td><span class="status pending">Pending</span></td>
                             <td>2025-10-12</td>
+                            <td>GCash</td>
                             <td><button class="action-btn">View Details</button></td>
                         </tr>
                         <tr>
@@ -218,6 +271,7 @@
                             <td>₱500</td>
                             <td><span class="status pending">Pending</span></td>
                             <td>2025-11-08</td>
+                            <td>Bank Transfer</td>
                             <td><button class="action-btn">View Details</button></td>
                         </tr>
                         <tr>
@@ -228,6 +282,7 @@
                             <td>₱500</td>
                             <td><span class="status fully-paid">Fully Paid</span></td>
                             <td>2025-12-15</td>
+                            <td>GCash</td>
                             <td><button class="action-btn">View Details</button></td>
                         </tr>
                         <tr>
@@ -238,6 +293,7 @@
                             <td>₱500</td>
                             <td><span class="status pending">Pending</span></td>
                             <td>2025-08-30</td>
+                            <td>Cash</td>
                             <td><button class="action-btn">View Details</button></td>
                         </tr>
                         <tr>
@@ -248,6 +304,7 @@
                             <td>₱500</td>
                             <td><span class="status pending">Pending</span></td>
                             <td>2025-09-25</td>
+                            <td>GCash</td>
                             <td><button class="action-btn">View Details</button></td>
                         </tr>
                         <tr>
@@ -258,6 +315,7 @@
                             <td>₱500</td>
                             <td><span class="status pending">Pending</span></td>
                             <td>2025-10-18</td>
+                            <td>PayMaya</td>
                             <td><button class="action-btn">View Details</button></td>
                         </tr>
                         <tr>
@@ -268,6 +326,7 @@
                             <td>₱500</td>
                             <td><span class="status pending">Pending</span></td>
                             <td>2025-11-14</td>
+                            <td>Bank Transfer</td>
                             <td><button class="action-btn">View Details</button></td>
                         </tr>
                         <tr>
@@ -278,6 +337,7 @@
                             <td>₱500</td>
                             <td><span class="status fully-paid">Fully Paid</span></td>
                             <td>2025-12-20</td>
+                            <td>GCash</td>
                             <td><button class="action-btn">View Details</button></td>
                         </tr>
                         <tr>
@@ -288,6 +348,7 @@
                             <td>₱500</td>
                             <td><span class="status pending">Pending</span></td>
                             <td>2025-08-28</td>
+                            <td>Cash</td>
                             <td><button class="action-btn">View Details</button></td>
                         </tr>
                         <tr>
@@ -298,6 +359,7 @@
                             <td>₱500</td>
                             <td><span class="status pending">Pending</span></td>
                             <td>2025-09-22</td>
+                            <td>GCash</td>
                             <td><button class="action-btn">View Details</button></td>
                         </tr>
                         <tr>
@@ -308,6 +370,7 @@
                             <td>₱500</td>
                             <td><span class="status pending">Pending</span></td>
                             <td>2025-10-25</td>
+                            <td>PayMaya</td>
                             <td><button class="action-btn">View Details</button></td>
                         </tr>
                         <tr>
@@ -318,6 +381,7 @@
                             <td>₱500</td>
                             <td><span class="status pending">Pending</span></td>
                             <td>2025-11-19</td>
+                            <td>Bank Transfer</td>
                             <td><button class="action-btn">View Details</button></td>
                         </tr>
                         <tr>
@@ -328,6 +392,7 @@
                             <td>₱500</td>
                             <td><span class="status fully-paid">Fully Paid</span></td>
                             <td>2025-12-25</td>
+                            <td>GCash</td>
                             <td><button class="action-btn">View Details</button></td>
                         </tr>
                     </tbody>
@@ -342,5 +407,91 @@
     <script src="../../assets/scripts/auth.js"></script>
     <script src="../../assets/scripts/sidebar-template.js"></script>
     <script src="../../assets/scripts/script.js"></script>
+    <script>
+    const filtersBtn = document.getElementById('filtersBtn');
+    const filtersPopover = document.getElementById('filtersPopover');
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const yearLevelSelect = document.getElementById('yearLevel');
+    const courseSelect = document.getElementById('course');
+    const sectionSelect = document.getElementById('section');
+    const paymentMethodSelect = document.getElementById('paymentMethodFilter');
+
+    const yearLabelMap = {
+        '1': '1st Year',
+        '2': '2nd Year',
+        '3': '3rd Year',
+        '4': '4th Year'
+    };
+
+    function matchesCourse(yearSection, course) {
+        if (!course) return true;
+        if (course === 'BSCS') return yearSection.includes('CS ');
+        if (course === 'BSIT') return yearSection.includes('IT ');
+        return yearSection.includes(course);
+    }
+
+    function applyStudentFilters() {
+        const searchQuery = searchInput.value.toLowerCase().trim();
+        const yearLevel = yearLevelSelect.value;
+        const course = courseSelect.value;
+        const section = sectionSelect.value;
+        const paymentMethod = paymentMethodSelect.value;
+        const yearLabel = yearLabelMap[yearLevel] || '';
+
+        document.querySelectorAll('tbody tr').forEach(row => {
+            const cells = row.querySelectorAll('td');
+            const rowText = row.textContent.toLowerCase();
+            const yearSection = cells[2]?.textContent.trim() || '';
+            const method = cells[7]?.textContent.trim() || '';
+
+            let show = true;
+
+            if (searchQuery && !rowText.includes(searchQuery)) show = false;
+            if (yearLabel && !yearSection.includes(yearLabel)) show = false;
+            if (!matchesCourse(yearSection, course)) show = false;
+            if (section && !yearSection.includes(section)) show = false;
+            if (paymentMethod && method !== paymentMethod) show = false;
+
+            row.style.display = show ? '' : 'none';
+        });
+    }
+
+    filtersBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        filtersPopover.classList.toggle('show');
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!filtersBtn.contains(e.target) &&
+            !filtersPopover.contains(e.target)) {
+            filtersPopover.classList.remove('show');
+        }
+    });
+
+    document.getElementById('applyFilters').addEventListener('click', function() {
+        filtersPopover.classList.remove('show');
+        applyStudentFilters();
+    });
+
+    document.getElementById('resetFilters').addEventListener('click', function() {
+        yearLevelSelect.value = '';
+        courseSelect.value = '';
+        sectionSelect.value = '';
+        paymentMethodSelect.value = '';
+        filtersPopover.classList.remove('show');
+        applyStudentFilters();
+    });
+
+    searchBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        applyStudentFilters();
+    }, true);
+
+    searchInput.addEventListener('input', function() {
+        applyStudentFilters();
+    });
+    </script>
 </body>
 </html>

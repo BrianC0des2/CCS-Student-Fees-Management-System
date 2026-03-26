@@ -57,15 +57,152 @@
 
             <div class="confirm-detail-row">
                 <span class="confirm-label">Payment Method</span>
-                <span class="confirm-value"><i class='bx bx-wallet'></i> GCash</span>
+                <span class="confirm-value" id="confirm-method-label">
+                    <i class='bx bx-wallet'></i> GCash
+                </span>
             </div>
             <div class="confirm-detail-row">
                 <span class="confirm-label">Transaction Fee</span>
                 <span class="confirm-value free">FREE</span>
             </div>
-            <div class="confirm-detail-row">
-                <span class="confirm-label">GCash Mobile Number</span>
-                <input class="confirm-input" type="text" placeholder="09XX XXX XXXX">
+            <div class="confirm-detail-row" id="mobileNumberRow">
+                <span class="confirm-label" 
+                      id="mobileNumberLabel">
+                    GCash Mobile Number
+                </span>
+                <input class="confirm-input" type="text" 
+                       id="mobileNumberInput"
+                       placeholder="09XX XXX XXXX">
+            </div>
+
+            <div class="confirm-detail-row" 
+                 id="selectBankRow"
+                 style="display:none;">
+                <span class="confirm-label">
+                    Select Bank
+                </span>
+                <select class="confirm-input" id="selectBank"
+                        style="cursor:pointer; width:220px;">
+                    <option value="">Select your bank</option>
+                    <option value="BPI">BPI</option>
+                    <option value="LandBank">LandBank</option>
+                    <option value="PNB">PNB</option>
+                </select>
+            </div>
+
+<div id="orgBankDetails"
+     style="display:none;
+            background:#f0fdf4;
+            border:1px solid #d4e2d8;
+            border-radius:12px;
+            padding:16px;
+            margin-bottom:8px;">
+    <p style="font-size:12px;
+              font-weight:700;
+              color:#2e7d52;
+              text-transform:uppercase;
+              letter-spacing:0.5px;
+              margin-bottom:12px;">
+        Transfer to this account:
+    </p>
+    <div style="display:grid;
+                grid-template-columns:1fr 1fr;
+                gap:10px;">
+        <div>
+            <p style="font-size:11px;
+                      color:#5a7a66;
+                      font-weight:600;
+                      text-transform:uppercase;
+                      letter-spacing:0.5px;
+                      margin-bottom:2px;">
+                Bank
+            </p>
+            <p id="orgBankName"
+               style="font-size:14px;
+                      font-weight:700;
+                      color:#1a2420;">
+                —
+            </p>
+        </div>
+        <div>
+            <p style="font-size:11px;
+                      color:#5a7a66;
+                      font-weight:600;
+                      text-transform:uppercase;
+                      letter-spacing:0.5px;
+                      margin-bottom:2px;">
+                Account Number
+            </p>
+            <p id="orgBankAcctNo"
+               style="font-size:14px;
+                      font-weight:700;
+                      color:#1a2420;">
+                —
+            </p>
+        </div>
+        <div>
+            <p style="font-size:11px;
+                      color:#5a7a66;
+                      font-weight:600;
+                      text-transform:uppercase;
+                      letter-spacing:0.5px;
+                      margin-bottom:2px;">
+                Account Name
+            </p>
+            <p style="font-size:14px;
+                      font-weight:700;
+                      color:#1a2420;">
+                CCS Student Council
+            </p>
+        </div>
+        <div>
+            <p style="font-size:11px;
+                      color:#5a7a66;
+                      font-weight:600;
+                      text-transform:uppercase;
+                      letter-spacing:0.5px;
+                      margin-bottom:2px;">
+                Amount to Transfer
+            </p>
+            <p id="orgBankAmount"
+               style="font-size:14px;
+                      font-weight:700;
+                      color:#2e7d52;">
+                ₱0
+            </p>
+        </div>
+    </div>
+    <div style="margin-top:12px;
+                padding-top:12px;
+                border-top:1px solid #d4e2d8;">
+        <p style="font-size:12px; color:#5a7a66;">
+            <i class='bx bx-info-circle'></i>
+            Transfer the exact amount using your 
+            banking app then fill in your details below.
+        </p>
+    </div>
+</div>
+
+            <div class="confirm-detail-row" 
+                 id="bankAccountRow"
+                 style="display:none;">
+                <span class="confirm-label">
+                    Bank Account Number
+                </span>
+                <input class="confirm-input" type="text" 
+                       id="bankAccountInput"
+                       placeholder="Account Number">
+            </div>
+
+            <div class="confirm-detail-row" 
+                 id="transactionRefRow"
+                 style="display:none;">
+                <span class="confirm-label">
+                    Transaction Reference No.
+                </span>
+                <input class="confirm-input" type="text" 
+                       id="transactionRefInput"
+                       placeholder="e.g. TRF-20260316-001">
             </div>
 
             <div class="action-row" style="margin-top: 24px;">
@@ -80,19 +217,117 @@
     <script src="../../assets/scripts/auth.js"></script>
     <script src="../../assets/scripts/script.js"></script>
     <script>
-        const fees = JSON.parse(localStorage.getItem('ccs.selected.fees') || '[]');
+        const fees = JSON.parse(
+            localStorage.getItem('ccs.selected.fees') || '[]'
+        );
+        const method = localStorage.getItem(
+            'ccs.payment.method'
+        ) || 'gcash';
+        
         const feeEl = document.getElementById('confirm-fee-items');
         const totalEl = document.getElementById('confirm-total');
+        
         if (fees.length === 0) {
-            feeEl.innerHTML = '<p class="summary-empty">No fees selected.</p>';
+            feeEl.innerHTML = 
+                '<p class="summary-empty">No fees selected.</p>';
         } else {
             feeEl.innerHTML = fees.map(f =>
-                `<div class="summary-item"><span>${f.fee}</span><span>&#8369;${f.price}</span></div>`
+                `<div class="summary-item">
+                    <span>${f.fee}</span>
+                    <span>&#8369;${f.price}</span>
+                </div>`
             ).join('');
-            totalEl.textContent = '\u20B1' + fees.reduce((s, f) => s + f.price, 0);
+            totalEl.textContent = '\u20B1' + 
+                fees.reduce((s, f) => s + f.price, 0);
         }
 
-        document.getElementById('confirm-pay-btn').addEventListener('click', function() {
+        const methodLabels = {
+            gcash: '<i class="bx bx-wallet"></i> GCash',
+            paymaya: '<i class="bx bx-wallet"></i> PayMaya',
+            bank: '<i class="bx bx-building"></i> Bank Transfer'
+        };
+        const mobileLabels = {
+            gcash: 'GCash Mobile Number',
+            paymaya: 'PayMaya Mobile Number',
+            bank: 'Bank Account Number'
+        };
+        const mobilePlaceholders = {
+            gcash: '09XX XXX XXXX',
+            paymaya: '09XX XXX XXXX',
+            bank: 'Account Number'
+        };
+
+        document.getElementById('confirm-method-label')
+            .innerHTML = methodLabels[method] || methodLabels.gcash;
+        document.getElementById('mobileNumberLabel')
+            .textContent = mobileLabels[method] || 
+                mobileLabels.gcash;
+        document.getElementById('mobileNumberInput')
+            .placeholder = mobilePlaceholders[method] || 
+                mobilePlaceholders.gcash;
+
+        const isBankTransfer = method === 'bank';
+        const selectBankRow = document.getElementById(
+            'selectBankRow'
+        );
+        const bankAccountRow = document.getElementById(
+            'bankAccountRow'
+        );
+        const transactionRefRow = document.getElementById(
+            'transactionRefRow'
+        );
+
+        if (isBankTransfer) {
+            document.getElementById('mobileNumberRow')
+                .style.display = 'none';
+            selectBankRow.style.display = '';
+            bankAccountRow.style.display = '';
+            transactionRefRow.style.display = '';
+        } else {
+            selectBankRow.style.display = 'none';
+            bankAccountRow.style.display = 'none';
+            transactionRefRow.style.display = 'none';
+        }
+
+        const orgBankDetails = {
+            'LandBank': '1234-5678-90',
+            'BDO': '2345-6789-01',
+            'BPI': '3456-7890-12',
+            'UnionBank': '4567-8901-23',
+            'Metrobank': '5678-9012-34',
+            'PNB': '6789-0123-45',
+            'Security Bank': '7890-1234-56',
+            'RCBC': '8901-2345-67'
+        };
+
+        const selectBankEl = document.getElementById(
+            'selectBank'
+        );
+        if (selectBankEl) {
+            selectBankEl.addEventListener('change', 
+                function() {
+                const selectedBank = this.value;
+                const orgDetails = document.getElementById(
+                    'orgBankDetails'
+                );
+                if (selectedBank) {
+                    document.getElementById('orgBankName')
+                        .textContent = selectedBank;
+                    document.getElementById('orgBankAcctNo')
+                        .textContent = 
+                        orgBankDetails[selectedBank] || '—';
+                    document.getElementById('orgBankAmount')
+                        .textContent = '₱' + 
+                        fees.reduce((s, f) => s + f.price, 0);
+                    orgDetails.style.display = 'block';
+                } else {
+                    orgDetails.style.display = 'none';
+                }
+            });
+        }
+
+        document.getElementById('confirm-pay-btn')
+            .addEventListener('click', function() {
             window.location.href = 'payment-receipt.html';
         });
     </script>

@@ -35,11 +35,159 @@
 					<h2>CCS FEES</h2>
 					<p>Organization fee types, Amounts, and Collection due dates</p>
 				</div>
-				<button class="add-fee-btn" type="button">
-					<i class='bx bx-plus'></i>
-					Add Fees
-				</button>
+				<button class="add-fee-btn" type="button" onclick="openAddFeeModal()">
+   				 <i class='bx bx-plus'></i>
+   				 Add Fees
+			</button>
 			</div>
+
+			<div class="modal-overlay" id="addFeeModal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <div>
+                <h3>Add New Fee</h3>
+                <p>Fill in the details for the new organization fee</p>
+            </div>
+            <button class="modal-close" type="button" onclick="closeAddFeeModal()">
+                <i class='bx bx-x'></i>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="feeName">Fee Name <span class="required">*</span></label>
+                <input type="text" id="feeName" placeholder="e.g. CSC Fee" />
+            </div>
+            <div class="form-group">
+                <label for="feeDescription">Description <span class="required">*</span></label>
+                <input type="text" id="feeDescription" placeholder="e.g. College Student Council Fee" />
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="feeAmount">Amount (PHP) <span class="required">*</span></label>
+                    <div class="input-prefix">
+                        <span>₱</span>
+                        <input type="number" id="feeAmount" placeholder="0.00" min="0" step="0.01" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="feeDueDate">Due Date <span class="required">*</span></label>
+                    <input type="date" id="feeDueDate" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="feeCategory">Assigned To / Category</label>
+                <select id="feeCategory">
+                    <option value="">Select category...</option>
+                    <option value="CCS Student Council">CCS Student Council</option>
+                    <option value="CCS Faculty">CCS Faculty</option>
+                    <option value="Insurance">Insurance</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <div class="toggle-group">
+                    <label class="toggle">
+                        <input type="checkbox" id="feeStatus" checked />
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-label" id="toggleLabel">Active</span>
+                </div>
+            </div>
+
+            <!-- Where does this fee go? -->
+            <div class="fee-destination-note">
+                <i class='bx bx-info-circle'></i>
+                This fee will appear on every student's dashboard as an unpaid item to settle.
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-cancel" type="button" onclick="closeAddFeeModal()">Cancel</button>
+            <button class="btn-submit" type="button" onclick="submitFee()">
+                <i class='bx bx-plus'></i>
+                Add Fee
+            </button>
+        </div>
+    </div>
+</div>
+			<script>
+    function openAddFeeModal() {
+        document.getElementById('addFeeModal').classList.add('active');
+    }
+
+    function closeAddFeeModal() {
+        document.getElementById('addFeeModal').classList.remove('active');
+        document.getElementById('feeName').value = '';
+        document.getElementById('feeDescription').value = '';
+        document.getElementById('feeAmount').value = '';
+        document.getElementById('feeDueDate').value = '';
+        document.getElementById('feeCategory').value = '';
+        document.getElementById('feeStatus').checked = true;
+        document.getElementById('toggleLabel').textContent = 'Active';
+    }
+
+    // Close when clicking the dark backdrop
+    document.getElementById('addFeeModal').addEventListener('click', function(e) {
+        if (e.target === this) closeAddFeeModal();
+    });
+
+    // Toggle label
+    document.getElementById('feeStatus').addEventListener('change', function() {
+        document.getElementById('toggleLabel').textContent = this.checked ? 'Active' : 'Inactive';
+    });
+
+    function submitFee() {
+        const name = document.getElementById('feeName').value.trim();
+        const desc = document.getElementById('feeDescription').value.trim();
+        const amount = document.getElementById('feeAmount').value;
+        const due = document.getElementById('feeDueDate').value;
+
+        if (!name || !desc || !amount || !due) {
+            alert('Please fill in all required fields (*).');
+            return;
+        }
+
+        // Format due date for display
+        const dueDateFormatted = new Date(due).toLocaleDateString('en-US', {
+            month: 'short', day: 'numeric', year: 'numeric'
+        });
+
+        const category = document.getElementById('feeCategory').value || 'General';
+        const isActive = document.getElementById('feeStatus').checked;
+
+        // Build the new fee card and append it to the list
+        const list = document.querySelector('.org-fees-list');
+        const article = document.createElement('article');
+        article.className = 'fee-item';
+        article.innerHTML = `
+            <div class="fee-icon"><i class='bx bx-money'></i></div>
+            <div class="fee-info">
+                <div class="fee-name-row">
+                    <span class="fee-name">${name}</span>
+                    <span class="${isActive ? 'badge-active' : 'badge-inactive'}">${isActive ? 'Active' : 'Inactive'}</span>
+                </div>
+                <div class="fee-desc">${desc} | ${category} | Due: ${dueDateFormatted}</div>
+                <div class="progress-row">
+                    <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                    <span class="progress-label">0/342 collected</span>
+                </div>
+            </div>
+            <div class="fee-right">
+                <span class="fee-amount">PHP ${parseFloat(amount).toFixed(2)}</span>
+                <div class="fee-actions">
+                    <button type="button" aria-label="Edit"><i class='bx bx-edit-alt'></i></button>
+                    <button type="button" aria-label="Hide"><i class='bx bx-hide'></i></button>
+                    <button type="button" aria-label="Delete"><i class='bx bx-trash'></i></button>
+                </div>
+            </div>
+        `;
+
+        list.appendChild(article);
+        closeAddFeeModal();
+    }
+</script>
 
 			<div class="summary-cards org-fees-summary">
 				<div class="card org-stat-card">

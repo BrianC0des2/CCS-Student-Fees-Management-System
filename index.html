@@ -4,6 +4,222 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles/login-style.css">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <style>
+        .flp-overlay {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 9999;
+            padding: 16px;
+        }
+
+        .flp-overlay.is-open {
+            display: flex;
+        }
+
+        .flp-card {
+            width: 100%;
+            max-width: 440px;
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            border-radius: 20px;
+            box-shadow: 0 10px 32px rgba(0, 0, 0, 0.12);
+            padding: 24px 20px;
+            animation: flp-pop-in 280ms ease-out;
+        }
+
+        .flp-title-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .flp-title-row i {
+            flex-shrink: 0;
+            font-size: 24px;
+            color: #15803d;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0fdf4;
+            border-radius: 8px;
+        }
+
+        .flp-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1a2420;
+            letter-spacing: 0.01em;
+            margin: 0;
+        }
+
+        .flp-subtitle {
+            color: #6b7280;
+            font-size: 0.92rem;
+            margin-bottom: 18px;
+        }
+
+        .flp-group {
+            margin-bottom: 16px;
+        }
+
+        .flp-group label {
+            display: block;
+            font-size: 13px;
+            color: #1a2420;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .flp-input-wrap {
+            display: flex;
+            align-items: center;
+            background: #ffffff;
+            border: 1px solid #2e7d52;
+            border-radius: 15px;
+            padding: 0 8px 0 12px;
+            transition: border-color 140ms ease, box-shadow 140ms ease;
+        }
+
+        .flp-input-wrap:focus-within {
+            border-color: #2e7d52;
+            box-shadow: 0 0 0 3px rgba(46, 125, 82, 0.08);
+        }
+
+        .flp-input-wrap input {
+            border: 0;
+            outline: 0;
+            width: 100%;
+            height: 40px;
+            font-size: 14px;
+            color: #1a2420;
+            background: transparent;
+        }
+
+        .flp-input-wrap input::placeholder {
+            color: #d1d5db;
+        }
+
+        .flp-toggle {
+            border: 0;
+            background: transparent;
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            color: #6b7280;
+            cursor: pointer;
+            transition: color 120ms ease, background-color 120ms ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .flp-toggle:hover {
+            color: #2e7d52;
+            background: rgba(46, 125, 82, 0.08);
+        }
+
+        .flp-toggle i {
+            font-size: 1.1rem;
+        }
+
+        .flp-requirements {
+            margin-top: 16px;
+            margin-bottom: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .flp-requirement {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #9ca3af;
+            transition: color 160ms ease;
+        }
+
+        .flp-requirement i {
+            flex-shrink: 0;
+            font-size: 1rem;
+            display: none;
+            color: #15803d;
+        }
+
+        .flp-requirement.met {
+            color: #15803d;
+        }
+
+        .flp-requirement.met i {
+            display: inline;
+        }
+
+        .flp-submit {
+            width: 100%;
+            border: 0;
+            border-radius: 20px;
+            padding: 11px 16px;
+            color: #ffffff;
+            background: #2e7d52;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background-color 120ms ease, opacity 120ms ease;
+        }
+
+        .flp-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .flp-submit:not(:disabled):hover {
+            background: #1a5c3a;
+        }
+
+        .flp-submit:not(:disabled):active {
+            background: #1a5c3a;
+        }
+
+        .flp-success {
+            display: none;
+            text-align: center;
+            color: #15803d;
+            margin-top: 12px;
+            font-weight: 600;
+            font-size: 0.92rem;
+        }
+
+        .flp-success i {
+            font-size: 1.1rem;
+            vertical-align: -2px;
+            margin-right: 4px;
+            color: #15803d;
+        }
+
+        .flp-success.show {
+            display: block;
+            animation: flp-fade-up 220ms ease;
+        }
+
+        @keyframes flp-pop-in {
+            from { opacity: 0; transform: translateY(12px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes flp-fade-up {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
     <title>Pay++</title>
 </head>
 <body>
@@ -19,7 +235,29 @@
             <input type="email" name="user-email" id="user-email" placeholder="@wmsu.edu.ph"><br/>
             
             <label class="user-inputs" for="user-password">Password</label>
-            <input type="password" name="user-password" id="user-password" placeholder="password">
+                 <div style="position:relative; width:100%;">
+                <input type="password" name="user-password" 
+                       id="user-password" placeholder="password"
+                      style="width:100%; 
+                          padding-right:44px;
+                          box-sizing:border-box;
+                          display:block;">
+                <button type="button" id="togglePassword"
+                        style="position:absolute;
+                               right:12px;
+                               top:50%;
+                               transform:translateY(-50%);
+                               background:none;
+                               border:none;
+                               cursor:pointer;
+                               color:#2e7d52;
+                               font-size:20px;
+                               display:flex;
+                               align-items:center;
+                               padding:0;">
+                    <i class='bx bx-hide'></i>
+                </button>
+            </div>
             <div id="forgot">
                 <a href="#">Forgot Password?</a><br>
             </div>
@@ -27,9 +265,249 @@
             <input id="submit-btn" type="submit" value="Sign In">
         </form>
     </div>
+
+    <div id="first-login-overlay" class="flp-overlay" aria-hidden="true">
+        <div class="flp-card" role="dialog" aria-modal="true" aria-labelledby="flp-title">
+            <div class="flp-title-row">
+                <i class='bx bx-lock-alt'></i>
+                <h2 id="flp-title" class="flp-title">Change Password</h2>
+            </div>
+            <p class="flp-subtitle">For your security, you must update your password before continuing.</p>
+
+            <form id="first-login-form" novalidate>
+                <div class="flp-group">
+                    <label for="flp-new-password">New Password</label>
+                    <div class="flp-input-wrap">
+                        <input type="password" id="flp-new-password" autocomplete="new-password" required>
+                        <button type="button" class="flp-toggle" data-toggle-for="flp-new-password" aria-label="Show password">
+                            <i class='bx bx-hide'></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flp-group">
+                    <label for="flp-confirm-password">Confirm Password</label>
+                    <div class="flp-input-wrap">
+                        <input type="password" id="flp-confirm-password" autocomplete="new-password" required>
+                        <button type="button" class="flp-toggle" data-toggle-for="flp-confirm-password" aria-label="Show password">
+                            <i class='bx bx-hide'></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flp-requirements">
+                    <div class="flp-requirement" id="flp-req-length">
+                        <i class='bx bx-check'></i>
+                        <span>* At least 8 characters</span>
+                    </div>
+                    <div class="flp-requirement" id="flp-req-number">
+                        <i class='bx bx-check'></i>
+                        <span>* At least one number</span>
+                    </div>
+                    <div class="flp-requirement" id="flp-req-uppercase">
+                        <i class='bx bx-check'></i>
+                        <span>* At least one uppercase letter</span>
+                    </div>
+                </div>
+
+                <button id="flp-submit" class="flp-submit" type="submit" disabled>Save New Password</button>
+                <div id="flp-success" class="flp-success"><i class='bx bx-check-circle'></i>Logging In...</div>
+            </form>
+        </div>
+    </div>
     
     <script src="assets/scripts/sample-accounts.js"></script>
     <script src="assets/scripts/auth.js"></script>
     <script src="assets/scripts/script.js"></script>
+    <script>
+        (function () {
+            function getDashboardPath(user) {
+                if (!user || !user.permissions) return 'pages/student/student-dashboard.html';
+                if (user.permissions.deanView) return 'pages/dean/dean-dashboard.html';
+                if (user.permissions.facultyView) return 'pages/faculty/faculty-dashboard.html';
+                if (user.permissions.adminView) return 'pages/admin/admin-dashboard.html';
+                if (user.permissions.organizationView) return 'pages/organization/organization-dashboard.html';
+                return 'pages/student/student-dashboard.html';
+            }
+
+            function appPath(targetPath) {
+                var isInsidePagesDir = window.location.pathname.indexOf('/pages/') !== -1;
+                if (!isInsidePagesDir) return targetPath;
+                return '../../' + targetPath;
+            }
+
+            function navigateTo(targetPath) {
+                window.location.replace(appPath(targetPath));
+            }
+
+            function validateRequirements(password) {
+                var value = String(password || '');
+                var hasLength = value.length >= 8;
+                var hasNumber = /\d/.test(value);
+                var hasUppercase = /[A-Z]/.test(value);
+
+                var lengthEl = document.getElementById('flp-req-length');
+                var numberEl = document.getElementById('flp-req-number');
+                var uppercaseEl = document.getElementById('flp-req-uppercase');
+
+                if (lengthEl) {
+                    if (hasLength) {
+                        lengthEl.classList.add('met');
+                    } else {
+                        lengthEl.classList.remove('met');
+                    }
+                }
+
+                if (numberEl) {
+                    if (hasNumber) {
+                        numberEl.classList.add('met');
+                    } else {
+                        numberEl.classList.remove('met');
+                    }
+                }
+
+                if (uppercaseEl) {
+                    if (hasUppercase) {
+                        uppercaseEl.classList.add('met');
+                    } else {
+                        uppercaseEl.classList.remove('met');
+                    }
+                }
+
+                return { hasLength: hasLength, hasNumber: hasNumber, hasUppercase: hasUppercase };
+            }
+
+            var loginForm = document.getElementById('login-form');
+            if (!loginForm) return;
+
+            var overlay = document.getElementById('first-login-overlay');
+            var firstLoginForm = document.getElementById('first-login-form');
+            var newPasswordInput = document.getElementById('flp-new-password');
+            var confirmPasswordInput = document.getElementById('flp-confirm-password');
+            var submitButton = document.getElementById('flp-submit');
+            var successMessage = document.getElementById('flp-success');
+
+            function updateValidation() {
+                var newPassword = newPasswordInput.value;
+                var confirmPassword = confirmPasswordInput.value;
+                
+                var requirements = validateRequirements(newPassword);
+                var allRequirementsMet = requirements.hasLength && requirements.hasNumber && requirements.hasUppercase;
+                var passwordsMatch = newPassword && confirmPassword && newPassword === confirmPassword;
+                
+                submitButton.disabled = !(allRequirementsMet && passwordsMatch);
+            }
+
+            function openFirstLoginModal() {
+                overlay.classList.add('is-open');
+                overlay.setAttribute('aria-hidden', 'false');
+                setTimeout(function () {
+                    newPasswordInput.focus();
+                }, 40);
+            }
+
+            loginForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+
+                var emailInput = document.getElementById('user-email');
+                var passwordInput = document.getElementById('user-password');
+                var email = emailInput ? emailInput.value.trim() : '';
+                var password = passwordInput ? passwordInput.value.trim() : '';
+
+                if (!email || !password) {
+                    alert('Please enter both email and password');
+                    return;
+                }
+
+                if (!window.Auth) {
+                    alert('Authentication module failed to load. Please refresh and try again.');
+                    return;
+                }
+
+                var result = window.Auth.login(email, password);
+                if (!result.ok) {
+                    alert(result.message);
+                    return;
+                }
+
+                var user = window.Auth.getUser();
+                var dashboardPath = getDashboardPath(user);
+                var shouldForcePasswordChange = dashboardPath === 'pages/student/student-dashboard.html' && window.Auth.isFirstLogin();
+
+                if (shouldForcePasswordChange) {
+                    openFirstLoginModal();
+                    return;
+                }
+
+                navigateTo(dashboardPath);
+            }, true);
+
+            firstLoginForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                var changeResult = window.Auth.changePassword(newPasswordInput.value);
+                if (!changeResult || !changeResult.ok) {
+                    alert((changeResult && changeResult.message) || 'Unable to change password.');
+                    return;
+                }
+
+                submitButton.disabled = true;
+                successMessage.classList.add('show');
+
+                setTimeout(function () {
+                    navigateTo('pages/student/student-dashboard.html');
+                }, 850);
+            });
+
+            newPasswordInput.addEventListener('input', updateValidation);
+            confirmPasswordInput.addEventListener('input', updateValidation);
+
+            overlay.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                }
+            });
+
+            document.querySelectorAll('.flp-toggle').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var targetId = button.getAttribute('data-toggle-for');
+                    var input = document.getElementById(targetId);
+                    if (!input) return;
+
+                    var icon = button.querySelector('i');
+                    var isHidden = input.type === 'password';
+                    input.type = isHidden ? 'text' : 'password';
+                    button.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+
+                    if (icon) {
+                        icon.className = isHidden ? 'bx bx-show' : 'bx bx-hide';
+                    }
+                });
+            });
+
+            validateRequirements('');
+            updateValidation();
+        })();
+    </script>
+    <script>
+const togglePassword = document.getElementById(
+    'togglePassword'
+);
+const passwordField = document.getElementById(
+    'user-password'
+);
+const toggleIcon = togglePassword.querySelector('i');
+
+togglePassword.addEventListener('click', function() {
+    if (passwordField.type === 'password') {
+        passwordField.type = 'text';
+        toggleIcon.className = 'bx bx-show';
+    } else {
+        passwordField.type = 'password';
+        toggleIcon.className = 'bx bx-hide';
+    }
+});
+</script>
 </body>
 </html>

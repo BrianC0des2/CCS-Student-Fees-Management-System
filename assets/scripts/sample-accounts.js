@@ -5,6 +5,7 @@ window.SAMPLE_ACCOUNTS = [
     studentId: "TY202500100",
     email: "student1@demo.com",
     password: "123456",
+    isFirstLogin: true,
     permissions: {
       studentView: true,
       organizationView: false,
@@ -20,6 +21,7 @@ window.SAMPLE_ACCOUNTS = [
     studentId: "TY202500101",
     email: "studentorg@demo.com",
     password: "123456",
+    isFirstLogin: true,
     permissions: {
       studentView: true,
       organizationView: true,
@@ -34,6 +36,7 @@ window.SAMPLE_ACCOUNTS = [
     studentId: "TY202500102",
     email: "admin@demo.com",
     password: "123456",
+    isFirstLogin: true,
     permissions: {
       studentView: false,
       organizationView: false,
@@ -47,6 +50,7 @@ window.SAMPLE_ACCOUNTS = [
     name: "Dr. Maria Reyes",
     email: "faculty@demo.com",
     password: "123456",
+    isFirstLogin: true,
     assignedSections: ["CS 1-A", "CS 1-B"],
     permissions: {
       studentView: false,
@@ -61,6 +65,7 @@ window.SAMPLE_ACCOUNTS = [
     name: "Dean Carlos Villanueva",
     email: "dean@demo.com",
     password: "123456",
+    isFirstLogin: true,
     assignedSections: [],
     permissions: {
       studentView: false,

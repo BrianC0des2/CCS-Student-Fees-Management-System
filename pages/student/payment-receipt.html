@@ -156,7 +156,7 @@
                 <a href="student-dashboard.html" class="continue-btn full-btn">Back to Dashboard</a>
                 <a href="make-payment.html" class="back-btn full-btn">Make Another Payment</a>
             </div>
-            <p class="receipt-contact-note">Questions about this receipt? Contact us at <a href="mailto:finance@wmsu.edu.ph">finance@wmsu.edu.ph</a></p>
+            <p class="receipt-contact-note">Questions about this receipt? Contact us at <a href="mailto:studentorgwmsu.edu.ph">studentorg@wmsu.edu.ph</a></p>
         </div>
 
     <script src="../../assets/scripts/settings.js"></script>
@@ -180,7 +180,7 @@
         document.getElementById('receipt-total').textContent = '₱' + total;
 
         // Payment method label
-        const methodLabels = { gcash: 'GCash', bank: 'Bank Transfer', card: 'Credit/Debit Card' };
+        const methodLabels = { gcash: 'GCash', paymaya: 'PayMaya', bank: 'Bank Transfer', cash: 'Cash' };
         document.getElementById('receipt-method').textContent = methodLabels[method] || 'GCash';
 
         // Date & time
@@ -193,7 +193,7 @@
         const user = window.Auth ? window.Auth.getUser() : null;
         if (user) {
             document.getElementById('receipt-student-name').textContent = user.name || '—';
-            document.getElementById('receipt-student-id').textContent = user.id || '—';
+            document.getElementById('receipt-student-id').textContent = user.studentId || user.id || '—';
         }
 
         // Clear fees from storage after rendering

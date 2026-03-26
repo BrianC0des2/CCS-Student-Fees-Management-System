@@ -433,6 +433,20 @@ function renderFaculty() {
                 <div class="form-group">
                     <label>School Email *</label>
                     <input id="nf-email" type="email" value="${newFacultyData.email}" placeholder="Auto-generated from Faculty ID">
+                    <label>Last Name *</label>
+                    <input id="nf-lastname" value="${newFacultyData.lastname || ''}" placeholder="e.g. Dela Cruz">
+                </div>
+                <div class="form-group">
+                    <label>First Name *</label>
+                    <input id="nf-firstname" value="${newFacultyData.firstname || ''}" placeholder="e.g. Juan">
+                </div>
+                <div class="form-group">
+                    <label>Middle Initial (Optional)</label>
+                    <input id="nf-mi" value="${newFacultyData.mi || ''}" placeholder="e.g. C">
+                </div>
+                <div class="form-group">
+                    <label>Suffix (Optional)</label>
+                    <input id="nf-suffix" value="${newFacultyData.suffix || ''}" placeholder="e.g. PhD., MIT, Jr.">
                 </div>
                 <div class="form-group">
                     <label>Initial Password</label>
@@ -490,7 +504,10 @@ function renderFaculty() {
                     <button class="form-close-btn" id="close-edit-faculty">${bxi('x')}</button>
                 </div>
                 <div class="form-grid">
-                    <div class="form-group"><label>Full Name</label><input id="ef-name" value="${f.name}"></div>
+                    <div class="form-group"><label>Last Name *</label><input id="ef-lastname" value="${f.name.split(',')[0] || ''}"></div>
+                    <div class="form-group"><label>First Name *</label><input id="ef-firstname" value="${f.name.split(',')[1]?.trim().split(' ')[0] || ''}"></div>
+                    <div class="form-group"><label>Middle Initial (Optional)</label><input id="ef-mi" value="${f.name.split(',')[1]?.trim().split(' ')[1] || ''}"></div>
+                    <div class="form-group"><label>Suffix (Optional)</label><input id="ef-suffix" value="${f.name.split(',')[1]?.trim().split(' ')[2] || ''}"></div>
                     <div class="form-group"><label>Email</label><input id="ef-email" type="email" value="${f.email}"></div>
                     <div class="form-group"><label>Phone</label><input id="ef-phone" value="${f.phone}"></div>
                     <div class="form-group">
@@ -591,13 +608,22 @@ function renderFaculty() {
         document.getElementById('nf-email').value = e.target.value.trim() ? generated : '';
     });
     document.getElementById('save-add-faculty')?.addEventListener('click', () => {
-        const facultyId = document.getElementById('nf-id').value.trim() || ('FAC-' + String(facultyList.length + 1).padStart(3, '0'));
-        const lastName = document.getElementById('nf-last-name').value.trim();
-        const firstName = document.getElementById('nf-first-name').value.trim();
-        const middleName = document.getElementById('nf-middle-name').value.trim();
-        const email = document.getElementById('nf-email').value.trim() || facultyEmailFromId(facultyId);
-        if (!facultyId || !lastName || !firstName || !email) { showToast('Faculty ID, name, and email are required.', true); return; }
-        const name = joinPersonName(lastName, firstName, middleName);
+        const lastname = document.getElementById('nf-lastname').value.trim();
+        const firstname = document.getElementById('nf-firstname').value.trim();
+        const mi = document.getElementById('nf-mi').value.trim();
+        const suffix = document.getElementById('nf-suffix').value.trim();
+        const email = document.getElementById('nf-email').value.trim();
+        if (!lastname || !firstname || !email) {
+            showToast('Last name, first name and email are required.', true);
+            return;
+        }
+        const name = [
+            lastname + ',',
+            firstname,
+            mi ? mi + '.' : '',
+            suffix || ''
+        ].filter(Boolean).join(' ').trim();
+        const id = 'FAC-' + String(facultyList.length + 1).padStart(3, '0');
         facultyList.push({
             id: facultyId, name, email,
             phone:      document.getElementById('nf-phone').value,
@@ -629,7 +655,12 @@ function renderFaculty() {
     document.getElementById('save-edit-faculty')?.addEventListener('click', () => {
         facultyList = facultyList.map(f => f.id !== editingFacultyId ? f : {
             ...f,
-            name:       document.getElementById('ef-name').value,
+            name: [
+                document.getElementById('ef-lastname').value.trim() + ',',
+                document.getElementById('ef-firstname').value.trim(),
+                document.getElementById('ef-mi').value.trim() ? document.getElementById('ef-mi').value.trim() + '.' : '',
+                document.getElementById('ef-suffix').value.trim() || ''
+            ].filter(Boolean).join(' ').trim(),
             email:      document.getElementById('ef-email').value,
             phone:      document.getElementById('ef-phone').value,
             role:       document.getElementById('ef-role').value,
@@ -723,8 +754,20 @@ function renderStudents() {
             </div>
             <div class="form-grid">
                 <div class="form-group">
-                    <label>School Email *</label>
-                    <input id="ns-email" type="email" value="${newStudentData.email}" placeholder="Auto-generated from Student ID">
+                    <label>Last Name *</label>
+                    <input id="ns-lastname" value="${newStudentData.lastname || ''}" placeholder="e.g. Santos">
+                </div>
+                <div class="form-group">
+                    <label>First Name *</label>
+                    <input id="ns-firstname" value="${newStudentData.firstname || ''}" placeholder="e.g. Maria">
+                </div>
+                <div class="form-group">
+                    <label>Middle Initial (Optional)</label>
+                    <input id="ns-mi" value="${newStudentData.mi || ''}" placeholder="e.g. A">
+                </div>
+                <div class="form-group">
+                    <label>Suffix (Optional)</label>
+                    <input id="ns-suffix" value="${newStudentData.suffix || ''}" placeholder="e.g. Jr., III">
                 </div>
                 <div class="form-group">
                     <label>Initial Password</label>
@@ -843,13 +886,22 @@ function renderStudents() {
         document.getElementById('ns-email').value = e.target.value.trim() ? generated : '';
     });
     document.getElementById('save-add-student')?.addEventListener('click', () => {
-        const id = document.getElementById('ns-id').value.trim() || ('2026-' + String(Math.floor(Math.random() * 90000) + 10000));
-        const lastName = document.getElementById('ns-last-name').value.trim();
-        const firstName = document.getElementById('ns-first-name').value.trim();
-        const middleName = document.getElementById('ns-middle-name').value.trim();
-        const email = document.getElementById('ns-email').value.trim() || studentEmailFromId(id);
-        if (!id || !lastName || !firstName || !email) { showToast('Student number, name, and email are required.', true); return; }
-        const name = joinPersonName(lastName, firstName, middleName);
+        const lastname = document.getElementById('ns-lastname').value.trim();
+        const firstname = document.getElementById('ns-firstname').value.trim();
+        const mi = document.getElementById('ns-mi').value.trim();
+        const suffix = document.getElementById('ns-suffix').value.trim();
+        const email = document.getElementById('ns-email').value.trim();
+        if (!lastname || !firstname || !email) {
+            showToast('Last name, first name and email are required.', true);
+            return;
+        }
+        const name = [
+            lastname + ',',
+            firstname,
+            mi ? mi + '.' : '',
+            suffix || ''
+        ].filter(Boolean).join(' ').trim();
+        const id = '2026-' + String(Math.floor(Math.random() * 90000) + 10000);
         studentList.push({
             id, name, email,
             course: document.getElementById('ns-course').value,
@@ -1103,6 +1155,7 @@ function renderPermissions() {
 
 /* ── FEES ─────────────────────── */
 let editingFeeId = null;
+let showAddFeeModal = false;
 
 function renderFees() {
     const el = document.getElementById('tab-fees');
@@ -1119,6 +1172,80 @@ function renderFees() {
                 ${bxi('plus')} Add Fee
             </button>
         </div>
+
+        ${showAddFeeModal ? `
+        <div class="admin-fee-modal-overlay active" id="add-fee-modal">
+            <div class="admin-fee-modal-container">
+                <div class="admin-fee-modal-header">
+                    <div>
+                        <h3>Add New Fee</h3>
+                        <p>Fill in the details for the new organization fee</p>
+                    </div>
+                    <button class="admin-fee-modal-close" type="button" id="close-add-fee-modal" aria-label="Close add fee form">
+                        ${bxi('x')}
+                    </button>
+                </div>
+
+                <div class="admin-fee-modal-body">
+                    <div class="admin-fee-form-group">
+                        <label for="nf-fee-name">Fee Name <span class="admin-fee-required">*</span></label>
+                        <input type="text" id="nf-fee-name" placeholder="e.g. CSC Fee" />
+                    </div>
+                    <div class="admin-fee-form-group">
+                        <label for="nf-fee-desc">Description <span class="admin-fee-required">*</span></label>
+                        <input type="text" id="nf-fee-desc" placeholder="e.g. College Student Council Fee" />
+                    </div>
+
+                    <div class="admin-fee-form-row">
+                        <div class="admin-fee-form-group">
+                            <label for="nf-fee-amount">Amount (PHP) <span class="admin-fee-required">*</span></label>
+                            <div class="admin-fee-input-prefix">
+                                <span>₱</span>
+                                <input type="number" id="nf-fee-amount" placeholder="0.00" min="0" step="0.01" />
+                            </div>
+                        </div>
+                        <div class="admin-fee-form-group">
+                            <label for="nf-fee-due">Due Date <span class="admin-fee-required">*</span></label>
+                            <input type="date" id="nf-fee-due" />
+                        </div>
+                    </div>
+
+                    <div class="admin-fee-form-group">
+                        <label for="nf-fee-category">Assigned To / Category</label>
+                        <select id="nf-fee-category">
+                            <option value="">Select category...</option>
+                            <option value="CCS Student Council">CCS Student Council</option>
+                            <option value="CCS Faculty">CCS Faculty</option>
+                            <option value="Insurance">Insurance</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="admin-fee-form-group">
+                        <label>Status</label>
+                        <div class="admin-fee-toggle-group">
+                            <label class="admin-fee-toggle">
+                                <input type="checkbox" id="nf-fee-status" checked />
+                                <span class="admin-fee-toggle-slider"></span>
+                            </label>
+                            <span class="admin-fee-status-label" id="nf-fee-status-label">Active</span>
+                        </div>
+                    </div>
+
+                    <div class="admin-fee-note">
+                        ${bxi('info-circle')}
+                        This fee will appear on every student's dashboard as an unpaid item to settle.
+                    </div>
+                </div>
+
+                <div class="admin-fee-modal-footer">
+                    <button class="btn btn-outline" type="button" id="cancel-add-fee-modal">Cancel</button>
+                    <button class="btn btn-green" type="button" id="submit-add-fee">${bxi('plus')} Add Fee</button>
+                </div>
+            </div>
+        </div>
+        ` : ''}
+
         <div id="fee-list">
             ${feeList.map(f => `
             <div class="fee-card" data-fee-id="${f.id}">
@@ -1163,11 +1290,69 @@ function renderFees() {
     `;
 
     document.getElementById('add-fee-btn')?.addEventListener('click', () => {
-        const newFee = { id: 'fee-' + Date.now(), name: 'New Fee', amount: 0, description: '', dueDate: 'Mar 15, 2026', status: 'active' };
-        feeList.push(newFee);
-        editingFeeId = newFee.id;
+        showAddFeeModal = true;
+        editingFeeId = null;
         renderFees();
     });
+
+    const addFeeModal = document.getElementById('add-fee-modal');
+    const closeAddFeeModal = () => {
+        showAddFeeModal = false;
+        renderFees();
+    };
+
+    document.getElementById('close-add-fee-modal')?.addEventListener('click', closeAddFeeModal);
+    document.getElementById('cancel-add-fee-modal')?.addEventListener('click', closeAddFeeModal);
+
+    addFeeModal?.addEventListener('click', e => {
+        if (e.target === addFeeModal) closeAddFeeModal();
+    });
+
+    document.getElementById('nf-fee-status')?.addEventListener('change', e => {
+        const label = document.getElementById('nf-fee-status-label');
+        if (label) label.textContent = e.target.checked ? 'Active' : 'Inactive';
+    });
+
+    document.getElementById('submit-add-fee')?.addEventListener('click', () => {
+        const nameInput = document.getElementById('nf-fee-name');
+        const descInput = document.getElementById('nf-fee-desc');
+        const amountInput = document.getElementById('nf-fee-amount');
+        const dueInput = document.getElementById('nf-fee-due');
+        const categoryInput = document.getElementById('nf-fee-category');
+        const statusInput = document.getElementById('nf-fee-status');
+
+        const name = nameInput?.value.trim() || '';
+        const desc = descInput?.value.trim() || '';
+        const amount = parseFloat(amountInput?.value || '0');
+        const dueRaw = dueInput?.value || '';
+
+        if (!name || !desc || !dueRaw || amount <= 0) {
+            showToast('Please fill in all required fields with valid values.', true);
+            return;
+        }
+
+        const dueDate = new Date(dueRaw + 'T00:00:00');
+        const dueDateFormatted = dueDate.toLocaleDateString('en-US', {
+            month: 'short', day: 'numeric', year: 'numeric',
+        });
+
+        const category = categoryInput?.value || '';
+        const fullDesc = category ? `${desc} | ${category}` : desc;
+
+        feeList.push({
+            id: 'fee-' + Date.now(),
+            name,
+            amount,
+            description: fullDesc,
+            dueDate: dueDateFormatted,
+            status: statusInput?.checked ? 'active' : 'inactive',
+        });
+
+        showAddFeeModal = false;
+        showToast('Fee added successfully.');
+        renderFees();
+    });
+
     el.querySelectorAll('.fee-edit-btn').forEach(b => b.addEventListener('click', () => {
         editingFeeId = b.dataset.id; renderFees();
     }));

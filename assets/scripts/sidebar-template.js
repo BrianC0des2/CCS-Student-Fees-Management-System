@@ -3,7 +3,7 @@ const sidebarHTML = `
 <div class="sidebar">
     <a href="organization-dashboard.html" style="text-decoration: none;">
         <div class="logo-details">
-            <i class='bx bxl-c-plus-plus'></i>
+            <img src="../../assets/images/pyt.png" alt="Pay++ Logo" class="sidebar-logo-img">
             <span class="logo_name">Pay++</span>
         </div>
     </a>
@@ -28,7 +28,7 @@ const sidebarHTML = `
             </div>
             <ul class="sub-menu">
             <li><a class="link_name" href="#">Payments</a></li>
-             <li><a href="../organization/add-payment.html">Org Fees</a></li>
+             <li><a href="../organization/add-payment.html">Manage Fees</a></li>
             <li><a href="../organization/payment-history.html">Payment History</a></li>     
             </ul>
         </li>
@@ -154,20 +154,61 @@ function applyRoleBasedSidebarAccess() {
         );
         const myStudentsLi = document.createElement('li');
         myStudentsLi.innerHTML = `
-            <li>
-                <a href="../faculty/students.html">
-                    <i class='bx bx-group'></i>
-                    <span class="link_name">My Students</span>
-                </a>
-                <ul class="sub-menu blank">
-                    <li><a class="link_name" 
-                           href="../faculty/students.html">
-                        My Students
-                    </a></li>
-                </ul>
-            </li>
+            <a id="myStudentsSidebarLink" href="../faculty/students.html">
+                <i class='bx bx-group'></i>
+                <span class="link_name">My Students</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" 
+                       href="../faculty/students.html">
+                    My Students
+                </a></li>
+            </ul>
         `;
         dashLi.insertAdjacentElement('afterend', myStudentsLi);
+    }
+
+    if (isFacultyOnly) {
+        const myStudentsLi = document.getElementById(
+            'myStudentsSidebarLink'
+        ).closest('li');
+        const historyLi = document.createElement('li');
+        historyLi.innerHTML = `
+            <a href="../faculty/clearance-history.html">
+                <i class='bx bx-history'></i>
+                <span class="link_name">History</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" 
+                       href="../faculty/clearance-history.html">
+                    History
+                </a></li>
+            </ul>
+        `;
+        myStudentsLi.insertAdjacentElement(
+            'afterend', historyLi
+        );
+    }
+
+    const isDeanOnly = hasDeanView && !hasFacultyView;
+    if (isDeanOnly) {
+        const dashLi = document.querySelector(
+            '.nav-links > li:first-child'
+        );
+        const deanHistoryLi = document.createElement('li');
+        deanHistoryLi.innerHTML = `
+            <a href="../dean/clearance-history.html">
+                <i class='bx bx-history'></i>
+                <span class="link_name">History</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" 
+                       href="../dean/clearance-history.html">
+                    History
+                </a></li>
+            </ul>
+        `;
+        dashLi.insertAdjacentElement('afterend', deanHistoryLi);
     }
 }
 

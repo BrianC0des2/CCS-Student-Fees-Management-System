@@ -1,3 +1,4 @@
+@import url('../theme.css');
 
 .header{
     margin: 20px;
@@ -45,7 +46,6 @@
     display: flex;
     flex-direction: row;
     margin:13px 20px 0 auto;
-
 }
 
 .completed{
@@ -53,7 +53,7 @@
     padding-right: 30px;
     margin-right: 30px;
     height: 75px;
-} 
+}
 .pending
 {
     margin-right: 10px;
@@ -170,7 +170,7 @@
 }
 
 #pay-btn:hover{
-    background-color: #006832;
+    background-color: var(--brand-700);
 }
 
 .payments-history{
@@ -327,7 +327,7 @@
     font-size: 12px;
     font-weight: 600;
     color: var(--color-primary);
-    background-color: #e8fef0;
+    background-color: var(--brand-50);
     border: 1px solid var(--color-primary);
     display: flex;
     align-items: center;
@@ -342,9 +342,9 @@
     border-radius: 999px;
     font-size: 12px;
     font-weight: 600;
-    color: #9a6700;
-    background-color: #fff3cd;
-    border: 1px solid #ffe69c;
+    color: var(--accent-amber-700);
+    background-color: var(--accent-amber-50);
+    border: 1px solid var(--accent-amber-100);
     display: flex;
     align-items: center;
     gap: 5px;
@@ -352,7 +352,7 @@
 }
 
 .personels:has(.cleared) {
-    background-color: #e8fef0;
+    background-color: var(--brand-50);
     border-color: var(--color-primary);
 }
 

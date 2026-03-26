@@ -1,0 +1,39 @@
+:root {
+    --brand-900: #0f3d28;
+    --brand-800: #14532d;
+    --brand-700: #166534;
+    --brand-600: #15803d;
+    --brand-500: #16a34a;
+    --brand-450: #2e7d52;
+    --brand-400: #4ade80;
+    --brand-100: #dcfce7;
+    --brand-50: #f0fdf4;
+
+    --accent-blue-700: #1d4ed8;
+    --accent-blue-600: #2563eb;
+    --accent-blue-100: #dbeafe;
+    --accent-blue-50: #eff6ff;
+
+    --accent-amber-700: #b45309;
+    --accent-amber-600: #d97706;
+    --accent-amber-100: #fde68a;
+    --accent-amber-50: #fef3c7;
+
+    --danger-700: #b91c1c;
+    --danger-600: #dc2626;
+    --danger-100: #fecaca;
+    --danger-50: #fef2f2;
+
+    --sys-page-bg: #f9fafb;
+    --sys-surface: #ffffff;
+    --sys-surface-muted: #f3f4f6;
+    --sys-border: #e5e7eb;
+    --sys-text-900: #111827;
+    --sys-text-700: #374151;
+    --sys-text-600: #4b5563;
+    --sys-text-500: #6b7280;
+    --sys-text-400: #9ca3af;
+
+    --brand-rgb: 22, 163, 74;
+    --text-rgb: 17, 24, 39;
+}

@@ -334,6 +334,7 @@
                                placeholder="Auto-generated from Student ID">
                     </div>
                     <div class="form-group">
+<<<<<<< HEAD
                         <label>Initial Password</label>
                         <input type="text" id="nsPassword" 
                                value="123456" 
@@ -345,6 +346,38 @@
                         <label>Last Name *</label>
                         <input type="text" id="nsName" 
                                placeholder="Last Name">
+=======
+                        <label>Last Name *</label>
+                        <input type="text" id="nsLastName" 
+                               placeholder="e.g. Santos">
+                    </div>
+                    <div class="form-group">
+                        <label>First Name *</label>
+                        <input type="text" id="nsFirstName" 
+                               placeholder="e.g. Maria">
+                    </div>
+                    <div class="form-group">
+                        <label>Middle Initial (Optional)</label>
+                        <input type="text" id="nsMi" 
+                               placeholder="e.g. A">
+                    </div>
+                    <div class="form-group">
+                        <label>Suffix (Optional)</label>
+                        <input type="text" id="nsSuffix" 
+                               placeholder="e.g. Jr., III">
+                    </div>
+                    <div class="form-group">
+                        <label>Student No. *</label>
+                        <input type="text" id="nsStudentNo" 
+                               placeholder="e.g. 2025-1101">
+                    </div>
+                    <div class="form-group">
+                        <label>Course</label>
+                        <select id="nsCourse">
+                            <option>BS Computer Science</option>
+                            <option>BS Information Technology</option>
+                        </select>
+>>>>>>> ak47
                     </div>
                     <div class="form-group">
                         <label>Year Level</label>
@@ -377,8 +410,8 @@
                      <div class="form-group">
                         <label>Section</label>
                         <select id="nsSection">
-                            <option>CS 1-A</option>
-                            <option>CS 1-B</option>
+                            <option>CS A</option>
+                            <option>CS B</option>
                         </select>
                     </div>
                     
@@ -403,11 +436,55 @@
             </div>
 
             <!-- Search and section filter -->
-            <div class="filters-row">
-                <div class="search-wrap">
-                    <i class='bx bx-search search-icon'></i>
-                    <input type="text" id="studentSearchInput"
-                           placeholder="Search by name or student no.">
+            <div class="faculty-search-filter" 
+                 style="margin-bottom:16px;">
+                <input type="text" 
+                       id="studentSearchInput"
+                       placeholder="Search by name or student no.">
+                <button id="studentSearchBtn">Search</button>
+                <div class="filters-container">
+                    <button id="studentFiltersBtn" 
+                            class="filters-btn" type="button">
+                        <i class='bx bx-sort-alt-2'></i>
+                        Filters
+                    </button>
+                    <div id="studentFiltersPopover" 
+                         class="filters-popover">
+                        <div class="filters-grid">
+                            <div class="filter-group">
+                                <label>Year Level</label>
+                                <select id="studentFilterYear">
+                                    <option value="">All</option>
+                                    <option value="1st Year">1st Year</option>
+                                    <option value="2nd Year">2nd Year</option>
+                                    <option value="3rd Year">3rd Year</option>
+                                    <option value="4th Year">4th Year</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label>Course</label>
+                                <select id="studentFilterCourse">
+                                    <option value="">All</option>
+                                    <option value="BS Computer Science">BS Computer Science</option>
+                                    <option value="BS Information Technology">BS Information Technology</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label>Section</label>
+                                <select id="studentFilterSection">
+                                    <option value="">All</option>
+                                    <option value="CS 1-A">CS 1-A</option>
+                                    <option value="CS 1-B">CS 1-B</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="filter-actions">
+                            <button id="studentResetFilters" 
+                                    class="reset-btn" type="button">Reset</button>
+                            <button id="studentApplyFilters" 
+                                    class="apply-btn" type="button">Apply</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -484,6 +561,9 @@
 
         let activeSection = 'all';
         let searchTerm = '';
+        let activeYearFilter = '';
+        let activeCourseFilter = '';
+        let activeSectionFilter = '';
         let deleteConfirmId = null;
 
         function getInitials(name) {
@@ -535,7 +615,15 @@
                     s.name.toLowerCase()
                         .includes(searchTerm.toLowerCase()) ||
                     s.id.includes(searchTerm);
-                return matchSection && matchSearch;
+                const matchYear = !activeYearFilter ||
+                    s.year === activeYearFilter;
+                const matchCourse = !activeCourseFilter ||
+                    s.course === activeCourseFilter;
+                const matchFilterSection = !activeSectionFilter ||
+                    s.section === activeSectionFilter;
+                return matchSection && matchSearch &&
+                    matchYear && matchCourse &&
+                    matchFilterSection;
             });
 
             if (filtered.length === 0) {
@@ -659,17 +747,31 @@
         // Save student
         document.getElementById('saveAddStudent')
             .addEventListener('click', () => {
-            const name = document.getElementById('nsName')
+            const lastname = document.getElementById('nsLastName')
+                .value.trim();
+            const firstname = document.getElementById('nsFirstName')
+                .value.trim();
+            const mi = document.getElementById('nsMi')
+                .value.trim();
+            const suffix = document.getElementById('nsSuffix')
                 .value.trim();
             const studentNo = document.getElementById('nsStudentNo')
                 .value.trim();
             const email = document.getElementById('nsEmail')
                 .value.trim();
 
-            if (!name || !studentNo || !email) {
-                alert('Full name, student number, and email are required.');
+            if (!lastname || !firstname || !studentNo || !email) {
+                alert('Last name, first name, student number, and email are required.');
                 return;
             }
+
+            const name = [
+                lastname + ',',
+                firstname,
+                mi ? mi + '.' : '',
+                suffix || ''
+            ].filter(Boolean).join(' ').trim();
+
             const exists = myStudents.find(s => s.id === studentNo);
             if (exists) {
                 alert('Student number already exists.');
@@ -692,7 +794,10 @@
             });
 
             // Reset form
-            document.getElementById('nsName').value = '';
+            document.getElementById('nsLastName').value = '';
+            document.getElementById('nsFirstName').value = '';
+            document.getElementById('nsMi').value = '';
+            document.getElementById('nsSuffix').value = '';
             document.getElementById('nsStudentNo').value = '';
             document.getElementById('nsEmail').value = '';
             document.getElementById('addStudentForm')
@@ -704,6 +809,60 @@
         document.getElementById('studentSearchInput')
             .addEventListener('input', function() {
             searchTerm = this.value;
+            renderStudents();
+        });
+
+        document.getElementById('studentSearchBtn')
+            .addEventListener('click', function() {
+            searchTerm = document.getElementById(
+                'studentSearchInput'
+            ).value;
+            renderStudents();
+        });
+
+        const studentFiltersBtn = document.getElementById(
+            'studentFiltersBtn'
+        );
+        const studentFiltersPopover = document.getElementById(
+            'studentFiltersPopover'
+        );
+
+        studentFiltersBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            studentFiltersPopover.classList.toggle('show');
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!studentFiltersBtn.contains(e.target) &&
+                !studentFiltersPopover.contains(e.target)) {
+                studentFiltersPopover.classList.remove('show');
+            }
+        });
+
+        document.getElementById('studentApplyFilters')
+            .addEventListener('click', function() {
+            activeYearFilter = document.getElementById(
+                'studentFilterYear'
+            ).value;
+            activeCourseFilter = document.getElementById(
+                'studentFilterCourse'
+            ).value;
+            activeSectionFilter = document.getElementById(
+                'studentFilterSection'
+            ).value;
+            studentFiltersPopover.classList.remove('show');
+            renderStudents();
+        });
+
+        document.getElementById('studentResetFilters')
+            .addEventListener('click', function() {
+            activeYearFilter = '';
+            activeCourseFilter = '';
+            activeSectionFilter = '';
+            document.getElementById('studentFilterYear').value = '';
+            document.getElementById('studentFilterCourse').value = '';
+            document.getElementById('studentFilterSection').value = '';
+            studentFiltersPopover.classList.remove('show');
             renderStudents();
         });
 

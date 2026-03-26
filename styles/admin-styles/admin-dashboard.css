@@ -1,54 +1,55 @@
 /* Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('../theme.css');
 
 /* ══════════════════════════════════════
    CSS CUSTOM PROPERTIES
 ══════════════════════════════════════ */
 :root {
-    --green:           #16a34a;
-    --green-dark:      #15803d;
-    --green-darker:    #14532d;
-    --green-light:     #dcfce7;
-    --green-bg:        #f0fdf4;
+    --green:           #2e7d52;
+    --green-dark:      #1a5c3a;
+    --green-darker:    var(--brand-800);
+    --green-light:     var(--brand-100);
+    --green-bg:        var(--brand-50);
     --green-border:    #bbf7d0;
     --green-border2:   #86efac;
-    --blue:            #2563eb;
-    --blue-dark:       #1d4ed8;
-    --blue-light:      #eff6ff;
-    --blue-border:     #bfdbfe;
-    --blue-text:       #1e40af;
-    --blue-dark-text:  #1e3a5f;
-    --amber:           #d97706;
-    --amber-light:     #fef3c7;
-    --amber-border:    #fde68a;
-    --amber-dark:      #b45309;
-    --amber-text:      #92400e;
-    --red:             #dc2626;
-    --red-dark:        #b91c1c;
+    --blue:            var(--brand-600);
+    --blue-dark:       var(--brand-700);
+    --blue-light:      var(--brand-50);
+    --blue-border:     var(--green-border);
+    --blue-text:       var(--brand-800);
+    --blue-dark-text:  var(--brand-900);
+    --amber:           var(--brand-600);
+    --amber-light:     var(--brand-50);
+    --amber-border:    var(--green-border);
+    --amber-dark:      var(--brand-700);
+    --amber-text:      var(--brand-800);
+    --red:             var(--danger-600);
+    --red-dark:        var(--danger-700);
     --red-darker:      #991b1b;
-    --red-light:       #fef2f2;
-    --red-border:      #fecaca;
+    --red-light:       var(--danger-50);
+    --red-border:      var(--danger-100);
     --red-mid:         #fee2e2;
     --red-subtle:      #fca5a5;
-    --purple:          #9333ea;
-    --purple-dark:     #7c3aed;
-    --purple-light:    #f5f3ff;
-    --purple-border:   #e9d5ff;
-    --indigo:          #4f46e5;
-    --indigo-dark:     #4338ca;
-    --indigo-light:    #e0e7ff;
+    --purple:          var(--brand-600);
+    --purple-dark:     var(--brand-700);
+    --purple-light:    var(--brand-50);
+    --purple-border:   var(--green-border);
+    --indigo:          var(--brand-600);
+    --indigo-dark:     var(--brand-700);
+    --indigo-light:    var(--brand-50);
     --emerald:         #059669;
-    --page-bg:         #f9fafb;
-    --card-bg:         #ffffff;
-    --border:          #e5e7eb;
-    --border-inner:    #f3f4f6;
-    --bg-muted:        #f9fafb;
-    --bg-hover:        #f3f4f6;
-    --text-primary:    #111827;
-    --text-secondary:  #6b7280;
-    --text-muted:      #9ca3af;
-    --text-dark:       #374151;
-    --text-medium:     #4b5563;
+    --page-bg:         var(--sys-page-bg);
+    --card-bg:         var(--sys-surface);
+    --border:          var(--sys-border);
+    --border-inner:    var(--sys-surface-muted);
+    --bg-muted:        var(--sys-page-bg);
+    --bg-hover:        var(--sys-surface-muted);
+    --text-primary:    var(--sys-text-900);
+    --text-secondary:  var(--sys-text-500);
+    --text-muted:      var(--sys-text-400);
+    --text-dark:       var(--sys-text-700);
+    --text-medium:     var(--sys-text-600);
     --sidebar-width:   288px;
 }
 
@@ -496,7 +497,7 @@ select.filter-select:focus {
 }
 .mem-av--active    { background: var(--green); }
 .mem-av--inactive  { background: var(--text-muted); }
-.mem-av--suspended { background: #f87171; }
+.mem-av--suspended { background: var(--red); }
 
 .member-info {
     flex: 1;
@@ -569,7 +570,7 @@ select.filter-select:focus {
     font-weight: 500;
 }
 .badge-green  { background: var(--green-light); color: var(--green-dark); }
-.badge-blue   { background: #dbeafe; color: var(--blue-dark); }
+.badge-blue   { background: var(--blue-light); color: var(--blue-dark); }
 .badge-amber  { background: var(--amber-light); color: var(--amber-dark); }
 .badge-red    { background: var(--red-mid); color: var(--red-dark); }
 .badge-gray   { background: var(--bg-hover); color: var(--text-secondary); }
@@ -979,6 +980,230 @@ select.filter-select:focus {
     font-size: 20px;
     font-weight: 700;
     color: var(--green-dark);
+}
+
+/* ══════════════════════════════════════
+   ADD FEE MODAL
+══════════════════════════════════════ */
+.admin-fee-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 1100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+}
+
+.admin-fee-modal-overlay.active {
+    display: flex;
+}
+
+.admin-fee-modal-container {
+    background: white;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 500px;
+    margin: 1rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.admin-fee-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px 20px 0;
+}
+
+.admin-fee-modal-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 3px;
+}
+
+.admin-fee-modal-header p {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.admin-fee-modal-close {
+    background: var(--page-bg);
+    border: none;
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--text-secondary);
+}
+
+.admin-fee-modal-close:hover {
+    background: var(--border);
+}
+
+.admin-fee-modal-body {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.admin-fee-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.admin-fee-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.admin-fee-form-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.admin-fee-required {
+    color: var(--red);
+}
+
+.admin-fee-form-group input,
+.admin-fee-form-group select {
+    padding: 9px 11px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text-primary);
+    outline: none;
+    background: var(--page-bg);
+    font-family: inherit;
+}
+
+.admin-fee-form-group input:focus,
+.admin-fee-form-group select:focus {
+    border-color: var(--green);
+    background: white;
+}
+
+.admin-fee-input-prefix {
+    display: flex;
+    align-items: center;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--page-bg);
+    overflow: hidden;
+}
+
+.admin-fee-input-prefix:focus-within {
+    border-color: var(--green);
+    background: white;
+}
+
+.admin-fee-input-prefix span {
+    padding: 9px 6px 9px 11px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.admin-fee-input-prefix input {
+    border: none;
+    background: transparent;
+    flex: 1;
+    padding: 9px 11px 9px 0;
+}
+
+.admin-fee-input-prefix input:focus {
+    border: none;
+    background: transparent;
+}
+
+.admin-fee-toggle-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 0;
+}
+
+.admin-fee-toggle {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+    flex-shrink: 0;
+}
+
+.admin-fee-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.admin-fee-toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: var(--border);
+    border-radius: 22px;
+    cursor: pointer;
+}
+
+.admin-fee-toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 3px;
+    top: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.25s;
+}
+
+.admin-fee-toggle input:checked + .admin-fee-toggle-slider {
+    background: var(--green);
+}
+
+.admin-fee-toggle input:checked + .admin-fee-toggle-slider::before {
+    transform: translateX(18px);
+}
+
+.admin-fee-status-label {
+    font-size: 13px;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.admin-fee-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: var(--green-light);
+    border: 1px solid var(--green-border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 12px;
+    color: var(--green-dark);
+}
+
+.admin-fee-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 14px 20px 20px;
+    border-top: 1px solid var(--border);
+}
+
+@media (max-width: 480px) {
+    .admin-fee-form-row {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* ══════════════════════════════════════

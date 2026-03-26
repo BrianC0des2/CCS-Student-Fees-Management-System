@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <title>CCS PAY++ - Clearance History</title>
+    <link rel="stylesheet" href="../../styles/sidebar.css">
+    <link rel="stylesheet" href="../../styles/faculty-styles/faculty-dashboard.css">
+    <link href="https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../styles/settings.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div id="sidebar-container"></div>
+
+    <section class="home-section faculty-home">
+        <div class="home-content">
+            <div>
+                <i class='bx bx-menu'></i>
+                <span class="text">Clearance History</span>
+            </div>
+            <div class="org-header-card">
+                <a href="../faculty/faculty-dashboard.html">
+                    <img src="../../assets/images/org-ccs.png" class="org-header-logo" alt="org-logo">
+                    <div>
+                        <div class="org-header-name">College of Computing Studies</div>
+                        <div class="org-header-sub" id="orgYearSem"></div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="faculty-search-filter"
+             style="margin-bottom:16px;">
+            <input type="text" id="searchInput"
+                   placeholder="Search by name or student no.">
+            <button id="searchBtn">Search</button>
+            <div class="filters-container">
+                <button id="filtersBtn" class="filters-btn">
+                    <i class='bx bx-sort-alt-2'></i>
+                    Filters
+                </button>
+                <div id="filtersPopover" class="filters-popover">
+                    <div class="filters-grid">
+                        <div class="filter-group">
+                            <label>School Year</label>
+                            <select id="schoolYear">
+                                <option value="">All</option>
+                                <option value="2025-2026">2025-2026</option>
+                                <option value="2024-2025">2024-2025</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Course</label>
+                            <select id="course">
+                                <option value="">All</option>
+                                <option value="BSCS">BSCS</option>
+                                <option value="BSIT">BSIT</option>
+                                <option value="ACT-AD">ACT-AD</option>
+                                <option value="ACT-NET">ACT-NET</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Section</label>
+                            <select id="section">
+                                <option value="">All</option>
+                                <option value="CS 1-A">CS 1-A</option>
+                                <option value="CS 1-B">CS 1-B</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Semester</label>
+                            <select id="semester">
+                                <option value="">All</option>
+                                <option value="1st Semester">
+                                    1st Semester
+                                </option>
+                                <option value="2nd Semester">
+                                    2nd Semester
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="filter-actions">
+                        <button id="resetFilters" 
+                                class="reset-btn">Reset</button>
+                        <button id="applyFilters" 
+                                class="apply-btn">Apply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="members-table">
+            <div class="table-header"
+                 style="display:flex; justify-content:space-between; align-items:center;">
+                <h2>Clearance History</h2>
+                <button class="export-btn">
+                    Export History
+                </button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student No.</th>
+                            <th>Name</th>
+                            <th>Section</th>
+                            <th>School Year</th>
+                            <th>Semester</th>
+                            <th>Date Signed</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2025-1101</td>
+                            <td>Maria Santos</td>
+                            <td>CS 1-A</td>
+                            <td>2025-2026</td>
+                            <td>2nd Semester</td>
+                            <td>Mar 10, 2026</td>
+                            <td><span class="status-badge badge-signed">Signed</span></td>
+                        </tr>
+                        <tr>
+                            <td>2025-1102</td>
+                            <td>John Dela Cruz</td>
+                            <td>CS 1-A</td>
+                            <td>2025-2026</td>
+                            <td>2nd Semester</td>
+                            <td>Mar 10, 2026</td>
+                            <td><span class="status-badge badge-signed">Signed</span></td>
+                        </tr>
+                        <tr>
+                            <td>2025-1103</td>
+                            <td>Ana Reyes</td>
+                            <td>CS 1-B</td>
+                            <td>2025-2026</td>
+                            <td>2nd Semester</td>
+                            <td>Mar 11, 2026</td>
+                            <td><span class="status-badge badge-signed">Signed</span></td>
+                        </tr>
+                        <tr>
+                            <td>2025-1104</td>
+                            <td>Carlos Mendoza</td>
+                            <td>CS 1-B</td>
+                            <td>2025-2026</td>
+                            <td>2nd Semester</td>
+                            <td>&mdash;</td>
+                            <td><span class="status-badge badge-pending-clearance">Pending</span></td>
+                        </tr>
+                        <tr>
+                            <td>2025-1105</td>
+                            <td>Liza Tan</td>
+                            <td>CS 1-A</td>
+                            <td>2025-2026</td>
+                            <td>2nd Semester</td>
+                            <td>&mdash;</td>
+                            <td><span class="status-badge badge-pending-clearance">Pending</span></td>
+                        </tr>
+                        <tr>
+                            <td>2025-1101</td>
+                            <td>Maria Santos</td>
+                            <td>CS 1-A</td>
+                            <td>2025-2026</td>
+                            <td>1st Semester</td>
+                            <td>Oct 10, 2025</td>
+                            <td><span class="status-badge badge-signed">Signed</span></td>
+                        </tr>
+                        <tr>
+                            <td>2025-1102</td>
+                            <td>John Dela Cruz</td>
+                            <td>CS 1-A</td>
+                            <td>2025-2026</td>
+                            <td>1st Semester</td>
+                            <td>Oct 10, 2025</td>
+                            <td><span class="status-badge badge-signed">Signed</span></td>
+                        </tr>
+                        <tr>
+                            <td>2025-1103</td>
+                            <td>Ana Reyes</td>
+                            <td>CS 1-B</td>
+                            <td>2025-2026</td>
+                            <td>1st Semester</td>
+                            <td>Oct 11, 2025</td>
+                            <td><span class="status-badge badge-signed">Signed</span></td>
+                        </tr>
+                        <tr>
+                            <td>2024-1101</td>
+                            <td>Maria Santos</td>
+                            <td>CS 1-A</td>
+                            <td>2024-2025</td>
+                            <td>2nd Semester</td>
+                            <td>Mar 8, 2025</td>
+                            <td><span class="status-badge badge-signed">Signed</span></td>
+                        </tr>
+                        <tr>
+                            <td>2024-1102</td>
+                            <td>John Dela Cruz</td>
+                            <td>CS 1-A</td>
+                            <td>2024-2025</td>
+                            <td>2nd Semester</td>
+                            <td>Mar 8, 2025</td>
+                            <td><span class="status-badge badge-signed">Signed</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <script src="../../assets/scripts/settings.js"></script>
+    <script src="../../assets/scripts/sample-accounts.js"></script>
+    <script src="../../assets/scripts/auth.js"></script>
+    <script src="../../assets/scripts/sidebar-template.js"></script>
+    <script src="../../assets/scripts/script.js"></script>
+    <script>
+// Filters toggle
+const filtersBtn = document.getElementById('filtersBtn');
+const filtersPopover = document.getElementById('filtersPopover');
+
+filtersBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    filtersPopover.classList.toggle('show');
+});
+
+document.addEventListener('click', function(e) {
+    if (!filtersBtn.contains(e.target) && 
+        !filtersPopover.contains(e.target)) {
+        filtersPopover.classList.remove('show');
+    }
+});
+
+// Reset filters
+document.getElementById('resetFilters')
+    .addEventListener('click', function() {
+    document.getElementById('course').value = '';
+    document.getElementById('section').value = '';
+    document.getElementById('schoolYear').value = '';
+    document.getElementById('semester').value = '';
+    filtersPopover.classList.remove('show');
+    filterTable();
+});
+
+// Apply filters
+document.getElementById('applyFilters')
+    .addEventListener('click', function() {
+    filtersPopover.classList.remove('show');
+    filterTable();
+});
+
+// Search
+document.getElementById('searchBtn')
+    .addEventListener('click', function() {
+    filterTable();
+});
+
+document.getElementById('searchInput')
+    .addEventListener('input', function() {
+    filterTable();
+});
+
+// Filter logic
+function filterTable() {
+    const search = document.getElementById('searchInput')
+        .value.toLowerCase();
+    const course = document.getElementById('course').value;
+    const section = document.getElementById('section').value;
+    const schoolYear = document.getElementById('schoolYear').value;
+    const semester = document.getElementById('semester').value;
+
+    document.querySelectorAll('tbody tr').forEach(row => {
+        const cells = row.querySelectorAll('td');
+        const text = row.textContent.toLowerCase();
+
+        let show = true;
+
+        if (search && !text.includes(search)) show = false;
+        if (course && course !== 'BSCS')
+            show = false;
+        if (section && cells[2]?.textContent.trim() !== section) 
+            show = false;
+        if (schoolYear && cells[3]?.textContent.trim() !== schoolYear) 
+            show = false;
+        if (semester && cells[4]?.textContent.trim() !== semester) 
+            show = false;
+
+        row.style.display = show ? '' : 'none';
+    });
+}
+</script>
+</body>
+</html>

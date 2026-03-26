@@ -1,3 +1,5 @@
+@import url('../theme.css');
+
 /* ─── Profile Page Layout ──────────────────────────────────────────── */
 .profile-page-container {
     max-width: 900px;
@@ -10,7 +12,7 @@
 
 /* ─── Hero Card ────────────────────────────────────────────────────── */
 .profile-hero-card {
-    background: linear-gradient(135deg, var(--color-primary), #005a2b);
+    background: linear-gradient(135deg, var(--color-primary), var(--brand-900));
     border-radius: 20px;
     padding: 28px 32px;
     display: flex;
@@ -200,7 +202,7 @@
     display: flex;
     align-items: flex-start;
     gap: 10px;
-    background: #fff8e1;
+    background: var(--accent-amber-50);
     border: 1px solid #ffe082;
     border-radius: 10px;
     padding: 10px 14px;
@@ -213,7 +215,7 @@
     font-size: 18px;
     flex-shrink: 0;
     margin-top: 1px;
-    color: #f59e0b;
+    color: var(--accent-amber-600);
 }
 
 .registrar-notice p {
@@ -301,7 +303,7 @@
 }
 
 .change-password-btn:hover {
-    background: #005a2b;
+    background: var(--brand-900);
 }
 
 /* ─── Responsive tweaks ────────────────────────────────────────────── */
