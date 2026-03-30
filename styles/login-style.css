@@ -196,3 +196,28 @@ input[type="submit"]:hover{
         font-size: 14px;
     }
 }
+
+@media (max-width: 1024px) {
+    body {
+        overflow-x: hidden;
+        padding: 20px;
+    }
+
+    .login-form {
+        max-width: 440px;
+        width: 100%;
+        margin: 0 auto;
+        box-sizing: border-box;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 16px;
+    }
+
+    .login-form {
+        width: 100%;
+        padding: 24px 16px;
+    }
+}

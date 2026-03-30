@@ -215,7 +215,8 @@ body {
     border-radius: 10px;
     padding: 7px 14px;
     border: 1px solid #e0e4ef;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    width: auto;
+    max-width: fit-content;
     margin-right: 12px;
 }
 
@@ -224,17 +225,20 @@ body {
     height: 32px;
     border-radius: 50%;
     object-fit: cover;
+    flex-shrink: 0;
 }
 
 .org-header-name {
     font-size: 13px;
     font-weight: 700;
     color: #1a1a2e;
+    white-space: nowrap;
 }
 
 .org-header-sub {
     font-size: 11px;
     color: #888;
+    white-space: nowrap;
 }
 
 .members-table {
@@ -1047,4 +1051,134 @@ tbody tr:hover { background: var(--bg); }
 
 @media (max-width: 480px) {
     .form-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 1024px) {
+    body {
+        overflow-x: hidden;
+    }
+
+    .summary-cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .main-section,
+    .members-table,
+    .payment-history,
+    .table-container,
+    .modal-container {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .filters-popover {
+        width: min(420px, 92vw);
+        min-width: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .summary-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .header,
+    .home-content,
+    .search-filter,
+    .history-filter,
+    .table-header,
+    .filter-actions,
+    .form-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filters-popover {
+        position: fixed !important;
+        top: auto !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0;
+        border-radius: 16px 16px 0 0 !important;
+        padding: 20px 16px !important;
+        box-shadow: 0 -4px 24px rgba(0,0,0,0.15) !important;
+        z-index: 1000 !important;
+        max-height: 80vh !important;
+        overflow-y: auto !important;
+    }
+
+    .filters-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    .modal-overlay,
+    .admin-fee-modal-overlay {
+        align-items: flex-end !important;
+        padding: 0 !important;
+    }
+
+    .modal-container,
+    .admin-fee-modal-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        border-radius: 16px 16px 0 0 !important;
+        max-height: 90vh !important;
+        overflow-y: auto !important;
+    }
+
+    .admin-fee-form-row,
+    .form-row {
+        grid-template-columns: 1fr !important;
+    }
+
+    .home-content {
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+    }
+
+    .org-header-card {
+        width: auto !important;
+        max-width: 100% !important;
+    }
+
+    .org-header-name,
+    .org-header-sub {
+        white-space: normal !important;
+        font-size: 12px !important;
+    }
+
+    table {
+        font-size: 12px;
+    }
+
+    .modal-overlay {
+        align-items: flex-end !important;
+        padding: 0 !important;
+    }
+
+    .modal-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        border-radius: 16px 16px 0 0 !important;
+        max-height: 90vh !important;
+        overflow-y: auto !important;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr !important;
+    }
 }

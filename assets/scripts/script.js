@@ -190,27 +190,135 @@ for (var i = 0; i < arrow.length; i++) {
   });
 }
 let sidebarBtn = document.querySelector(".bx-menu");
+
+function isMobileViewport() {
+  return window.innerWidth <= 768;
+}
+
+function isTabletViewport() {
+  return window.innerWidth >= 769 && window.innerWidth <= 1024;
+}
+
+function ensureSidebarBackdrop() {
+  let backdrop = document.getElementById('sidebar-backdrop');
+  if (backdrop) return backdrop;
+
+  backdrop = document.createElement('div');
+  backdrop.id = 'sidebar-backdrop';
+  document.body.appendChild(backdrop);
+  return backdrop;
+}
+
+function showSidebarBackdrop() {
+  const backdrop = ensureSidebarBackdrop();
+  backdrop.classList.add('active');
+}
+
+function hideSidebarBackdrop() {
+  const backdrop = document.getElementById('sidebar-backdrop');
+  if (!backdrop) return;
+  backdrop.classList.remove('active');
+}
+
+function closeMobileSidebar() {
+  const sidebar = document.querySelector(".sidebar");
+  if (!sidebar) return;
+  sidebar.classList.remove("mobile-open");
+  hideSidebarBackdrop();
+}
+
+function toggleMobileSidebar(sidebar) {
+  const isOpen = sidebar.classList.toggle("mobile-open");
+  if (isOpen) {
+    showSidebarBackdrop();
+    return;
+  }
+  hideSidebarBackdrop();
+}
+
+function bindResponsiveSidebarHandlers() {
+  if (!document.body || document.body.dataset.sidebarResponsiveBound === 'true') {
+    return;
+  }
+
+  document.body.dataset.sidebarResponsiveBound = 'true';
+
+  const backdrop = ensureSidebarBackdrop();
+  backdrop.addEventListener('click', () => {
+    closeMobileSidebar();
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      closeMobileSidebar();
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    const sidebar = document.querySelector(".sidebar");
+    if (!sidebar) return;
+
+    if (!isMobileViewport()) {
+      sidebar.classList.remove("mobile-open");
+      hideSidebarBackdrop();
+    }
+
+    if (isTabletViewport()) {
+      sidebar.classList.add("close");
+    }
+
+    adjustHomeSectionMargin();
+  });
+}
+
 if (sidebarBtn && !sidebarBtn.dataset.sidebarInitialized) {
   sidebarBtn.dataset.sidebarInitialized = 'true';
   sidebarBtn.addEventListener("click", ()=>{
     const sidebar = document.querySelector(".sidebar");
     if (!sidebar) return;
+
+    if (isMobileViewport()) {
+      toggleMobileSidebar(sidebar);
+      adjustHomeSectionMargin();
+      return;
+    }
+
+    if (isTabletViewport()) {
+      sidebar.classList.add("close");
+      sidebar.classList.remove("mobile-open");
+      hideSidebarBackdrop();
+      adjustHomeSectionMargin();
+      return;
+    }
+
     sidebar.classList.toggle("close");
+    sidebar.classList.remove("mobile-open");
+    hideSidebarBackdrop();
     adjustHomeSectionMargin();
   });
 }
 
+bindResponsiveSidebarHandlers();
+
 function adjustHomeSectionMargin() {
-  const sidebar = document.querySelector(".sidebar");
   const homeSection = document.querySelector(".home-section");
-  if (!sidebar || !homeSection) return;
-  
+  if (!homeSection) return;
+
+  if (window.innerWidth <= 768) {
+    homeSection.style.marginLeft = "0px";
+    homeSection.style.width = "100%";
+    return;
+  }
+
+  const sidebar = document.querySelector(".sidebar");
+  if (!sidebar) return;
+
   if (sidebar.classList.contains("close")) {
-    homeSection.style.marginLeft = "78px";
-    homeSection.style.width = "calc(100% - 78px)";
+    homeSection.style.marginLeft = "88px";
+    homeSection.style.width = "calc(100% - 88px)";
   } else {
-    homeSection.style.marginLeft = "260px";
-    homeSection.style.width = "calc(100% - 260px)";
+    homeSection.style.marginLeft = "270px";
+    homeSection.style.width = "calc(100% - 270px)";
   }
 }
 
@@ -329,21 +437,24 @@ document.addEventListener('DOMContentLoaded', function() {
     syncProfileDetails();
     initializeViewToggle();
     initializeLogout();
+    initializePaymentsPanel();
     initializeFilters();
     initializeSearch();
   }, 120);
 });
 
-const paymentsFilter = document.getElementById('payments-filter');
-const paymentsListEl = document.querySelector('.payments-history .payments-list');
+let paymentsFilter = null;
+let paymentsListEl = null;
+let myPayments = [];
 
 const samplePayments = [
-  { studentNo: "TY202500100", studentName: "Bryan", desc: 'CCSC Fee - BSCS 1A', amount: '₱1,000.00', date: '2026-02-14' },
-  { studentNo: "TY202500100", studentName: "Bryan", desc: 'Insurance - BSCS 1A', amount: '₱150.00', date: '2026-02-10' },
+  { studentNo: "TY202500100", studentName: "Bryan", desc: 'CCS Fee - BSCS 1A', amount: '₱1,000.00', date: '2026-03-01' },
+  { studentNo: "TY202500100", studentName: "Bryan", desc: 'Insurance - BSCS 1A', amount: '₱150.00', date: '2026-03-10' },
+  { studentNo: "TY202500100", studentName: "Bryan", desc: 'Gender Club - BSCS 1A', amount: '₱50.00', date: '2026-03-15' },
   { studentNo: "TY202500100", studentName: "Bryan", desc: 'Miscellaneous - BSCS 1A', amount: '₱850.00', date: '2026-01-20' },
-  { studentNo: "TY202500100", studentName: "Bryan", desc: 'Gender Club - BSCS 1A', amount: '₱1,000.00', date: '2026-01-10' },
-  { studentNo: "TY202500101", studentName: "Bryan", desc: 'CCSC Fee - BSCS 1B', amount: '₱1,000.00', date: '2026-02-13' },
-  { studentNo: "TY202500101", studentName: "Bryan", desc: 'Insurance - BSCS 1B', amount: '₱150.00', date: '2026-02-08' },
+  { studentNo: "TY202500101", studentName: "Bryan", desc: 'CCS Fee - BSCS 1A', amount: '₱1,000.00', date: '2026-03-01' },
+  { studentNo: "TY202500101", studentName: "Bryan", desc: 'Insurance - BSCS 1A', amount: '₱150.00', date: '2026-03-10' },
+  { studentNo: "TY202500101", studentName: "Bryan", desc: 'Gender Club - BSCS 1A', amount: '₱50.00', date: '2026-03-15' },
   { studentNo: "TY202500101", studentName: "Bryan", desc: 'Partial Payment - BSCS 1B', amount: '₱500.00', date: '2026-01-15' },
   { studentNo: "TY202500102", studentName: "Maria Santos", desc: 'CCSC Fee - BSCS 1A', amount: '₱1,000.00', date: '2026-02-10' },
   { studentNo: "TY202500104", studentName: "Ana Garcia", desc: 'Insurance - BSCS 1B', amount: '₱150.00', date: '2026-02-05' },
@@ -419,17 +530,26 @@ function filterPayments(value){
   renderPayments(filtered);
 }
 
-const currentUser = window.Auth ? window.Auth.getUser() : null;
-const myPayments = currentUser
-  ? samplePayments.filter(p => p.studentNo === currentUser.studentId)
-  : samplePayments;
+function initializePaymentsPanel() {
+  paymentsFilter = document.getElementById('payments-filter');
+  paymentsListEl = document.querySelector('.payments-history .payments-list');
+  if (!paymentsListEl) return;
 
-renderPayments(myPayments);
-if (paymentsFilter) {
-  paymentsFilter.addEventListener('change', (e) => {
-    filterPayments(e.target.value);
-  });
-  filterPayments(paymentsFilter.value || 'recent');
+  const currentUser = window.Auth ? window.Auth.getUser() : null;
+  myPayments = currentUser
+    ? samplePayments.filter(p => p.studentNo === currentUser.studentId)
+    : samplePayments;
+
+  renderPayments(myPayments);
+
+  if (paymentsFilter && paymentsFilter.dataset.bound !== 'true') {
+    paymentsFilter.dataset.bound = 'true';
+    paymentsFilter.addEventListener('change', (e) => {
+      filterPayments(e.target.value);
+    });
+  }
+
+  filterPayments(paymentsFilter ? (paymentsFilter.value || 'recent') : 'recent');
 }
 
 function showSection(sectionId) {

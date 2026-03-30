@@ -11,39 +11,39 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
-        <nav class="navbar">
-            <a href="student-dashboard.html"><i class="bx bx-arrow-back"></i></a>
+        <nav class="navbar page-header payment-header">
+            <a href="student-dashboard.html" class="back-arrow"><i class="bx bx-arrow-back"></i></a>
             <div class="nav-title">
                 <h2>Make Payment</h2>
                 <p>Complete your fee payment securely</p>
             </div>
         </nav>
-        <div id="payment-process-container">
+        <div id="payment-process-container" class="step-indicator">
             <div class="vis-container">
-                <div class="circle c1"><p>1</p></div>
-                <p class="texts t1">Select Fees</p>
+                <div class="circle c1 step-circle"><p>1</p></div>
+                <p class="texts t1 step-label">Select Fees</p>
             </div>
-            <div class="line l1"></div>
+            <div class="line l1 step-line"></div>
             
             <div class="vis-container">
-                <div class="circle c2"><p>2</p></div>
-                <p class="texts t2">Payment Method</p>
+                <div class="circle c2 step-circle"><p>2</p></div>
+                <p class="texts t2 step-label">Payment Method</p>
             </div>
             
-            <div class="line l2"></div>
+            <div class="line l2 step-line"></div>
             
             <div class="vis-container">
-                <div class="circle c3"><p>3</p></div>
-                <p class="texts t3">Confirmation</p>
+                <div class="circle c3 step-circle"><p>3</p></div>
+                <p class="texts t3 step-label">Confirmation</p>
             </div>
         
         </div>
 
-        <div class="step-one-wrapper">
-            <div class="fee-selection-container">
+        <div class="step-one-wrapper payment-body payment-layout payment-content">
+            <div class="fee-selection-container fees-panel fee-selection">
                 <form action="">   
                     <h3>Select Fees to Pay</h3> 
-                    <div class="fees-selection">
+                    <div class="fees-selection fee-item-card">
                         <div class="fee-info">
                             <input type="checkbox" data-fee="CSC Fee" data-price="200">
                             <div class="cb">
@@ -53,7 +53,7 @@
                         </div>
                         <p class="fee-prices">₱200</p>
                     </div>
-                    <div class="fees-selection">
+                    <div class="fees-selection fee-item-card">
                         <div class="fee-info">
                             <input type="checkbox" data-fee="Gender Club Membership Fee" data-price="50">
                             <div class="cb">
@@ -63,7 +63,7 @@
                         </div>
                         <p class="fee-prices">₱50</p>
                     </div>
-                    <div class="fees-selection">
+                    <div class="fees-selection fee-item-card">
                         <div class="fee-info">
                             <input type="checkbox" data-fee="Insurance (Whole Year)" data-price="40">
                             <div class="cb">
@@ -73,7 +73,7 @@
                         </div>
                         <p class="fee-prices">₱40</p>
                     </div>
-                    <div class="fees-selection">
+                    <div class="fees-selection fee-item-card">
                         <div class="fee-info">
                             <input type="checkbox" data-fee="Miscellaneous (10 booklets @ ₱6 each)" data-price="60">
                             <div class="cb">   
@@ -86,7 +86,7 @@
                 </form>
             </div>
 
-            <div class="payment-summary">
+            <div class="payment-summary summary-panel">
                 <h3>Payment Summary</h3>
                 <div id="summary-items">
                     <p class="summary-empty">No fees selected yet.</p>
@@ -95,7 +95,9 @@
                     <span>Total Amount</span>
                     <span id="summary-total-amount">₱0</span>
                 </div>
-                <a class="continue-btn" href="payment-method.html">Continue to Payment Method</a>
+                <div class="action-buttons payment-actions">
+                    <a class="continue-btn" href="payment-method.html">Continue to Payment Method</a>
+                </div>
             </div>
         </div>
 

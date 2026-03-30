@@ -678,3 +678,56 @@ tbody tr:hover {
 .export-btn:hover {
 	background: var(--faculty-green-dark);
 }
+
+@media (max-width: 1024px) {
+	body {
+		overflow-x: hidden;
+	}
+
+	.summary-cards {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.faculty-table-card,
+	.members-table,
+	.table-container {
+		max-width: 100%;
+		box-sizing: border-box;
+	}
+
+	table {
+		display: block;
+		overflow-x: auto;
+		white-space: nowrap;
+	}
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+	.filters-popover {
+		width: min(420px, 92vw);
+	}
+}
+
+@media (max-width: 768px) {
+	.summary-cards {
+		grid-template-columns: 1fr;
+	}
+
+	.faculty-search-filter,
+	.search-filter,
+	.filters-row {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.filters-popover {
+		left: 0;
+		right: 0;
+		width: 100%;
+		min-width: 0;
+	}
+
+	table {
+		font-size: 12px;
+	}
+}

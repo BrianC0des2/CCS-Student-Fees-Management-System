@@ -1,4 +1,3 @@
-
 @import url('../theme.css');
 
 .navbar{
@@ -11,7 +10,6 @@
     background-color: var(--sys-surface);
 }
 
-
 .navbar a i{
     padding: 10px;
     text-align: center;
@@ -21,7 +19,6 @@
     width: 50px;
     height: 50px;
     border-radius: 20px;
-    
 }
 
 .navbar a i:hover{
@@ -34,10 +31,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-}
-
-#payment-process-container > h2{
-    
 }
 
 .vis-container{
@@ -70,7 +63,7 @@
 }
 
 .c1 {
-       background-color:var(--color-primary);
+    background-color:var(--color-primary);
 }
 
 .t1{
@@ -82,7 +75,6 @@
     width: 200px;
     margin-bottom: 30px;
 }
-
 
 .step-one-wrapper {
     display: flex;
@@ -155,7 +147,6 @@ input[type="checkbox"]{
     padding: 20px;
     width: 300px;
     color: var(--sys-text-900);
- 
 }
 
 .payment-summary h3 {
@@ -216,7 +207,6 @@ input[type="checkbox"]{
     padding: 16px 0;
 }
 
-/* ── Completed step circle ── */
 .circle.done {
     background-color: var(--color-primary);
     font-size: 22px;
@@ -235,7 +225,6 @@ input[type="checkbox"]{
     border-color: var(--color-primary);
 }
 
-/* ── Payment method cards ── */
 .method-option {
     display: flex;
     justify-content: space-between;
@@ -305,7 +294,6 @@ input[type="checkbox"]{
     color: var(--sys-border);
 }
 
-/* ── Action row (back + continue side by side) ── */
 .action-row {
     display: flex;
     gap: 10px;
@@ -353,8 +341,6 @@ input[type="checkbox"]{
     display: block;
 }
 
-/* ── Confirmation page details ── */
-/* ── Confirmation single card ── */
 .confirm-card {
     background-color: white;
     border: 2px solid var(--sys-border);
@@ -458,6 +444,14 @@ input[type="checkbox"]{
     background: var(--sys-surface-muted);
 }
 
+.receipt-container {
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 16px;
+    box-sizing: border-box;
+}
+
 .receipt-success-banner {
     display: flex;
     align-items: center;
@@ -467,7 +461,7 @@ input[type="checkbox"]{
     border-radius: 16px;
     padding: 24px 36px;
     margin: 30px auto 0;
-    width: 720px;
+    width: 100%;
     box-sizing: border-box;
     color: var(--sys-text-900);
 }
@@ -476,6 +470,7 @@ input[type="checkbox"]{
     font-size: 40px;
     color: var(--color-primary);
     line-height: 1;
+    flex-shrink: 0;
 }
 
 .receipt-success-banner h2 {
@@ -493,7 +488,7 @@ input[type="checkbox"]{
     border: 2px solid var(--sys-border);
     border-radius: 20px;
     padding: 36px;
-    width: 720px;
+    width: 100%;
     margin: 24px auto 40px;
     box-sizing: border-box;
     color: var(--sys-text-900);
@@ -517,6 +512,7 @@ input[type="checkbox"]{
     align-items: center;
     justify-content: center;
     border-radius: 12px;
+    flex-shrink: 0;
 }
 
 .receipt-org-name {
@@ -686,4 +682,310 @@ input[type="checkbox"]{
 
 .receipt-contact-note a {
     color: var(--color-primary);
+}
+
+/* ══════════════════════════════════════
+   TABLET (769px - 1024px)
+══════════════════════════════════════ */
+@media (max-width: 1024px) {
+    body {
+        overflow-x: hidden;
+    }
+
+    .step-one-wrapper {
+        padding: 0 18px;
+    }
+
+    .fee-selection-container {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .confirm-card {
+        width: 100%;
+        max-width: 100%;
+        margin: 24px 16px;
+        box-sizing: border-box;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    #payment-process-container {
+        gap: 8px;
+        padding: 0 12px;
+    }
+
+    .line {
+        width: 120px;
+    }
+
+    .step-one-wrapper {
+        gap: 14px;
+    }
+}
+
+/* ══════════════════════════════════════
+   MOBILE (≤ 768px)
+══════════════════════════════════════ */
+@media (max-width: 768px) {
+
+    body {
+        overflow-x: hidden;
+    }
+
+    /* ── Navbar / Header ── */
+    .navbar,
+    .payment-header {
+        flex-wrap: wrap !important;
+        height: auto !important;
+        padding: 10px 14px !important;
+        gap: 8px !important;
+    }
+
+    .navbar a i,
+    .back-arrow i {
+        margin: 0 !important;
+        padding: 6px !important;
+        font-size: 22px !important;
+        width: auto !important;
+        height: auto !important;
+    }
+
+    .back-arrow {
+        flex-shrink: 0 !important;
+    }
+
+    .nav-title {
+        flex: 1 !important;
+        min-width: 0 !important;
+    }
+
+    .nav-title h2 {
+        font-size: 14px !important;
+        margin: 0 !important;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+        line-height: 1.2 !important;
+    }
+
+    .nav-title p {
+        font-size: 11px !important;
+        margin: 0 !important;
+    }
+
+    .navbar-actions {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100% !important;
+        justify-content: flex-end !important;
+        gap: 6px !important;
+        flex-shrink: 0;
+    }
+
+    .nav-action-btn {
+        padding: 6px 10px !important;
+        font-size: 11px !important;
+        gap: 4px !important;
+    }
+
+    /* ── Step Indicator ── */
+    #payment-process-container {
+        margin-top: 16px !important;
+        padding: 0 12px !important;
+        gap: 2px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .vis-container {
+        flex: 1;
+        min-width: 0;
+        align-items: center;
+    }
+
+    .circle,
+    .step-circle {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 14px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .circle > p {
+        font-size: 14px !important;
+    }
+
+    .texts,
+    .step-label {
+        font-size: 9px !important;
+        text-align: center !important;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+        max-width: 60px !important;
+        word-break: break-word !important;
+        line-height: 1.3 !important;
+    }
+
+    .line,
+    .step-line {
+        width: auto !important;
+        flex: 1 !important;
+        min-width: 12px !important;
+        max-width: 50px !important;
+        margin-bottom: 28px !important;
+    }
+
+    /* ── Payment Layout ── */
+    .step-one-wrapper,
+    .payment-body,
+    .payment-layout,
+    .payment-content {
+        flex-direction: column !important;
+        width: 100% !important;
+        padding: 0 12px !important;
+        margin-top: 20px !important;
+        gap: 16px !important;
+        box-sizing: border-box !important;
+        align-items: stretch !important;
+    }
+
+    .fee-selection-container,
+    .payment-summary,
+    .fees-panel,
+    .fee-selection,
+    .summary-panel,
+    .fees-list-panel,
+    .payment-summary-panel {
+        width: 100% !important;
+        min-width: unset !important;
+        max-width: 100% !important;
+        position: static !important;
+        box-sizing: border-box !important;
+    }
+
+    .fees-selection,
+    .fee-item-card {
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* ── Buttons ── */
+    .continue-btn,
+    .back-btn,
+    .full-btn {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        font-size: 13px !important;
+        padding: 12px !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+    }
+
+    .action-row,
+    .action-row-col,
+    .action-buttons,
+    .payment-actions,
+    .receipt-actions {
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 10px !important;
+    }
+
+    .action-row .continue-btn,
+    .action-row .back-btn {
+        flex: unset !important;
+    }
+
+    /* ── Confirmation card ── */
+    .confirm-card {
+        width: calc(100% - 24px) !important;
+        margin: 20px 12px !important;
+        padding: 20px 16px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* ── Receipt ── */
+    .receipt-container {
+        padding: 0 12px !important;
+    }
+
+    .receipt-success-banner {
+        padding: 16px !important;
+        margin-top: 16px !important;
+        gap: 12px !important;
+        border-radius: 12px !important;
+    }
+
+    .receipt-success-icon {
+        font-size: 28px !important;
+    }
+
+    .receipt-success-banner h2 {
+        font-size: 14px !important;
+    }
+
+    .receipt-success-banner p {
+        font-size: 12px !important;
+    }
+
+    .receipt-card {
+        padding: 16px !important;
+        border-radius: 14px !important;
+        margin: 16px auto 24px !important;
+    }
+
+    .receipt-info-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+    }
+
+    .receipt-meta-label {
+        font-size: 10px !important;
+    }
+
+    .receipt-meta-value {
+        font-size: 13px !important;
+    }
+
+    .receipt-meta-row {
+        gap: 8px !important;
+    }
+
+    .receipt-table {
+        font-size: 13px !important;
+    }
+
+    .receipt-table th,
+    .receipt-table td {
+        padding: 8px 0 !important;
+        font-size: 12px !important;
+    }
+
+    .receipt-table-total td {
+        font-size: 14px !important;
+    }
+
+    .receipt-notice {
+        display: block !important;
+        font-size: 11px !important;
+        line-height: 1.6 !important;
+    }
+
+    .receipt-notice i {
+        display: inline !important;
+        margin-right: 4px !important;
+        float: none !important;
+    }
+
+    .receipt-actions a,
+    .receipt-actions button {
+        width: 100% !important;
+        text-align: center !important;
+        padding: 12px !important;
+        box-sizing: border-box !important;
+        display: block !important;
+    }
 }

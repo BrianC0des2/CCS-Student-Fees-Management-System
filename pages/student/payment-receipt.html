@@ -11,8 +11,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
-        <nav class="navbar">
-            <a href="student-dashboard.html"><i class="bx bx-arrow-back"></i></a>
+        <nav class="navbar page-header payment-header">
+            <a href="student-dashboard.html" class="back-arrow"><i class="bx bx-arrow-back"></i></a>
             <div class="nav-title">
                 <h2>Payment Receipt</h2>
                 <p>Receipt #RCP-2026-001235</p>
@@ -27,12 +27,13 @@
             </div>
         </nav>
 
+        <div class="receipt-container">
         <!-- Success Banner -->
         <div class="receipt-success-banner">
             <div class="receipt-success-icon"><i class='bx bx-check-circle'></i></div>
-            <div>
-                <h2>Payment Successful!</h2>
-                <p>Your payment of <strong id="banner-total">₱0</strong> has been processed successfully. This receipt has been sent to your registered email.</p>
+            <div class="receipt-item">
+                <h2 class="receipt-label">Payment Successful!</h2>
+                <p class="receipt-value" style="text-align:left;">Your payment of <strong id="banner-total">₱0</strong> has been processed successfully. This receipt has been sent to your registered email.</p>
             </div>
         </div>
 
@@ -51,16 +52,16 @@
             <p class="receipt-office-label">Finance Office - Official Receipt</p>
 
             <!-- Receipt Meta -->
-            <div class="receipt-meta-row">
-                <div class="receipt-meta-item">
+            <div class="receipt-meta-row receipt-row">
+                <div class="receipt-meta-item receipt-item">
                     <span class="receipt-meta-label">Receipt Number</span>
                     <span class="receipt-meta-value">WMSU-FO-2026-001235</span>
                 </div>
-                <div class="receipt-meta-item">
+                <div class="receipt-meta-item receipt-item">
                     <span class="receipt-meta-label">Date &amp; Time</span>
                     <span class="receipt-meta-value" id="receipt-datetime">—</span>
                 </div>
-                <div class="receipt-meta-item">
+                <div class="receipt-meta-item receipt-item">
                     <span class="receipt-status-badge">Paid</span>
                 </div>
             </div>
@@ -69,20 +70,20 @@
 
             <!-- Student Info -->
             <h4 class="receipt-section-title">Student Information</h4>
-            <div class="receipt-info-grid">
-                <div class="receipt-info-item">
+            <div class="receipt-info-grid receipt-row">
+                <div class="receipt-info-item receipt-item">
                     <span class="receipt-meta-label">Student Name</span>
                     <span class="receipt-meta-value" id="receipt-student-name">—</span>
                 </div>
-                <div class="receipt-info-item">
+                <div class="receipt-info-item receipt-item">
                     <span class="receipt-meta-label">Student ID</span>
                     <span class="receipt-meta-value" id="receipt-student-id">—</span>
                 </div>
-                <div class="receipt-info-item">
+                <div class="receipt-info-item receipt-item">
                     <span class="receipt-meta-label">Course</span>
                     <span class="receipt-meta-value">BS Computer Science</span>
                 </div>
-                <div class="receipt-info-item">
+                <div class="receipt-info-item receipt-item">
                     <span class="receipt-meta-label">Year Level</span>
                     <span class="receipt-meta-value">4th Year</span>
                 </div>
@@ -102,7 +103,7 @@
                 <tbody id="receipt-fee-rows">
                 </tbody>
                 <tfoot>
-                    <tr class="receipt-table-total">
+                    <tr class="receipt-table-total receipt-total">
                         <td>Total Amount Paid</td>
                         <td id="receipt-total">₱0</td>
                     </tr>
@@ -112,20 +113,20 @@
             <div class="receipt-divider"></div>
 
             <!-- Payment Info -->
-            <div class="receipt-info-grid">
-                <div class="receipt-info-item">
+            <div class="receipt-info-grid receipt-row">
+                <div class="receipt-info-item receipt-item">
                     <span class="receipt-meta-label">Payment Method</span>
                     <span class="receipt-meta-value" id="receipt-method">GCash</span>
                 </div>
-                <div class="receipt-info-item">
+                <div class="receipt-info-item receipt-item">
                     <span class="receipt-meta-label">Transaction ID</span>
                     <span class="receipt-meta-value">GCSH-20260205-123456</span>
                 </div>
-                <div class="receipt-info-item">
+                <div class="receipt-info-item receipt-item">
                     <span class="receipt-meta-label">Processed By</span>
                     <span class="receipt-meta-value">Ms. Jennifer Santos</span>
                 </div>
-                <div class="receipt-info-item">
+                <div class="receipt-info-item receipt-item">
                     <span class="receipt-meta-label">Receipt Status</span>
                     <span class="receipt-meta-value verified">Verified &amp; Approved</span>
                 </div>
@@ -152,11 +153,12 @@
             <div class="receipt-divider"></div>
 
             <!-- Actions -->
-            <div class="action-row-col">
+            <div class="action-row-col receipt-actions action-buttons payment-actions">
                 <a href="student-dashboard.html" class="continue-btn full-btn">Back to Dashboard</a>
                 <a href="make-payment.html" class="back-btn full-btn">Make Another Payment</a>
             </div>
             <p class="receipt-contact-note">Questions about this receipt? Contact us at <a href="mailto:studentorgwmsu.edu.ph">studentorg@wmsu.edu.ph</a></p>
+        </div>
         </div>
 
     <script src="../../assets/scripts/settings.js"></script>

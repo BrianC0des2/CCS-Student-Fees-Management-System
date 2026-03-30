@@ -11,8 +11,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
-        <nav class="navbar">
-            <a href="payment-method.html"><i class="bx bx-arrow-back"></i></a>
+        <nav class="navbar page-header payment-header">
+            <a href="payment-method.html" class="back-arrow"><i class="bx bx-arrow-back"></i></a>
             <div class="nav-title">
                 <h2>Make Payment</h2>
                 <p>Complete your fee payment securely</p>
@@ -20,23 +20,23 @@
         </nav>
 
         <!-- Step Indicator -->
-        <div id="payment-process-container">
+        <div id="payment-process-container" class="step-indicator">
             <div class="vis-container">
-                <div class="circle done"><i class='bx bx-check'></i></div>
-                <p class="texts">Select Fees</p>
+                <div class="circle done step-circle"><i class='bx bx-check'></i></div>
+                <p class="texts step-label">Select Fees</p>
             </div>
-            <div class="line line-done"></div>
+            <div class="line line-done step-line"></div>
 
             <div class="vis-container">
-                <div class="circle done"><i class='bx bx-check'></i></div>
-                <p class="texts">Payment Method</p>
+                <div class="circle done step-circle"><i class='bx bx-check'></i></div>
+                <p class="texts step-label">Payment Method</p>
             </div>
 
-            <div class="line line-done"></div>
+            <div class="line line-done step-line"></div>
 
             <div class="vis-container">
-                <div class="circle c3-active"><p>3</p></div>
-                <p class="texts t3-active">Confirmation</p>
+                <div class="circle c3-active step-circle"><p>3</p></div>
+                <p class="texts t3-active step-label">Confirmation</p>
             </div>
         </div>
 
@@ -205,7 +205,7 @@
                        placeholder="e.g. TRF-20260316-001">
             </div>
 
-            <div class="action-row" style="margin-top: 24px;">
+            <div class="action-row action-buttons payment-actions" style="margin-top: 24px;">
                 <a href="payment-method.html" class="back-btn">Back</a>
                 <button id="confirm-pay-btn" class="continue-btn" style="flex:1; margin:0;">Confirm &amp; Pay</button>
             </div>

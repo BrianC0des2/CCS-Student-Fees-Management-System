@@ -70,12 +70,22 @@
     border: 2px solid rgba(var(--color-dark-rgb), 0.2);
 }
 
-/* Center the fees box within its parent and center its inner text */
+/* Desktop layout: horizontal row */
 .payment-progress-container{
     display: flex;
-    gap: 24px;
-    align-items: flex-start;
-    justify-content: flex-start; /* keep fees card in its original position */
+    flex-direction: row;
+    gap: 16px;
+    width: 100%;
+}
+
+.payment-progress-container .fees {
+    flex: 0 0 auto;
+    min-width: 280px;
+}
+
+.payment-progress-container .payments-history {
+    flex: 1;
+    min-width: 0;
 }
 
 /* Keep the fees card position, but left-align text by default. Center only the amount. */
@@ -368,4 +378,83 @@
 .approval-status
 {
     margin: 10px 0;
+}
+
+/* Mobile: stack vertically */
+@media (max-width: 768px) {
+    .payment-progress-container {
+        flex-direction: column;
+    }
+
+    .payment-progress-container .fees,
+    .payment-progress-container .payments-history {
+        width: 100%;
+        min-width: unset;
+        flex: unset;
+    }
+}
+
+@media (max-width: 1024px) {
+    body {
+        overflow-x: hidden;
+    }
+
+    .header,
+    .clearance-progress-container,
+    .payment-progress-container,
+    .approval-status,
+    .fees,
+    .payments-history,
+    #pay-btn {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .approval-status {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .clearance-progress-container {
+        flex-direction: column;
+        height: auto;
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .clearance-progress-container .clearance-content,
+    .clearance-progress-container .labels {
+        width: 100%;
+        margin: 0;
+    }
+
+    .labels {
+        justify-content: space-around;
+    }
+
+    .payment-progress-container {
+        flex-direction: column;
+    }
+
+    .payment-progress-container .fees,
+    .payment-progress-container .payments-history,
+    .personels {
+        width: 100%;
+    }
+
+    .payments-list .payment-item {
+        width: 100%;
+        margin: 0;
+    }
+
+    .payments-list .payment-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .approval-status {
+        grid-template-columns: 1fr;
+    }
 }
