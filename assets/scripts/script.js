@@ -314,11 +314,11 @@ function adjustHomeSectionMargin() {
   if (!sidebar) return;
 
   if (sidebar.classList.contains("close")) {
-    homeSection.style.marginLeft = "88px";
-    homeSection.style.width = "calc(100% - 88px)";
+    homeSection.style.marginLeft = "78px";
+    homeSection.style.width = "calc(100% - 78px)";
   } else {
-    homeSection.style.marginLeft = "270px";
-    homeSection.style.width = "calc(100% - 270px)";
+    homeSection.style.marginLeft = "260px";
+    homeSection.style.width = "calc(100% - 260px)";
   }
 }
 

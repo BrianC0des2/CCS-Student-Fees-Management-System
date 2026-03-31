@@ -333,25 +333,25 @@ function bindResponsiveSidebarHandlers() {
 }
 
 function adjustHomeSectionMargin() {
-  const homeSection = document.querySelector(".home-section");
+    const homeSection = document.querySelector(".home-section");
     if (!homeSection) return;
 
-  if (window.innerWidth <= 768) {
-    homeSection.style.marginLeft = "0px";
-    homeSection.style.width = "100%";
-    return;
-  }
+    if (window.innerWidth <= 768) {
+        homeSection.style.marginLeft = "0px";
+        homeSection.style.width = "100%";
+        return;
+    }
 
     const sidebar = document.querySelector(".sidebar");
     if (!sidebar) return;
 
-  if (sidebar.classList.contains("close")) {
-    homeSection.style.marginLeft = "88px";
-    homeSection.style.width = "calc(100% - 88px)";
-  } else {
-        homeSection.style.marginLeft = "270px";
-        homeSection.style.width = "calc(100% - 270px)";
-  }
+    if (sidebar.classList.contains("close")) {
+        homeSection.style.marginLeft = "78px";
+        homeSection.style.width = "calc(100% - 78px)";
+    } else {
+        homeSection.style.marginLeft = "260px";
+        homeSection.style.width = "calc(100% - 260px)";
+    }
 }
 
 if (document.readyState === 'loading') {
