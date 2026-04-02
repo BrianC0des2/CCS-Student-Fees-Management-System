@@ -822,6 +822,25 @@ tbody tr:hover {
 	.modal-card {
 		width: calc(100% - 32px);
 	}
+
+	.bulk-action-btn {
+		width: auto;
+		padding: 6px 12px;
+		font-size: 0.75rem;
+		white-space: nowrap;
+	}
+
+	.table-header {
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		gap: 8px;
+	}
+
+	.table-header h2 {
+		width: auto;
+		font-size: 14px;
+	}
 }
 
 @media (max-width: 375px) {
@@ -856,5 +875,16 @@ tbody tr:hover {
 		width: 100%;
 		min-width: 0;
 		table-layout: fixed;
+	}
+
+	.bulk-action-btn {
+		width: auto;
+		padding: 5px 10px;
+		font-size: 0.7rem;
+		white-space: nowrap;
+	}
+
+	.table-header h2 {
+		font-size: 13px;
 	}
 }
