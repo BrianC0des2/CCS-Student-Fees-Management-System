@@ -11,8 +11,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
-        <nav class="navbar">
-            <a href="make-payment.html"><i class="bx bx-arrow-back"></i></a>
+        <nav class="navbar page-header payment-header">
+            <a href="make-payment.html" class="back-arrow"><i class="bx bx-arrow-back"></i></a>
             <div class="nav-title">
                 <h2>Make Payment</h2>
                 <p>Complete your fee payment securely</p>
@@ -20,31 +20,31 @@
         </nav>
 
         <!-- Step Indicator -->
-        <div id="payment-process-container">
+        <div id="payment-process-container" class="step-indicator">
             <div class="vis-container">
-                <div class="circle done"><i class='bx bx-check'></i></div>
-                <p class="texts">Select Fees</p>
+                <div class="circle done step-circle"><i class='bx bx-check'></i></div>
+                <p class="texts step-label">Select Fees</p>
             </div>
-            <div class="line line-done"></div>
+            <div class="line line-done step-line"></div>
 
             <div class="vis-container">
-                <div class="circle c2"><p>2</p></div>
-                <p class="texts t2">Payment Method</p>
+                <div class="circle c2 step-circle"><p>2</p></div>
+                <p class="texts t2 step-label">Payment Method</p>
             </div>
 
-            <div class="line l2"></div>
+            <div class="line l2 step-line"></div>
 
             <div class="vis-container">
-                <div class="circle c3"><p>3</p></div>
-                <p class="texts t3">Confirmation</p>
+                <div class="circle c3 step-circle"><p>3</p></div>
+                <p class="texts t3 step-label">Confirmation</p>
             </div>
         </div>
 
         <!-- Main Content -->
-        <div class="step-one-wrapper">
+        <div class="step-one-wrapper payment-body payment-layout payment-content">
 
             <!-- Payment Method Options -->
-            <div class="fee-selection-container">
+            <div class="fee-selection-container fees-panel fee-selection">
                 <div style="width:100%">
                     <h3>Choose Payment Method</h3>
 
@@ -112,7 +112,7 @@
             </div>
 
             <!-- Payment Summary -->
-            <div class="payment-summary">
+            <div class="payment-summary summary-panel">
                 <h3>Payment Summary</h3>
                 <div id="method-summary-items"></div>
                 <div class="summary-total">
@@ -120,7 +120,7 @@
                     <span id="method-summary-total">₱0</span>
                 </div>
 
-                <div class="action-row-col">
+                <div class="action-row-col action-buttons payment-actions">
                     <button id="reviewPaymentBtn" 
                             class="continue-btn full-btn">
                         Review Payment

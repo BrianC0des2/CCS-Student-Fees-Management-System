@@ -630,3 +630,35 @@ html.theme-dark .info-banner--green p,
 html.theme-dark .info-banner--amber p {
     color: var(--dm-text-soft) !important;
 }
+
+@media (max-width: 1024px) {
+    body {
+        overflow-x: hidden;
+    }
+
+    #settings-panel,
+    .sp-body,
+    .sp-option-grid {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+@media (max-width: 768px) {
+    #settings-panel {
+        width: 100%;
+        right: -100%;
+    }
+
+    #settings-panel.sp-open {
+        right: 0;
+    }
+
+    .sp-body {
+        padding: 16px;
+    }
+
+    .sp-option-grid {
+        grid-template-columns: 1fr;
+    }
+}

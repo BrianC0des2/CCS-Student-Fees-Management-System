@@ -255,6 +255,116 @@
             font-weight: 600;
             margin-left: 8px;
         }
+        /* ─── Responsive Design ─────────────────────────────────────────────── */
+        @media (max-width: 1024px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 768px) {
+            #pageContent {
+                display: flex;
+                flex-direction: column;
+            }
+            #pageContent > .section-header {
+                order: 1;
+            }
+            #pageContent > #addStudentForm {
+                order: 2;
+                position: relative;
+                top: auto;
+                right: auto;
+                bottom: auto;
+                left: auto;
+                transform: none;
+                margin-top: 10px;
+            }
+            #pageContent > .summary-cards {
+                order: 3;
+            }
+            #pageContent > .faculty-search-filter {
+                order: 4;
+            }
+            #pageContent > .section-tabs {
+                order: 5;
+            }
+            #pageContent > #studentList {
+                order: 6;
+            }
+            .section-header {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+            .bulk-action-btn {
+                width: 100%;
+            }
+            .member-row {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .member-actions {
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-actions {
+                flex-direction: column-reverse;
+                gap: 8px;
+            }
+            .form-actions button {
+                width: 100%;
+            }
+            .confirm-box {
+                flex-direction: column;
+                gap: 8px;
+                align-items: flex-start;
+            }
+            .confirm-box-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            .section-tabs {
+                gap: 6px;
+            }
+            .section-tab {
+                padding: 6px 12px;
+                font-size: 11px;
+            }
+            .search-wrap {
+                min-width: 0;
+            }
+            .filters-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            .search-wrap input {
+                width: 100%;
+            }
+        }
+        @media (max-width: 375px) {
+            #pageContent {
+                display: flex;
+                flex-direction: column;
+            }
+            #pageContent > #addStudentForm {
+                order: 2;
+                position: relative;
+                top: auto;
+                right: auto;
+                bottom: auto;
+                left: auto;
+                transform: none;
+                margin-top: 10px;
+            }
+            .form-box {
+                padding: 14px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -410,8 +520,8 @@
                      <div class="form-group">
                         <label>Section</label>
                         <select id="nsSection">
-                            <option>CS A</option>
-                            <option>CS B</option>
+                            <option>CS 1-A</option>
+                            <option>CS 1-B</option>
                         </select>
                     </div>
                     

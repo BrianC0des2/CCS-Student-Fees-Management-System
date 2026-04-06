@@ -218,7 +218,25 @@ function initializeSidebarEvents() {
     if (sidebarBtn && !sidebarBtn.dataset.sidebarInitialized) {
         sidebarBtn.dataset.sidebarInitialized = 'true';
         sidebarBtn.addEventListener("click", () => {
+            if (!sidebar) return;
+
+            if (isMobileViewport()) {
+                toggleMobileSidebar(sidebar);
+                adjustHomeSectionMargin();
+                return;
+            }
+
+            if (isTabletViewport()) {
+                sidebar.classList.add("close");
+                hideSidebarBackdrop();
+                sidebar.classList.remove("mobile-open");
+                adjustHomeSectionMargin();
+                return;
+            }
+
             sidebar.classList.toggle("close");
+            hideSidebarBackdrop();
+            sidebar.classList.remove("mobile-open");
             adjustHomeSectionMargin();
         });
     }
@@ -230,20 +248,110 @@ function initializeSidebarEvents() {
             arrowParent.classList.toggle("showMenu");
         });
     }
+
+    bindResponsiveSidebarHandlers();
+}
+
+function isMobileViewport() {
+    return window.innerWidth <= 768;
+}
+
+function isTabletViewport() {
+    return window.innerWidth >= 769 && window.innerWidth <= 1024;
+}
+
+function ensureSidebarBackdrop() {
+    let backdrop = document.getElementById('sidebar-backdrop');
+    if (backdrop) return backdrop;
+
+    backdrop = document.createElement('div');
+    backdrop.id = 'sidebar-backdrop';
+    document.body.appendChild(backdrop);
+    return backdrop;
+}
+
+function showSidebarBackdrop() {
+    const backdrop = ensureSidebarBackdrop();
+    backdrop.classList.add('active');
+}
+
+function hideSidebarBackdrop() {
+    const backdrop = document.getElementById('sidebar-backdrop');
+    if (!backdrop) return;
+    backdrop.classList.remove('active');
+}
+
+function closeMobileSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    if (!sidebar) return;
+    sidebar.classList.remove('mobile-open');
+    hideSidebarBackdrop();
+}
+
+function toggleMobileSidebar(sidebar) {
+    const isOpen = sidebar.classList.toggle('mobile-open');
+    if (isOpen) {
+        showSidebarBackdrop();
+        return;
+    }
+    hideSidebarBackdrop();
+}
+
+function bindResponsiveSidebarHandlers() {
+    if (!document.body || document.body.dataset.sidebarResponsiveBound === 'true') {
+        return;
+    }
+
+    document.body.dataset.sidebarResponsiveBound = 'true';
+
+    const backdrop = ensureSidebarBackdrop();
+    backdrop.addEventListener('click', () => {
+        closeMobileSidebar();
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            closeMobileSidebar();
+        }
+    });
+
+    window.addEventListener('resize', () => {
+        const sidebar = document.querySelector('.sidebar');
+        if (!sidebar) return;
+
+        if (!isMobileViewport()) {
+            sidebar.classList.remove('mobile-open');
+            hideSidebarBackdrop();
+        }
+
+        if (isTabletViewport()) {
+            sidebar.classList.add('close');
+        }
+
+        adjustHomeSectionMargin();
+    });
 }
 
 function adjustHomeSectionMargin() {
-    const sidebar = document.querySelector(".sidebar");
     const homeSection = document.querySelector(".home-section");
-    if (!sidebar || !homeSection) return;
-    
+    if (!homeSection) return;
+
+    if (window.innerWidth <= 768) {
+        homeSection.style.marginLeft = "0px";
+        homeSection.style.width = "100%";
+        return;
+    }
+
+    const sidebar = document.querySelector(".sidebar");
+    if (!sidebar) return;
+
     if (sidebar.classList.contains("close")) {
         homeSection.style.marginLeft = "78px";
         homeSection.style.width = "calc(100% - 78px)";
-    }  else {
-    homeSection.style.marginLeft = "260px";
-    homeSection.style.width = "calc(100% - 260px)";
-}
+    } else {
+        homeSection.style.marginLeft = "260px";
+        homeSection.style.width = "calc(100% - 260px)";
+    }
 }
 
 if (document.readyState === 'loading') {

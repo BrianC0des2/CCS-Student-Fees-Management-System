@@ -1595,4 +1595,61 @@ select.filter-select:focus {
     min-width: 0;
 }
 
+@media (max-width: 1024px) {
+    body {
+        overflow-x: hidden;
+    }
+
+    .stat-grid,
+    .quick-grid,
+    .perm-desc-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .table-wrap,
+    .perm-table-overflow,
+    .students-table-wrap,
+    .table-wrapper,
+    .card,
+    .card-sm,
+    .member-card {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    table,
+    .perm-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 768px) {
+    .stat-grid,
+    .quick-grid,
+    .perm-desc-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-grid,
+    .two-col {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions,
+    .member-row,
+    .member-actions,
+    .accordion-btn,
+    .total-bar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    table,
+    .perm-table {
+        font-size: 12px;
+    }
+}
+
 

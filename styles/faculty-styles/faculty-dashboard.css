@@ -21,10 +21,25 @@ body {
 	padding: 14px;
 }
 
+.home-section.faculty-home {
+	margin-left: 260px;
+	width: calc(100% - 260px);
+}
+
+.sidebar.close ~ .home-section.faculty-home {
+	margin-left: 78px;
+	width: calc(100% - 78px);
+}
+
 .home-content {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	padding-left: 0;
+	margin-left: 0;
+	margin-top: 0 !important;
+	padding-top: 0 !important;
+	top: 0;
 	margin-bottom: 16px;
 }
 
@@ -569,40 +584,6 @@ tbody tr:hover {
 	padding: 24px;
 }
 
-@media (max-width: 1024px) {
-	.summary-cards {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
-
-	.filters-grid {
-		grid-template-columns: 1fr;
-	}
-}
-
-@media (max-width: 640px) {
-	.home-content {
-		align-items: flex-start;
-		flex-direction: column;
-		gap: 8px;
-	}
-
-	.summary-cards {
-		grid-template-columns: 1fr;
-	}
-
-	.faculty-search-filter {
-		flex-direction: column;
-		align-items: stretch;
-	}
-
-	.filters-popover {
-		left: 0;
-		right: auto;
-		width: 100%;
-		min-width: 280px;
-	}
-}
-
 .search-filter {
 	background: var(--faculty-card);
 	border: 1px solid var(--faculty-border);
@@ -677,4 +658,233 @@ tbody tr:hover {
 
 .export-btn:hover {
 	background: var(--faculty-green-dark);
+}
+
+/* ─── Responsive Design ─────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+	body {
+		overflow-x: hidden;
+	}
+
+	.home-section.faculty-home,
+	.sidebar.close ~ .home-section.faculty-home {
+		margin-left: 78px !important;
+		width: calc(100% - 78px) !important;
+	}
+
+	.faculty-home,
+	.home-content,
+	.summary-cards,
+	.faculty-search-filter,
+	.search-filter,
+	.faculty-table-card,
+	.members-table,
+	.table-container {
+		max-width: 100%;
+		box-sizing: border-box;
+	}
+
+	.summary-cards {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.filters-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.filters-popover {
+		width: min(420px, 92vw);
+	}
+
+	table {
+		display: block;
+		overflow-x: auto;
+		white-space: nowrap;
+	}
+}
+
+@media (max-width: 768px) {
+	.home-section.faculty-home,
+	.sidebar.close ~ .home-section.faculty-home {
+		margin-left: 0 !important;
+		width: 100% !important;
+	}
+
+	.home-content {
+		align-items: flex-start;
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.summary-cards {
+		grid-template-columns: 1fr;
+	}
+
+	.faculty-search-filter,
+	.search-filter,
+	.filters-row {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.filters-container {
+		position: relative;
+		width: 100%;
+	}
+
+	.filters-btn {
+		display: block;
+		width: 100%;
+	}
+
+	.faculty-search-filter input,
+	.search-filter input {
+		width: 100%;
+	}
+
+	.faculty-search-filter button,
+	.search-filter button {
+		width: 100%;
+	}
+
+	.filters-popover {
+		left: auto;
+		right: auto;
+		width: 100%;
+		min-width: 0;
+		position: relative;
+		top: auto;
+		bottom: auto;
+		margin-top: 8px;
+		border-radius: 12px;
+	}
+
+	.filters-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.faculty-home {
+		padding: 14px;
+	}
+
+	.org-header-card {
+		width: 100%;
+		max-width: 100%;
+	}
+
+	#facultyWelcomeName {
+		font-size: 1.5rem;
+	}
+
+	#facultyWelcomeSub {
+		font-size: 0.8rem;
+	}
+
+	.faculty-table-card .table-header,
+	.members-table .table-header {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+	}
+
+	.faculty-table-card .table-header h2,
+	.members-table .table-header h2 {
+		width: 100%;
+	}
+
+	.bulk-action-btn,
+	.export-btn {
+		width: 100%;
+	}
+
+	table {
+		width: 100%;
+		min-width: 0;
+		table-layout: fixed;
+		font-size: 12px;
+	}
+
+	.table-container,
+	.faculty-table-card,
+	.members-table {
+		max-width: 100%;
+		overflow-x: auto;
+	}
+
+	tbody td {
+		padding: 10px 8px;
+	}
+
+	thead th {
+		padding: 10px 8px;
+	}
+
+	.modal-card {
+		width: calc(100% - 32px);
+	}
+
+	.bulk-action-btn {
+		width: auto;
+		padding: 6px 12px;
+		font-size: 0.75rem;
+		white-space: nowrap;
+	}
+
+	.table-header {
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		gap: 8px;
+	}
+
+	.table-header h2 {
+		width: auto;
+		font-size: 14px;
+	}
+}
+
+@media (max-width: 375px) {
+	.faculty-home {
+		padding: 14px;
+	}
+
+	.filters-container {
+		width: 100%;
+	}
+
+	.filters-popover {
+		position: relative;
+		top: auto;
+		right: auto;
+		left: auto;
+		bottom: auto;
+		width: 100%;
+		min-width: 0;
+		margin-top: 8px;
+		border-radius: 12px;
+	}
+
+	.table-container,
+	.faculty-table-card,
+	.members-table {
+		max-width: 100%;
+		overflow-x: auto;
+	}
+
+	table {
+		width: 100%;
+		min-width: 0;
+		table-layout: fixed;
+	}
+
+	.bulk-action-btn {
+		width: auto;
+		padding: 5px 10px;
+		font-size: 0.7rem;
+		white-space: nowrap;
+	}
+
+	.table-header h2 {
+		font-size: 13px;
+	}
 }

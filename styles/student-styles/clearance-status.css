@@ -472,3 +472,51 @@
     width: 100%;
   }
 }
+
+@media (max-width: 1024px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  #page-content,
+  .progress-card,
+  .legend-row,
+  #signatories-list,
+  .signatory-card,
+  .info-box {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .legend-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .type-legend {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  #page-content {
+    padding: 0 12px 30px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .card-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .detail-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+}

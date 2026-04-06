@@ -147,18 +147,19 @@
                 <span class="text">Student Dashboard</span>
             </div>
             <br>
-            <div class="dashboard-container">
+            <div class="dashboard-container" style="width: 100%; overflow-x: hidden; box-sizing: border-box; max-width: 100%;">
                 <div class="header">
                     <h1>Welcome back, Bryan!</h1>
                     <p>Here's your clearance status and academic informations</p>
                 </div>
-                <div class="clearance-progress-container">
-                    <img class="clearance-content" src="../../assets/images/progress.png" alt="percentage" width="150px" height="100px">
+                <div style="width:100%; overflow:hidden; box-sizing:border-box;">
+                <div class="clearance-progress-container" style="flex-wrap: wrap; width: 100%; box-sizing: border-box;">
+                    <img class="clearance-content" src="../../assets/images/progress.png" alt="percentage" width="150px" height="100px" style="max-width: 150px; width: 100%; height: auto;">
                     <div class="clearance-content progress">
                         <h2>Clearance Progress</h2>
                         <p>2 of 8 Requirements Completed</p>
                     </div>
-                    <div class="labels">
+                    <div class="labels" style="flex: 1 1 100%; display: flex; justify-content: space-around;">
                         <div class="clearance-content completed">
                             <h1>2</h1>
                             <p>Completed</p>
@@ -169,7 +170,9 @@
                         </div>
                     </div>
                 </div>
+                </div>
 
+                <div style="width:100%; overflow:hidden; box-sizing:border-box;">
                 <div class="payment-progress-container">
                     <div class="fees">
                         <h2><i class='bx bx-wallet'></i> Outstanding Fees</h2>
@@ -216,6 +219,7 @@
 
                         </div>
                     </div>
+                </div>
                 </div>
                 <div class="approval-status">
                     <div class="clearance-header">
