@@ -224,10 +224,12 @@ body {
 	border-radius: 10px;
 	background: var(--faculty-green);
 	color: #ffffff;
-	padding: 8px 12px;
+	padding: 10px 20px;
+	font-size: 0.85rem;
 	font-weight: 600;
 	display: inline-flex;
 	align-items: center;
+	justify-content: center;
 	gap: 6px;
 	cursor: pointer;
 }

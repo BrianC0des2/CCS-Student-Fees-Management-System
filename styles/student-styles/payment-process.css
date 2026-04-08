@@ -1,5 +1,10 @@
 @import url('../theme.css');
 
+/* Override full page background color */
+body {
+    background: #f0f2f8 !important;
+}
+
 .navbar{
     display: flex;
     width:100%;
