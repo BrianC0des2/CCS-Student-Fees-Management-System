@@ -262,7 +262,8 @@ document.querySelectorAll('a[data-tab]').forEach(link => {
 
 const sidebarEl  = document.querySelector('.sidebar');
 const menuToggle = document.querySelector('.bx-menu');
-if (menuToggle) {
+if (menuToggle && !menuToggle.dataset.sidebarInitialized) {
+    menuToggle.dataset.sidebarInitialized = 'true';
     menuToggle.addEventListener('click', () => sidebarEl.classList.toggle('close'));
 }
 
@@ -1071,7 +1072,7 @@ function renderPermissions() {
 
         <div class="perm-save-row">
             <button class="btn btn-blue" id="save-student-perms">
-                ${bxi('save')} Save Student Permissions
+                Save Student Permissions
             </button>
         </div>
 
@@ -1426,7 +1427,7 @@ function renderClearance() {
         </div>
         <div class="clearance-save-row">
             <button class="btn btn-green" id="save-clearance-btn">
-                ${bxi('save')} Save Workflow
+                 Save Workflow
             </button>
         </div>
     `;
