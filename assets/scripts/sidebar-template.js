@@ -83,18 +83,72 @@ const sidebarHTML = `
 </div>
 `;
 
+const SIDEBAR_STATE_KEY = 'ccsfinance.sidebar.state';
+
+function getSavedSidebarState() {
+    try {
+        return localStorage.getItem(SIDEBAR_STATE_KEY);
+    } catch (_err) {
+        return null;
+    }
+}
+
+function saveSidebarState(sidebar) {
+    if (!sidebar) return;
+    const state = sidebar.classList.contains('close') ? 'closed' : 'open';
+    try {
+        localStorage.setItem(SIDEBAR_STATE_KEY, state);
+    } catch (_err) {
+        // Ignore storage errors (private mode / blocked storage).
+    }
+}
+
+function applySavedSidebarState(sidebar) {
+    if (!sidebar) return;
+    const state = getSavedSidebarState();
+    if (state === 'closed') {
+        sidebar.classList.add('close');
+        return;
+    }
+    if (state === 'open') {
+        sidebar.classList.remove('close');
+    }
+}
+
+function bindSidebarLogoStatePersistence() {
+    const sidebar = document.querySelector('.sidebar');
+    const logoLink = document.querySelector('.sidebar .logo-details')?.closest('a');
+    if (!sidebar || !logoLink || logoLink.dataset.sidebarStateBound === 'true') return;
+
+    logoLink.dataset.sidebarStateBound = 'true';
+    logoLink.addEventListener('click', () => {
+        saveSidebarState(sidebar);
+    });
+}
+
 function loadSidebar() {
     const container = document.getElementById('sidebar-container');
     if (!container) {
-        console.warn('Sidebar container #sidebar-container not found');
+        // Fallback for pages that already include static sidebar markup.
+        const sidebar = document.querySelector('.sidebar');
+        applySavedSidebarState(sidebar);
+        applyRoleBasedSidebarAccess();
+        bindSidebarLogoStatePersistence();
+        initializeSidebarEvents();
+        adjustHomeSectionMargin();
         return;
     }
     
     container.innerHTML = sidebarHTML;
 
+    const sidebar = container.querySelector('.sidebar');
+    applySavedSidebarState(sidebar);
+
     applyRoleBasedSidebarAccess();
+    bindSidebarLogoStatePersistence();
     
     initializeSidebarEvents();
+    adjustHomeSectionMargin();
 }
 
 function applyRoleBasedSidebarAccess() {
@@ -230,6 +284,7 @@ function initializeSidebarEvents() {
                 sidebar.classList.add("close");
                 hideSidebarBackdrop();
                 sidebar.classList.remove("mobile-open");
+                saveSidebarState(sidebar);
                 adjustHomeSectionMargin();
                 return;
             }
@@ -237,6 +292,7 @@ function initializeSidebarEvents() {
             sidebar.classList.toggle("close");
             hideSidebarBackdrop();
             sidebar.classList.remove("mobile-open");
+            saveSidebarState(sidebar);
             adjustHomeSectionMargin();
         });
     }
