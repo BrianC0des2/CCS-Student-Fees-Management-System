@@ -438,100 +438,64 @@
                     </button>
                 </div>
                 <div class="form-grid">
-                     <div class="form-group">
-                        <label>School Email *</label>
-                        <input type="email" id="nsEmail" 
-                               placeholder="Auto-generated from Student ID">
-                    </div>
                     <div class="form-group">
-<<<<<<< HEAD
-                        <label>Initial Password</label>
-                        <input type="text" id="nsPassword" 
-                               value="123456" 
-                               disabled
-                               style="background:#f3f4f6; 
-                                      color:#6b7280; cursor:not-allowed;">
-                    </div>
-                    <div class="form-group">
-                        <label>Last Name *</label>
-                        <input type="text" id="nsName" 
-                               placeholder="Last Name">
-=======
-                        <label>Last Name *</label>
-                        <input type="text" id="nsLastName" 
-                               placeholder="e.g. Santos">
+                        <label>Student Number *</label>
+                        <input type="text" id="nsStudentNo"
+                               placeholder="e.g. TY202500100">
                     </div>
                     <div class="form-group">
                         <label>First Name *</label>
-                        <input type="text" id="nsFirstName" 
-                               placeholder="e.g. Maria">
+                        <input type="text" id="nsFirstName"
+                               placeholder="e.g. Bryan">
                     </div>
                     <div class="form-group">
-                        <label>Middle Initial (Optional)</label>
-                        <input type="text" id="nsMi" 
-                               placeholder="e.g. A">
+                        <label>Middle Name</label>
+                        <input type="text" id="nsMiddleName"
+                               placeholder="e.g. Joseph">
+                    </div>
+                    <div class="form-group">
+                        <label>Surname *</label>
+                        <input type="text" id="nsSurname"
+                               placeholder="e.g. Santos">
                     </div>
                     <div class="form-group">
                         <label>Suffix (Optional)</label>
-                        <input type="text" id="nsSuffix" 
-                               placeholder="e.g. Jr., III">
+                        <input type="text" id="nsSuffix"
+                               placeholder="e.g. Jr., III, Sr.">
                     </div>
                     <div class="form-group">
-                        <label>Student No. *</label>
-                        <input type="text" id="nsStudentNo" 
-                               placeholder="e.g. 2025-1101">
-                    </div>
-                    <div class="form-group">
-                        <label>Course</label>
+                        <label>Course *</label>
                         <select id="nsCourse">
+                            <option value="">Select Course</option>
                             <option>BS Computer Science</option>
                             <option>BS Information Technology</option>
                         </select>
->>>>>>> ak47
                     </div>
                     <div class="form-group">
-                        <label>Year Level</label>
+                        <label>Year Level *</label>
                         <select id="nsYear">
+                            <option value="">Select Year</option>
                             <option>1st Year</option>
                             <option>2nd Year</option>
                             <option>3rd Year</option>
                             <option>4th Year</option>
                         </select>
                     </div>
-                    
                     <div class="form-group">
-                        <label>First Name *</label>
-                        <input type="text" id="nsName" 
-                               placeholder="First Name">
-                    </div>
-                    <div class="form-group">
-                        <label>Course</label>
-                        <select id="nsCourse">
-                            <option>BS Computer Science</option>
-                            <option>BS Information Technology</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Middle Name *</label>
-                        <input type="text" id="nsName" 
-                               placeholder="Middle Name">
-                    </div>
-                    
-                     <div class="form-group">
-                        <label>Section</label>
+                        <label>Section *</label>
                         <select id="nsSection">
+                            <option value="">Select Section</option>
                             <option>CS 1-A</option>
                             <option>CS 1-B</option>
                         </select>
                     </div>
-                    
-                     <div class="form-group">
-                        <label>Student No. *</label>
-                        <input type="text" id="nsStudentNo" 
-                               placeholder="e.g. 2025-1101">
+                    <div class="form-group">
+                        <label>School Email *</label>
+                        <input type="email" id="nsEmail"
+                               placeholder="Auto-generated from Student Number"
+                               readonly
+                               style="background:#f3f4f6; color:#6b7280; cursor:not-allowed;">
                     </div>
-                   
-                   
                 </div>
                 <div class="form-actions">
                     <button class="reset-btn" 
@@ -857,36 +821,42 @@
         // Save student
         document.getElementById('saveAddStudent')
             .addEventListener('click', () => {
-            const lastname = document.getElementById('nsLastName')
+            const studentNo = document.getElementById('nsStudentNo')
                 .value.trim();
-            const firstname = document.getElementById('nsFirstName')
+            const surname = document.getElementById('nsSurname')
                 .value.trim();
-            const mi = document.getElementById('nsMi')
+            const firstName = document.getElementById('nsFirstName')
+                .value.trim();
+            const middleName = document.getElementById('nsMiddleName')
                 .value.trim();
             const suffix = document.getElementById('nsSuffix')
                 .value.trim();
-            const studentNo = document.getElementById('nsStudentNo')
-                .value.trim();
             const email = document.getElementById('nsEmail')
                 .value.trim();
+            const course = document.getElementById('nsCourse')
+                .value.trim();
+            const year = document.getElementById('nsYear')
+                .value.trim();
+            const section = document.getElementById('nsSection')
+                .value.trim();
 
-            if (!lastname || !firstname || !studentNo || !email) {
-                alert('Last name, first name, student number, and email are required.');
+            if (!studentNo || !surname || !firstName || !email || !course || !year || !section) {
+                alert('Student Number, Surname, First Name, Email, Course, Year, and Section are required.');
                 return;
             }
 
-            const name = [
-                lastname + ',',
-                firstname,
-                mi ? mi + '.' : '',
-                suffix || ''
-            ].filter(Boolean).join(' ').trim();
+            // Build full name
+            const nameParts = [surname + ',', firstName];
+            if (middleName) nameParts.push(middleName);
+            if (suffix) nameParts.push(suffix);
+            const fullName = nameParts.join(' ').trim();
 
             const exists = myStudents.find(s => s.id === studentNo);
             if (exists) {
                 alert('Student number already exists.');
                 return;
             }
+
             const emailExists = myStudents.find(s => s.email === email);
             if (emailExists) {
                 alert('Email already exists.');
@@ -895,21 +865,24 @@
 
             myStudents.push({
                 id: studentNo,
-                name: name,
+                name: fullName,
                 email: email,
-                course: document.getElementById('nsCourse').value,
-                year: document.getElementById('nsYear').value,
-                section: document.getElementById('nsSection').value,
+                course: course,
+                year: year,
+                section: section,
                 password: '123456'
             });
 
             // Reset form
-            document.getElementById('nsLastName').value = '';
-            document.getElementById('nsFirstName').value = '';
-            document.getElementById('nsMi').value = '';
-            document.getElementById('nsSuffix').value = '';
             document.getElementById('nsStudentNo').value = '';
+            document.getElementById('nsSurname').value = '';
+            document.getElementById('nsFirstName').value = '';
+            document.getElementById('nsMiddleName').value = '';
+            document.getElementById('nsSuffix').value = '';
             document.getElementById('nsEmail').value = '';
+            document.getElementById('nsCourse').value = '';
+            document.getElementById('nsYear').value = '';
+            document.getElementById('nsSection').value = '';
             document.getElementById('addStudentForm')
                 .style.display = 'none';
             renderStudents();

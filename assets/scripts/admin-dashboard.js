@@ -432,30 +432,24 @@ function renderFaculty() {
             </div>
             <div class="form-grid">
                 <div class="form-group">
-                    <label>School Email *</label>
-                    <input id="nf-email" type="email" value="${newFacultyData.email}" placeholder="Auto-generated from Faculty ID">
-                    <label>Last Name *</label>
-                    <input id="nf-lastname" value="${newFacultyData.lastname || ''}" placeholder="e.g. Dela Cruz">
+                    <label>Faculty ID *</label>
+                    <input id="nf-id" value="${newFacultyData.facultyId}" placeholder="e.g. FAC-007">
                 </div>
                 <div class="form-group">
                     <label>First Name *</label>
-                    <input id="nf-firstname" value="${newFacultyData.firstname || ''}" placeholder="e.g. Juan">
+                    <input id="nf-firstName" value="${newFacultyData.firstName}" placeholder="e.g. Juan">
                 </div>
                 <div class="form-group">
-                    <label>Middle Initial (Optional)</label>
-                    <input id="nf-mi" value="${newFacultyData.mi || ''}" placeholder="e.g. C">
-                </div>
-                <div class="form-group">
-                    <label>Suffix (Optional)</label>
-                    <input id="nf-suffix" value="${newFacultyData.suffix || ''}" placeholder="e.g. PhD., MIT, Jr.">
-                </div>
-                <div class="form-group">
-                    <label>Initial Password</label>
-                    <input value="123456" disabled class="input-disabled">
+                    <label>Middle Name</label>
+                    <input id="nf-middleName" value="${newFacultyData.middleName}" placeholder="e.g. Carlos">
                 </div>
                 <div class="form-group">
                     <label>Last Name *</label>
-                    <input id="nf-last-name" value="${newFacultyData.lastName}" placeholder="Last Name">
+                    <input id="nf-lastName" value="${newFacultyData.lastName}" placeholder="e.g. Dela Cruz">
+                </div>
+                <div class="form-group">
+                    <label>Suffix (Optional)</label>
+                    <input id="nf-suffix" value="${newFacultyData.suffix}" placeholder="e.g. PhD., MIT, Jr.">
                 </div>
                 <div class="form-group">
                     <label>Role *</label>
@@ -466,11 +460,7 @@ function renderFaculty() {
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>First Name *</label>
-                    <input id="nf-first-name" value="${newFacultyData.firstName}" placeholder="First Name">
-                </div>
-                <div class="form-group">
-                    <label>Department</label>
+                    <label>Department *</label>
                     <select id="nf-dept">
                         ${['BS Computer Science', 'BS Information Technology', 'College of Computer Studies', 'Finance Office'].map(d =>
                             `<option${newFacultyData.department === d ? ' selected' : ''}>${d}</option>`
@@ -478,16 +468,12 @@ function renderFaculty() {
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Middle Name</label>
-                    <input id="nf-middle-name" value="${newFacultyData.middleName}" placeholder="Middle Name">
-                </div>
-                <div class="form-group">
                     <label>Phone Number</label>
-                    <input id="nf-phone" value="${newFacultyData.phone}" placeholder="+63-912-345-6789">
+                    <input id="nf-phone" type="tel" value="${newFacultyData.phone}" placeholder="+63-912-345-6789">
                 </div>
                 <div class="form-group">
-                    <label>Faculty ID *</label>
-                    <input id="nf-id" value="${newFacultyData.facultyId}" placeholder="e.g. FAC-007">
+                    <label>School Email *</label>
+                    <input id="nf-email" type="email" value="${newFacultyData.email}" placeholder="Auto-generated from Faculty ID" readonly style="background:#f3f4f6; color:#6b7280; cursor:not-allowed;">
                 </div>
             </div>
             <div class="form-actions">
@@ -609,29 +595,46 @@ function renderFaculty() {
         document.getElementById('nf-email').value = e.target.value.trim() ? generated : '';
     });
     document.getElementById('save-add-faculty')?.addEventListener('click', () => {
-        const lastname = document.getElementById('nf-lastname').value.trim();
-        const firstname = document.getElementById('nf-firstname').value.trim();
-        const mi = document.getElementById('nf-mi').value.trim();
+        const facultyId = document.getElementById('nf-id').value.trim();
+        const firstName = document.getElementById('nf-firstName').value.trim();
+        const middleName = document.getElementById('nf-middleName').value.trim();
+        const lastName = document.getElementById('nf-lastName').value.trim();
         const suffix = document.getElementById('nf-suffix').value.trim();
         const email = document.getElementById('nf-email').value.trim();
-        if (!lastname || !firstname || !email) {
-            showToast('Last name, first name and email are required.', true);
+        const role = document.getElementById('nf-role').value.trim();
+        const department = document.getElementById('nf-dept').value.trim();
+        const phone = document.getElementById('nf-phone').value.trim();
+
+        if (!facultyId || !firstName || !lastName || !email || !role || !department) {
+            showToast('Faculty ID, First Name, Last Name, Email, Role, and Department are required.', true);
             return;
         }
-        const name = [
-            lastname + ',',
-            firstname,
-            mi ? mi + '.' : '',
-            suffix || ''
-        ].filter(Boolean).join(' ').trim();
-        const id = 'FAC-' + String(facultyList.length + 1).padStart(3, '0');
+
+        // Build full name: LastName, FirstName MiddleName Suffix
+        const nameParts = [lastName + ',', firstName];
+        if (middleName) nameParts.push(middleName);
+        if (suffix) nameParts.push(suffix);
+        const name = nameParts.join(' ').trim();
+
+        // Check if faculty ID already exists
+        if (facultyList.find(f => f.id === facultyId)) {
+            showToast('Faculty ID already exists.', true);
+            return;
+        }
+
         facultyList.push({
-            id: facultyId, name, email,
-            phone:      document.getElementById('nf-phone').value,
-            role:       document.getElementById('nf-role').value,
-            department: document.getElementById('nf-dept').value,
-            status: 'active', permissions: [], dateAdded: 'Mar 8, 2026', lastLogin: 'Never',
+            id: facultyId,
+            name: name,
+            email: email,
+            phone: phone,
+            role: role,
+            department: department,
+            status: 'active',
+            permissions: [],
+            dateAdded: 'Mar 8, 2026',
+            lastLogin: 'Never',
         });
+
         showAddFacultyForm = false;
         newFacultyData = {
             facultyId: '',

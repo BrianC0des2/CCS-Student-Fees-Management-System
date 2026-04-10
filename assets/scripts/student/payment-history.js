@@ -1,139 +1,84 @@
 // Payment History Module
 
 const PaymentHistory = (() => {
-    // Sample payment history data
-    const paymentHistory = [
-        {
-            id: 'WMSU-FO-2026-001235',
-            date: new Date(2026, 1, 5, 14, 30),
-            amount: 8500,
-            method: 'gcash',
-            transactionId: 'GCSH-20260205-123456',
-            fees: [
-                { fee: 'Tuition Fee', price: 5000 },
-                { fee: 'Laboratory Fee', price: 2000 },
-                { fee: 'Technology Fee', price: 1500 }
-            ],
-            status: 'Paid'
-        },
-        {
-            id: 'WMSU-FO-2025-001089',
-            date: new Date(2025, 10, 15, 10, 15),
-            amount: 9200,
-            method: 'paymaya',
-            transactionId: 'PMY-20251115-789456',
-            fees: [
-                { fee: 'Tuition Fee', price: 5500 },
-                { fee: 'Laboratory Fee', price: 2000 },
-                { fee: 'Facility Fee', price: 1700 }
-            ],
-            status: 'Paid'
-        },
-        {
-            id: 'WMSU-FO-2025-000956',
-            date: new Date(2025, 7, 20, 9, 45),
-            amount: 8500,
-            method: 'bank',
-            transactionId: 'BNK-20250820-654321',
-            fees: [
-                { fee: 'Tuition Fee', price: 5000 },
-                { fee: 'Laboratory Fee', price: 2000 },
-                { fee: 'Technology Fee', price: 1500 }
-            ],
-            status: 'Paid'
-        },
-        {
-            id: 'WMSU-FO-2025-000654',
-            date: new Date(2025, 5, 10, 15, 20),
-            amount: 12000,
-            method: 'gcash',
-            transactionId: 'GCSH-20250610-456789',
-            fees: [
-                { fee: 'Tuition Fee', price: 7000 },
-                { fee: 'Laboratory Fee', price: 2500 },
-                { fee: 'Library Card Renewal', price: 500 },
-                { fee: 'Miscellaneous Fee', price: 2000 }
-            ],
-            status: 'Paid'
-        },
-        {
-            id: 'WMSU-FO-2025-000423',
-            date: new Date(2025, 2, 15, 11, 30),
-            amount: 8200,
-            method: 'paymaya',
-            transactionId: 'PMY-20250315-123789',
-            fees: [
-                { fee: 'Tuition Fee', price: 5000 },
-                { fee: 'Laboratory Fee', price: 2000 },
-                { fee: 'Technology Fee', price: 1200 }
-            ],
-            status: 'Paid'
-        },
-        {
-            id: 'WMSU-FO-2024-002145',
-            date: new Date(2024, 11, 5, 13, 45),
-            amount: 9500,
-            method: 'bank',
-            transactionId: 'BNK-20241205-987654',
-            fees: [
-                { fee: 'Tuition Fee', price: 5500 },
-                { fee: 'Laboratory Fee', price: 2500 },
-                { fee: 'Facility Fee', price: 1500 }
-            ],
-            status: 'Paid'
-        }
-    ];
-
+    let paymentHistory = [];
     let currentFilter = 'recent';
     let currentModal = null;
 
-    const methodLabels = {
-        gcash: 'GCash',
-        paymaya: 'PayMaya',
-        bank: 'Bank Transfer',
-        cash: 'Cash'
-    };
+    // Initialize payment history from dashboard payments
+    function initializeFromDashboard() {
+        // Get current user from Auth or storage
+        let currentUser = null;
+
+        if (window.Auth && typeof window.Auth.getUser === 'function') {
+            currentUser = window.Auth.getUser();
+        }
+
+        // If Auth not ready, try to get from storage
+        if (!currentUser) {
+            try {
+                const authData = localStorage.getItem('ccs.auth.user') || sessionStorage.getItem('ccs.auth.user');
+                if (authData) {
+                    currentUser = JSON.parse(authData);
+                }
+            } catch (e) {
+                console.warn('Could not parse auth data:', e);
+            }
+        }
+
+        const samplePayments = window.SAMPLE_PAYMENTS || [];
+
+        if (!samplePayments.length) {
+            console.warn('SAMPLE_PAYMENTS not loaded');
+            paymentHistory = [];
+            return;
+        }
+
+        // Filter by current student or show all if no user
+        paymentHistory = currentUser && currentUser.studentId
+            ? samplePayments.filter(p => p.studentNo === currentUser.studentId)
+            : samplePayments;
+    }
 
     function formatDate(date) {
-        return date.toLocaleDateString('en-US', {
+        // date is already a string like "2026-03-01"
+        const d = new Date(date + 'T00:00:00');
+        return d.toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
             day: 'numeric'
         });
     }
 
-    function formatCurrency(amount) {
-        return '₱' + amount.toLocaleString();
-    }
-
-    function isRecent(date) {
+    function isRecent(dateStr) {
         const now = new Date();
-        const diffTime = now - date;
+        const d = new Date(dateStr + 'T00:00:00');
+        const diffTime = now - d;
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays <= 90; // 3 months
+        return diffDays <= 30; // 30 days
     }
 
-    function groupReceiptsByCategory(receipts, filter) {
+    function groupPaymentsByCategory(payments, filter) {
         let grouped = {};
 
-        receipts.forEach(receipt => {
-            const isRecentReceipt = isRecent(receipt.date);
-            const category = isRecentReceipt ? 'recent' : 'old';
+        payments.forEach(payment => {
+            const isRecentPayment = isRecent(payment.date);
+            const category = isRecentPayment ? 'recent' : 'old';
 
             if (filter === 'all' || filter === category) {
                 if (!grouped[category]) {
                     grouped[category] = [];
                 }
-                grouped[category].push(receipt);
+                grouped[category].push(payment);
             }
         });
 
         return grouped;
     }
 
-    function buildTable(receipts) {
-        if (receipts.length === 0) {
-            return '<p style="padding: 24px; text-align: center; color: var(--sys-text-500); font-size: 13px;">No receipts found</p>';
+    function buildTable(payments) {
+        if (payments.length === 0) {
+            return '<p style="padding: 24px; text-align: center; color: var(--sys-text-500); font-size: 13px;">No payments found</p>';
         }
 
         let html = `
@@ -141,32 +86,23 @@ const PaymentHistory = (() => {
                 <table class="receipt-history-table">
                     <thead>
                         <tr>
-                            <th>Receipt #</th>
+                            <th>Description</th>
                             <th>Date</th>
                             <th>Amount</th>
-                            <th>Method</th>
-                            <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
         `;
 
-        receipts.sort((a, b) => b.date - a.date).forEach(receipt => {
+        payments.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach((payment, idx) => {
             html += `
                 <tr>
-                    <td><span class="receipt-num">${receipt.id}</span></td>
-                    <td><span class="receipt-date">${formatDate(receipt.date)}</span></td>
-                    <td><span class="receipt-amount">${formatCurrency(receipt.amount)}</span></td>
-                    <td><span class="receipt-method-badge"><i class='bx bx-wallet'></i> ${methodLabels[receipt.method]}</span></td>
+                    <td><span class="receipt-num">${payment.desc}</span></td>
+                    <td><span class="receipt-date">${payment.date}</span></td>
+                    <td><span class="receipt-amount">${payment.amount}</span></td>
                     <td>
-                        <span class="receipt-status-cell">
-                            <span class="receipt-status-dot"></span>
-                            <span class="receipt-status-text">${receipt.status}</span>
-                        </span>
-                    </td>
-                    <td>
-                        <button class="btn-view-details" onclick="PaymentHistory.viewDetails('${receipt.id}')">
+                        <button class="btn-view-details" onclick="PaymentHistory.viewDetails(${idx})">
                             <i class='bx bx-show'></i> View
                         </button>
                     </td>
@@ -185,17 +121,19 @@ const PaymentHistory = (() => {
 
     function renderAll() {
         const container = document.getElementById('receipt-filter-sections');
-        const grouped = groupReceiptsByCategory(paymentHistory, currentFilter);
+        if (!container) return;
+
+        const grouped = groupPaymentsByCategory(paymentHistory, currentFilter);
 
         let html = '';
 
-        // Recent receipts
-        if (grouped['recent']) {
+        // Recent payments
+        if (grouped['recent'] && grouped['recent'].length > 0) {
             html += `
                 <div class="receipt-filter-section">
                     <div class="receipt-section-header">
                         <span class="receipt-section-label">
-                            <i class='bx bx-time-five'></i> Recent Receipts
+                            <i class='bx bx-time-five'></i> Recent Payments
                         </span>
                         <span class="receipt-section-count">${grouped['recent'].length}</span>
                     </div>
@@ -204,13 +142,13 @@ const PaymentHistory = (() => {
             `;
         }
 
-        // Old receipts
-        if (grouped['old']) {
+        // Old payments
+        if (grouped['old'] && grouped['old'].length > 0) {
             html += `
                 <div class="receipt-filter-section">
                     <div class="receipt-section-header">
                         <span class="receipt-section-label">
-                            <i class='bx bx-archive'></i> Older Receipts
+                            <i class='bx bx-archive'></i> Older Payments
                         </span>
                         <span class="receipt-section-count">${grouped['old'].length}</span>
                     </div>
@@ -220,24 +158,33 @@ const PaymentHistory = (() => {
         }
 
         if (!html) {
-            html = '<p style="padding: 24px; text-align: center; color: var(--sys-text-500);">No receipts found</p>';
+            html = '<p style="padding: 24px; text-align: center; color: var(--sys-text-500);">No payments found</p>';
         }
 
         container.innerHTML = html;
     }
 
-    function viewDetails(receiptId) {
-        const receipt = paymentHistory.find(r => r.id === receiptId);
-        if (!receipt) return;
+    function viewDetails(index) {
+        const payment = paymentHistory[index];
+        if (!payment) return;
 
-        currentModal = receipt;
+        currentModal = payment;
 
-        const feeHtml = receipt.fees.map(f => `
-            <div class="receipt-fee-item">
-                <span class="receipt-fee-name">${f.fee}</span>
-                <span class="receipt-fee-amt">${formatCurrency(f.price)}</span>
-            </div>
-        `).join('');
+        // Generate detailed receipt info from payment
+        const dateObj = new Date(payment.date + 'T00:00:00');
+        const methodOptions = ['gcash', 'paymaya', 'bank', 'cash'];
+        const method = methodOptions[index % methodOptions.length];
+        const methodLabels = {
+            gcash: 'GCash',
+            paymaya: 'PayMaya',
+            bank: 'Bank Transfer',
+            cash: 'Cash'
+        };
+
+        const amountStr = payment.amount.replace('₱', '').replace(/,/g, '');
+        const amount = parseInt(amountStr);
+        const receiptId = `WMSU-FO-${dateObj.getFullYear()}-${String(index + 1000).slice(-6)}`;
+        const transactionId = `${method.toUpperCase().slice(0, 3)}-${dateObj.toISOString().slice(0, 10).replace(/-/g, '')}-${String(index).padStart(6, '0')}`;
 
         const contentHtml = `
             <!-- Receipt Header -->
@@ -245,11 +192,11 @@ const PaymentHistory = (() => {
                 <div class="receipt-modal-row">
                     <div class="receipt-modal-item">
                         <span class="receipt-modal-label">Receipt Number</span>
-                        <span class="receipt-modal-value">${receipt.id}</span>
+                        <span class="receipt-modal-value">${receiptId}</span>
                     </div>
                     <div class="receipt-modal-item">
-                        <span class="receipt-modal-label">Date &amp; Time</span>
-                        <span class="receipt-modal-value">${formatDate(receipt.date)}</span>
+                        <span class="receipt-modal-label">Date</span>
+                        <span class="receipt-modal-value">${payment.date}</span>
                     </div>
                 </div>
             </div>
@@ -262,17 +209,17 @@ const PaymentHistory = (() => {
                 <div class="receipt-modal-row">
                     <div class="receipt-modal-item">
                         <span class="receipt-modal-label">Payment Method</span>
-                        <span class="receipt-modal-value">${methodLabels[receipt.method]}</span>
+                        <span class="receipt-modal-value">${methodLabels[method]}</span>
                     </div>
                     <div class="receipt-modal-item">
                         <span class="receipt-modal-label">Transaction ID</span>
-                        <span class="receipt-modal-value receipt-txn-id">${receipt.transactionId}</span>
+                        <span class="receipt-modal-value receipt-txn-id">${transactionId}</span>
                     </div>
                 </div>
                 <div class="receipt-modal-row">
                     <div class="receipt-modal-item">
                         <span class="receipt-modal-label">Status</span>
-                        <span class="receipt-modal-value"><span class="receipt-status-badge">✓ ${receipt.status}</span></span>
+                        <span class="receipt-modal-value"><span class="receipt-status-badge">✓ Paid</span></span>
                     </div>
                     <div class="receipt-modal-item">
                         <span class="receipt-modal-label">Processed By</span>
@@ -287,10 +234,13 @@ const PaymentHistory = (() => {
             <div class="receipt-modal-section">
                 <h4 class="receipt-modal-section-title">Fee Breakdown</h4>
                 <div class="receipt-fee-list">
-                    ${feeHtml}
+                    <div class="receipt-fee-item">
+                        <span class="receipt-fee-name">${payment.desc}</span>
+                        <span class="receipt-fee-amt">${payment.amount}</span>
+                    </div>
                     <div class="receipt-fee-total">
                         <span>Total Amount Paid</span>
-                        <span>${formatCurrency(receipt.amount)}</span>
+                        <span>${payment.amount}</span>
                     </div>
                 </div>
             </div>
@@ -332,7 +282,7 @@ const PaymentHistory = (() => {
             </div>
         `;
 
-        document.getElementById('modal-title').textContent = `Receipt ${receipt.id}`;
+        document.getElementById('modal-title').textContent = `Receipt ${receiptId}`;
         document.getElementById('receipt-modal-content').innerHTML = contentHtml;
         document.getElementById('receipt-modal').classList.add('show');
     }
@@ -354,6 +304,7 @@ const PaymentHistory = (() => {
     }
 
     function initializePage() {
+        initializeFromDashboard();
         renderAll();
     }
 
@@ -366,6 +317,9 @@ const PaymentHistory = (() => {
     };
 })();
 
-// Initialize on DOM ready
-document.addEventListener('DOMContentLoaded', PaymentHistory.init);
-
+// Initialize on DOM ready with delay to ensure all scripts are loaded
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        PaymentHistory.init();
+    }, 200);
+});

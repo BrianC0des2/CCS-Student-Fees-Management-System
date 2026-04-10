@@ -416,57 +416,6 @@ let paymentsFilter = null;
 let paymentsListEl = null;
 let myPayments = [];
 
-const samplePayments = [
-  { studentNo: "TY202500100", studentName: "Bryan", desc: 'CCS Fee - BSCS 1A', amount: '₱1,000.00', date: '2026-03-01' },
-  { studentNo: "TY202500100", studentName: "Bryan", desc: 'Insurance - BSCS 1A', amount: '₱150.00', date: '2026-03-10' },
-  { studentNo: "TY202500100", studentName: "Bryan", desc: 'Gender Club - BSCS 1A', amount: '₱50.00', date: '2026-03-15' },
-  { studentNo: "TY202500100", studentName: "Bryan", desc: 'Miscellaneous - BSCS 1A', amount: '₱850.00', date: '2026-01-20' },
-  { studentNo: "TY202500101", studentName: "Bryan", desc: 'CCS Fee - BSCS 1A', amount: '₱1,000.00', date: '2026-03-01' },
-  { studentNo: "TY202500101", studentName: "Bryan", desc: 'Insurance - BSCS 1A', amount: '₱150.00', date: '2026-03-10' },
-  { studentNo: "TY202500101", studentName: "Bryan", desc: 'Gender Club - BSCS 1A', amount: '₱50.00', date: '2026-03-15' },
-  { studentNo: "TY202500101", studentName: "Bryan", desc: 'Partial Payment - BSCS 1B', amount: '₱500.00', date: '2026-01-15' },
-  { studentNo: "TY202500102", studentName: "Maria Santos", desc: 'CCSC Fee - BSCS 1A', amount: '₱1,000.00', date: '2026-02-10' },
-  { studentNo: "TY202500104", studentName: "Ana Garcia", desc: 'Insurance - BSCS 1B', amount: '₱150.00', date: '2026-02-05' },
-  { studentNo: "TY202500106", studentName: "Sofia Martinez", desc: 'Miscellaneous - BSIT 1A', amount: '₱850.00', date: '2026-02-01' },
-  { studentNo: "TY202500108", studentName: "Isabella Flores", desc: 'Gender Club - BSIT 1B', amount: '₱1,000.00', date: '2026-01-28' },
-  { studentNo: "TY202500110", studentName: "Valentina Castro", desc: 'CCSC Fee - ACT-AD 1A', amount: '₱1,000.00', date: '2026-01-22' },
-  { studentNo: "TY202400202", studentName: "Camila Vargas", desc: 'Insurance - BSCS 2A', amount: '₱150.00', date: '2026-02-08' },
-  { studentNo: "TY202400204", studentName: "Gabriela Ruiz", desc: 'Miscellaneous - BSCS 2B', amount: '₱850.00', date: '2026-02-03' },
-  { studentNo: "TY202400206", studentName: "Lucia Herrera", desc: 'Gender Club - BSIT 2A', amount: '₱1,000.00', date: '2026-01-31' },
-  { studentNo: "TY202400208", studentName: "Elena Jimenez", desc: 'CCSC Fee - BSIT 2B', amount: '₱1,000.00', date: '2026-01-26' },
-  { studentNo: "TY202400210", studentName: "Marina Ortega", desc: 'Insurance - ACT-AD 2A', amount: '₱150.00', date: '2026-02-06' },
-  { studentNo: "TY202300302", studentName: "Rosa Medina", desc: 'Miscellaneous - BSCS 3A', amount: '₱850.00', date: '2026-02-09' },
-  { studentNo: "TY202300304", studentName: "Carmen Delgado", desc: 'Gender Club - BSCS 3B', amount: '₱1,000.00', date: '2026-02-07' },
-  { studentNo: "TY202300306", studentName: "Patricia Soto", desc: 'CCSC Fee - BSIT 3A', amount: '₱1,000.00', date: '2026-01-23' },
-  { studentNo: "TY202300308", studentName: "Adriana Vega", desc: 'Insurance - BSIT 3B', amount: '₱150.00', date: '2026-01-19' },
-  { studentNo: "TY202300310", studentName: "Monica Paredes", desc: 'Miscellaneous - ACT-NET 1A', amount: '₱850.00', date: '2026-02-12' },
-  { studentNo: "TY202200402", studentName: "Silvia Aguilar", desc: 'Gender Club - BSCS 4A', amount: '₱1,000.00', date: '2026-02-13' },
-  { studentNo: "TY202200404", studentName: "Teresa Blanco", desc: 'CCSC Fee - BSCS 4B', amount: '₱1,000.00', date: '2026-02-14' },
-  { studentNo: "TY202200406", studentName: "Beatriz Leon", desc: 'Insurance - BSIT 4A', amount: '₱150.00', date: '2026-01-30' },
-  { studentNo: "TY202200408", studentName: "Alicia Rubio", desc: 'Miscellaneous - ACT-AD 1B', amount: '₱850.00', date: '2026-01-25' },
-  { studentNo: "TY202200410", studentName: "Natalia Gil", desc: 'Gender Club - ACT-NET 1B', amount: '₱1,000.00', date: '2026-02-16' },
-  { studentNo: "TY202500111", studentName: "Juan Dela Cruz", desc: 'Partial Payment - BSCS 1A', amount: '₱500.00', date: '2026-01-15' },
-  { studentNo: "TY202500103", studentName: "Pedro Reyes", desc: 'Partial Payment - BSCS 1B', amount: '₱700.00', date: '2026-01-20' },
-  { studentNo: "TY202500105", studentName: "Carlos Lopez", desc: 'Partial Payment - BSIT 1A', amount: '₱300.00', date: '2026-01-25' },
-  { studentNo: "TY202500107", studentName: "Miguel Torres", desc: 'Partial Payment - BSIT 1B', amount: '₱800.00', date: '2026-01-30' },
-  { studentNo: "TY202500109", studentName: "Diego Ramirez", desc: 'Partial Payment - ACT-AD 1A', amount: '₱500.00', date: '2026-02-02' },
-  { studentNo: "TY202400201", studentName: "Luis Mendoza", desc: 'Partial Payment - BSCS 2A', amount: '₱600.00', date: '2026-01-18' },
-  { studentNo: "TY202400203", studentName: "Andres Silva", desc: 'Partial Payment - BSCS 2B', amount: '₱400.00', date: '2026-01-12' },
-  { studentNo: "TY202400205", studentName: "Fernando Morales", desc: 'Partial Payment - BSIT 2A', amount: '₱400.00', date: '2026-01-27' },
-  { studentNo: "TY202400207", studentName: "Roberto Diaz", desc: 'Partial Payment - BSIT 2B', amount: '₱700.00', date: '2026-02-04' },
-  { studentNo: "TY202400209", studentName: "Pablo Alvarez", desc: 'Partial Payment - ACT-AD 2A', amount: '₱600.00', date: '2026-01-29' },
-  { studentNo: "TY202300301", studentName: "Antonio Guzman", desc: 'Partial Payment - BSCS 3A', amount: '₱300.00', date: '2026-01-21' },
-  { studentNo: "TY202300303", studentName: "Manuel Chavez", desc: 'Partial Payment - BSCS 3B', amount: '₱500.00', date: '2026-01-16' },
-  { studentNo: "TY202300305", studentName: "Javier Romero", desc: 'Partial Payment - BSIT 3A', amount: '₱250.00', date: '2026-01-24' },
-  { studentNo: "TY202300307", studentName: "Francisco Luna", desc: 'Partial Payment - BSIT 3B', amount: '₱850.00', date: '2026-02-11' },
-  { studentNo: "TY202300309", studentName: "Ricardo Cortes", desc: 'Partial Payment - ACT-NET 1A', amount: '₱450.00', date: '2026-01-14' },
-  { studentNo: "TY202200401", studentName: "Eduardo Rios", desc: 'Partial Payment - BSCS 4A', amount: '₱250.00', date: '2026-01-17' },
-  { studentNo: "TY202200403", studentName: "Hector Navarro", desc: 'Partial Payment - BSCS 4B', amount: '₱650.00', date: '2026-01-13' },
-  { studentNo: "TY202200405", studentName: "Raul Moreno", desc: 'Partial Payment - BSIT 4A', amount: '₱350.00', date: '2026-01-11' },
-  { studentNo: "TY202200407", studentName: "Oscar Peña", desc: 'Partial Payment - ACT-AD 1B', amount: '₱750.00', date: '2026-02-15' },
-  { studentNo: "TY202200409", studentName: "Victor Suarez", desc: 'Partial Payment - ACT-NET 1B', amount: '₱550.00', date: '2026-01-28' }
-];
-
 function renderPayments(list){
   if (!paymentsListEl) return;
   paymentsListEl.innerHTML = list.map(p => `
@@ -505,6 +454,7 @@ function initializePaymentsPanel() {
   if (!paymentsListEl) return;
 
   const currentUser = window.Auth ? window.Auth.getUser() : null;
+  const samplePayments = window.SAMPLE_PAYMENTS || [];
   myPayments = currentUser
     ? samplePayments.filter(p => p.studentNo === currentUser.studentId)
     : samplePayments;
