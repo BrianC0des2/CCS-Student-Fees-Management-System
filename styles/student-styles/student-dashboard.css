@@ -30,6 +30,23 @@
 
 }
 
+.progress-circle-wrapper {
+    width: 100px;
+    height: 100px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 18px 18px 0 14px;
+}
+
+.progress-circle-wrapper svg {
+    width: 100px;
+    height: 100px;
+    aspect-ratio: 1 / 1;
+    overflow: visible;
+}
+
 .progress{
     display: flex;
     text-align: center;
@@ -415,24 +432,44 @@
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1023px) {
     .clearance-progress-container {
         flex-direction: column;
+        align-items: center;
         height: auto;
         padding: 12px;
         gap: 10px;
     }
 
-    .clearance-progress-container .clearance-content,
-    .clearance-progress-container .labels {
+    .clearance-progress-container .progress-circle-wrapper {
         width: 100%;
+        height: auto;
         margin: 0;
     }
 
-    .labels {
-        justify-content: space-around;
+    .clearance-progress-container .progress-circle-wrapper svg {
+        width: 100px;
+        height: 100px;
+        max-width: 100px;
+        max-height: 100px;
+        aspect-ratio: 1 / 1;
+        flex-shrink: 0;
     }
 
+    .clearance-progress-container .clearance-content.progress,
+    .clearance-progress-container .labels {
+        width: 100%;
+        margin: 0;
+        align-items: center;
+        text-align: center;
+    }
+
+    .labels {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
     .payment-progress-container {
         flex-direction: column;
     }

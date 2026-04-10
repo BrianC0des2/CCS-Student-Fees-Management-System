@@ -259,11 +259,34 @@
                 </button>
             </div>
             <div id="forgot">
-                <a href="#">Forgot Password?</a><br>
+                <a href="#" id="forgot-password-link">Forgot Password?</a><br>
             </div>
             
             <input id="submit-btn" type="submit" value="Sign In">
         </form>
+    </div>
+
+    <div id="forgot-password-overlay" class="fp-overlay" aria-hidden="true">
+        <div class="fp-modal" role="dialog" aria-modal="true" aria-labelledby="fp-title">
+            <button type="button" id="fp-close-btn" class="fp-close" aria-label="Close forgot password modal">&times;</button>
+
+            <div id="forgot-step-1" class="fp-step">
+                <h2 id="fp-title">Forgot Password</h2>
+                <p class="fp-subtitle">Enter your registered email and we'll send you a reset link.</p>
+
+                <label for="reset-email">Email</label>
+                <input type="email" id="reset-email" name="reset-email" placeholder="Enter your email" required>
+                <p id="email-error" style="color: red; font-size: 0.85rem; display: none; margin-top: 4px;">Please enter a valid email address.</p>
+
+                <button type="button" id="send-reset-btn" class="fp-primary-btn">Send Link</button>
+            </div>
+
+            <div id="forgot-step-2" class="fp-step fp-hidden" aria-hidden="true" style="display:none;">
+                <h2>Reset Link Sent!</h2>
+                <p class="fp-subtitle">A password reset link has been sent to your email. Please check your inbox.</p>
+                <button type="button" id="fp-back-btn" class="fp-primary-btn">Back to Login</button>
+            </div>
+        </div>
     </div>
 
     <div id="first-login-overlay" class="flp-overlay" aria-hidden="true">
@@ -386,6 +409,47 @@
             var confirmPasswordInput = document.getElementById('flp-confirm-password');
             var submitButton = document.getElementById('flp-submit');
             var successMessage = document.getElementById('flp-success');
+            var forgotLink = document.getElementById('forgot-password-link');
+            var forgotOverlay = document.getElementById('forgot-password-overlay');
+            var forgotCloseBtn = document.getElementById('fp-close-btn');
+            var forgotSendBtn = document.getElementById('send-reset-btn');
+            var forgotBackBtn = document.getElementById('fp-back-btn');
+            var forgotStep1 = document.getElementById('forgot-step-1');
+            var forgotStep2 = document.getElementById('forgot-step-2');
+            var forgotIdentifier = document.getElementById('reset-email');
+            var forgotEmailError = document.getElementById('email-error');
+
+            function resetForgotPasswordModal() {
+                if (!forgotStep1 || !forgotStep2) return;
+                forgotStep1.style.display = 'block';
+                forgotStep2.style.display = 'none';
+                forgotStep1.setAttribute('aria-hidden', 'false');
+                forgotStep2.setAttribute('aria-hidden', 'true');
+                if (forgotEmailError) {
+                    forgotEmailError.style.display = 'none';
+                }
+            }
+
+            function openForgotPasswordModal() {
+                if (!forgotOverlay) return;
+                resetForgotPasswordModal();
+                forgotOverlay.classList.add('is-open');
+                forgotOverlay.setAttribute('aria-hidden', 'false');
+
+                if (forgotIdentifier) {
+                    forgotIdentifier.value = '';
+                    setTimeout(function () {
+                        forgotIdentifier.focus();
+                    }, 40);
+                }
+            }
+
+            function closeForgotPasswordModal() {
+                if (!forgotOverlay) return;
+                forgotOverlay.classList.remove('is-open');
+                forgotOverlay.setAttribute('aria-hidden', 'true');
+                resetForgotPasswordModal();
+            }
 
             function updateValidation() {
                 var newPassword = newPasswordInput.value;
@@ -488,6 +552,55 @@
 
             validateRequirements('');
             updateValidation();
+
+            if (forgotLink) {
+                forgotLink.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    openForgotPasswordModal();
+                });
+            }
+
+            if (forgotSendBtn) {
+                forgotSendBtn.addEventListener('click', function () {
+                    var emailInput = document.getElementById('reset-email');
+                    var errorMsg = document.getElementById('email-error');
+
+                    if (!emailInput || !errorMsg) return;
+
+                    if (!emailInput.value || !emailInput.validity.valid) {
+                        errorMsg.style.display = 'block';
+                        return;
+                    }
+
+                    errorMsg.style.display = 'none';
+                    document.getElementById('forgot-step-1').style.display = 'none';
+                    document.getElementById('forgot-step-2').style.display = 'block';
+                    if (forgotStep1) {
+                        forgotStep1.setAttribute('aria-hidden', 'true');
+                    }
+                    forgotStep2.setAttribute('aria-hidden', 'false');
+                });
+            }
+
+            if (forgotCloseBtn) {
+                forgotCloseBtn.addEventListener('click', function () {
+                    closeForgotPasswordModal();
+                });
+            }
+
+            if (forgotBackBtn) {
+                forgotBackBtn.addEventListener('click', function () {
+                    closeForgotPasswordModal();
+                });
+            }
+
+            if (forgotOverlay) {
+                forgotOverlay.addEventListener('click', function (e) {
+                    if (e.target === forgotOverlay) {
+                        closeForgotPasswordModal();
+                    }
+                });
+            }
         })();
     </script>
     <script>

@@ -158,7 +158,7 @@ for (var i = 0; i < arrow.length; i++) {
  arrowParent.classList.toggle("showMenu");
   });
 }
-let sidebarBtn = document.querySelector(".bx-menu");
+let sidebarBtn = document.querySelector(".bx-menu, .toggle-btn, #toggle-btn");
 
 function isMobileViewport() {
   return window.innerWidth <= 768;
@@ -233,7 +233,6 @@ function bindResponsiveSidebarHandlers() {
     }
 
     if (isTabletViewport()) {
-      sidebar.classList.add("close");
     }
 
     adjustHomeSectionMargin();
@@ -253,7 +252,7 @@ if (sidebarBtn && !sidebarBtn.dataset.sidebarInitialized) {
     }
 
     if (isTabletViewport()) {
-      sidebar.classList.add("close");
+      sidebar.classList.toggle("close");
       sidebar.classList.remove("mobile-open");
       hideSidebarBackdrop();
       adjustHomeSectionMargin();

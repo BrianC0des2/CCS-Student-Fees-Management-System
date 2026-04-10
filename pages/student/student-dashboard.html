@@ -12,18 +12,20 @@
     </head>
     <body>
         <div class="sidebar">
-            <div class="logo-details">
-                <img src="../../assets/images/pyt.png" alt="Pay++ Logo" class="sidebar-logo-img">
-                <span class="logo_name">Pay++</span>
-            </div>
+            <a href="student-dashboard.html" style="text-decoration: none; color: inherit; cursor: pointer;">
+                <div class="logo-details">
+                    <img src="../../assets/images/pyt.png" alt="Pay++ Logo" class="sidebar-logo-img">
+                    <span class="logo_name">Pay++</span>
+                </div>
+            </a>
                   <ul class="nav-links">
                 <li>
-                    <a href="#">
+                    <a href="student-dashboard.html">
                         <i class='bx bx-grid-alt' ></i>
                         <span class="link_name">Dashboard</span>
                     </a>
                     <ul class="sub-menu blank">
-                        <li><a class="link_name" href="#">Dashboard</a></li>
+                        <li><a class="link_name" href="student-dashboard.html">Dashboard</a></li>
                     </ul>
                 </li>
                 <!-- <li>
@@ -148,13 +150,40 @@
                     <p>Here's your clearance status and academic informations</p>
                 </div>
                 <div style="width:100%; overflow:hidden; box-sizing:border-box;">
-                <div class="clearance-progress-container" style="flex-wrap: wrap; width: 100%; box-sizing: border-box;">
-                    <img class="clearance-content" src="../../assets/images/progress.png" alt="percentage" width="150px" height="100px" style="max-width: 150px; width: 100%; height: auto;">
+                <div class="clearance-progress-container" style="width: 100%; box-sizing: border-box;">
+                    <div class="progress-circle-wrapper">
+                        <svg width="100" height="100" viewBox="0 0 100 100">
+                            <circle
+                                cx="50" cy="50" r="40"
+                                fill="none"
+                                stroke="rgba(255,255,255,0.3)"
+                                stroke-width="10"
+                            />
+                            <circle
+                                cx="50" cy="50" r="40"
+                                fill="none"
+                                stroke="#f97316"
+                                stroke-width="10"
+                                stroke-dasharray="62.8 251.2"
+                                stroke-dashoffset="0"
+                                stroke-linecap="round"
+                                transform="rotate(-90 50 50)"
+                            />
+                            <text
+                                x="50" y="50"
+                                dominant-baseline="middle"
+                                text-anchor="middle"
+                                fill="white"
+                                font-size="16"
+                                font-weight="bold"
+                            >25%</text>
+                        </svg>
+                    </div>
                     <div class="clearance-content progress">
                         <h2>Clearance Progress</h2>
                         <p>2 of 8 Requirements Completed</p>
                     </div>
-                    <div class="labels" style="flex: 1 1 100%; display: flex; justify-content: space-around;">
+                    <div class="labels">
                         <div class="clearance-content completed">
                             <h1>2</h1>
                             <p>Completed</p>
@@ -269,6 +298,34 @@
         <script src="../../assets/scripts/sample-accounts.js"></script>
         <script src="../../assets/scripts/auth.js"></script>
         <script src="../../assets/scripts/script.js"></script>
+        <script>
+            (function () {
+                const completedEl = document.querySelector('.labels .completed h1');
+                const pendingEl = document.querySelector('.labels .pending h1');
+                const progressLineEl = document.querySelector('.clearance-content.progress p');
+
+                const completed = Number.parseInt(completedEl?.textContent || '0', 10);
+                const pending = Number.parseInt(pendingEl?.textContent || '0', 10);
+                const total = completed + pending;
+
+                if (!Number.isFinite(completed) || !Number.isFinite(total) || total <= 0) {
+                    return;
+                }
+
+                const percentage = (completed / total) * 100;
+                const circumference = 251.2;
+                const filled = (percentage / 100) * circumference;
+
+                document.querySelector('.progress-circle-wrapper circle:nth-child(2)')
+                    ?.setAttribute('stroke-dasharray', `${filled} ${circumference}`);
+                document.querySelector('.progress-circle-wrapper text')
+                    .textContent = `${Math.round(percentage)}%`;
+
+                if (progressLineEl) {
+                    progressLineEl.textContent = `${completed} of ${total} Requirements Completed`;
+                }
+            })();
+        </script>
 
     </body>
 </html>
