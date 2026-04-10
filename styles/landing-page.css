@@ -71,10 +71,241 @@ ul li button:hover{
 
 
 .hero-container{
+    position: relative;
+    width: 100%;
+    height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.hero{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background-image: url(../assets/images/bg.jpg);
-    background-size: cover; background-position: center;
+    background-size: cover;
+    background-position: center;
     filter: blur(6px) brightness(0.45) saturate(1.2);
     transform: scale(1.06);
-    width:auto;
-    height: 500px;
+    z-index: 1;
+}
+
+.hero-text{
+    position: relative;
+    z-index: 2;
+    color: white;
+    text-align: center;
+    max-width: 600px;
+    padding: 20px;
+}
+
+.hero-text h1{
+    font-size: 56px;
+    font-weight: 800;
+    margin-bottom: 20px;
+    font-family: var(--font-primary);
+}
+
+.hero-description{
+    font-size: 18px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    font-family: var(--font-secondary);
+}
+
+.hero-btn button{
+    background-color: green;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 25px;
+    padding: 15px 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+}
+
+.hero-btn button:hover{
+    background-color: darkgreen;
+    transform: scale(1.05);
+}
+
+.hero-btn button svg{
+    width: 20px;
+    height: 20px;
+}
+
+/* About Section */
+.about-section{
+    padding: 60px 40px;
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+    background-color: var(--color-light);
+}
+
+.about-section h2{
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #333;
+    font-family: var(--font-primary);
+}
+
+.about-section p{
+    font-size: 16px;
+    line-height: 1.8;
+    color: #666;
+    font-family: var(--font-secondary);
+}
+
+/* How It Works Section */
+.how-section{
+    padding: 60px 40px;
+    background-color: white;
+}
+
+.how-section h2{
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 50px;
+    text-align: center;
+    color: #333;
+    font-family: var(--font-primary);
+}
+
+.how-steps{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.how-card{
+    background-color: var(--color-light);
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.how-card:hover{
+    transform: translateY(-10px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+}
+
+.how-icon{
+    font-size: 48px;
+    margin-bottom: 15px;
+}
+
+.how-card h3{
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+    font-family: var(--font-primary);
+}
+
+.how-card p{
+    font-size: 14px;
+    color: #666;
+    line-height: 1.6;
+    font-family: var(--font-secondary);
+}
+
+/* Footer & Contact Section */
+footer{
+    background-color: #333;
+    color: white;
+}
+
+.contact-section{
+    padding: 60px 40px;
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.contact-section h2{
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    font-family: var(--font-primary);
+}
+
+.contact-section p{
+    font-size: 16px;
+    margin-bottom: 30px;
+    font-family: var(--font-secondary);
+}
+
+.contact-section ul{
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.contact-section li{
+    font-size: 16px;
+    font-family: var(--font-secondary);
+}
+
+.contact-section a{
+    color: #4CAF50;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.contact-section a:hover{
+    text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px){
+    nav{
+        flex-direction: column;
+        height: auto;
+        padding: 15px 0;
+    }
+
+    .outer-nav ul{
+        flex-direction: column;
+        gap: 10px;
+        margin: 15px 0;
+    }
+
+    .hero-text h1{
+        font-size: 36px;
+    }
+
+    .hero-description{
+        font-size: 16px;
+    }
+
+    .about-section,
+    .how-section,
+    .contact-section{
+        padding: 40px 20px;
+    }
+
+    .about-section h2,
+    .how-section h2,
+    .contact-section h2{
+        font-size: 28px;
+    }
+
+    .how-steps{
+        grid-template-columns: 1fr;
+    }
 }
