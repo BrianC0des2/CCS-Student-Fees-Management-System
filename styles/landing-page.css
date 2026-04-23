@@ -9,8 +9,6 @@
     --color-white: white;
 }
 
-
-
 *{
     padding: 0;
     margin: 0;
@@ -27,6 +25,9 @@ main {
     background-color: var(--sys-page-bg);
 }
 
+#home, #about, #how-it-works, #contact {
+    scroll-margin-top: 100px;
+}
 
 nav{
     display: flex;
@@ -108,7 +109,6 @@ ul li button:hover{
     color: white;
     border-color: var(--brand-500);
 }
-
 
 .hero-container{
     position: relative;
@@ -332,6 +332,10 @@ footer{
         flex-direction: column;
         height: auto;
         padding: 15px 0;
+    }
+
+    #home, #about, #how-it-works, #contact {
+        scroll-margin-top: 160px;
     }
 
     .outer-nav ul{
