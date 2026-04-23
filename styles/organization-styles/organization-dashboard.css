@@ -1018,12 +1018,75 @@ tbody tr:hover { background: var(--bg); }
 }
 .fee-destination-note i { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
 
+.payment-channels-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 2px;
+}
+
+.payment-channel-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    padding: 8px 10px;
+    font-size: 12px;
+    color: var(--text);
+    cursor: pointer;
+}
+
+.payment-channel-option input {
+    accent-color: var(--accent);
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+}
+
+.payment-channel-option:hover {
+    border-color: var(--accent);
+    background: var(--white);
+}
+
+.payment-channels-warning {
+    margin-top: 2px;
+    font-size: 12px;
+    color: #c2410c;
+    background: #fff7ed;
+    border: 1px solid #ffedd5;
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+
+.payment-channels-warning a {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.payment-channels-error {
+    margin-top: 2px;
+    font-size: 12px;
+    color: #d32f2f;
+}
+
 .modal-footer {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
     gap: 10px;
     padding: 14px 20px 20px;
     border-top: 1px solid var(--border);
+}
+
+.fee-status-inline {
+    margin-right: auto;
+    padding: 0;
+}
+
+.fee-status-inline .toggle-label {
+    font-size: 12px;
 }
 .btn-cancel {
     padding: 9px 18px;

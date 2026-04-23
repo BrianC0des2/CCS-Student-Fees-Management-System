@@ -16,6 +16,8 @@
    MODAL + EVENT LOGIC — runs after the DOM is ready.
 ───────────────────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', function () {
+    const isOrganizationPage = window.location.pathname.toLowerCase().includes('/organization/');
+    const PAYMENT_ACCOUNTS_KEY = 'ccs.organization.paymentAccounts';
 
     /* ── Inject overlay ── */
     const overlay = document.createElement('div');
@@ -69,6 +71,263 @@ document.addEventListener('DOMContentLoaded', function () {
     `;
     document.body.appendChild(panel);
 
+    function escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function getPaymentAccounts() {
+        try {
+            const parsed = JSON.parse(localStorage.getItem(PAYMENT_ACCOUNTS_KEY) || '[]');
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (_err) {
+            return [];
+        }
+    }
+
+    function setPaymentAccounts(accounts) {
+        localStorage.setItem(PAYMENT_ACCOUNTS_KEY, JSON.stringify(accounts));
+    }
+
+    if (isOrganizationPage) {
+        panel.querySelector('.sp-body').insertAdjacentHTML('beforeend', `
+            <div class="sp-settings-block">
+                <div class="sp-section-label">Payment Accounts</div>
+                <div class="sp-settings-card">
+                    <div class="sp-settings-card-head">
+                        <div class="sp-settings-card-title"><i class="bx bx-wallet"></i> Payment Accounts</div>
+                        <button class="sp-add-account-btn" type="button" id="sp-add-account-btn">
+                            <i class="bx bx-plus"></i>
+                            Add Account
+                        </button>
+                    </div>
+                    <div id="sp-payment-accounts-list"></div>
+                </div>
+            </div>
+        `);
+
+        const accountModal = document.createElement('div');
+        accountModal.id = 'sp-account-modal';
+        accountModal.className = 'sp-account-modal';
+        accountModal.innerHTML = `
+            <div class="sp-account-modal-card" role="dialog" aria-modal="true" aria-labelledby="sp-account-modal-title">
+                <div class="sp-account-modal-header">
+                    <h3 id="sp-account-modal-title">Add Payment Account</h3>
+                    <button class="sp-account-modal-close" type="button" id="sp-account-modal-close" aria-label="Close payment account form">
+                        <i class="bx bx-x"></i>
+                    </button>
+                </div>
+                <div class="sp-account-modal-body">
+                    <div class="sp-account-form-group">
+                        <label for="sp-account-type">Account Type</label>
+                        <select id="sp-account-type">
+                            <option value="GCash">GCash</option>
+                            <option value="Maya">Maya</option>
+                            <option value="BPI">BPI</option>
+                            <option value="BDO">BDO</option>
+                            <option value="Landbank">Landbank</option>
+                        </select>
+                    </div>
+                    <div class="sp-account-form-group">
+                        <label for="sp-account-name">Account Name</label>
+                        <input type="text" id="sp-account-name" placeholder=" " />
+                    </div>
+                    <div class="sp-account-form-group">
+                        <label for="sp-account-number">Account Number</label>
+                        <input type="text" id="sp-account-number" placeholder=" "/>
+                    </div>
+                    <div class="sp-account-form-group">
+                        <label>Status</label>
+                        <div class="sp-account-toggle-wrap">
+                            <label class="sp-toggle">
+                                <input type="checkbox" id="sp-account-status" checked />
+                                <span class="sp-toggle-slider"></span>
+                            </label>
+                            <span class="sp-toggle-label" id="sp-account-status-label">Active</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="sp-account-modal-footer">
+                    <button class="sp-btn-cancel" type="button" id="sp-account-cancel-btn">Cancel</button>
+                    <button class="sp-btn-submit" type="button" id="sp-account-save-btn">Save</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(accountModal);
+
+        const accountList = panel.querySelector('#sp-payment-accounts-list');
+        const addAccountBtn = panel.querySelector('#sp-add-account-btn');
+        const accountModalTitle = accountModal.querySelector('#sp-account-modal-title');
+        const accountTypeInput = accountModal.querySelector('#sp-account-type');
+        const accountNameInput = accountModal.querySelector('#sp-account-name');
+        const accountNumberInput = accountModal.querySelector('#sp-account-number');
+        const accountStatusInput = accountModal.querySelector('#sp-account-status');
+        const accountStatusLabel = accountModal.querySelector('#sp-account-status-label');
+        const accountSaveBtn = accountModal.querySelector('#sp-account-save-btn');
+
+        let editingAccountId = null;
+
+        function renderPaymentAccounts() {
+            const accounts = getPaymentAccounts();
+
+            if (!accounts.length) {
+                accountList.innerHTML = '<p class="sp-inline-empty">No payment accounts added yet</p>';
+                return;
+            }
+
+            accountList.innerHTML = accounts.map(function (account) {
+                const statusClass = account.isActive ? 'sp-status-badge--active' : 'sp-status-badge--inactive';
+                const statusText = account.isActive ? 'Active' : 'Inactive';
+
+                return `
+                    <div class="sp-account-row" data-account-id="${escapeHtml(account.id)}">
+                        <div class="sp-account-details">
+                            <div class="sp-account-top-row">
+                                <div class="sp-account-type">${escapeHtml(account.type)}</div>
+                                <span class="sp-status-badge ${statusClass}">${statusText}</span>
+                            </div>
+                            <div class="sp-account-meta">${escapeHtml(account.name)}</div>
+                            <div class="sp-account-meta">${escapeHtml(account.number)}</div>
+                        </div>
+                        <div class="sp-account-actions">
+                            <button type="button" class="sp-icon-btn js-account-edit" aria-label="Edit account">
+                                <i class="bx bx-edit-alt"></i>
+                            </button>
+                            <button type="button" class="sp-icon-btn js-account-delete" aria-label="Delete account">
+                                <i class="bx bx-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function resetAccountForm() {
+            accountTypeInput.value = 'GCash';
+            accountNameInput.value = '';
+            accountNumberInput.value = '';
+            accountStatusInput.checked = true;
+            accountStatusLabel.textContent = 'Active';
+            accountModalTitle.textContent = 'Add Payment Account';
+            accountSaveBtn.textContent = 'Save';
+            editingAccountId = null;
+        }
+
+        function openAccountModal() {
+            accountModal.classList.add('sp-open');
+        }
+
+        function closeAccountModal() {
+            accountModal.classList.remove('sp-open');
+            resetAccountForm();
+        }
+
+        function handleEditAccount(accountId) {
+            const target = getPaymentAccounts().find(function (item) {
+                return item.id === accountId;
+            });
+
+            if (!target) return;
+
+            editingAccountId = target.id;
+            accountModalTitle.textContent = 'Edit Payment Account';
+            accountSaveBtn.textContent = 'Save';
+            accountTypeInput.value = target.type || 'GCash';
+            accountNameInput.value = target.name || '';
+            accountNumberInput.value = target.number || '';
+            accountStatusInput.checked = !!target.isActive;
+            accountStatusLabel.textContent = target.isActive ? 'Active' : 'Inactive';
+            openAccountModal();
+        }
+
+        function handleSaveAccount() {
+            const type = accountTypeInput.value.trim();
+            const name = accountNameInput.value.trim();
+            const number = accountNumberInput.value.trim();
+            const isActive = accountStatusInput.checked;
+
+            if (!type || !name || !number) {
+                alert('Please fill in all payment account fields.');
+                return;
+            }
+
+            const accounts = getPaymentAccounts();
+
+            if (editingAccountId) {
+                const nextAccounts = accounts.map(function (item) {
+                    if (item.id !== editingAccountId) return item;
+                    return {
+                        id: item.id,
+                        type: type,
+                        name: name,
+                        number: number,
+                        isActive: isActive
+                    };
+                });
+                setPaymentAccounts(nextAccounts);
+            } else {
+                accounts.push({
+                    id: 'acct-' + Date.now() + '-' + Math.random().toString(16).slice(2),
+                    type: type,
+                    name: name,
+                    number: number,
+                    isActive: isActive
+                });
+                setPaymentAccounts(accounts);
+            }
+
+            renderPaymentAccounts();
+            closeAccountModal();
+        }
+
+        addAccountBtn.addEventListener('click', function () {
+            resetAccountForm();
+            openAccountModal();
+        });
+
+        accountModal.querySelector('#sp-account-modal-close').addEventListener('click', closeAccountModal);
+        accountModal.querySelector('#sp-account-cancel-btn').addEventListener('click', closeAccountModal);
+        accountModal.addEventListener('click', function (e) {
+            if (e.target === accountModal) closeAccountModal();
+        });
+
+        accountStatusInput.addEventListener('change', function () {
+            accountStatusLabel.textContent = accountStatusInput.checked ? 'Active' : 'Inactive';
+        });
+
+        accountSaveBtn.addEventListener('click', handleSaveAccount);
+
+        accountList.addEventListener('click', function (e) {
+            const row = e.target.closest('.sp-account-row');
+            if (!row) return;
+
+            const accountId = row.dataset.accountId;
+            if (!accountId) return;
+
+            if (e.target.closest('.js-account-edit')) {
+                handleEditAccount(accountId);
+                return;
+            }
+
+            if (e.target.closest('.js-account-delete')) {
+                const confirmed = window.confirm('Delete this payment account?');
+                if (!confirmed) return;
+
+                const nextAccounts = getPaymentAccounts().filter(function (item) {
+                    return item.id !== accountId;
+                });
+                setPaymentAccounts(nextAccounts);
+                renderPaymentAccounts();
+            }
+        });
+
+        renderPaymentAccounts();
+    }
+
     /* ── Sync active state on option buttons ── */
     function syncActive() {
         const theme = localStorage.getItem('ccs.theme') || 'light';
@@ -91,6 +350,11 @@ document.addEventListener('DOMContentLoaded', function () {
     function closePanel() {
         panel.classList.remove('sp-open');
         overlay.classList.remove('sp-open');
+
+        if (isOrganizationPage) {
+            const accountModal = document.getElementById('sp-account-modal');
+            if (accountModal) accountModal.classList.remove('sp-open');
+        }
     }
 
     document.getElementById('sp-close-btn').addEventListener('click', closePanel);

@@ -113,6 +113,348 @@
     font-family: 'Atkinson Hyperlegible', sans-serif;
 }
 
+.sp-settings-block {
+    display: flex;
+    flex-direction: column;
+}
+
+.sp-settings-card {
+    border: 1px solid var(--sys-border);
+    border-radius: 12px;
+    background: var(--sys-page-bg);
+    padding: 12px;
+}
+
+.sp-settings-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.sp-settings-card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--sys-text-900);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.sp-settings-card-title i {
+    font-size: 15px;
+    color: var(--brand-700);
+}
+
+.sp-add-account-btn {
+    background: var(--brand-700);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+}
+
+.sp-add-account-btn:hover {
+    background: #007639;
+}
+
+.sp-inline-empty {
+    border: 1px dashed var(--sys-border);
+    border-radius: 10px;
+    background: #f8faf9;
+    color: var(--sys-text-500);
+    font-size: 12px;
+    padding: 10px;
+    text-align: center;
+}
+
+.sp-account-row {
+    border: 1px solid var(--sys-border);
+    border-radius: 10px;
+    background: #ffffff;
+    padding: 10px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.sp-account-row + .sp-account-row {
+    margin-top: 8px;
+}
+
+.sp-account-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.sp-account-top-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+}
+
+.sp-account-type {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--sys-text-900);
+}
+
+.sp-account-meta {
+    font-size: 12px;
+    color: var(--sys-text-500);
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.sp-status-badge {
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+.sp-status-badge--active {
+    background: #e8f5e8;
+    color: #2e7d32;
+}
+
+.sp-status-badge--inactive {
+    background: #fff3e0;
+    color: #e65100;
+}
+
+.sp-account-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sp-icon-btn {
+    border: 1px solid var(--sys-border);
+    background: #ffffff;
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sp-icon-btn i {
+    font-size: 15px;
+    color: var(--sys-text-500);
+}
+
+.sp-icon-btn:hover {
+    border-color: var(--brand-700);
+    background: #f0fdf4;
+}
+
+.sp-icon-btn:hover i {
+    color: var(--brand-700);
+}
+
+.sp-account-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+}
+
+.sp-account-modal.sp-open {
+    display: flex;
+}
+
+.sp-account-modal-card {
+    width: 100%;
+    max-width: 460px;
+    border-radius: 14px;
+    background: #ffffff;
+    border: 1px solid var(--sys-border);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+}
+
+.sp-account-modal-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--sys-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.sp-account-modal-header h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--sys-text-900);
+}
+
+.sp-account-modal-close {
+    background: var(--sys-surface-muted);
+    border: none;
+    border-radius: 8px;
+    width: 30px;
+    height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--sys-text-500);
+}
+
+.sp-account-modal-close:hover {
+    background: #e9ecef;
+    color: var(--sys-text-900);
+}
+
+.sp-account-modal-body {
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sp-account-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.sp-account-form-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--sys-text-900);
+}
+
+.sp-account-form-group input,
+.sp-account-form-group select {
+    border: 1px solid var(--sys-border);
+    border-radius: 8px;
+    background: var(--sys-page-bg);
+    color: var(--sys-text-900);
+    font-size: 13px;
+    padding: 9px 10px;
+    font-family: inherit;
+}
+
+.sp-account-form-group input:focus,
+.sp-account-form-group select:focus {
+    outline: none;
+    border-color: var(--brand-700);
+    background: #ffffff;
+}
+
+.sp-account-toggle-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sp-toggle {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+}
+
+.sp-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.sp-toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: var(--sys-border);
+    border-radius: 22px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.sp-toggle-slider::before {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #ffffff;
+    transition: transform 0.2s ease;
+}
+
+.sp-toggle input:checked + .sp-toggle-slider {
+    background: var(--brand-700);
+}
+
+.sp-toggle input:checked + .sp-toggle-slider::before {
+    transform: translateX(18px);
+}
+
+.sp-toggle-label {
+    font-size: 12px;
+    color: var(--sys-text-700);
+    font-weight: 600;
+}
+
+.sp-account-modal-footer {
+    padding: 12px 16px 16px;
+    border-top: 1px solid var(--sys-border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.sp-btn-cancel,
+.sp-btn-submit {
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.sp-btn-cancel {
+    border: 1px solid var(--sys-border);
+    background: #ffffff;
+    color: var(--sys-text-900);
+}
+
+.sp-btn-cancel:hover {
+    background: var(--sys-page-bg);
+}
+
+.sp-btn-submit {
+    border: none;
+    background: var(--brand-700);
+    color: #ffffff;
+}
+
+.sp-btn-submit:hover {
+    background: #007639;
+}
+
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    DYSLEXIC FONT OVERRIDE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -376,6 +718,66 @@ html.theme-dark .sp-opt.active .sp-opt-label {
 }
 html.theme-dark .sp-opt-sub {
     color: var(--dm-text-muted);
+}
+
+html.theme-dark .sp-settings-card,
+html.theme-dark .sp-account-row,
+html.theme-dark .sp-account-modal-card {
+    background: var(--dm-surface-alt);
+    border-color: var(--dm-border);
+}
+
+html.theme-dark .sp-settings-card-title,
+html.theme-dark .sp-account-type,
+html.theme-dark .sp-account-modal-header h3,
+html.theme-dark .sp-account-form-group label {
+    color: var(--dm-heading);
+}
+
+html.theme-dark .sp-settings-card-title i,
+html.theme-dark .sp-add-account-btn,
+html.theme-dark .sp-icon-btn:hover i,
+html.theme-dark .sp-btn-submit,
+html.theme-dark .sp-toggle input:checked + .sp-toggle-slider {
+    color: #f8fafc;
+}
+
+html.theme-dark .sp-add-account-btn,
+html.theme-dark .sp-btn-submit,
+html.theme-dark .sp-toggle input:checked + .sp-toggle-slider {
+    background: #166534;
+}
+
+html.theme-dark .sp-account-meta,
+html.theme-dark .sp-inline-empty,
+html.theme-dark .sp-toggle-label {
+    color: var(--dm-text-muted);
+}
+
+html.theme-dark .sp-inline-empty {
+    background: var(--dm-surface-soft);
+    border-color: var(--dm-border);
+}
+
+html.theme-dark .sp-icon-btn,
+html.theme-dark .sp-btn-cancel,
+html.theme-dark .sp-account-modal-close,
+html.theme-dark .sp-account-form-group input,
+html.theme-dark .sp-account-form-group select {
+    background: var(--dm-surface);
+    border-color: var(--dm-border);
+    color: var(--dm-text);
+}
+
+html.theme-dark .sp-icon-btn i {
+    color: var(--dm-text-muted);
+}
+
+html.theme-dark .sp-icon-btn:hover,
+html.theme-dark .sp-btn-cancel:hover,
+html.theme-dark .sp-account-modal-close:hover {
+    background: var(--dm-surface-soft);
+    border-color: var(--dm-border);
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -660,5 +1062,24 @@ html.theme-dark .info-banner--amber p {
 
     .sp-option-grid {
         grid-template-columns: 1fr;
+    }
+
+    .sp-settings-card-head {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .sp-add-account-btn {
+        justify-content: center;
+    }
+
+    .sp-account-modal {
+        align-items: flex-end;
+        padding: 0;
+    }
+
+    .sp-account-modal-card {
+        max-width: 100%;
+        border-radius: 16px 16px 0 0;
     }
 }

@@ -76,24 +76,16 @@
                 </div>
             </div>
             <div class="form-group">
-                <label for="feeCategory">Assigned To / Category</label>
-                <select id="feeCategory">
-                    <option value="">Select category...</option>
-                    <option value="CCS Student Council">CCS Student Council</option>
-                    <option value="CCS Faculty">CCS Faculty</option>
-                    <option value="Insurance">Insurance</option>
-                    <option value="Other">Other</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Status</label>
-                <div class="toggle-group">
-                    <label class="toggle">
-                        <input type="checkbox" id="feeStatus" checked />
-                        <span class="toggle-slider"></span>
-                    </label>
-                    <span class="toggle-label" id="toggleLabel">Active</span>
-                </div>
+                <label>Accepted Payment Channels <span class="required">*</span></label>
+                <div id="paymentChannelsContainer" class="payment-channels-list"></div>
+                <p id="paymentChannelsWarning" class="payment-channels-warning" hidden>
+                    No payment accounts set up yet. Please add accounts in
+                    <a href="#" class="js-settings-open">Settings</a>
+                    first.
+                </p>
+                <p id="paymentChannelsError" class="payment-channels-error" hidden>
+                    Please select at least one payment channel
+                </p>
             </div>
 
             <!-- Where does this fee go? -->
@@ -104,6 +96,13 @@
         </div>
 
         <div class="modal-footer">
+            <div class="toggle-group fee-status-inline">
+                <label class="toggle">
+                    <input type="checkbox" id="feeStatus" checked />
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label" id="toggleLabel">Active</span>
+            </div>
             <button class="btn-cancel" type="button" onclick="closeAddFeeModal()">Cancel</button>
             <button class="btn-submit" type="button" onclick="submitFee()">
                 <i class='bx bx-plus'></i>
@@ -113,7 +112,94 @@
     </div>
 </div>
 			<script>
+    const PAYMENT_ACCOUNTS_KEY = 'ccs.organization.paymentAccounts';
+    const FEES_STORAGE_KEY = 'ccs.organization.fees';
+
+    function getPaymentAccounts() {
+        try {
+            const parsed = JSON.parse(localStorage.getItem(PAYMENT_ACCOUNTS_KEY) || '[]');
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (_err) {
+            return [];
+        }
+    }
+
+    function getStoredFees() {
+        try {
+            const parsed = JSON.parse(localStorage.getItem(FEES_STORAGE_KEY) || '[]');
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (_err) {
+            return [];
+        }
+    }
+
+    function maskChannelNumber(rawNumber) {
+        const digits = String(rawNumber || '').replace(/\D/g, '');
+        if (digits.length >= 6) {
+            return digits.slice(0, 2) + 'XX XXX ' + digits.slice(-4);
+        }
+        if (!digits.length) return 'XXXX';
+        return digits.slice(0, 2) + 'XXXX';
+    }
+
+    function renderAcceptedPaymentChannels() {
+        const channelsContainer = document.getElementById('paymentChannelsContainer');
+        const warning = document.getElementById('paymentChannelsWarning');
+        const activeAccounts = getPaymentAccounts().filter(function (account) {
+            return account.isActive;
+        });
+
+        channelsContainer.innerHTML = '';
+        warning.hidden = activeAccounts.length > 0;
+
+        if (!activeAccounts.length) {
+            return;
+        }
+
+        activeAccounts.forEach(function (account) {
+            const option = document.createElement('label');
+            option.className = 'payment-channel-option';
+
+            option.innerHTML = `
+                <input type="checkbox" class="payment-channel-checkbox" value="${account.id}">
+                <span>${account.type} - ${maskChannelNumber(account.number)}</span>
+            `;
+
+            channelsContainer.appendChild(option);
+        });
+    }
+
+    function getSelectedPaymentChannels() {
+        const selected = [];
+        const activeAccounts = getPaymentAccounts().filter(function (account) {
+            return account.isActive;
+        });
+        const accountMap = new Map(activeAccounts.map(function (account) {
+            return [account.id, account];
+        }));
+
+        document.querySelectorAll('.payment-channel-checkbox:checked').forEach(function (input) {
+            const matched = accountMap.get(input.value);
+            if (!matched) return;
+
+            selected.push({
+                id: matched.id,
+                type: matched.type,
+                name: matched.name,
+                number: matched.number
+            });
+        });
+
+        return selected;
+    }
+
+    function setPaymentChannelError(showError) {
+        document.getElementById('paymentChannelsError').hidden = !showError;
+    }
+
     function openAddFeeModal() {
+        renderAcceptedPaymentChannels();
+        setPaymentChannelError(false);
         document.getElementById('addFeeModal').classList.add('active');
     }
 
@@ -123,9 +209,9 @@
         document.getElementById('feeDescription').value = '';
         document.getElementById('feeAmount').value = '';
         document.getElementById('feeDueDate').value = '';
-        document.getElementById('feeCategory').value = '';
         document.getElementById('feeStatus').checked = true;
         document.getElementById('toggleLabel').textContent = 'Active';
+        setPaymentChannelError(false);
     }
 
     // Close when clicking the dark backdrop
@@ -143,19 +229,39 @@
         const desc = document.getElementById('feeDescription').value.trim();
         const amount = document.getElementById('feeAmount').value;
         const due = document.getElementById('feeDueDate').value;
+        const selectedChannels = getSelectedPaymentChannels();
 
         if (!name || !desc || !amount || !due) {
             alert('Please fill in all required fields (*).');
             return;
         }
 
+        if (selectedChannels.length === 0) {
+            setPaymentChannelError(true);
+            return;
+        }
+
+        setPaymentChannelError(false);
+
         // Format due date for display
         const dueDateFormatted = new Date(due).toLocaleDateString('en-US', {
             month: 'short', day: 'numeric', year: 'numeric'
         });
 
-        const category = document.getElementById('feeCategory').value || 'General';
         const isActive = document.getElementById('feeStatus').checked;
+
+        const storedFees = getStoredFees();
+        storedFees.push({
+            id: 'fee-' + Date.now(),
+            name: name,
+            description: desc,
+            amount: parseFloat(amount),
+            dueDate: due,
+            isActive: isActive,
+            acceptedPaymentChannels: selectedChannels,
+            createdAt: new Date().toISOString()
+        });
+        localStorage.setItem(FEES_STORAGE_KEY, JSON.stringify(storedFees));
 
         // Build the new fee card and append it to the list
         const list = document.querySelector('.org-fees-list');
@@ -168,7 +274,7 @@
                     <span class="fee-name">${name}</span>
                     <span class="${isActive ? 'badge-active' : 'badge-inactive'}">${isActive ? 'Active' : 'Inactive'}</span>
                 </div>
-                <div class="fee-desc">${desc} | ${category} | Due: ${dueDateFormatted}</div>
+                <div class="fee-desc">${desc} | Due: ${dueDateFormatted}</div>
                 <div class="progress-row">
                     <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
                     <span class="progress-label">0/342 collected</span>
