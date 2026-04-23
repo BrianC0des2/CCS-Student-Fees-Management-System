@@ -128,15 +128,16 @@ document.addEventListener('DOMContentLoaded', function () {
                             <option value="GCash">GCash</option>
                             <option value="Maya">Maya</option>
                             <option value="BPI">BPI</option>
-                            <option value="BDO">BDO</option>
+                            <option value="PNB">PNB</option>
                             <option value="Landbank">Landbank</option>
+                            <option value="Cash">Cash</option>
                         </select>
                     </div>
-                    <div class="sp-account-form-group">
+                    <div class="sp-account-form-group" id="sp-account-name-group">
                         <label for="sp-account-name">Account Name</label>
                         <input type="text" id="sp-account-name" placeholder=" " />
                     </div>
-                    <div class="sp-account-form-group">
+                    <div class="sp-account-form-group" id="sp-account-number-group">
                         <label for="sp-account-number">Account Number</label>
                         <input type="text" id="sp-account-number" placeholder=" "/>
                     </div>
@@ -165,11 +166,26 @@ document.addEventListener('DOMContentLoaded', function () {
         const accountTypeInput = accountModal.querySelector('#sp-account-type');
         const accountNameInput = accountModal.querySelector('#sp-account-name');
         const accountNumberInput = accountModal.querySelector('#sp-account-number');
+        const accountNameGroup = accountModal.querySelector('#sp-account-name-group');
+        const accountNumberGroup = accountModal.querySelector('#sp-account-number-group');
         const accountStatusInput = accountModal.querySelector('#sp-account-status');
         const accountStatusLabel = accountModal.querySelector('#sp-account-status-label');
         const accountSaveBtn = accountModal.querySelector('#sp-account-save-btn');
+        const accountCancelBtn = accountModal.querySelector('#sp-account-cancel-btn');
 
         let editingAccountId = null;
+
+        function toggleCashAccountFields() {
+            const isCash = accountTypeInput.value === 'Cash';
+            accountNameGroup.style.display = isCash ? 'none' : '';
+            accountNumberGroup.style.display = isCash ? 'none' : '';
+            accountCancelBtn.style.display = isCash ? 'none' : '';
+
+            if (isCash) {
+                accountNameInput.value = '';
+                accountNumberInput.value = '';
+            }
+        }
 
         function renderPaymentAccounts() {
             const accounts = getPaymentAccounts();
@@ -182,6 +198,9 @@ document.addEventListener('DOMContentLoaded', function () {
             accountList.innerHTML = accounts.map(function (account) {
                 const statusClass = account.isActive ? 'sp-status-badge--active' : 'sp-status-badge--inactive';
                 const statusText = account.isActive ? 'Active' : 'Inactive';
+                const isCash = (account.type || '').toLowerCase() === 'cash';
+                const accountName = isCash ? '' : account.name;
+                const accountNumber = isCash ? '' : account.number;
 
                 return `
                     <div class="sp-account-row" data-account-id="${escapeHtml(account.id)}">
@@ -190,8 +209,8 @@ document.addEventListener('DOMContentLoaded', function () {
                                 <div class="sp-account-type">${escapeHtml(account.type)}</div>
                                 <span class="sp-status-badge ${statusClass}">${statusText}</span>
                             </div>
-                            <div class="sp-account-meta">${escapeHtml(account.name)}</div>
-                            <div class="sp-account-meta">${escapeHtml(account.number)}</div>
+                            ${accountName ? `<div class="sp-account-meta">${escapeHtml(accountName)}</div>` : ''}
+                            ${accountNumber ? `<div class="sp-account-meta">${escapeHtml(accountNumber)}</div>` : ''}
                         </div>
                         <div class="sp-account-actions">
                             <button type="button" class="sp-icon-btn js-account-edit" aria-label="Edit account">
@@ -215,6 +234,7 @@ document.addEventListener('DOMContentLoaded', function () {
             accountModalTitle.textContent = 'Add Payment Account';
             accountSaveBtn.textContent = 'Save';
             editingAccountId = null;
+            toggleCashAccountFields();
         }
 
         function openAccountModal() {
@@ -241,6 +261,7 @@ document.addEventListener('DOMContentLoaded', function () {
             accountNumberInput.value = target.number || '';
             accountStatusInput.checked = !!target.isActive;
             accountStatusLabel.textContent = target.isActive ? 'Active' : 'Inactive';
+            toggleCashAccountFields();
             openAccountModal();
         }
 
@@ -249,8 +270,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const name = accountNameInput.value.trim();
             const number = accountNumberInput.value.trim();
             const isActive = accountStatusInput.checked;
+            const isCash = type === 'Cash';
 
-            if (!type || !name || !number) {
+            if (!type || (!isCash && (!name || !number))) {
                 alert('Please fill in all payment account fields.');
                 return;
             }
@@ -263,8 +285,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     return {
                         id: item.id,
                         type: type,
-                        name: name,
-                        number: number,
+                        name: isCash ? '' : name,
+                        number: isCash ? '' : number,
                         isActive: isActive
                     };
                 });
@@ -273,8 +295,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 accounts.push({
                     id: 'acct-' + Date.now() + '-' + Math.random().toString(16).slice(2),
                     type: type,
-                    name: name,
-                    number: number,
+                    name: isCash ? '' : name,
+                    number: isCash ? '' : number,
                     isActive: isActive
                 });
                 setPaymentAccounts(accounts);
@@ -298,6 +320,8 @@ document.addEventListener('DOMContentLoaded', function () {
         accountStatusInput.addEventListener('change', function () {
             accountStatusLabel.textContent = accountStatusInput.checked ? 'Active' : 'Inactive';
         });
+
+        accountTypeInput.addEventListener('change', toggleCashAccountFields);
 
         accountSaveBtn.addEventListener('click', handleSaveAccount);
 
