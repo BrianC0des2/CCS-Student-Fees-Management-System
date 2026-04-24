@@ -17,10 +17,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    const nameEl  = document.querySelector('.profile_name');
-    const emailEl = document.querySelector('.job');
-    if (nameEl)  nameEl.textContent  = user.name;
-    if (emailEl) emailEl.textContent = user.email;
+    const nameEls = document.querySelectorAll('.profile_name');
+    const emailEls = document.querySelectorAll('.job');
+    nameEls.forEach((nameEl) => {
+        nameEl.textContent = user.name;
+    });
+    emailEls.forEach((emailEl) => {
+        emailEl.textContent = user.email;
+    });
 })();
 
 /* ══════════════════════════════
