@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="UTF-8">
+        <title>CCS PAY++ · Profile Setup</title>
+        <link rel="stylesheet" href="../../styles/sidebar.css">
+        <link rel="stylesheet" href="../../styles/student-styles/profile-setup.css">
+        <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+        <link rel="stylesheet" href="../../styles/settings.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <div class="sidebar">
+            <a href="student-dashboard.html" style="text-decoration: none; color: inherit; cursor: pointer;">
+                <div class="logo-details">
+                    <img src="../../assets/images/pyt.png" alt="Pay++ Logo" class="sidebar-logo-img">
+                    <span class="logo_name">Pay++</span>
+                </div>
+            </a>
+            <ul class="nav-links">
+                <li>
+                    <a href="student-dashboard.html">
+                        <i class='bx bx-grid-alt'></i>
+                        <span class="link_name">Dashboard</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name" href="student-dashboard.html">Dashboard</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <div class="iocn-link">
+                        <a href="#">
+                            <i class='bx bx-wallet'></i>
+                            <span class="link_name">Payments</span>
+                        </a>
+                        <i class='bx bxs-chevron-down arrow'></i>
+                    </div>
+                    <ul class="sub-menu">
+                        <li><a href="make-payment.html">Make Payment</a></li>
+                        <li><a href="payment-receipt.html">Payment History</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="clearance-status.html">
+                        <i class='bx bx-clipboard'></i>
+                        <span class="link_name">Clearance</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name" href="clearance-status.html">Clearance</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#" class="js-settings-open">
+                        <i class='bx bx-cog'></i>
+                        <span class="link_name">Settings</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name js-settings-open" href="#">Settings</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="student-profile.html">
+                        <i class='bx bx-user-circle'></i>
+                        <span class="link_name">Profile</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name" href="student-profile.html">Profile</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <div class="profile-details">
+                        <div class="profile-main">
+                            <div class="profile-content">
+                                <img src="../../assets/images/profile.png" alt="profileImg">
+                            </div>
+                            <div class="name-job">
+                                <div class="name-with-switch">
+                                    <div class="profile_name">Student</div>
+                                    <button type="button" class="view-switch-container" aria-label="Switch view">
+                                        <i class='bx bx-chevron-up view-switch-icon'></i>
+                                    </button>
+                                </div>
+                                <div class="job">Student ID</div>
+                            </div>
+                        </div>
+                        <a class="logout-section">
+                            <span>Sign out</span>
+                            <i class='bx bx-log-out'></i>
+                        </a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <section class="home-section">
+            <div class="home-content">
+                <i class='bx bx-menu'></i>
+                <span class="text">Profile Setup</span>
+            </div>
+
+            <div class="profile-setup-wrap">
+                <div class="profile-setup-card">
+                    <div class="profile-setup-header">
+                        <h1>Welcome to Pay++! Please complete your profile before continuing.</h1>
+                        <p>This is a one-time setup to personalize your student experience.</p>
+                    </div>
+
+                    <form id="profileSetupForm" class="profile-setup-form">
+                        <div class="setup-grid">
+                            <label class="setup-field">
+                                <span>Full Name</span>
+                                <input type="text" id="setupFullName" readonly>
+                            </label>
+                            <label class="setup-field">
+                                <span>Student ID</span>
+                                <input type="text" id="setupStudentId" readonly>
+                            </label>
+                            <label class="setup-field">
+                                <span>Course</span>
+                                <input type="text" id="setupCourse" readonly>
+                            </label>
+                            <label class="setup-field">
+                                <span>Year &amp; Section</span>
+                                <input type="text" id="setupYearSection" readonly>
+                            </label>
+                            <label class="setup-field">
+                                <span>Religion (optional)</span>
+                                <select id="setupReligion">
+                                    <option value="">Select religion</option>
+                                    <option value="Catholic">Catholic</option>
+                                    <option value="Muslim">Muslim</option>
+                                    <option value="Born Again">Born Again</option>
+                                    <option value="Iglesia ni Cristo">Iglesia ni Cristo</option>
+                                    <option value="Seventh Day Adventist">Seventh Day Adventist</option>
+                                    <option value="Others">Others</option>
+                                    <option value="Prefer not to say">Prefer not to say</option>
+                                </select>
+                            </label>
+                            <label class="setup-field">
+                                <span>Phone Number (optional)</span>
+                                <input type="text" id="setupPhone" placeholder="e.g. 09171234567">
+                            </label>
+                        </div>
+
+                        <button type="submit" class="complete-profile-btn">Complete Profile</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <script src="../../assets/scripts/settings.js"></script>
+        <script src="../../assets/scripts/sample-accounts.js"></script>
+        <script src="../../assets/scripts/auth.js"></script>
+        <script src="../../assets/scripts/script.js"></script>
+        <script>
+            (function () {
+                const user = window.Auth && typeof window.Auth.getUser === 'function'
+                    ? window.Auth.getUser()
+                    : null;
+
+                if (!user) {
+                    window.location.href = '../../index.html';
+                    return;
+                }
+
+                const fullNameEl = document.getElementById('setupFullName');
+                const studentIdEl = document.getElementById('setupStudentId');
+                const courseEl = document.getElementById('setupCourse');
+                const yearSectionEl = document.getElementById('setupYearSection');
+                const religionEl = document.getElementById('setupReligion');
+                const phoneEl = document.getElementById('setupPhone');
+
+                fullNameEl.value = user.name || '';
+                studentIdEl.value = user.studentId || '';
+                courseEl.value = user.course || '';
+                yearSectionEl.value = [user.year || '', user.section || ''].filter(Boolean).join(' - ');
+                religionEl.value = user.religion || '';
+                phoneEl.value = user.phoneNumber || '';
+
+                document.getElementById('profileSetupForm').addEventListener('submit', function (event) {
+                    event.preventDefault();
+
+                    if (!window.Auth || typeof window.Auth.updateCurrentUserProfile !== 'function') {
+                        alert('Profile service is unavailable. Please refresh and try again.');
+                        return;
+                    }
+
+                    const result = window.Auth.updateCurrentUserProfile({
+                        religion: religionEl.value || '',
+                        phoneNumber: phoneEl.value.trim(),
+                        isFirstLogin: false
+                    });
+
+                    if (!result.ok) {
+                        alert(result.message || 'Unable to save your profile right now.');
+                        return;
+                    }
+
+                    window.location.href = 'student-dashboard.html';
+                });
+            })();
+        </script>
+    </body>
+</html>

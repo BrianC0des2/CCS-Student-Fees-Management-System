@@ -200,30 +200,12 @@
                 <div class="payment-progress-container">
                     <div class="fees">
                         <h2><i class='bx bx-wallet'></i> Outstanding Fees</h2>
-                        <h1>₱200.00</h1>
-                        <p>Due: February 19, 2026</p>
+                        <h1 id="outstandingTotal">₱0.00</h1>
+                        <p id="outstandingDueLabel">Due: -</p>
                         
                         <div class="fee-list">
-                            <ul>
-                                <li>
-                                    <span>CCS Fee</span>
-                                    <span>₱200.00</span>
-                                </li>
-                                <li>
-                                    <span>Gender Club</span>
-                                    <span>₱50.00</span>
-                                </li>
-                                <li>
-                                    <span>Insurance</span>
-                                    <span>₱40.00</span>
-                                </li>
-                                <li>
-                                    <span>Miscallaneus</span>
-                                    <span>₱60.00</span>
-                                </li>
-                            </ul>
+                            <ul id="outstandingFeeList"></ul>
                         </div>
-                        <a id="pay-btn" href="make-payment.html">Pay Now</a>
                     </div>
                     <div class="payments-history">
                         <div class="payments-header">
@@ -294,36 +276,424 @@
             </div>
         </section>
 
+        <div class="promissory-modal-overlay" id="promissoryModal" aria-hidden="true">
+            <div class="promissory-modal-container" role="dialog" aria-modal="true" aria-labelledby="promissoryModalTitle">
+                <div class="promissory-modal-header">
+                    <h3 id="promissoryModalTitle">Promissory Note Request</h3>
+                    <button type="button" class="promissory-close" id="promissoryCloseBtn" aria-label="Close promissory request">
+                        <i class='bx bx-x'></i>
+                    </button>
+                </div>
+                <div class="promissory-modal-body">
+                    <div class="promissory-form-group">
+                        <label for="promissoryFeeName">Fee Name</label>
+                        <input type="text" id="promissoryFeeName" readonly>
+                    </div>
+                    <div class="promissory-form-group">
+                        <label for="promissoryReason">Reason <span class="required">*</span></label>
+                        <textarea id="promissoryReason" rows="4" placeholder="Explain your reason for requesting a promissory note"></textarea>
+                    </div>
+                    <div class="promissory-form-group">
+                        <label for="promissoryPartialAmount">Partial Payment Amount (optional)</label>
+                        <div class="input-prefix promissory-input-prefix">
+                            <span>₱</span>
+                            <input type="number" id="promissoryPartialAmount" min="0" step="0.01" placeholder="0.00">
+                        </div>
+                    </div>
+                    <div class="promissory-form-group">
+                        <label for="promissoryDate">Promised Payment Date <span class="required">*</span></label>
+                        <input type="date" id="promissoryDate">
+                    </div>
+                </div>
+                <div class="promissory-modal-footer">
+                    <button type="button" class="btn-cancel" id="promissoryCancelBtn">Cancel</button>
+                    <button type="button" class="btn-submit" id="promissorySubmitBtn">Submit Request</button>
+                </div>
+            </div>
+        </div>
+
         <script src="../../assets/scripts/settings.js"></script>
         <script src="../../assets/scripts/sample-accounts.js"></script>
         <script src="../../assets/scripts/auth.js"></script>
         <script src="../../assets/scripts/script.js"></script>
         <script>
             (function () {
-                const completedEl = document.querySelector('.labels .completed h1');
-                const pendingEl = document.querySelector('.labels .pending h1');
-                const progressLineEl = document.querySelector('.clearance-content.progress p');
+                const FEES_STORAGE_KEY = 'ccs.organization.fees';
+                const PROMISSORY_STORAGE_KEY = 'ccs.promissory.requests';
+                const STUDENT_FEE_STATUS_KEY = 'ccs.student.feeStatus';
 
-                const completed = Number.parseInt(completedEl?.textContent || '0', 10);
-                const pending = Number.parseInt(pendingEl?.textContent || '0', 10);
-                const total = completed + pending;
+                const DEFAULT_FEES = [
+                    {
+                        id: 'fee-default-csc',
+                        name: 'CSC Fee',
+                        description: 'College Student Council Fee',
+                        amount: 200,
+                        dueDate: '2026-02-15',
+                        isActive: true,
+                        feeType: 'mandatory',
+                        appliesTo: 'all'
+                    },
+                    {
+                        id: 'fee-default-gender',
+                        name: 'Gender Club',
+                        description: 'Gender Club Membership Fee',
+                        amount: 50,
+                        dueDate: '2026-02-15',
+                        isActive: true,
+                        feeType: 'voluntary',
+                        appliesTo: 'all'
+                    },
+                    {
+                        id: 'fee-default-msa',
+                        name: 'MSA Fee',
+                        description: 'Muslim Students Association Fee',
+                        amount: 50,
+                        dueDate: '2026-02-15',
+                        isActive: true,
+                        feeType: 'mandatory',
+                        appliesTo: 'Muslim'
+                    },
+                    {
+                        id: 'fee-default-misc',
+                        name: 'Miscellaneous',
+                        description: 'Miscellaneous Supplies',
+                        amount: 60,
+                        dueDate: '2026-02-15',
+                        isActive: true,
+                        feeType: 'mandatory',
+                        appliesTo: 'all'
+                    }
+                ];
 
-                if (!Number.isFinite(completed) || !Number.isFinite(total) || total <= 0) {
-                    return;
+                let selectedFee = null;
+
+                function getCurrentUser() {
+                    return window.Auth && typeof window.Auth.getUser === 'function'
+                        ? window.Auth.getUser()
+                        : null;
                 }
 
-                const percentage = (completed / total) * 100;
-                const circumference = 251.2;
-                const filled = (percentage / 100) * circumference;
-
-                document.querySelector('.progress-circle-wrapper circle:nth-child(2)')
-                    ?.setAttribute('stroke-dasharray', `${filled} ${circumference}`);
-                document.querySelector('.progress-circle-wrapper text')
-                    .textContent = `${Math.round(percentage)}%`;
-
-                if (progressLineEl) {
-                    progressLineEl.textContent = `${completed} of ${total} Requirements Completed`;
+                function readJsonArray(key) {
+                    try {
+                        const parsed = JSON.parse(localStorage.getItem(key) || '[]');
+                        return Array.isArray(parsed) ? parsed : [];
+                    } catch (_err) {
+                        return [];
+                    }
                 }
+
+                function readJsonObject(key) {
+                    try {
+                        const parsed = JSON.parse(localStorage.getItem(key) || '{}');
+                        return parsed && typeof parsed === 'object' ? parsed : {};
+                    } catch (_err) {
+                        return {};
+                    }
+                }
+
+                function formatCurrency(value) {
+                    return new Intl.NumberFormat('en-PH', {
+                        style: 'currency',
+                        currency: 'PHP'
+                    }).format(Number(value) || 0);
+                }
+
+                function formatDueDate(value) {
+                    if (!value) return '-';
+                    const parsed = new Date(value);
+                    if (Number.isNaN(parsed.getTime())) return value;
+                    return parsed.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                }
+
+                function normalizeReligion(value) {
+                    return String(value || '').trim().toLowerCase();
+                }
+
+                function normalizeAppliesToValue(appliesTo, specificReligion) {
+                    const normalized = String(appliesTo || 'all').trim().toLowerCase();
+                    if (normalized === 'muslim') return 'muslim';
+                    if (normalized === 'catholic') return 'catholic';
+                    if (normalized === 'specific') {
+                        return String(specificReligion || '').trim() ? 'specific' : 'all';
+                    }
+                    return 'all';
+                }
+
+                function feeAppliesToStudent(fee, user) {
+                    const appliesTo = normalizeAppliesToValue(fee.appliesTo, fee.specificReligion);
+                    if (appliesTo === 'all') return true;
+
+                    const studentReligion = normalizeReligion(user && user.religion ? user.religion : '');
+                    if (!studentReligion) return false;
+
+                    if (appliesTo === 'specific') {
+                        return studentReligion === normalizeReligion(fee.specificReligion || '');
+                    }
+
+                    return studentReligion === appliesTo;
+                }
+
+                function normalizeFee(fee) {
+                    return {
+                        id: fee.id || ('fee-' + Date.now()),
+                        name: String(fee.name || '').trim(),
+                        description: String(fee.description || '').trim(),
+                        amount: Number(fee.amount) || 0,
+                        dueDate: fee.dueDate || '',
+                        isActive: fee.isActive !== false,
+                        feeType: fee.feeType === 'voluntary' ? 'voluntary' : 'mandatory',
+                        appliesTo: normalizeAppliesToValue(fee.appliesTo, fee.specificReligion),
+                        specificReligion: String(fee.specificReligion || '').trim()
+                    };
+                }
+
+                function getFees() {
+                    const stored = readJsonArray(FEES_STORAGE_KEY).map(normalizeFee);
+                    const source = stored.length ? stored : DEFAULT_FEES.map(normalizeFee);
+                    const user = getCurrentUser();
+                    return source.filter(function (fee) {
+                        return fee.isActive && String(fee.name || '').toLowerCase() !== 'insurance' && feeAppliesToStudent(fee, user);
+                    });
+                }
+
+                function getStudentRequests(studentId) {
+                    return readJsonArray(PROMISSORY_STORAGE_KEY)
+                        .filter(function (request) { return request.studentId === studentId; });
+                }
+
+                function getLatestRequestByFee(studentId) {
+                    const latestByFee = new Map();
+                    getStudentRequests(studentId).forEach(function (request) {
+                        const existing = latestByFee.get(request.feeId);
+                        if (!existing) {
+                            latestByFee.set(request.feeId, request);
+                            return;
+                        }
+                        const existingTime = new Date(existing.updatedAt || existing.createdAt || 0).getTime();
+                        const requestTime = new Date(request.updatedAt || request.createdAt || 0).getTime();
+                        if (requestTime >= existingTime) {
+                            latestByFee.set(request.feeId, request);
+                        }
+                    });
+                    return latestByFee;
+                }
+
+                function statusKey(studentId, feeId) {
+                    return `${studentId}::${feeId}`;
+                }
+
+                function getFeeStatusMap() {
+                    return readJsonObject(STUDENT_FEE_STATUS_KEY);
+                }
+
+                function getPromissoryBadge(request) {
+                    if (!request) return '';
+                    if (request.status === 'Pending Review') {
+                        return '<span class="fee-pill fee-pill-pending-review">Promissory Pending</span>';
+                    }
+                    if (request.status === 'Promissory Approved') {
+                        return '<span class="fee-pill fee-pill-promissory-approved">Promissory Approved</span>';
+                    }
+                    if (request.status === 'Promissory Rejected') {
+                        return '<span class="fee-pill fee-pill-promissory-rejected">Promissory Rejected</span>';
+                    }
+                    return '';
+                }
+
+                function updateClearanceProgress(fees, latestRequestByFee, studentId) {
+                    const statusMap = getFeeStatusMap();
+                    const mandatoryFees = fees.filter(function (fee) {
+                        return fee.feeType !== 'voluntary';
+                    });
+
+                    let completed = 0;
+                    mandatoryFees.forEach(function (fee) {
+                        const paid = statusMap[statusKey(studentId, fee.id)] === 'paid';
+                        const request = latestRequestByFee.get(fee.id);
+                        const promissoryApproved = request && request.status === 'Promissory Approved';
+
+                        if (paid || promissoryApproved) {
+                            completed += 1;
+                        }
+                    });
+
+                    const total = mandatoryFees.length;
+                    const pending = Math.max(total - completed, 0);
+                    const percentage = total > 0 ? Math.round((completed / total) * 100) : 100;
+
+                    const circumference = 251.2;
+                    const filled = (percentage / 100) * circumference;
+
+                    document.querySelector('.labels .completed h1').textContent = String(completed);
+                    document.querySelector('.labels .pending h1').textContent = String(pending);
+                    document.querySelector('.clearance-content.progress p').textContent = `${completed} of ${total} Requirements Completed`;
+
+                    document.querySelector('.progress-circle-wrapper circle:nth-child(2)')
+                        ?.setAttribute('stroke-dasharray', `${filled} ${circumference}`);
+                    document.querySelector('.progress-circle-wrapper text').textContent = `${percentage}%`;
+                }
+
+                function renderOutstandingFees() {
+                    const user = getCurrentUser();
+                    const studentId = user && user.studentId ? user.studentId : 'anonymous-student';
+                    const studentName = user && user.name ? user.name : 'Student';
+                    const fees = getFees();
+                    const latestRequestByFee = getLatestRequestByFee(studentId);
+                    const feeStatusMap = getFeeStatusMap();
+                    const listEl = document.getElementById('outstandingFeeList');
+
+                    if (!fees.length) {
+                        listEl.innerHTML = '<li class="fee-empty">No outstanding fees.</li>';
+                        document.getElementById('outstandingTotal').textContent = formatCurrency(0);
+                        document.getElementById('outstandingDueLabel').textContent = 'Due: -';
+                        updateClearanceProgress([], latestRequestByFee, studentId);
+                        return;
+                    }
+
+                    const totalOutstanding = fees.reduce(function (sum, fee) {
+                        return sum + fee.amount;
+                    }, 0);
+
+                    const earliestDue = fees
+                        .map(function (fee) { return fee.dueDate; })
+                        .filter(Boolean)
+                        .sort()[0];
+
+                    document.getElementById('outstandingTotal').textContent = formatCurrency(totalOutstanding);
+                    document.getElementById('outstandingDueLabel').textContent = `Due: ${formatDueDate(earliestDue)}`;
+
+                    listEl.innerHTML = fees.map(function (fee) {
+                        const typeClass = fee.feeType === 'voluntary' ? 'fee-pill-optional' : 'fee-pill-required';
+                        const typeText = fee.feeType === 'voluntary' ? 'Optional' : 'Required';
+                        const latestRequest = latestRequestByFee.get(fee.id);
+                        const promissoryBadge = getPromissoryBadge(latestRequest);
+                        const isPendingReview = latestRequest && latestRequest.status === 'Pending Review';
+                        const paid = feeStatusMap[statusKey(studentId, fee.id)] === 'paid';
+                        const paidBadge = paid ? '<span class="fee-pill fee-pill-paid">Paid</span>' : '';
+
+                        return `
+                            <li data-fee-id="${fee.id}">
+                                <div class="fee-line">
+                                    <div class="fee-line-left">
+                                        <span class="fee-name">${fee.name}</span>
+                                        <span class="fee-pill ${typeClass}">${typeText}</span>
+                                        ${promissoryBadge}
+                                        ${paidBadge}
+                                    </div>
+                                    <span class="fee-amount">${formatCurrency(fee.amount)}</span>
+                                </div>
+                                <button type="button" class="pay-now-btn" data-fee-id="${fee.id}" data-fee-name="${fee.name}" data-fee-amount="${fee.amount}">Pay Now</button>
+                                <a
+                                    class="promissory-link fee-action-promissory"
+                                    data-fee-id="${fee.id}"
+                                    data-fee-name="${fee.name}"
+                                    data-student-id="${studentId}"
+                                    data-student-name="${studentName}"
+                                    ${isPendingReview ? 'aria-disabled="true" tabindex="-1"' : ''}
+                                >Request promissory note</a>
+                            </li>
+                        `;
+                    }).join('');
+
+                    updateClearanceProgress(fees, latestRequestByFee, studentId);
+
+                    document.querySelectorAll('.pay-now-btn').forEach(function (button) {
+                        button.addEventListener('click', function () {
+                            const selectedFee = [{
+                                feeId: button.dataset.feeId,
+                                fee: button.dataset.feeName,
+                                price: Number(button.dataset.feeAmount)
+                            }];
+                            localStorage.setItem('ccs.selected.fees', JSON.stringify(selectedFee));
+                            window.location.href = 'make-payment.html';
+                        });
+                    });
+
+                    document.querySelectorAll('.fee-action-promissory').forEach(function (button) {
+                        button.addEventListener('click', function () {
+                            if (button.getAttribute('aria-disabled') === 'true') {
+                                return;
+                            }
+                            selectedFee = {
+                                feeId: button.dataset.feeId,
+                                feeName: button.dataset.feeName,
+                                studentId: button.dataset.studentId,
+                                studentName: button.dataset.studentName,
+                                studentNumber: button.dataset.studentId
+                            };
+                            openPromissoryModal();
+                        });
+                    });
+                }
+
+                function openPromissoryModal() {
+                    if (!selectedFee) return;
+                    document.getElementById('promissoryFeeName').value = selectedFee.feeName;
+                    document.getElementById('promissoryReason').value = '';
+                    document.getElementById('promissoryPartialAmount').value = '';
+                    document.getElementById('promissoryDate').value = '';
+
+                    const modal = document.getElementById('promissoryModal');
+                    modal.classList.add('active');
+                    modal.setAttribute('aria-hidden', 'false');
+                }
+
+                function closePromissoryModal() {
+                    const modal = document.getElementById('promissoryModal');
+                    modal.classList.remove('active');
+                    modal.setAttribute('aria-hidden', 'true');
+                    selectedFee = null;
+                }
+
+                function submitPromissoryRequest() {
+                    if (!selectedFee) return;
+
+                    const reason = document.getElementById('promissoryReason').value.trim();
+                    const promisedDate = document.getElementById('promissoryDate').value;
+                    const partialRaw = document.getElementById('promissoryPartialAmount').value;
+                    const partialAmount = partialRaw === '' ? null : Number(partialRaw);
+
+                    if (!reason || !promisedDate) {
+                        alert('Please complete the required fields.');
+                        return;
+                    }
+
+                    if (partialAmount !== null && (Number.isNaN(partialAmount) || partialAmount < 0)) {
+                        alert('Please enter a valid partial payment amount.');
+                        return;
+                    }
+
+                    const requests = readJsonArray(PROMISSORY_STORAGE_KEY);
+                    requests.push({
+                        id: 'promissory-' + Date.now(),
+                        feeId: selectedFee.feeId,
+                        feeName: selectedFee.feeName,
+                        studentId: selectedFee.studentId,
+                        studentNumber: selectedFee.studentNumber,
+                        studentName: selectedFee.studentName,
+                        reason: reason,
+                        partialAmount: partialAmount,
+                        promisedDate: promisedDate,
+                        status: 'Pending Review',
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    });
+
+                    localStorage.setItem(PROMISSORY_STORAGE_KEY, JSON.stringify(requests));
+                    closePromissoryModal();
+                    renderOutstandingFees();
+                }
+
+                document.getElementById('promissoryCloseBtn').addEventListener('click', closePromissoryModal);
+                document.getElementById('promissoryCancelBtn').addEventListener('click', closePromissoryModal);
+                document.getElementById('promissorySubmitBtn').addEventListener('click', submitPromissoryRequest);
+                document.getElementById('promissoryModal').addEventListener('click', function (event) {
+                    if (event.target === this) {
+                        closePromissoryModal();
+                    }
+                });
+
+                renderOutstandingFees();
             })();
         </script>
 

@@ -18,6 +18,104 @@
         z-index: 10;
         background: #f5f5f5;
     }
+    .promissory-section {
+        margin-top: 20px;
+        background: #ffffff;
+        border: 1px solid #d4e2d8;
+        border-radius: 14px;
+        overflow: hidden;
+    }
+    .promissory-header {
+        padding: 14px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #d4e2d8;
+    }
+    .promissory-header h2 {
+        margin: 0;
+        font-size: 16px;
+    }
+    .promissory-counter {
+        background: #fff3cd;
+        color: #8a6d3b;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 10px;
+        text-transform: uppercase;
+    }
+    .promissory-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .promissory-table th,
+    .promissory-table td {
+        padding: 10px;
+        border-bottom: 1px solid #edf3ef;
+        font-size: 12px;
+        text-align: left;
+        vertical-align: top;
+    }
+    .promissory-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    .promissory-empty {
+        text-align: center;
+        color: #6b7280;
+        padding: 14px;
+    }
+    .promissory-status {
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 3px 8px;
+        text-transform: uppercase;
+        white-space: nowrap;
+        display: inline-block;
+    }
+    .promissory-status.pending {
+        background: #fef9c3;
+        color: #a16207;
+    }
+    .promissory-status.approved {
+        background: #dcfce7;
+        color: #166534;
+    }
+    .promissory-status.rejected {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+    .promissory-actions {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+    .promissory-actions button {
+        border: 1px solid #d4e2d8;
+        border-radius: 8px;
+        background: #fff;
+        padding: 5px 8px;
+        font-size: 11px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+    .promissory-actions .approve-btn {
+        color: #166534;
+        border-color: #bbf7d0;
+    }
+    .promissory-actions .reject-btn {
+        color: #b91c1c;
+        border-color: #fecaca;
+    }
+    @media (max-width: 768px) {
+        .promissory-section {
+            overflow-x: auto;
+        }
+        .promissory-table {
+            min-width: 980px;
+        }
+    }
     </style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
@@ -340,6 +438,30 @@
             </div>
         </div>
 
+        <section class="promissory-section" id="promissoryNotesSection">
+            <div class="promissory-header">
+                <h2>Promissory Notes</h2>
+                <span class="promissory-counter" id="promissoryPendingCounter">0 Pending</span>
+            </div>
+            <div class="table-container" style="max-height: 360px;">
+                <table class="promissory-table">
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Student Number</th>
+                            <th>Fee Name</th>
+                            <th>Reason</th>
+                            <th>Partial Amount</th>
+                            <th>Promised Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="promissoryTableBody"></tbody>
+                </table>
+            </div>
+        </section>
+
     </section>
 
     <script src="../../assets/scripts/settings.js"></script>
@@ -347,5 +469,116 @@
     <script src="../../assets/scripts/auth.js"></script>
     <script src="../../assets/scripts/sidebar-template.js"></script>
     <script src="../../assets/scripts/script.js"></script>
+    <script>
+        (function () {
+            const PROMISSORY_STORAGE_KEY = 'ccs.promissory.requests';
+
+            function readRequests() {
+                try {
+                    const parsed = JSON.parse(localStorage.getItem(PROMISSORY_STORAGE_KEY) || '[]');
+                    return Array.isArray(parsed) ? parsed : [];
+                } catch (_err) {
+                    return [];
+                }
+            }
+
+            function saveRequests(requests) {
+                localStorage.setItem(PROMISSORY_STORAGE_KEY, JSON.stringify(requests));
+            }
+
+            function formatDate(value) {
+                if (!value) return '-';
+                const parsed = new Date(value);
+                if (Number.isNaN(parsed.getTime())) return value;
+                return parsed.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+            }
+
+            function formatAmount(value) {
+                if (value === null || value === undefined || value === '') return '-';
+                return new Intl.NumberFormat('en-PH', {
+                    style: 'currency',
+                    currency: 'PHP'
+                }).format(Number(value) || 0);
+            }
+
+            function statusClass(status) {
+                if (status === 'Promissory Approved') return 'approved';
+                if (status === 'Promissory Rejected') return 'rejected';
+                return 'pending';
+            }
+
+            function updateRequestStatus(requestId, status) {
+                const updated = readRequests().map(function (request) {
+                    if (request.id !== requestId) return request;
+                    return {
+                        ...request,
+                        status: status,
+                        updatedAt: new Date().toISOString()
+                    };
+                });
+
+                saveRequests(updated);
+                renderPromissoryTable();
+            }
+
+            function renderPromissoryTable() {
+                const body = document.getElementById('promissoryTableBody');
+                const counter = document.getElementById('promissoryPendingCounter');
+                const requests = readRequests().sort(function (a, b) {
+                    return new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0);
+                });
+
+                const pendingCount = requests.filter(function (request) {
+                    return request.status === 'Pending Review';
+                }).length;
+
+                counter.textContent = `${pendingCount} Pending`;
+
+                if (!requests.length) {
+                    body.innerHTML = '<tr><td colspan="8" class="promissory-empty">No promissory note requests submitted yet.</td></tr>';
+                    return;
+                }
+
+                body.innerHTML = requests.map(function (request) {
+                    const canReview = request.status === 'Pending Review';
+                    return `
+                        <tr>
+                            <td>${request.studentName || '-'}</td>
+                            <td>${request.studentNumber || '-'}</td>
+                            <td>${request.feeName || '-'}</td>
+                            <td>${request.reason || '-'}</td>
+                            <td>${formatAmount(request.partialAmount)}</td>
+                            <td>${formatDate(request.promisedDate)}</td>
+                            <td><span class="promissory-status ${statusClass(request.status)}">${request.status || 'Pending Review'}</span></td>
+                            <td>
+                                <div class="promissory-actions">
+                                    <button type="button" class="approve-btn" data-action="approve" data-id="${request.id}" ${canReview ? '' : 'disabled'}>Approve</button>
+                                    <button type="button" class="reject-btn" data-action="reject" data-id="${request.id}" ${canReview ? '' : 'disabled'}>Reject</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                body.querySelectorAll('button[data-action="approve"]').forEach(function (button) {
+                    button.addEventListener('click', function () {
+                        updateRequestStatus(button.dataset.id, 'Promissory Approved');
+                    });
+                });
+
+                body.querySelectorAll('button[data-action="reject"]').forEach(function (button) {
+                    button.addEventListener('click', function () {
+                        updateRequestStatus(button.dataset.id, 'Promissory Rejected');
+                    });
+                });
+            }
+
+            renderPromissoryTable();
+        })();
+    </script>
 </body>
 </html>

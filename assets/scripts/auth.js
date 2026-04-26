@@ -2,6 +2,7 @@
 
   const AUTH_USER_KEY = "ccs.auth.user";
   const AUTH_VIEW_KEY = "ccs.auth.view";
+  const ACCOUNT_PROFILE_OVERRIDES_KEY = "ccs.auth.accountProfileOverrides";
 
   function readStorage(key) {
     try {
@@ -57,6 +58,50 @@
     writeStorage(AUTH_USER_KEY, JSON.stringify(user));
   }
 
+  function getProfileOverrides() {
+    try {
+      const raw = localStorage.getItem(ACCOUNT_PROFILE_OVERRIDES_KEY);
+      if (!raw) return {};
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === "object" ? parsed : {};
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function saveProfileOverrides(overrides) {
+    try {
+      localStorage.setItem(ACCOUNT_PROFILE_OVERRIDES_KEY, JSON.stringify(overrides));
+    } catch (error) {
+    }
+  }
+
+  function mergeAccountWithOverrides(account) {
+    const overrides = getProfileOverrides();
+    const accountOverrides = account && account.id ? (overrides[account.id] || {}) : {};
+    return {
+      ...(account || {}),
+      ...accountOverrides
+    };
+  }
+
+  function buildSessionUser(account) {
+    const merged = mergeAccountWithOverrides(account);
+    return {
+      id: merged.id,
+      name: merged.name,
+      studentId: merged.studentId,
+      email: merged.email,
+      isFirstLogin: Boolean(merged.isFirstLogin),
+      religion: merged.religion || "",
+      phoneNumber: merged.phoneNumber || "",
+      course: merged.course || "",
+      year: merged.year || "",
+      section: merged.section || "",
+      permissions: merged.permissions
+    };
+  }
+
   function login(email, password) {
     const account = (window.SAMPLE_ACCOUNTS || []).find(
       (item) => item.email === email && item.password === password
@@ -66,14 +111,17 @@
       return { ok: false, message: "Invalid credentials" };
     }
 
-    const user = {
-      id: account.id,
-      name: account.name,
-      studentId: account.studentId,
-      email: account.email,
-      isFirstLogin: Boolean(account.isFirstLogin),
-      permissions: account.permissions
-    };
+    if (account.id === "u-student-001") {
+      const overrides = getProfileOverrides();
+      overrides[account.id] = {
+        ...(overrides[account.id] || {}),
+        isFirstLogin: false,
+        religion: "Catholic"
+      };
+      saveProfileOverrides(overrides);
+    }
+
+    const user = buildSessionUser(account);
 
     setStoredUser(user);
     writeStorage(AUTH_VIEW_KEY, "student");
@@ -117,6 +165,34 @@
 
   function getUser() {
     return getStoredUser();
+  }
+
+  function updateCurrentUserProfile(profileUpdates) {
+    const user = getStoredUser();
+    if (!user) {
+      return { ok: false, message: "No active session user." };
+    }
+
+    const updates = {
+      religion: typeof profileUpdates.religion === "string" ? profileUpdates.religion : user.religion,
+      phoneNumber: typeof profileUpdates.phoneNumber === "string" ? profileUpdates.phoneNumber : user.phoneNumber,
+      isFirstLogin: typeof profileUpdates.isFirstLogin === "boolean" ? profileUpdates.isFirstLogin : user.isFirstLogin
+    };
+
+    const overrides = getProfileOverrides();
+    overrides[user.id] = {
+      ...(overrides[user.id] || {}),
+      ...updates
+    };
+    saveProfileOverrides(overrides);
+
+    const updatedUser = {
+      ...user,
+      ...updates
+    };
+    setStoredUser(updatedUser);
+
+    return { ok: true, user: updatedUser };
   }
 
   function canManageOrg() {
@@ -275,6 +351,7 @@
     isFirstLogin,
     changePassword,
     getUser,
+    updateCurrentUserProfile,
     canManageOrg,
     isAdmin,
     isFaculty,

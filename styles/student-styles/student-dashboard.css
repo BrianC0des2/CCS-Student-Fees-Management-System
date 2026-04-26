@@ -112,79 +112,195 @@
     flex-direction: column;
     align-items: center; /* centers block-level children horizontally */
     text-align: left; /* default text alignment inside card */
-    padding: 15px;
-    box-sizing: border-box;
-}
+        .fees .fee-list ul {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
 
-/* Center only the main amount */
+        .fees .fee-list ul li {
+            display: block;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            overflow: hidden;
+        }
 
-.fees > h2{
-    font-size: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center; /* center icon and text together */
-}
+        .fees .fee-list ul li:last-child {
+            border-bottom: none;
+        }
 
-.fees > h2 i {
-    margin-right: 8px;
-    font-size: 1.5em; /* larger icon */
-}
+        .fee-name {
+            font-weight: 600;
+            color: var(--color-dark);
+        }
 
+        .fee-pill {
+            display: inline-block;
+            margin-left: 8px;
+            border-radius: 999px;
+            padding: 2px 8px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            text-transform: uppercase;
+            vertical-align: middle;
+        }
 
-.bx-wallet{
-    color: var(--color-primary);
-    /* the icon sits before the text; no auto margin needed */
-}
-/* .fees > h2,
-.fees > h1,
-.fees > p
-{
-    width: 100%;
-    text-align: center;
-    margin: 1px;
-} */
+        .fee-pill-required {
+            background: #fff3e0;
+            color: #c2410c;
+        }
 
-.fees > p{
-    color: var(--color-orange);
-    font-size:14px;
-    margin-bottom: 10px 0;
-    padding-bottom: 10px;
-    width: 250px;
-    text-align: center;
-    border-bottom: 2px solid rgba(var(--color-dark-rgb), 0.2);
-}
+        .fee-pill-optional {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
 
-/* Keep title and due date left-aligned */
+        .fee-pill-pending-review {
+            background: #fef9c3;
+            color: #a16207;
+        }
 
-.fees > h2 {
-    width: 100%;
-    text-align: left;
-    margin: 10px 0;
-}
+        .fee-pill-promissory-approved {
+            background: #dcfce7;
+            color: #166534;
+        }
 
-.fees > h1{
-      margin: 10px 0;
-}
+        .fee-pill-promissory-rejected {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
 
-.fees .fee-list{
-    width: 100%;
-    text-align: left;
-    margin-top: 12px;
-}
+        .fee-pill-paid {
+            background: #dcfce7;
+            color: #166534;
+        }
 
-.fees .fee-list ul{
-    list-style: none;
-    padding: 0;
-    margin: 10px;
-}
+        .fee-amount {
+            float: right;
+            font-weight: 700;
+            color: var(--color-dark);
+            white-space: nowrap;
+        }
 
-.fees .fee-list ul li{
-    display: flex;
-    justify-content: space-between;
+        .fee-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
 
-}
+        .fee-line-left {
+            min-width: 0;
+            flex: 1;
+        }
 
-#pay-btn{
+        .pay-now-btn {
+            display: inline-block;
+            margin-top: 6px;
+            margin-bottom: 6px;
+            padding: 6px 14px;
+            width: auto;
+            white-space: nowrap;
+            border: none;
+            border-radius: 12px;
+            background: var(--color-primary);
+            color: var(--color-light);
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .pay-now-btn:hover {
+            background: var(--brand-700);
+        }
+
+        .promissory-link {
+            display: block;
+            clear: both;
+            margin-left: 0;
+            margin-top: 4px;
+            font-size: 0.78rem;
+            color: #666;
+            text-decoration: underline;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
+            width: fit-content;
+        }
+
+        .promissory-link[aria-disabled="true"] {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .fee-empty {
+            text-align: center;
+            color: rgba(var(--color-dark-rgb), 0.64);
+            padding: 16px 0;
+        }
+
+    .fee-amount {
+        font-weight: 700;
+        color: var(--color-dark);
+        white-space: nowrap;
+    }
+
+    .fee-empty {
+        text-align: center;
+        color: rgba(var(--color-dark-rgb), 0.64);
+        padding: 16px 0;
+    }
+        padding: 7px 10px;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .fee-action-pay {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--color-primary);
+        color: var(--color-light);
+        border-color: var(--color-primary);
+        padding: 6px 16px;
+        width: auto;
+        height: auto;
+        flex-shrink: 0;
+    }
+    .fee-action-pay:hover {
+        background: var(--brand-700);
+    }
+    .fee-action-promissory {
+        display: block;
+        font-size: 0.8rem;
+        color: #666;
+        text-decoration: underline;
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 0;
+        margin-top: 4px;
+        font-weight: 500;
+        text-align: left;
+    }
+    .fee-action-promissory:hover {
+        color: #555;
+    }
+    .fee-action-promissory:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+    .fee-empty {
+        text-align: center;
+        color: rgba(var(--color-dark-rgb), 0.64);
+        padding: 16px 0;
+    }
+
+    .pay-btn{
     padding: 12px;
     text-align: center;
     margin:20px 0 10px 0 ;
@@ -196,9 +312,120 @@
     border-radius: 15px;
 }
 
-#pay-btn:hover{
+    .pay-btn:hover{
     background-color: var(--brand-700);
 }
+    .promissory-modal-overlay {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(15, 23, 42, 0.45);
+        z-index: 1200;
+    }
+    .promissory-modal-overlay.active {
+        display: flex;
+    }
+    .promissory-modal-container {
+        width: min(520px, 92vw);
+        background: var(--color-white);
+        border-radius: 16px;
+        border: 1px solid rgba(var(--color-dark-rgb), 0.12);
+        box-shadow: 0 24px 50px rgba(15, 23, 42, 0.2);
+    }
+    .promissory-modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 18px 8px;
+    }
+    .promissory-modal-header h3 {
+        margin: 0;
+        font-size: 16px;
+        color: var(--color-dark);
+    }
+    .promissory-close {
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: var(--color-light);
+        color: var(--color-dark);
+        cursor: pointer;
+    }
+    .promissory-modal-body {
+        padding: 8px 18px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .promissory-form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .promissory-form-group label {
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .promissory-form-group input,
+    .promissory-form-group textarea {
+        width: 100%;
+        border: 1px solid rgba(var(--color-dark-rgb), 0.2);
+        border-radius: 9px;
+        padding: 10px;
+        font-family: inherit;
+        font-size: 13px;
+        outline: none;
+    }
+    .promissory-form-group textarea {
+        resize: vertical;
+        min-height: 90px;
+    }
+    .promissory-form-group input:focus,
+    .promissory-form-group textarea:focus {
+        border-color: var(--color-primary);
+    }
+    .promissory-input-prefix {
+        border-radius: 9px;
+    }
+    .promissory-modal-footer {
+        padding: 12px 18px 18px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        border-top: 1px solid rgba(var(--color-dark-rgb), 0.12);
+    }
+
+    .promissory-modal-footer .btn-cancel,
+    .promissory-modal-footer .btn-submit {
+        border-radius: 8px;
+        padding: 8px 14px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        border: 1px solid rgba(var(--color-dark-rgb), 0.14);
+    }
+
+    .promissory-modal-footer .btn-cancel {
+        background: #fff;
+        color: var(--color-dark);
+    }
+
+    .promissory-modal-footer .btn-submit {
+        background: var(--color-primary);
+        color: var(--color-light);
+        border-color: var(--color-primary);
+    }
+
+    .promissory-modal-footer .btn-submit:hover {
+        background: var(--brand-700);
+    }
+
+    .required {
+        color: #dc2626;
+    }
 
 .payments-history{
     max-width: 100em;
@@ -422,7 +649,7 @@
     .approval-status,
     .fees,
     .payments-history,
-    #pay-btn {
+        .pay-btn {
         max-width: 100%;
         box-sizing: border-box;
     }
@@ -489,6 +716,34 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 4px;
+    }
+
+    .fee-line {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .fee-amount {
+        float: none;
+    }
+
+    .fee-item-amount {
+        font-size: 12px;
+    }
+
+    .pay-now-btn {
+        padding: 6px 12px;
+    }
+
+    .promissory-modal-overlay {
+        align-items: flex-end;
+    }
+
+    .promissory-modal-container {
+        width: 100%;
+        max-width: 100%;
+        border-radius: 16px 16px 0 0;
     }
 
     .approval-status {

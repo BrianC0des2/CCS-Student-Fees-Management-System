@@ -1,0 +1,109 @@
+@import url('../theme.css');
+
+.profile-setup-wrap {
+    width: 100%;
+    padding: 20px;
+}
+
+.profile-setup-card {
+    max-width: 920px;
+    margin: 0 auto;
+    background: var(--color-white);
+    border: 2px solid rgba(var(--color-dark-rgb), 0.12);
+    border-radius: 20px;
+    padding: 24px;
+}
+
+.profile-setup-header h1 {
+    font-size: 22px;
+    line-height: 1.35;
+    color: var(--color-dark);
+    margin: 0;
+}
+
+.profile-setup-header p {
+    margin: 8px 0 0;
+    color: rgba(var(--color-dark-rgb), 0.7);
+    font-size: 14px;
+}
+
+.profile-setup-form {
+    margin-top: 20px;
+}
+
+.setup-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.setup-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.setup-field span {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(var(--color-dark-rgb), 0.8);
+}
+
+.setup-field input,
+.setup-field select {
+    border: 1.5px solid rgba(var(--color-dark-rgb), 0.2);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    background: var(--color-white);
+    color: var(--color-dark);
+}
+
+.setup-field input[readonly] {
+    background: rgba(var(--color-dark-rgb), 0.04);
+    color: rgba(var(--color-dark-rgb), 0.75);
+}
+
+.setup-field input:focus,
+.setup-field select:focus {
+    border-color: var(--color-primary);
+}
+
+.complete-profile-btn {
+    margin-top: 18px;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 20px;
+    background: var(--color-primary);
+    color: var(--color-light);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.complete-profile-btn:hover {
+    background: var(--brand-700);
+}
+
+@media (max-width: 900px) {
+    .setup-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-setup-wrap {
+        padding: 12px;
+    }
+
+    .profile-setup-card {
+        padding: 16px;
+        border-radius: 16px;
+    }
+
+    .profile-setup-header h1 {
+        font-size: 18px;
+    }
+}

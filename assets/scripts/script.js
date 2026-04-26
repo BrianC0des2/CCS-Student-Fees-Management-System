@@ -46,6 +46,36 @@ function navigateTo(targetPath) {
   window.location.replace(destination);
 }
 
+function isStudentOnlyUser(user) {
+  if (!user || !user.permissions) return false;
+  return Boolean(
+    user.permissions.studentView &&
+    !user.permissions.organizationView &&
+    !user.permissions.adminView &&
+    !user.permissions.facultyView &&
+    !user.permissions.deanView
+  );
+}
+
+function navigateToRoleHome(user) {
+  if (!user || !user.permissions) {
+    navigateTo('index.html');
+    return;
+  }
+
+  if (user.permissions.deanView) {
+    navigateTo('pages/dean/dean-dashboard.html');
+  } else if (user.permissions.facultyView) {
+    navigateTo('pages/faculty/faculty-dashboard.html');
+  } else if (user.permissions.adminView) {
+    navigateTo('pages/admin/admin-dashboard.html');
+  } else if (user.permissions.organizationView) {
+    navigateTo('pages/organization/organization-dashboard.html');
+  } else {
+    navigateTo('pages/student/student-dashboard.html');
+  }
+}
+
 const loginForm = document.getElementById("login-form");
 if (loginForm) {
   loginForm.addEventListener("submit", (e) => {
@@ -72,17 +102,12 @@ if (loginForm) {
     }
 
     const loggedUser = window.Auth.getUser();
-    if (loggedUser.permissions.deanView) {
-      navigateTo('pages/dean/dean-dashboard.html');
-    } else if (loggedUser.permissions.facultyView) {
-      navigateTo('pages/faculty/faculty-dashboard.html');
-    } else if (loggedUser.permissions.adminView) {
-      navigateTo('pages/admin/admin-dashboard.html');
-    } else if (loggedUser.permissions.organizationView) {
-      navigateTo('pages/organization/organization-dashboard.html');
-    } else {
-      navigateTo('pages/student/student-dashboard.html');
+    if (isStudentOnlyUser(loggedUser) && loggedUser.isFirstLogin) {
+      navigateTo('pages/student/profile-setup.html');
+      return;
     }
+
+    navigateToRoleHome(loggedUser);
   });
 }
 
@@ -91,6 +116,7 @@ function enforceRouteAccess() {
 
   const page = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
   const isLoginPage = page === 'index.html';
+  const isProfileSetupPage = page === 'profile-setup.html';
   const user = window.Auth.getUser();
 
   if (isLoginPage) {
@@ -102,6 +128,16 @@ function enforceRouteAccess() {
 
   if (!user) {
     navigateTo('index.html');
+    return;
+  }
+
+  if (isStudentOnlyUser(user) && user.isFirstLogin && !isProfileSetupPage) {
+    navigateTo('pages/student/profile-setup.html');
+    return;
+  }
+
+  if (isProfileSetupPage && (!isStudentOnlyUser(user) || !user.isFirstLogin)) {
+    navigateToRoleHome(user);
     return;
   }
 
@@ -415,6 +451,23 @@ let paymentsFilter = null;
 let paymentsListEl = null;
 let myPayments = [];
 
+const DEMO_RECENT_PAYMENTS = [
+  {
+    desc: 'CSC Fee',
+    amount: '₱200.00',
+    date: '2026-01-03',
+    method: 'GCash',
+    forceRecent: true
+  },
+  {
+    desc: 'Insurance',
+    amount: '₱40.00',
+    date: '2026-01-03',
+    method: 'Cash',
+    forceRecent: true
+  }
+];
+
 function renderPayments(list){
   if (!paymentsListEl) return;
   paymentsListEl.innerHTML = list.map(p => `
@@ -423,7 +476,7 @@ function renderPayments(list){
         <span class="pay-desc">${p.desc}</span>
         <span class="pay-amount">${p.amount}</span>
       </div>
-      <div class="payment-meta">${p.date}</div>
+      <div class="payment-meta">${p.method ? `${p.date} • ${p.method}` : p.date}</div>
     </div>
   `).join('');
 }
@@ -439,7 +492,7 @@ function filterPayments(value){
 
   const filtered = myPayments.filter(p => {
     const d = new Date(p.date + 'T00:00:00');
-    if (value === 'recent') return d >= recentThreshold;
+    if (value === 'recent') return Boolean(p.forceRecent) || d >= recentThreshold;
     if (value === 'old') return d < recentThreshold;
     return true;
   });
@@ -454,9 +507,25 @@ function initializePaymentsPanel() {
 
   const currentUser = window.Auth ? window.Auth.getUser() : null;
   const samplePayments = window.SAMPLE_PAYMENTS || [];
+  const isStudentDashboardPage = (window.location.pathname || '').toLowerCase().endsWith('student-dashboard.html');
+
   myPayments = currentUser
     ? samplePayments.filter(p => p.studentNo === currentUser.studentId)
     : samplePayments;
+
+  if (isStudentDashboardPage) {
+    const studentNo = currentUser && currentUser.studentId ? currentUser.studentId : '';
+    const studentName = currentUser && currentUser.name ? currentUser.name : '';
+
+    const demoEntries = DEMO_RECENT_PAYMENTS.map((entry, index) => ({
+      studentNo,
+      studentName,
+      ...entry,
+      id: `demo-recent-${index}`
+    }));
+
+    myPayments = [...demoEntries, ...myPayments];
+  }
 
   renderPayments(myPayments);
 

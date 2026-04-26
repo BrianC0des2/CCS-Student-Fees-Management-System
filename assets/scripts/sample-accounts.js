@@ -5,7 +5,8 @@ window.SAMPLE_ACCOUNTS = [
     studentId: "TY202500100",
     email: "student1@demo.com",
     password: "123456",
-    isFirstLogin: true,
+    isFirstLogin: false,
+    religion: "Catholic",
     course: "BS Computer Science",
     year: "3rd Year",
     section: "CS 3-A",
@@ -15,6 +16,26 @@ window.SAMPLE_ACCOUNTS = [
       adminView: false,
       facultyView: false,
       deanView:false
+
+    }
+  },
+  {
+    id: "u-student-002",
+    name: "Johari Esmail",
+    studentId: "TY202501337",
+    email: "student2@demo.com",
+    password: "123456",
+    isFirstLogin: true,
+    religion: "Muslim",
+    course: "BS Computer Science",
+    year: "3rd Year",
+    section: "CS 3-A",
+    permissions: {
+      studentView: true,
+      organizationView: false,
+      adminView: false,
+      facultyView: false,
+      deanView: false
 
     }
   },

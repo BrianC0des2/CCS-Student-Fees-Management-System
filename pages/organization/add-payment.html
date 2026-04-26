@@ -59,6 +59,30 @@
                 <input type="text" id="feeName" placeholder="e.g. CSC Fee" />
             </div>
             <div class="form-group">
+                <label>Fee Type <span class="required">*</span></label>
+                <div class="fee-type-options" role="radiogroup" aria-label="Fee Type">
+                    <label class="fee-type-option">
+                        <input type="radio" name="feeType" value="mandatory" checked />
+                        <span>Mandatory</span>
+                    </label>
+                    <label class="fee-type-option">
+                        <input type="radio" name="feeType" value="voluntary" />
+                        <span>Voluntary</span>
+                    </label>
+                </div>
+                <p class="fee-type-help" id="feeTypeHelp">This fee is required for student clearance</p>
+            </div>
+            <div class="form-group">
+                <label for="feeAppliesTo">Applies To <span class="required">*</span></label>
+                <select id="feeAppliesTo">
+                    <option value="all" selected>All students</option>
+                    <option value="muslim">Muslim students only</option>
+                    <option value="catholic">Catholic students only</option>
+                    <option value="specific">Specific religion</option>
+                </select>
+                <input type="text" id="feeAppliesToSpecific" placeholder="Enter specific religion" style="display:none; margin-top:8px;" />
+            </div>
+            <div class="form-group">
                 <label for="feeDescription">Description <span class="required">*</span></label>
                 <input type="text" id="feeDescription" placeholder="e.g. College Student Council Fee" />
             </div>
@@ -115,6 +139,86 @@
     const PAYMENT_ACCOUNTS_KEY = 'ccs.organization.paymentAccounts';
     const FEES_STORAGE_KEY = 'ccs.organization.fees';
 
+    const DEFAULT_FEES = [
+        {
+            id: 'fee-default-csc',
+            name: 'CSC Fee',
+            description: 'College Student Council Fee',
+            amount: 200,
+            dueDate: '2026-02-15',
+            isActive: true,
+            feeType: 'mandatory',
+            appliesTo: 'all',
+            acceptedPaymentChannels: []
+        },
+        {
+            id: 'fee-default-misc',
+            name: 'Miscellaneous fee',
+            description: 'CCS Faculty',
+            amount: 60,
+            dueDate: '2026-02-15',
+            isActive: true,
+            feeType: 'mandatory',
+            appliesTo: 'all',
+            acceptedPaymentChannels: []
+        },
+        {
+            id: 'fee-default-msa',
+            name: 'MSA Fee',
+            description: 'Muslim Students Association Fee',
+            amount: 50,
+            dueDate: '2026-02-15',
+            isActive: true,
+            feeType: 'mandatory',
+            appliesTo: 'Muslim',
+            acceptedPaymentChannels: []
+        },
+        {
+            id: 'fee-default-insurance',
+            name: 'Insurance (Whole Year)',
+            description: 'Annual Student Insurance Coverage',
+            amount: 100,
+            dueDate: '2026-02-15',
+            isActive: true,
+            feeType: 'mandatory',
+            appliesTo: 'all',
+            acceptedPaymentChannels: []
+        }
+    ];
+
+    function normalizeFee(fee) {
+        return {
+            id: fee.id || ('fee-' + Date.now()),
+            name: String(fee.name || '').trim(),
+            description: String(fee.description || '').trim(),
+            amount: Number(fee.amount) || 0,
+            dueDate: fee.dueDate || '',
+            isActive: fee.isActive !== false,
+            feeType: fee.feeType === 'voluntary' ? 'voluntary' : 'mandatory',
+            appliesTo: normalizeAppliesToValue(fee.appliesTo, fee.specificReligion),
+            specificReligion: String(fee.specificReligion || '').trim(),
+            acceptedPaymentChannels: Array.isArray(fee.acceptedPaymentChannels) ? fee.acceptedPaymentChannels : []
+        };
+    }
+
+    function normalizeAppliesToValue(appliesTo, specificReligion) {
+        const normalized = String(appliesTo || 'all').trim().toLowerCase();
+        if (normalized === 'muslim') return 'Muslim';
+        if (normalized === 'catholic') return 'Catholic';
+        if (normalized === 'specific') {
+            const value = String(specificReligion || '').trim();
+            return value ? 'specific' : 'all';
+        }
+        return 'all';
+    }
+
+    function formatDueDate(value) {
+        if (!value) return 'No due date';
+        const parsed = new Date(value);
+        if (Number.isNaN(parsed.getTime())) return value;
+        return parsed.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
     function getPaymentAccounts() {
         try {
             const parsed = JSON.parse(localStorage.getItem(PAYMENT_ACCOUNTS_KEY) || '[]');
@@ -127,10 +231,20 @@
     function getStoredFees() {
         try {
             const parsed = JSON.parse(localStorage.getItem(FEES_STORAGE_KEY) || '[]');
-            return Array.isArray(parsed) ? parsed : [];
+            return Array.isArray(parsed) ? parsed.map(normalizeFee) : [];
         } catch (_err) {
             return [];
         }
+    }
+
+    function getAllFees() {
+        const saved = getStoredFees();
+        if (saved.length) return saved;
+        return DEFAULT_FEES.map(normalizeFee);
+    }
+
+    function saveFees(fees) {
+        localStorage.setItem(FEES_STORAGE_KEY, JSON.stringify(fees.map(normalizeFee)));
     }
 
     function maskChannelNumber(rawNumber) {
@@ -197,9 +311,95 @@
         document.getElementById('paymentChannelsError').hidden = !showError;
     }
 
+    function getSelectedFeeType() {
+        return document.querySelector('input[name="feeType"]:checked')?.value || 'mandatory';
+    }
+
+    function getSelectedAppliesTo() {
+        const selectValue = document.getElementById('feeAppliesTo').value;
+        if (selectValue === 'muslim') {
+            return { appliesTo: 'Muslim', specificReligion: '' };
+        }
+        if (selectValue === 'catholic') {
+            return { appliesTo: 'Catholic', specificReligion: '' };
+        }
+        if (selectValue === 'specific') {
+            return {
+                appliesTo: 'specific',
+                specificReligion: document.getElementById('feeAppliesToSpecific').value.trim()
+            };
+        }
+        return { appliesTo: 'all', specificReligion: '' };
+    }
+
+    function toggleSpecificReligionInput() {
+        const selectValue = document.getElementById('feeAppliesTo').value;
+        const specificInput = document.getElementById('feeAppliesToSpecific');
+        const shouldShow = selectValue === 'specific';
+        specificInput.style.display = shouldShow ? 'block' : 'none';
+        if (!shouldShow) {
+            specificInput.value = '';
+        }
+    }
+
+    function getAppliesToLabel(fee) {
+        const value = String(fee.appliesTo || 'all').trim();
+        if (!value || value.toLowerCase() === 'all') return 'All students';
+        if (value.toLowerCase() === 'specific') {
+            return fee.specificReligion ? fee.specificReligion : 'Specific religion';
+        }
+        return value;
+    }
+
+    function updateFeeTypeHelp() {
+        const feeType = getSelectedFeeType();
+        document.getElementById('feeTypeHelp').textContent = feeType === 'voluntary'
+            ? 'This fee will not affect student clearance'
+            : 'This fee is required for student clearance';
+    }
+
+    function renderFeesList() {
+        const list = document.getElementById('orgFeesList');
+        const fees = getAllFees();
+
+        list.innerHTML = fees.map(function (fee) {
+            const statusClass = fee.isActive ? 'badge-active' : 'badge-inactive';
+            const statusText = fee.isActive ? 'Active' : 'Inactive';
+            const typeClass = fee.feeType === 'voluntary' ? 'badge-optional' : 'badge-required';
+            const typeText = fee.feeType === 'voluntary' ? 'Optional' : 'Required';
+
+            return `
+                <article class="fee-item" data-fee-id="${fee.id}">
+                    <div class="fee-icon"><i class='bx bx-money'></i></div>
+                    <div class="fee-info">
+                        <div class="fee-name-row">
+                            <span class="fee-name">${fee.name}</span>
+                            <span class="${typeClass}">${typeText}</span>
+                            <span class="${statusClass}">${statusText}</span>
+                        </div>
+                        <div class="fee-desc">${fee.description} | Applies to: ${getAppliesToLabel(fee)} | Due: ${formatDueDate(fee.dueDate)}</div>
+                        <div class="progress-row">
+                            <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                            <span class="progress-label">0/342 collected</span>
+                        </div>
+                    </div>
+                    <div class="fee-right">
+                        <span class="fee-amount">PHP ${Number(fee.amount).toFixed(2)}</span>
+                        <div class="fee-actions">
+                            <button type="button" aria-label="Edit ${fee.name}"><i class='bx bx-edit-alt'></i></button>
+                            <button type="button" aria-label="Hide ${fee.name}"><i class='bx bx-hide'></i></button>
+                            <button type="button" aria-label="Delete ${fee.name}"><i class='bx bx-trash'></i></button>
+                        </div>
+                    </div>
+                </article>
+            `;
+        }).join('');
+    }
+
     function openAddFeeModal() {
         renderAcceptedPaymentChannels();
         setPaymentChannelError(false);
+        updateFeeTypeHelp();
         document.getElementById('addFeeModal').classList.add('active');
     }
 
@@ -211,18 +411,28 @@
         document.getElementById('feeDueDate').value = '';
         document.getElementById('feeStatus').checked = true;
         document.getElementById('toggleLabel').textContent = 'Active';
+        const feeTypeDefault = document.querySelector('input[name="feeType"][value="mandatory"]');
+        if (feeTypeDefault) feeTypeDefault.checked = true;
+        document.getElementById('feeAppliesTo').value = 'all';
+        document.getElementById('feeAppliesToSpecific').value = '';
+        toggleSpecificReligionInput();
+        updateFeeTypeHelp();
         setPaymentChannelError(false);
     }
 
-    // Close when clicking the dark backdrop
     document.getElementById('addFeeModal').addEventListener('click', function(e) {
         if (e.target === this) closeAddFeeModal();
     });
 
-    // Toggle label
     document.getElementById('feeStatus').addEventListener('change', function() {
         document.getElementById('toggleLabel').textContent = this.checked ? 'Active' : 'Inactive';
     });
+
+    document.querySelectorAll('input[name="feeType"]').forEach(function (radio) {
+        radio.addEventListener('change', updateFeeTypeHelp);
+    });
+
+    document.getElementById('feeAppliesTo').addEventListener('change', toggleSpecificReligionInput);
 
     function submitFee() {
         const name = document.getElementById('feeName').value.trim();
@@ -230,6 +440,8 @@
         const amount = document.getElementById('feeAmount').value;
         const due = document.getElementById('feeDueDate').value;
         const selectedChannels = getSelectedPaymentChannels();
+        const feeType = getSelectedFeeType();
+        const appliesConfig = getSelectedAppliesTo();
 
         if (!name || !desc || !amount || !due) {
             alert('Please fill in all required fields (*).');
@@ -241,58 +453,39 @@
             return;
         }
 
+        if (appliesConfig.appliesTo === 'specific' && !appliesConfig.specificReligion) {
+            alert('Please enter the specific religion for this fee.');
+            return;
+        }
+
         setPaymentChannelError(false);
 
-        // Format due date for display
-        const dueDateFormatted = new Date(due).toLocaleDateString('en-US', {
-            month: 'short', day: 'numeric', year: 'numeric'
-        });
-
         const isActive = document.getElementById('feeStatus').checked;
-
-        const storedFees = getStoredFees();
-        storedFees.push({
+        const fees = getAllFees();
+        fees.push({
             id: 'fee-' + Date.now(),
             name: name,
             description: desc,
             amount: parseFloat(amount),
             dueDate: due,
             isActive: isActive,
+            feeType: feeType,
+            appliesTo: appliesConfig.appliesTo,
+            specificReligion: appliesConfig.specificReligion,
             acceptedPaymentChannels: selectedChannels,
             createdAt: new Date().toISOString()
         });
-        localStorage.setItem(FEES_STORAGE_KEY, JSON.stringify(storedFees));
 
-        // Build the new fee card and append it to the list
-        const list = document.querySelector('.org-fees-list');
-        const article = document.createElement('article');
-        article.className = 'fee-item';
-        article.innerHTML = `
-            <div class="fee-icon"><i class='bx bx-money'></i></div>
-            <div class="fee-info">
-                <div class="fee-name-row">
-                    <span class="fee-name">${name}</span>
-                    <span class="${isActive ? 'badge-active' : 'badge-inactive'}">${isActive ? 'Active' : 'Inactive'}</span>
-                </div>
-                <div class="fee-desc">${desc} | Due: ${dueDateFormatted}</div>
-                <div class="progress-row">
-                    <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
-                    <span class="progress-label">0/342 collected</span>
-                </div>
-            </div>
-            <div class="fee-right">
-                <span class="fee-amount">PHP ${parseFloat(amount).toFixed(2)}</span>
-                <div class="fee-actions">
-                    <button type="button" aria-label="Edit"><i class='bx bx-edit-alt'></i></button>
-                    <button type="button" aria-label="Hide"><i class='bx bx-hide'></i></button>
-                    <button type="button" aria-label="Delete"><i class='bx bx-trash'></i></button>
-                </div>
-            </div>
-        `;
-
-        list.appendChild(article);
+        saveFees(fees);
+        renderFeesList();
         closeAddFeeModal();
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        renderFeesList();
+        updateFeeTypeHelp();
+        toggleSpecificReligionInput();
+    });
 </script>
 
 			<div class="summary-cards org-fees-summary">
@@ -318,77 +511,7 @@
 				</div>
 			</div>
 
-			<div class="org-fees-list">
-				<article class="fee-item">
-					<div class="fee-icon"><i class='bx bx-money'></i></div>
-					<div class="fee-info">
-						<div class="fee-name-row">
-							<span class="fee-name">CSC Fee</span>
-							<span class="badge-active">Active</span>
-						</div>
-						<div class="fee-desc">College Student Council Fee | Due: Feb 15, 2026</div>
-						<div class="progress-row">
-							<div class="progress-bar"><div class="progress-fill" style="width: 85%"></div></div>
-							<span class="progress-label">289/342 collected</span>
-						</div>
-					</div>
-					<div class="fee-right">
-						<span class="fee-amount">PHP 200.00</span>
-						<div class="fee-actions">
-							<button type="button" aria-label="Edit CSC Fee"><i class='bx bx-edit-alt'></i></button>
-							<button type="button" aria-label="Hide CSC Fee"><i class='bx bx-hide'></i></button>
-							<button type="button" aria-label="Delete CSC Fee"><i class='bx bx-trash'></i></button>
-						</div>
-					</div>
-				</article>
-
-                <div class="org-fees-list">
-				<article class="fee-item">
-					<div class="fee-icon"><i class='bx bx-money'></i></div>
-					<div class="fee-info">
-						<div class="fee-name-row">
-							<span class="fee-name">Miscellaneous fee</span>
-							<span class="badge-active">Active</span>
-						</div>
-						<div class="fee-desc">CCS Faculty | Due: Feb 15, 2026</div>
-						<div class="progress-row">
-							<div class="progress-bar"><div class="progress-fill" style="width: 98%"></div></div>
-							<span class="progress-label">330/342 collected</span>
-						</div>
-					</div>
-					<div class="fee-right">
-						<span class="fee-amount">PHP 60.00</span>
-						<div class="fee-actions">
-							<button type="button" aria-label="Edit CSC Fee"><i class='bx bx-edit-alt'></i></button>
-							<button type="button" aria-label="Hide CSC Fee"><i class='bx bx-hide'></i></button>
-							<button type="button" aria-label="Delete CSC Fee"><i class='bx bx-trash'></i></button>
-						</div>
-					</div>
-				</article>
-
-				<article class="fee-item">
-					<div class="fee-icon"><i class='bx bx-money'></i></div>
-					<div class="fee-info">
-						<div class="fee-name-row">
-							<span class="fee-name">Insurance (Whole Year)</span>
-							<span class="badge-active">Active</span>
-						</div>
-						<div class="fee-desc">Annual Student Insurance Coverage | Due: Feb 15, 2026</div>
-						<div class="progress-row">
-							<div class="progress-bar"><div class="progress-fill" style="width: 87%"></div></div>
-							<span class="progress-label">298/342 collected</span>
-						</div>
-					</div>
-					<div class="fee-right">
-						<span class="fee-amount">PHP 100.00</span>
-						<div class="fee-actions">
-							<button type="button" aria-label="Edit Insurance"><i class='bx bx-edit-alt'></i></button>
-							<button type="button" aria-label="Hide Insurance"><i class='bx bx-hide'></i></button>
-							<button type="button" aria-label="Delete Insurance"><i class='bx bx-trash'></i></button>
-						</div>
-					</div>
-				</article>
-			</div>
+            <div class="org-fees-list" id="orgFeesList"></div>
 		</div>
 	</section>
 

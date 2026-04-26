@@ -43,46 +43,7 @@
             <div class="fee-selection-container fees-panel fee-selection">
                 <form action="">   
                     <h3>Select Fees to Pay</h3> 
-                    <div class="fees-selection fee-item-card">
-                        <div class="fee-info">
-                            <input type="checkbox" data-fee="CSC Fee" data-price="200">
-                            <div class="cb">
-                                <h3>CSC Fee</h3>
-                                <p>Due: Feb 15, 2026</p>
-                            </div>
-                        </div>
-                        <p class="fee-prices">₱200</p>
-                    </div>
-                    <div class="fees-selection fee-item-card">
-                        <div class="fee-info">
-                            <input type="checkbox" data-fee="Gender Club Membership Fee" data-price="50">
-                            <div class="cb">
-                                <h3>Gender Club Membership Fee</h3>
-                                <p>Due: Feb 15, 2026</p>      
-                            </div>
-                        </div>
-                        <p class="fee-prices">₱50</p>
-                    </div>
-                    <div class="fees-selection fee-item-card">
-                        <div class="fee-info">
-                            <input type="checkbox" data-fee="Insurance (Whole Year)" data-price="40">
-                            <div class="cb">
-                                <h3>Insurance (Whole Year)</h3>
-                                <p>Due: Feb 15, 2026</p>
-                            </div>
-                        </div>
-                        <p class="fee-prices">₱40</p>
-                    </div>
-                    <div class="fees-selection fee-item-card">
-                        <div class="fee-info">
-                            <input type="checkbox" data-fee="Miscellaneous (10 booklets @ ₱6 each)" data-price="60">
-                            <div class="cb">   
-                                <h3>Miscellaneous (10 booklets @ ₱6 each)</h3>
-                                <p>Due: Feb 15, 2026</p>
-                            </div>
-                        </div>
-                        <p class="fee-prices">₱60</p>
-                    </div>
+                    <div id="makePaymentFeeList"></div>
                 </form>
             </div>
 
@@ -101,18 +62,216 @@
             </div>
         </div>
 
+        <div class="promissory-modal-overlay" id="promissoryModal" aria-hidden="true">
+            <div class="promissory-modal-container" role="dialog" aria-modal="true" aria-labelledby="promissoryModalTitle">
+                <div class="promissory-modal-header">
+                    <h3 id="promissoryModalTitle">Promissory Note Request</h3>
+                    <button type="button" class="promissory-close" id="promissoryCloseBtn" aria-label="Close promissory request">
+                        <i class='bx bx-x'></i>
+                    </button>
+                </div>
+                <div class="promissory-modal-body">
+                    <div class="promissory-form-group">
+                        <label for="promissoryFeeName">Fee Name</label>
+                        <input type="text" id="promissoryFeeName" readonly>
+                    </div>
+                    <div class="promissory-form-group">
+                        <label for="promissoryReason">Reason <span class="required">*</span></label>
+                        <textarea id="promissoryReason" rows="4" placeholder="Explain your reason for requesting a promissory note"></textarea>
+                    </div>
+                    <div class="promissory-form-group">
+                        <label for="promissoryPartialAmount">Partial Payment Amount (optional)</label>
+                        <div class="promissory-input-prefix">
+                            <span>₱</span>
+                            <input type="number" id="promissoryPartialAmount" min="0" step="0.01" placeholder="0.00">
+                        </div>
+                    </div>
+                    <div class="promissory-form-group">
+                        <label for="promissoryDate">Promised Payment Date <span class="required">*</span></label>
+                        <input type="date" id="promissoryDate">
+                    </div>
+                </div>
+                <div class="promissory-modal-footer">
+                    <button type="button" class="btn-cancel" id="promissoryCancelBtn">Cancel</button>
+                    <button type="button" class="btn-submit" id="promissorySubmitBtn">Submit Request</button>
+                </div>
+            </div>
+        </div>
+
     <script src="../../assets/scripts/settings.js"></script>
     <script src="../../assets/scripts/sample-accounts.js"></script>
     <script src="../../assets/scripts/auth.js"></script>
     <script src="../../assets/scripts/script.js"></script>
     <script>
-        const checkboxes = document.querySelectorAll('input[type="checkbox"][data-fee]');
+        const FEES_STORAGE_KEY = 'ccs.organization.fees';
+        const PROMISSORY_STORAGE_KEY = 'ccs.promissory.requests';
+        const feeListEl = document.getElementById('makePaymentFeeList');
         const summaryItems = document.getElementById('summary-items');
         const totalAmountEl = document.getElementById('summary-total-amount');
         const continueBtn = document.querySelector('.continue-btn');
+        let selectedFeeForPromissory = null;
+
+        const DEFAULT_FEES = [
+            {
+                id: 'fee-default-csc',
+                name: 'CSC Fee',
+                amount: 200,
+                dueDate: '2026-02-15',
+                isActive: true,
+                feeType: 'mandatory',
+                appliesTo: 'all'
+            },
+            {
+                id: 'fee-default-gender',
+                name: 'Gender Club Membership Fee',
+                amount: 50,
+                dueDate: '2026-02-15',
+                isActive: true,
+                feeType: 'voluntary',
+                appliesTo: 'all'
+            },
+            {
+                id: 'fee-default-msa',
+                name: 'MSA Fee',
+                amount: 50,
+                dueDate: '2026-02-15',
+                isActive: true,
+                feeType: 'mandatory',
+                appliesTo: 'Muslim'
+            },
+            {
+                id: 'fee-default-insurance',
+                name: 'Insurance (Whole Year)',
+                amount: 40,
+                dueDate: '2026-02-15',
+                isActive: true,
+                feeType: 'mandatory',
+                appliesTo: 'all'
+            },
+            {
+                id: 'fee-default-misc',
+                name: 'Miscellaneous (10 booklets @ ₱6 each)',
+                amount: 60,
+                dueDate: '2026-02-15',
+                isActive: true,
+                feeType: 'mandatory',
+                appliesTo: 'all'
+            }
+        ];
+
+        function readJsonArray(key) {
+            try {
+                const parsed = JSON.parse(localStorage.getItem(key) || '[]');
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (_err) {
+                return [];
+            }
+        }
+
+        function normalizeFee(fee) {
+            return {
+                id: fee.id || ('fee-' + Date.now()),
+                name: String(fee.name || '').trim(),
+                amount: Number(fee.amount) || 0,
+                dueDate: fee.dueDate || '',
+                isActive: fee.isActive !== false,
+                feeType: fee.feeType === 'voluntary' ? 'voluntary' : 'mandatory',
+                appliesTo: normalizeAppliesToValue(fee.appliesTo, fee.specificReligion),
+                specificReligion: String(fee.specificReligion || '').trim()
+            };
+        }
+
+        function normalizeReligion(value) {
+            return String(value || '').trim().toLowerCase();
+        }
+
+        function normalizeAppliesToValue(appliesTo, specificReligion) {
+            const normalized = String(appliesTo || 'all').trim().toLowerCase();
+            if (normalized === 'muslim') return 'muslim';
+            if (normalized === 'catholic') return 'catholic';
+            if (normalized === 'specific') {
+                return String(specificReligion || '').trim() ? 'specific' : 'all';
+            }
+            return 'all';
+        }
+
+        function feeAppliesToStudent(fee, user) {
+            const appliesTo = normalizeAppliesToValue(fee.appliesTo, fee.specificReligion);
+            if (appliesTo === 'all') return true;
+
+            const studentReligion = normalizeReligion(user && user.religion ? user.religion : '');
+            if (!studentReligion) return false;
+
+            if (appliesTo === 'specific') {
+                return studentReligion === normalizeReligion(fee.specificReligion || '');
+            }
+
+            return studentReligion === appliesTo;
+        }
+
+        function getActiveFees() {
+            const stored = readJsonArray(FEES_STORAGE_KEY).map(normalizeFee);
+            const source = stored.length ? stored : DEFAULT_FEES.map(normalizeFee);
+            const user = getCurrentUser();
+            return source.filter(function (fee) {
+                return fee.isActive && feeAppliesToStudent(fee, user);
+            });
+        }
+
+        function formatDueDate(value) {
+            if (!value) return '-';
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return value;
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function getCurrentUser() {
+            return window.Auth && typeof window.Auth.getUser === 'function'
+                ? window.Auth.getUser()
+                : null;
+        }
+
+        function getPreselectedFees() {
+            try {
+                const parsed = JSON.parse(localStorage.getItem('ccs.selected.fees') || '[]');
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (_err) {
+                return [];
+            }
+        }
+
+        function renderFeeRows() {
+            const fees = getActiveFees();
+            feeListEl.innerHTML = fees.map(function (fee) {
+                const typeClass = fee.feeType === 'voluntary' ? 'fee-pill-optional' : 'fee-pill-required';
+                const typeText = fee.feeType === 'voluntary' ? 'OPTIONAL' : 'REQUIRED';
+                return `
+                    <div class="fees-selection fee-item-card" data-fee-id="${fee.id}">
+                        <div class="fee-info">
+                            <input type="checkbox" data-fee-id="${fee.id}" data-fee="${fee.name}" data-price="${fee.amount}">
+                            <div class="cb">
+                                <div class="fee-name-row">
+                                    <h3>${fee.name}</h3>
+                                    <span class="fee-pill ${typeClass}">${typeText}</span>
+                                </div>
+                                <p>Due: ${formatDueDate(fee.dueDate)}</p>
+                            </div>
+                        </div>
+                        <p class="fee-prices">₱${Number(fee.amount).toFixed(2)}</p>
+                        <button type="button" class="fee-action-promissory-link" data-fee-id="${fee.id}" data-fee-name="${fee.name}">Request promissory note instead</button>
+                    </div>
+                `;
+            }).join('');
+
+            bindFeeEvents();
+        }
+
+        function getCheckboxes() {
+            return Array.from(document.querySelectorAll('input[type="checkbox"][data-fee]'));
+        }
 
         function getChecked() {
-            return Array.from(checkboxes).filter(cb => cb.checked);
+            return getCheckboxes().filter(cb => cb.checked);
         }
 
         function updateSummary() {
@@ -129,7 +288,119 @@
             totalAmountEl.textContent = '\u20B1' + total;
         }
 
-        checkboxes.forEach(cb => cb.addEventListener('change', updateSummary));
+        function openPromissoryModal(feeId, feeName) {
+            selectedFeeForPromissory = { feeId: feeId, feeName: feeName };
+            document.getElementById('promissoryFeeName').value = feeName;
+            document.getElementById('promissoryReason').value = '';
+            document.getElementById('promissoryPartialAmount').value = '';
+            document.getElementById('promissoryDate').value = '';
+            const modal = document.getElementById('promissoryModal');
+            modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+        }
+
+        function closePromissoryModal() {
+            const modal = document.getElementById('promissoryModal');
+            modal.classList.remove('active');
+            modal.setAttribute('aria-hidden', 'true');
+            selectedFeeForPromissory = null;
+        }
+
+        function submitPromissoryRequest() {
+            if (!selectedFeeForPromissory) return;
+
+            const reason = document.getElementById('promissoryReason').value.trim();
+            const promisedDate = document.getElementById('promissoryDate').value;
+            const partialRaw = document.getElementById('promissoryPartialAmount').value;
+            const partialAmount = partialRaw === '' ? null : Number(partialRaw);
+
+            if (!reason || !promisedDate) {
+                alert('Please complete the required fields.');
+                return;
+            }
+
+            if (partialAmount !== null && (Number.isNaN(partialAmount) || partialAmount < 0)) {
+                alert('Please enter a valid partial payment amount.');
+                return;
+            }
+
+            const currentUser = getCurrentUser();
+            const requests = readJsonArray(PROMISSORY_STORAGE_KEY);
+            requests.push({
+                id: 'promissory-' + Date.now(),
+                feeId: selectedFeeForPromissory.feeId,
+                feeName: selectedFeeForPromissory.feeName,
+                studentId: currentUser && currentUser.studentId ? currentUser.studentId : 'anonymous-student',
+                studentNumber: currentUser && currentUser.studentId ? currentUser.studentId : 'anonymous-student',
+                studentName: currentUser && currentUser.name ? currentUser.name : 'Student',
+                reason: reason,
+                partialAmount: partialAmount,
+                promisedDate: promisedDate,
+                status: 'Pending Review',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            });
+
+            localStorage.setItem(PROMISSORY_STORAGE_KEY, JSON.stringify(requests));
+            closePromissoryModal();
+        }
+
+        function bindFeeEvents() {
+            getCheckboxes().forEach(function (cb) {
+                cb.addEventListener('change', updateSummary);
+            });
+
+            document.querySelectorAll('.fee-action-promissory-link').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    const feeId = button.dataset.feeId;
+                    const feeName = button.dataset.feeName;
+                    const feeCheckbox = document.querySelector(`input[type="checkbox"][data-fee-id="${feeId}"]`);
+
+                    if (feeCheckbox && feeCheckbox.checked) {
+                        feeCheckbox.checked = false;
+                        updateSummary();
+                    }
+
+                    openPromissoryModal(feeId, feeName);
+                });
+            });
+        }
+
+        function applyPreselectedFees() {
+            const preselected = getPreselectedFees();
+            if (!preselected.length) return;
+
+            const preselectedNames = new Set(preselected.map(function (fee) {
+                return String(fee.fee || fee.feeName || '').trim();
+            }).filter(Boolean));
+
+            const preselectedIds = new Set(preselected.map(function (fee) {
+                return String(fee.feeId || fee.id || '').trim();
+            }).filter(Boolean));
+
+            let changed = false;
+            getCheckboxes().forEach(function (checkbox) {
+                const feeId = String(checkbox.dataset.feeId || '').trim();
+                const feeName = String(checkbox.dataset.fee || '').trim();
+                const shouldCheck = preselectedIds.has(feeId) || preselectedNames.has(feeName);
+                if (shouldCheck) {
+                    checkbox.checked = true;
+                    changed = true;
+                }
+            });
+
+            if (changed) {
+                updateSummary();
+                localStorage.removeItem('ccs.selected.fees');
+            }
+        }
+
+        document.getElementById('promissoryCloseBtn').addEventListener('click', closePromissoryModal);
+        document.getElementById('promissoryCancelBtn').addEventListener('click', closePromissoryModal);
+        document.getElementById('promissorySubmitBtn').addEventListener('click', submitPromissoryRequest);
+        document.getElementById('promissoryModal').addEventListener('click', function (event) {
+            if (event.target === this) closePromissoryModal();
+        });
 
         continueBtn.addEventListener('click', function(e) {
             e.preventDefault();
@@ -138,10 +409,14 @@
                 alert('Please select at least one fee.');
                 return;
             }
-            const fees = checked.map(cb => ({ fee: cb.dataset.fee, price: Number(cb.dataset.price) }));
+            const fees = checked.map(cb => ({ feeId: cb.dataset.feeId, fee: cb.dataset.fee, price: Number(cb.dataset.price) }));
             localStorage.setItem('ccs.selected.fees', JSON.stringify(fees));
             window.location.href = 'payment-method.html';
         });
+
+        renderFeeRows();
+        applyPreselectedFees();
+        updateSummary();
     </script>
     </body>
 </html>
