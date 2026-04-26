@@ -93,6 +93,13 @@
 
 			<div id="facultyActiveFilters" class="active-filters"></div>
 
+			<div id="pendingSignupsSection" class="members-table faculty-table-card" style="display: none; margin-bottom: 24px;">
+				<div class="table-header">
+					<h2>Pending Student Signups</h2>
+				</div>
+				<div id="pendingSignupsContainer" class="table-container"></div>
+			</div>
+
 			<div class="members-table faculty-table-card">
 				<div class="table-header">
 					<h2 id="facultyTableTitle">Professor Queue</h2>
@@ -146,10 +153,23 @@
 			</div>
 		</div>
 
+		<div id="pendingSignupViewModal" class="modal-overlay" aria-hidden="true">
+			<div class="modal-card">
+				<h3 id="pendingSignupViewTitle">Pending Student Details</h3>
+				<div id="pendingSignupViewContent" style="max-height: 400px; overflow-y: auto;">
+					<!-- Details will be populated here -->
+				</div>
+				<div class="modal-actions">
+					<button id="pendingSignupViewClose" class="modal-btn modal-cancel" type="button">Close</button>
+				</div>
+			</div>
+		</div>
+
 		<script src="../../assets/scripts/settings.js"></script>
 		<script src="../../assets/scripts/sample-accounts.js"></script>
 		<script src="../../assets/scripts/auth.js"></script>
 		<script src="../../assets/scripts/sidebar-template.js"></script>
 		<script src="../../assets/scripts/script.js"></script>
+		<script src="../../assets/scripts/faculty-dashboard.js"></script>
 	</body>
 </html>

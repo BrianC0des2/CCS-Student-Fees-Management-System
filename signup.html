@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles/login-style.css">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <style>
+        .signup-form {
+            background-color: var(--sys-surface);
+            font-size: 12px;
+            border: solid var(--first-color) 1px;
+            border-radius: 30px;
+            width: 90%;
+            max-width: 500px;
+            height: auto;
+            padding: 30px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .signup-form form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        #signup-welcome-msg {
+            display: block;
+            margin-right: 200px;
+            margin-bottom: 20px;
+        }
+
+        #signup-welcome-msg p {
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        #signup-welcome-msg h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .signup-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .signup-form-grid.full {
+            grid-template-columns: 1fr;
+        }
+
+        .signup-field {
+            font-size: 13px;
+            align-self: flex-start;
+            margin-bottom: 0;
+            white-space: nowrap;
+            width: 100%;
+        }
+
+        .signup-field label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--sys-text-900);
+        }
+
+        .signup-field input,
+        .signup-field select {
+            width: 100%;
+            padding: 8px 10px;
+            font-size: 12px;
+            border: 1px solid #2e7d52;
+            border-radius: 12px;
+            font-family: Poppins, sans-serif;
+            color: var(--sys-text-900);
+        }
+
+        .signup-field input::placeholder {
+            color: #d1d5db;
+        }
+
+        .signup-field input:focus,
+        .signup-field select:focus {
+            outline: none;
+            border-color: #2e7d52;
+            box-shadow: 0 0 0 3px rgba(46, 125, 82, 0.08);
+        }
+
+        .signup-field input:read-only {
+            background-color: #f3f4f6;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+
+        #signup-error-msg {
+            color: #dc2626;
+            font-size: 12px;
+            margin-bottom: 12px;
+            text-align: center;
+            display: none;
+        }
+
+        #signup-submit-btn {
+            width: 100%;
+            padding: 10px 16px;
+            margin-top: 16px;
+            background-color: #2e7d52;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        #signup-submit-btn:hover {
+            background-color: #1a5c3a;
+        }
+
+        #signup-submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .signup-footer {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 12px;
+        }
+
+        .signup-footer a {
+            color: var(--first-color);
+            text-decoration: none;
+        }
+
+        .signup-footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <title>Pay++ - Sign Up</title>
+</head>
+<body>
+    <div class="signup-form">
+        <form id="signup-form" novalidate>
+            <div id="signup-welcome-msg">
+                <p>Welcome to Pay++</p>
+                <h1>Sign Up</h1>
+            </div>
+
+            <div id="signup-error-msg"></div>
+
+            <div class="signup-form-grid">
+                <div class="signup-field">
+                    <label for="signup-first-name">First Name *</label>
+                    <input type="text" id="signup-first-name" name="first-name" placeholder="First Name" required>
+                </div>
+                <div class="signup-field">
+                    <label for="signup-surname">Surname *</label>
+                    <input type="text" id="signup-surname" name="surname" placeholder="Surname" required>
+                </div>
+            </div>
+
+            <div class="signup-form-grid">
+                <div class="signup-field">
+                    <label for="signup-middle-name">Middle Name</label>
+                    <input type="text" id="signup-middle-name" name="middle-name" placeholder="Middle Name (Optional)">
+                </div>
+                <div class="signup-field">
+                    <label for="signup-suffix">Suffix</label>
+                    <input type="text" id="signup-suffix" name="suffix" placeholder="e.g., Jr., Sr. (Optional)">
+                </div>
+            </div>
+
+            <div class="signup-form-grid">
+                <div class="signup-field">
+                    <label for="signup-student-id">Student ID *</label>
+                    <input type="text" id="signup-student-id" name="student-id" placeholder="e.g., TY202500100" required>
+                </div>
+                <div class="signup-field">
+                    <label for="signup-course">Course *</label>
+                    <select id="signup-course" name="course" required>
+                        <option value="">Select Course</option>
+                        <option value="BS Computer Science">BS Computer Science</option>
+                        <option value="BS Information Technology">BS Information Technology</option>
+                        <option value="ACT-AD">ACT-AD</option>
+                        <option value="ACT-NET">ACT-NET</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="signup-form-grid">
+                <div class="signup-field">
+                    <label for="signup-year">Year *</label>
+                    <select id="signup-year" name="year" required>
+                        <option value="">Select Year</option>
+                        <option value="1st Year">1st Year</option>
+                        <option value="2nd Year">2nd Year</option>
+                        <option value="3rd Year">3rd Year</option>
+                        <option value="4th Year">4th Year</option>
+                    </select>
+                </div>
+                <div class="signup-field">
+                    <label for="signup-section">Section *</label>
+                    <select id="signup-section" name="section" required>
+                        <option value="">Select Section</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="signup-form-grid">
+                <div class="signup-field">
+                    <label for="signup-sex">Sex *</label>
+                    <select id="signup-sex" name="sex" required>
+                        <option value="">Select Sex</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="signup-form-grid full">
+                <div class="signup-field">
+                    <label for="signup-email">School Email *</label>
+                    <input type="email" id="signup-email" name="email" placeholder="name@wmsu.edu.ph" required>
+                </div>
+            </div>
+
+            <div class="signup-form-grid">
+                <div class="signup-field">
+                    <label for="signup-password">Password *</label>
+                    <input type="password" id="signup-password" name="password" placeholder="Password (min 6 chars)" required>
+                </div>
+                <div class="signup-field">
+                    <label for="signup-confirm-password">Confirm Password *</label>
+                    <input type="password" id="signup-confirm-password" name="confirm-password" placeholder="Confirm Password" required>
+                </div>
+            </div>
+
+            <button id="signup-submit-btn" type="submit">Create Account</button>
+
+            <div class="signup-footer">
+                Already have an account? <a href="index.html">Sign In</a>
+            </div>
+        </form>
+    </div>
+
+    <script src="assets/scripts/sample-accounts.js"></script>
+    <script src="assets/scripts/auth.js"></script>
+    <script>
+        (function () {
+            const form = document.getElementById('signup-form');
+            const errorMsg = document.getElementById('signup-error-msg');
+            const emailInput = document.getElementById('signup-email');
+
+            function showError(msg) {
+                errorMsg.textContent = msg;
+                errorMsg.style.display = 'block';
+            }
+
+            function hideError() {
+                errorMsg.style.display = 'none';
+            }
+
+            emailInput.addEventListener('blur', function () {
+                const email = this.value.trim();
+                if (email && !email.endsWith('@wmsu.edu.ph')) {
+                    showError('Email must end with @wmsu.edu.ph');
+                    this.value = '';
+                } else if (email.endsWith('@wmsu.edu.ph')) {
+                    this.readOnly = true;
+                    hideError();
+                }
+            });
+
+            emailInput.addEventListener('focus', function () {
+                if (!this.value) {
+                    this.readOnly = false;
+                }
+            });
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                hideError();
+
+                const firstName = document.getElementById('signup-first-name').value.trim();
+                const surname = document.getElementById('signup-surname').value.trim();
+                const middleName = document.getElementById('signup-middle-name').value.trim();
+                const suffix = document.getElementById('signup-suffix').value.trim();
+                const studentId = document.getElementById('signup-student-id').value.trim();
+                const course = document.getElementById('signup-course').value.trim();
+                const year = document.getElementById('signup-year').value.trim();
+                const section = document.getElementById('signup-section').value.trim();
+                const sex = document.getElementById('signup-sex').value.trim();
+                const email = document.getElementById('signup-email').value.trim();
+                const password = document.getElementById('signup-password').value.trim();
+                const confirmPassword = document.getElementById('signup-confirm-password').value.trim();
+
+                // Validation
+                if (!firstName || !surname || !studentId || !course || !year || !section || !sex || !email || !password || !confirmPassword) {
+                    showError('Please fill in all required fields.');
+                    return;
+                }
+
+                if (!email.endsWith('@wmsu.edu.ph')) {
+                    showError('Email must end with @wmsu.edu.ph');
+                    return;
+                }
+
+                if (password.length < 6) {
+                    showError('Password must be at least 6 characters.');
+                    return;
+                }
+
+                if (password !== confirmPassword) {
+                    showError('Passwords do not match.');
+                    return;
+                }
+
+                // Check if email already exists
+                const accounts = window.SAMPLE_ACCOUNTS || [];
+                if (accounts.find(acc => acc.email === email)) {
+                    showError('Email already registered.');
+                    return;
+                }
+
+                // Save pending signup
+                if (window.Auth && typeof window.Auth.savePendingSignup === 'function') {
+                    window.Auth.savePendingSignup({
+                        firstName,
+                        surname,
+                        middleName,
+                        suffix,
+                        studentId,
+                        course,
+                        year,
+                        section,
+                        sex,
+                        email,
+                        password
+                    });
+                }
+
+                // Show success and redirect
+                alert('Signup successful! Your account is pending professor approval. Please log in once approved.');
+                window.location.replace('index.html');
+            });
+        })();
+    </script>
+</body>
+</html>

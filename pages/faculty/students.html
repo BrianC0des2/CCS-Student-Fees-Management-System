@@ -401,10 +401,6 @@
                         Manage your class roster — CS 1-A and CS 1-B
                     </div>
                 </div>
-                <button class="bulk-action-btn" 
-                        id="showAddStudentBtn">
-                    + Add Student
-                </button>
             </div>
 
             <div class="summary-cards" style="margin-bottom:16px;">
@@ -422,90 +418,6 @@
                     <i class='bx bx-book'></i>
                     <h3>CS 1-B</h3>
                     <p id="countCS1B">0</p>
-                </div>
-            </div>
-
-            <!-- Add Student Form -->
-            <div id="addStudentForm" class="form-box" 
-                 style="display:none;">
-                <div class="form-box-header">
-                    <span class="form-box-title">
-                        + Add New Student
-                    </span>
-                    <button class="form-close-btn" 
-                            id="closeAddStudentForm">
-                        ×
-                    </button>
-                </div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Student Number *</label>
-                        <input type="text" id="nsStudentNo"
-                               placeholder="e.g. TY202500100">
-                    </div>
-                    <div class="form-group">
-                        <label>First Name *</label>
-                        <input type="text" id="nsFirstName"
-                               placeholder="e.g. Bryan">
-                    </div>
-                    <div class="form-group">
-                        <label>Middle Name</label>
-                        <input type="text" id="nsMiddleName"
-                               placeholder="e.g. Joseph">
-                    </div>
-                    <div class="form-group">
-                        <label>Surname *</label>
-                        <input type="text" id="nsSurname"
-                               placeholder="e.g. Santos">
-                    </div>
-                    <div class="form-group">
-                        <label>Suffix (Optional)</label>
-                        <input type="text" id="nsSuffix"
-                               placeholder="e.g. Jr., III, Sr.">
-                    </div>
-                    <div class="form-group">
-                        <label>Course *</label>
-                        <select id="nsCourse">
-                            <option value="">Select Course</option>
-                            <option>BS Computer Science</option>
-                            <option>BS Information Technology</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Year Level *</label>
-                        <select id="nsYear">
-                            <option value="">Select Year</option>
-                            <option>1st Year</option>
-                            <option>2nd Year</option>
-                            <option>3rd Year</option>
-                            <option>4th Year</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Section *</label>
-                        <select id="nsSection">
-                            <option value="">Select Section</option>
-                            <option>CS 1-A</option>
-                            <option>CS 1-B</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>School Email *</label>
-                        <input type="email" id="nsEmail"
-                               placeholder="Auto-generated from Student Number"
-                               readonly
-                               style="background:#f3f4f6; color:#6b7280; cursor:not-allowed;">
-                    </div>
-                </div>
-                <div class="form-actions">
-                    <button class="reset-btn" 
-                            id="cancelAddStudent">
-                        Cancel
-                    </button>
-                    <button class="apply-btn" 
-                            id="saveAddStudent">
-                        Save Student
-                    </button>
                 </div>
             </div>
 

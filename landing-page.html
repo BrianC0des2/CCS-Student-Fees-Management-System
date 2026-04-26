@@ -5,92 +5,214 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/styles/landing-page.css">
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-    <title>Pay++</title>
+    <title>Pay++ — CCS Student Fees</title>
 </head>
 <body>
+
+    <!-- NAV -->
     <nav>
         <a id="logo-name" href="landing-page.html">
             <img src="assets/images/pyt.png" alt="Pay++ Logo">
         </a>
         <div class="outer-nav">
             <ul id="inner-nav">
-                <li>
-                    <a href="#home">Home</a>             
-                </li>
-                <li>
-                    <a href="#about">About Us</a>             
-                </li>
-                <li>
-                    <a href="#how-it-works">How It Works</a>
-                </li>
-                <li>
-                    <a href="#contact">Contact</a>
-                </li>
-                <li>
-                    <a class="sign-up-btn" href="index.html"><button>Sign In</button></a>
-                </li>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#contact">Contact</a></li>
             </ul>
+        </div>
+        <div class="nav-actions">
+            <a href="index.html"><button class="btn-ghost">Sign In</button></a>
+            <a href="signup.html"><button class="btn-solid">Sign Up</button></a>
         </div>
     </nav>
 
     <main>
-        <div id="home" class="hero-container">
-            <div class="hero"></div>
-            <div class="hero-text">
-                <h1>Pay++</h1>
-                <p class="hero-description">The smart, secure, and seamless way to manage student fees and payments at CCS. Fast. Transparent. Hassle-free.</p>
-                <a class="hero-btn" href="index.html"><button>Sign In <span><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg></span></button></a>
-            </div>
+
+        <!-- HERO -->
+        <section id="home" class="hero-section">
+            <div class="hero-bg"></div>
+            <div class="hero-inner">
+                <div class="hero-left">
+                    <span class="hero-badge"><i class='bx bx-shield-check'></i> Official CCS Payment Portal</span>
+                    <h1>Student Fees,<br><span class="hero-accent">Simplified.</span></h1>
+                    <p class="hero-sub">Pay++  is the smart, secure, and seamless way to manage student fees at CCS. Track balances, submit payments, and get cleared — all in one place.</p>
+                    <div class="hero-cta">
+                        <a href="signup.html"><button class="cta-primary">Get Started <i class='bx bx-right-arrow-alt'></i></button></a>
+                        <a href="#how-it-works"><button class="cta-secondary">See How It Works</button></a>
+                    </div>
+                    <div class="hero-trust">
+                        <span><i class='bx bx-check-circle'></i> Free to use</span>
+                        <span><i class='bx bx-check-circle'></i> Instant receipts</span>
+                        <span><i class='bx bx-check-circle'></i> Secure transactions</span>
+                    </div>
+                </div>
             
+            </div>
+        </section>
+
+        <!-- STATS STRIP -->
+        <div class="stats-strip">
+            <div class="stat-item">
+                <span class="stat-num">500+</span>
+                <span class="stat-label">Students Enrolled</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-num">4</span>
+                <span class="stat-label">Fee Categories</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-num">100%</span>
+                <span class="stat-label">Digital Receipts</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-num">8-step</span>
+                <span class="stat-label">Clearance Process</span>
+            </div>
         </div>
 
+        <!-- ABOUT -->
         <section id="about" class="about-section">
-            <h2>About Us</h2>
-            <p>
-                Pay++ is dedicated to making student fee management simple, secure, and transparent for the CCS community. Our platform bridges students, faculty, and organizations, ensuring every transaction is fast, reliable, and easy to track.
-            </p>
-        </section>
-
-        <section id="how-it-works" class="how-section">
-            <h2>How It Works</h2>
-            <div class="how-steps">
-                <div class="how-card">
-                    <div class="how-icon"><i class='bx bx-key'></i></div>
-                    <h3>Sign In</h3>
-                    <p>Access your personalized dashboard with your CCS credentials.</p>
+            <div class="about-inner">
+                <div class="about-left">
+                    <span class="section-tag">About Pay++</span>
+                    <h2>Built for CCS Students,<br>by the CCS Community</h2>
+                    <p>Pay++ bridges students, faculty, and organizations — making every transaction fast, reliable, and fully traceable. No more long queues, lost receipts, or unclear balances.</p>
+                    <div class="about-features">
+                        <div class="af-item">
+                            <div class="af-icon"><i class='bx bx-lock-alt'></i></div>
+                            <div>
+                                <p class="af-title">Secure Payments</p>
+                                <p class="af-desc">Every transaction is logged and audited in real time.</p>
+                            </div>
+                        </div>
+                        <div class="af-item">
+                            <div class="af-icon"><i class='bx bx-bell'></i></div>
+                            <div>
+                                <p class="af-title">Due Date Alerts</p>
+                                <p class="af-desc">Never miss a payment deadline again.</p>
+                            </div>
+                        </div>
+                        <div class="af-item">
+                            <div class="af-icon"><i class='bx bx-file'></i></div>
+                            <div>
+                                <p class="af-title">Instant Clearance</p>
+                                <p class="af-desc">Track your clearance status across all signatories.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="how-card">
-                    <div class="how-icon"><i class='bx bx-copy'></i></div>
-                    <h3>View Fees & Payments</h3>
-                    <p>Instantly see your outstanding balances, payment history, and upcoming dues.</p>
-                </div>
-                <div class="how-card">
-                    <div class="how-icon"><i class='bx bx-credit-card'></i></div>
-                    <h3>Make Payments</h3>
-                    <p>Choose from multiple payment methods and receive instant confirmation and receipts.</p>
-                </div>
-                <div class="how-card">
-                    <div class="how-icon"><i class='bx bx-check-circle'></i></div>
-                    <h3>Track Clearance</h3>
-                    <p>Monitor your clearance status and get notified when requirements are fulfilled.</p>
+                <div class="about-right">
+                    <div class="about-visual">
+                        <div class="av-card av-card-1">
+                            <i class='bx bx-trending-up'></i>
+                            <div>
+                                <p class="av-title">Collection Rate</p>
+                                <p class="av-val">94.2%</p>
+                            </div>
+                        </div>
+                        <div class="av-card av-card-2">
+                            <i class='bx bx-receipt'></i>
+                            <div>
+                                <p class="av-title">Receipts Issued</p>
+                                <p class="av-val">1,240+</p>
+                            </div>
+                        </div>
+                        <div class="av-card av-card-3">
+                            <i class='bx bx-user-check'></i>
+                            <div>
+                                <p class="av-title">Cleared Students</p>
+                                <p class="av-val">87%</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
-    </main>
-        
-    
-    <footer>
-        <section id="contact" class="contact-section">
-            <h2>Contact</h2>
-            <p>
-                Have questions or need support? Reach out to us:
-            </p>
-            <ul>
-                <li>Email: <a href="mailto:support@payplusplus.com">support@payplusplus.com</a></li>
-                <li>Phone: (012) 345-6789</li>
-                <li>Office: CCS Main Campus, Room 101</li>
-            </ul>
+
+        <!-- HOW IT WORKS -->
+        <section id="how-it-works" class="how-section">
+            <div class="how-inner">
+                <div class="how-header">
+                    <span class="section-tag">The Process</span>
+                    <h2>How It Works</h2>
+                    <p>Four simple steps from sign-up to clearance.</p>
+                </div>
+                <div class="how-steps">
+                    <div class="how-card">
+                        <div class="how-num">01</div>
+                        <div class="how-icon"><i class='bx bx-user-plus'></i></div>
+                        <h3>Sign Up</h3>
+                        <p>Register with your <strong>@wmsu.edu.ph</strong> email. Your professor verifies your section before access is granted.</p>
+                    </div>
+                    <div class="how-connector"><i class='bx bx-right-arrow-alt'></i></div>
+                    <div class="how-card">
+                        <div class="how-num">02</div>
+                        <div class="how-icon"><i class='bx bx-copy'></i></div>
+                        <h3>View Your Fees</h3>
+                        <p>See all outstanding balances, due dates, and payment history on your personal dashboard.</p>
+                    </div>
+                    <div class="how-connector"><i class='bx bx-right-arrow-alt'></i></div>
+                    <div class="how-card">
+                        <div class="how-num">03</div>
+                        <div class="how-icon"><i class='bx bx-credit-card'></i></div>
+                        <h3>Make Payment</h3>
+                        <p>Pay via cash or online. Get a reference code and a digital receipt instantly upon confirmation.</p>
+                    </div>
+                    <div class="how-connector"><i class='bx bx-right-arrow-alt'></i></div>
+                    <div class="how-card">
+                        <div class="how-num">04</div>
+                        <div class="how-icon"><i class='bx bx-check-shield'></i></div>
+                        <h3>Get Cleared</h3>
+                        <p>Track your 8-step clearance in real time. Know exactly which signatory still needs to sign off.</p>
+                    </div>
+                </div>
+            </div>
         </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <a id="footer-logo" href="landing-page.html">
+                    <img src="assets/images/pyt.png" alt="Pay++ Logo">
+                </a>
+                <p>The official student fees management system of the College of Computing Studies.</p>
+                <div class="footer-socials">
+                    <a href="#"><i class='bx bxl-facebook'></i></a>
+                    <a href="#"><i class='bx bxl-twitter'></i></a>
+                    <a href="#"><i class='bx bxs-envelope'></i></a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#how-it-works">How It Works</a></li>
+                    <li><a href="index.html">Sign In</a></li>
+                    <li><a href="signup.html">Sign Up</a></li>
+                </ul>
+            </div>
+            <div id="contact" class="footer-contact">
+                <h4>Contact</h4>
+                <ul>
+                    <li><i class='bx bxs-envelope'></i> <a href="mailto:support@payplusplus.com">support@payplusplus.com</a></li>
+                    <li><i class='bx bxs-phone'></i> (012) 345-6789</li>
+                    <li><i class='bx bxs-map'></i> CCS Main Campus, Room 101</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Pay++. All rights reserved. Western Mindanao State University — CCS.</p>
+        </div>
     </footer>
+
 </body>
 </html>

@@ -170,6 +170,106 @@
     removeStorage(AUTH_VIEW_KEY);
   }
 
+  const PENDING_SIGNUPS_KEY = "ccs.pending.signups";
+
+  function savePendingSignup(signupData) {
+    try {
+      let pending = [];
+      const raw = localStorage.getItem(PENDING_SIGNUPS_KEY);
+      if (raw) {
+        try {
+          pending = JSON.parse(raw);
+        } catch (e) {
+          pending = [];
+        }
+      }
+
+      const signup = {
+        id: 'PENDING-' + Date.now(),
+        firstName: signupData.firstName || '',
+        surname: signupData.surname || '',
+        middleName: signupData.middleName || '',
+        suffix: signupData.suffix || '',
+        studentId: signupData.studentId || '',
+        course: signupData.course || '',
+        year: signupData.year || '',
+        section: signupData.section || '',
+        sex: signupData.sex || '',
+        email: signupData.email || '',
+        password: signupData.password || '',
+        status: 'pending',
+        createdAt: new Date().toISOString()
+      };
+
+      pending.push(signup);
+      localStorage.setItem(PENDING_SIGNUPS_KEY, JSON.stringify(pending));
+      return { ok: true, id: signup.id };
+    } catch (error) {
+      return { ok: false, message: 'Failed to save signup' };
+    }
+  }
+
+  function getPendingSignups() {
+    try {
+      const raw = localStorage.getItem(PENDING_SIGNUPS_KEY);
+      if (!raw) return [];
+      return JSON.parse(raw);
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function approvePendingSignup(signupId) {
+    try {
+      let pending = getPendingSignups();
+      const signup = pending.find(s => s.id === signupId);
+      if (!signup) {
+        return { ok: false, message: 'Signup not found' };
+      }
+
+      const name = [signup.firstName, signup.middleName, signup.surname].filter(Boolean).join(' ').trim();
+      const newAccount = {
+        id: 'u-' + signup.studentId.toLowerCase(),
+        name: name,
+        studentId: signup.studentId,
+        email: signup.email,
+        password: signup.password,
+        isFirstLogin: false,
+        course: signup.course,
+        year: signup.year,
+        section: signup.section,
+        sex: signup.sex || '',
+        permissions: {
+          studentView: true,
+          organizationView: false,
+          adminView: false,
+          facultyView: false,
+          deanView: false
+        }
+      };
+
+      window.SAMPLE_ACCOUNTS = window.SAMPLE_ACCOUNTS || [];
+      window.SAMPLE_ACCOUNTS.push(newAccount);
+
+      pending = pending.filter(s => s.id !== signupId);
+      localStorage.setItem(PENDING_SIGNUPS_KEY, JSON.stringify(pending));
+      return { ok: true, account: newAccount };
+    } catch (error) {
+      return { ok: false, message: 'Failed to approve signup' };
+    }
+  }
+
+  function rejectPendingSignup(signupId) {
+    try {
+      let pending = getPendingSignups();
+      pending = pending.filter(s => s.id !== signupId);
+      localStorage.setItem(PENDING_SIGNUPS_KEY, JSON.stringify(pending));
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, message: 'Failed to reject signup' };
+    }
+  }
+
   window.Auth = {
     login,
     isFirstLogin,
@@ -181,6 +281,10 @@
     isDean,
     getView,
     setView,
-    logout
+    logout,
+    savePendingSignup,
+    getPendingSignups,
+    approvePendingSignup,
+    rejectPendingSignup
   };
 })();

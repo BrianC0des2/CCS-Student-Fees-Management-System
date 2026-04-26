@@ -57,6 +57,7 @@ const ALL_PERMISSIONS = [
     { id: 'edit_students',     label: 'Edit Student Info',    category: 'Student Management' },
     { id: 'remove_students',   label: 'Remove Students',      category: 'Student Management' },
     { id: 'manage_students',   label: 'Full Student Control', category: 'Student Management' },
+    { id: 'verify_signup',     label: 'Verify Student Signups', category: 'Student Management' },
     { id: 'approve_clearance', label: 'Approve Clearance',    category: 'Clearance' },
     { id: 'reject_clearance',  label: 'Reject Clearance',     category: 'Clearance' },
     { id: 'sign_clearance',    label: 'Sign Clearance',       category: 'Clearance' },
@@ -82,8 +83,8 @@ let facultyList = [
     { id: 'FAC-002', name: 'Mr. Jaydee C. Ballaho, MIT',   email: 'jc.ballaho@wmsu.edu.ph',  phone: '+63-912-345-6790', role: 'dept_head',       department: 'BS Information Technology',      status: 'active',   permissions: ['view_students','approve_clearance','sign_clearance','generate_reports','view_payments'], dateAdded: 'Jun 1, 2022',  lastLogin: 'Mar 6, 2026' },
     { id: 'FAC-003', name: 'Asst Prof Marjorie A. Rojas',  email: 'ma.rojas@wmsu.edu.ph',    phone: '+63-912-345-6791', role: 'coordinator',     department: 'College of Computer Studies',   status: 'active',   permissions: ['view_students','approve_clearance','sign_clearance','edit_students','generate_reports'], dateAdded: 'Jun 1, 2022',  lastLogin: 'Mar 5, 2026' },
     { id: 'FAC-004', name: 'Ms. Jennifer Santos',           email: 'j.santos@wmsu.edu.ph',    phone: '+63-912-345-6792', role: 'finance_officer', department: 'Finance Office',                 status: 'active',   permissions: ['view_students','view_payments','process_payments','generate_reports','export_data','manage_fees'], dateAdded: 'Aug 15, 2022', lastLogin: 'Mar 7, 2026' },
-    { id: 'FAC-005', name: 'Prof. Ricardo Dela Cruz, MIT',  email: 'r.delacruz@wmsu.edu.ph',  phone: '+63-912-345-6793', role: 'adviser',         department: 'BS Computer Science',            status: 'active',   permissions: ['view_students','approve_clearance','sign_clearance'], dateAdded: 'Jan 10, 2023', lastLogin: 'Mar 4, 2026' },
-    { id: 'FAC-006', name: 'Prof. Elena Mercado',           email: 'e.mercado@wmsu.edu.ph',   phone: '+63-912-345-6794', role: 'professor',       department: 'BS Information Technology',      status: 'inactive', permissions: ['view_students','sign_clearance'], dateAdded: 'Mar 1, 2023',  lastLogin: 'Jan 20, 2026' },
+    { id: 'FAC-005', name: 'Prof. Ricardo Dela Cruz, MIT',  email: 'r.delacruz@wmsu.edu.ph',  phone: '+63-912-345-6793', role: 'adviser',         department: 'BS Computer Science',            status: 'active',   permissions: ['view_students','verify_signup','approve_clearance','sign_clearance'], dateAdded: 'Jan 10, 2023', lastLogin: 'Mar 4, 2026' },
+    { id: 'FAC-006', name: 'Prof. Elena Mercado',           email: 'e.mercado@wmsu.edu.ph',   phone: '+63-912-345-6794', role: 'professor',       department: 'BS Information Technology',      status: 'inactive', permissions: ['view_students','verify_signup','sign_clearance'], dateAdded: 'Mar 1, 2023',  lastLogin: 'Jan 20, 2026' },
 ];
 
 let studentList = [
