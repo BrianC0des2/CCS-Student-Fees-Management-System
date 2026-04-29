@@ -85,6 +85,38 @@
     };
   }
 
+  function getOrganizationScope(account) {
+    const merged = mergeAccountWithOverrides(account);
+    const isOrganization = Boolean(merged && merged.permissions && merged.permissions.organizationView);
+    if (!isOrganization) {
+      return null;
+    }
+
+    return {
+      orgId: merged.id || '',
+      organization: merged.organization || merged.name || '',
+      academicYear: merged.academicYear || 'S.Y. 2025-2026',
+      semester: merged.semester || '2nd Semester'
+    };
+  }
+
+  function getCurrentOrganizationScope() {
+    const user = getStoredUser();
+    if (!user) return null;
+
+    const account = (window.SAMPLE_ACCOUNTS || []).find(
+      (item) => item.id === user.id || item.email === user.email
+    );
+    if (!account) return null;
+
+    return getOrganizationScope(account);
+  }
+
+  function getOrganizationStorageKey(baseKey, orgId) {
+    const scopeId = String(orgId || (getCurrentOrganizationScope() || {}).orgId || 'global').trim() || 'global';
+    return `${baseKey}::${scopeId}`;
+  }
+
   function buildSessionUser(account) {
     const merged = mergeAccountWithOverrides(account);
     return {
@@ -92,7 +124,12 @@
       name: merged.name,
       studentId: merged.studentId,
       email: merged.email,
+      role: merged.role || (merged.permissions && merged.permissions.organizationView ? 'organization' : 'student'),
+      organization: merged.organization || '',
+      academicYear: merged.academicYear || '',
+      semester: merged.semester || '',
       isFirstLogin: Boolean(merged.isFirstLogin),
+      sex: merged.sex || "",
       religion: merged.religion || "",
       phoneNumber: merged.phoneNumber || "",
       course: merged.course || "",
@@ -111,13 +148,16 @@
       return { ok: false, message: "Invalid credentials" };
     }
 
-    if (account.id === "u-student-001") {
-      const overrides = getProfileOverrides();
-      overrides[account.id] = {
-        ...(overrides[account.id] || {}),
-        isFirstLogin: false,
-        religion: "Catholic"
-      };
+    // Clean up legacy test override that incorrectly skipped first-login for Bryan.
+    const overrides = getProfileOverrides();
+    const accountOverride = overrides[account.id];
+    if (
+      accountOverride &&
+      accountOverride.isFirstLogin === false &&
+      accountOverride.religion === "Catholic" &&
+      !accountOverride.phoneNumber
+    ) {
+      delete overrides[account.id];
       saveProfileOverrides(overrides);
     }
 
@@ -164,7 +204,40 @@
   }
 
   function getUser() {
-    return getStoredUser();
+    const user = getStoredUser();
+    if (!user) return null;
+
+    const account = (window.SAMPLE_ACCOUNTS || []).find(
+      (item) => item.id === user.id || item.email === user.email
+    );
+
+    if (!account) {
+      return user;
+    }
+
+    const merged = mergeAccountWithOverrides(account);
+    const hydratedUser = {
+      ...user,
+      id: merged.id || user.id,
+      name: merged.name || user.name,
+      studentId: merged.studentId || user.studentId,
+      email: merged.email || user.email,
+      role: merged.role || user.role || (merged.permissions && merged.permissions.organizationView ? 'organization' : 'student'),
+      organization: merged.organization || user.organization || '',
+      academicYear: merged.academicYear || user.academicYear || '',
+      semester: merged.semester || user.semester || '',
+      isFirstLogin: typeof merged.isFirstLogin === "boolean" ? merged.isFirstLogin : Boolean(user.isFirstLogin),
+      sex: merged.sex || user.sex || "",
+      religion: typeof merged.religion === "string" ? merged.religion : (user.religion || ""),
+      phoneNumber: typeof merged.phoneNumber === "string" ? merged.phoneNumber : (user.phoneNumber || ""),
+      course: merged.course || user.course || "",
+      year: merged.year || user.year || "",
+      section: merged.section || user.section || "",
+      permissions: merged.permissions || user.permissions
+    };
+
+    setStoredUser(hydratedUser);
+    return hydratedUser;
   }
 
   function updateCurrentUserProfile(profileUpdates) {
@@ -245,6 +318,127 @@
     removeStorage(AUTH_USER_KEY);
     removeStorage(AUTH_VIEW_KEY);
   }
+
+  window.CCSAuthHelpers = {
+    getCurrentOrganizationScope,
+    getOrganizationStorageKey,
+    getOrganizationScope
+  };
+
+  const PAYMENTS_STORAGE_KEY = 'ccs.payments';
+
+  function normalizePaymentStatus(value) {
+    const normalized = String(value || '').trim().toLowerCase();
+    if (normalized === 'confirmed' || normalized === 'paid') return 'Confirmed';
+    if (normalized === 'rejected') return 'Rejected';
+    if (normalized === 'pending verification' || normalized === 'pending') return 'Pending Verification';
+    return 'Pending Verification';
+  }
+
+  function getFallbackOrgIdForPayment(payment) {
+    const desc = String(payment && (payment.desc || payment.feeName) || '').toLowerCase();
+    if (desc.includes('msa')) return 'org-msa-001';
+    return 'u-org-001';
+  }
+
+  function readPayments() {
+    try {
+      const raw = localStorage.getItem(PAYMENTS_STORAGE_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (_err) {
+      return [];
+    }
+  }
+
+  function savePayments(payments) {
+    localStorage.setItem(PAYMENTS_STORAGE_KEY, JSON.stringify(payments));
+  }
+
+  function seedPaymentsFromSamples() {
+    const existing = readPayments();
+    if (existing.length) return existing;
+
+    const seeded = (window.SAMPLE_PAYMENTS || []).map(function (payment, index) {
+      const orgId = getFallbackOrgIdForPayment(payment);
+      const normalizedDate = String(payment.date || '').trim();
+      return {
+        id: `seed-${index}-${orgId}-${normalizedDate}`,
+        orgId: orgId,
+        feeId: payment.feeId || `legacy-${orgId}-${String(payment.desc || '').replace(/\s+/g, '-').toLowerCase()}`,
+        feeName: payment.desc || payment.feeName || 'Fee',
+        studentId: payment.studentNo || payment.studentId || '',
+        studentName: payment.studentName || '',
+        amount: payment.amount || '₱0.00',
+        dateSubmitted: normalizedDate,
+        paymentMethod: payment.method || 'Cash',
+        referenceNumber: payment.referenceNumber || `PAY-${normalizedDate.slice(0, 4)}-${normalizedDate.slice(5).replace(/-/g, '')}-${String(1000 + index).slice(-4)}`,
+        status: 'Confirmed',
+        rejectionReason: '',
+        createdAt: payment.date ? `${payment.date}T00:00:00.000Z` : new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+    });
+
+    savePayments(seeded);
+    return seeded;
+  }
+
+  function getPayments() {
+    return seedPaymentsFromSamples().slice();
+  }
+
+  function savePayment(payment) {
+    const payments = readPayments();
+    payments.push(payment);
+    savePayments(payments);
+    return payment;
+  }
+
+  function updatePayment(referenceNumber, updates) {
+    const payments = readPayments();
+    const next = payments.map(function (payment) {
+      if (payment.referenceNumber !== referenceNumber) return payment;
+      return {
+        ...payment,
+        ...updates,
+        status: normalizePaymentStatus(updates.status || payment.status),
+        updatedAt: new Date().toISOString()
+      };
+    });
+    savePayments(next);
+    return next.find(function (payment) { return payment.referenceNumber === referenceNumber; }) || null;
+  }
+
+  function generateReferenceNumber() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const mmdd = `${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+    const random = String(Math.floor(Math.random() * 9000) + 1000);
+    return `PAY-${year}-${mmdd}-${random}`;
+  }
+
+  function getPaymentsForOrg(orgId) {
+    return getPayments().filter(function (payment) {
+      return String(payment.orgId || '') === String(orgId || '');
+    });
+  }
+
+  function getPaymentsForStudent(studentId) {
+    return getPayments().filter(function (payment) {
+      return String(payment.studentId || payment.studentNo || '') === String(studentId || '');
+    });
+  }
+
+  window.CCSPaymentStore = {
+    getPayments,
+    savePayment,
+    updatePayment,
+    generateReferenceNumber,
+    getPaymentsForOrg,
+    getPaymentsForStudent,
+    normalizePaymentStatus
+  };
 
   const PENDING_SIGNUPS_KEY = "ccs.pending.signups";
 

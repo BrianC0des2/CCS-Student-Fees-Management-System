@@ -306,6 +306,142 @@
     background: var(--brand-900);
 }
 
+/* ─── Personal Information Section ────────────────────────────────── */
+.section-header .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 12px;
+}
+
+.profile-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 14px;
+    border-radius: 10px;
+    border: 1.5px solid var(--color-primary);
+    background: transparent;
+    color: var(--color-primary);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 150ms, color 150ms;
+    white-space: nowrap;
+}
+
+.profile-edit-btn:hover {
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+
+.personal-info-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.personal-info-view,
+.personal-info-edit {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.personal-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.personal-info-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: rgba(var(--color-dark-rgb), 0.5);
+}
+
+.personal-info-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-dark);
+}
+
+.personal-info-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.personal-info-field label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-dark);
+}
+
+.personal-info-field select,
+.personal-info-field input[type="tel"] {
+    padding: 10px 12px;
+    border: 1px solid rgba(var(--color-dark-rgb), 0.2);
+    border-radius: 8px;
+    font-size: 14px;
+    background: var(--color-white);
+    color: var(--color-dark);
+    font-family: inherit;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.personal-info-field select:focus,
+.personal-info-field input[type="tel"]:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+}
+
+.personal-info-field select::placeholder,
+.personal-info-field input::placeholder {
+    color: rgba(var(--color-dark-rgb), 0.5);
+}
+
+.personal-info-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.btn-save,
+.btn-cancel {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: background 150ms;
+}
+
+.btn-save {
+    background: var(--color-primary);
+    color: var(--color-white);
+    flex: 1;
+}
+
+.btn-save:hover {
+    background: var(--brand-700);
+}
+
+.btn-cancel {
+    background: rgba(var(--color-dark-rgb), 0.1);
+    color: var(--color-dark);
+    flex: 1;
+}
+
+.btn-cancel:hover {
+    background: rgba(var(--color-dark-rgb), 0.15);
+}
+
 /* ─── Responsive tweaks ────────────────────────────────────────────── */
 @media (max-width: 620px) {
     .profile-hero-card {

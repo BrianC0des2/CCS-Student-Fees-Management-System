@@ -78,7 +78,7 @@ const PaymentHistory = (() => {
 
     function buildTable(payments) {
         if (payments.length === 0) {
-            return '<p style="padding: 24px; text-align: center; color: var(--sys-text-500); font-size: 13px;">No payments found</p>';
+            return '';
         }
 
         let html = `
@@ -95,7 +95,8 @@ const PaymentHistory = (() => {
                     <tbody>
         `;
 
-        payments.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach((payment, idx) => {
+        // Sort oldest to newest (chronological order)
+        payments.sort((a, b) => new Date(a.date) - new Date(b.date)).forEach((payment, idx) => {
             html += `
                 <tr>
                     <td><span class="receipt-num">${payment.desc}</span></td>
@@ -123,42 +124,11 @@ const PaymentHistory = (() => {
         const container = document.getElementById('receipt-filter-sections');
         if (!container) return;
 
-        const grouped = groupPaymentsByCategory(paymentHistory, currentFilter);
-
+        // Show all payments without grouping by recent/old
         let html = '';
-
-        // Recent payments
-        if (grouped['recent'] && grouped['recent'].length > 0) {
-            html += `
-                <div class="receipt-filter-section">
-                    <div class="receipt-section-header">
-                        <span class="receipt-section-label">
-                            <i class='bx bx-time-five'></i> Recent Payments
-                        </span>
-                        <span class="receipt-section-count">${grouped['recent'].length}</span>
-                    </div>
-                    ${buildTable(grouped['recent'])}
-                </div>
-            `;
-        }
-
-        // Old payments
-        if (grouped['old'] && grouped['old'].length > 0) {
-            html += `
-                <div class="receipt-filter-section">
-                    <div class="receipt-section-header">
-                        <span class="receipt-section-label">
-                            <i class='bx bx-archive'></i> Older Payments
-                        </span>
-                        <span class="receipt-section-count">${grouped['old'].length}</span>
-                    </div>
-                    ${buildTable(grouped['old'])}
-                </div>
-            `;
-        }
-
-        if (!html) {
-            html = '<p style="padding: 24px; text-align: center; color: var(--sys-text-500);">No payments found</p>';
+        
+        if (paymentHistory && paymentHistory.length > 0) {
+            html = buildTable(paymentHistory);
         }
 
         container.innerHTML = html;
@@ -300,7 +270,27 @@ const PaymentHistory = (() => {
 
     function filterReceipts(filter) {
         currentFilter = filter;
-        renderAll();
+        
+        if (filter === 'all') {
+            // Show all payments in chronological order (oldest to newest)
+            renderAll();
+        } else {
+            // Filter by recent (30 days) or old (older than 30 days)
+            const now = new Date();
+            const recentThreshold = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            
+            const filtered = paymentHistory.filter(p => {
+                const d = new Date(p.date + 'T00:00:00');
+                if (filter === 'recent') return d >= recentThreshold;
+                if (filter === 'old') return d < recentThreshold;
+                return true;
+            });
+            
+            const container = document.getElementById('receipt-filter-sections');
+            if (container) {
+                container.innerHTML = buildTable(filtered);
+            }
+        }
     }
 
     function initializePage() {

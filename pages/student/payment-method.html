@@ -139,6 +139,7 @@
     const fees = JSON.parse(
         localStorage.getItem('ccs.selected.fees') || '[]'
     );
+    const selectedOrgId = (fees[0] && fees[0].orgId) || 'u-org-001';
     const summaryEl = document.getElementById(
         'method-summary-items'
     );
@@ -160,11 +161,52 @@
         totalEl.textContent = '\u20B1' + total;
     }
 
+    const orgAccounts = window.CCSPaymentAccounts && typeof window.CCSPaymentAccounts.getPaymentAccountsForOrg === 'function'
+        ? window.CCSPaymentAccounts.getPaymentAccountsForOrg(selectedOrgId).filter(account => account.isActive)
+        : [];
+    const allowedMethods = new Set(orgAccounts.map(account => String(account.type || '').trim().toLowerCase()));
+    const orgName = orgAccounts[0] && orgAccounts[0].name ? orgAccounts[0].name : (selectedOrgId === 'org-msa-001' ? 'Muslim Student Association' : 'CCS Student Council');
+
+    document.querySelectorAll('.method-option').forEach(option => {
+        const method = String(option.dataset.method || '').trim().toLowerCase();
+        const isAllowed = allowedMethods.size === 0 ? true : allowedMethods.has(method);
+        option.style.display = isAllowed ? '' : 'none';
+
+        if (!isAllowed) return;
+
+        const matchedAccount = orgAccounts.find(account => String(account.type || '').trim().toLowerCase() === method);
+        const methodName = option.querySelector('.method-name');
+        const methodDesc = option.querySelector('.method-desc');
+        if (methodName && matchedAccount) {
+            methodName.textContent = matchedAccount.type;
+            if (method === 'gcash') {
+                methodName.innerHTML = `${matchedAccount.type} <span class="badge">Recommended</span>`;
+            }
+        }
+        if (methodDesc && matchedAccount) {
+            if (method === 'cash') {
+                methodDesc.textContent = `${orgName} cash payment counter`;
+            } else {
+                methodDesc.textContent = `${orgName} account${matchedAccount.number ? ` • ${matchedAccount.number}` : ''}`;
+            }
+        }
+    });
+
+    const firstVisible = document.querySelector('.method-option[style=""], .method-option:not([style*="display: none"])');
+    if (firstVisible) {
+        document.querySelectorAll('.method-option').forEach(o => o.classList.remove('selected'));
+        firstVisible.classList.add('selected');
+        const radio = firstVisible.querySelector('input[type="radio"]');
+        if (radio) radio.checked = true;
+        localStorage.setItem('ccs.payment.method', firstVisible.dataset.method || 'gcash');
+    }
+
     // Highlight selected method card
     const options = document.querySelectorAll(
         '.method-option'
     );
     options.forEach(option => {
+        if (option.style.display === 'none') return;
         option.addEventListener('click', () => {
             options.forEach(o => 
                 o.classList.remove('selected')

@@ -136,8 +136,12 @@
     </div>
 </div>
 			<script>
-    const PAYMENT_ACCOUNTS_KEY = 'ccs.organization.paymentAccounts';
     const FEES_STORAGE_KEY = 'ccs.organization.fees';
+        const CURRENT_ORG_SCOPE = window.CCSAuthHelpers && typeof window.CCSAuthHelpers.getCurrentOrganizationScope === 'function'
+            ? window.CCSAuthHelpers.getCurrentOrganizationScope()
+            : null;
+        const CURRENT_ORG_ID = CURRENT_ORG_SCOPE && CURRENT_ORG_SCOPE.orgId ? CURRENT_ORG_SCOPE.orgId : 'u-org-001';
+        const CURRENT_ORG_NAME = CURRENT_ORG_SCOPE && CURRENT_ORG_SCOPE.organization ? CURRENT_ORG_SCOPE.organization : 'CCS Student Council';
 
     const DEFAULT_FEES = [
         {
@@ -149,7 +153,8 @@
             isActive: true,
             feeType: 'mandatory',
             appliesTo: 'all',
-            acceptedPaymentChannels: []
+            acceptedPaymentChannels: [],
+            orgId: 'u-org-001'
         },
         {
             id: 'fee-default-misc',
@@ -160,7 +165,8 @@
             isActive: true,
             feeType: 'mandatory',
             appliesTo: 'all',
-            acceptedPaymentChannels: []
+            acceptedPaymentChannels: [],
+            orgId: 'u-org-001'
         },
         {
             id: 'fee-default-msa',
@@ -171,7 +177,8 @@
             isActive: true,
             feeType: 'mandatory',
             appliesTo: 'Muslim',
-            acceptedPaymentChannels: []
+            acceptedPaymentChannels: [],
+            orgId: 'org-msa-001'
         },
         {
             id: 'fee-default-insurance',
@@ -182,7 +189,8 @@
             isActive: true,
             feeType: 'mandatory',
             appliesTo: 'all',
-            acceptedPaymentChannels: []
+            acceptedPaymentChannels: [],
+            orgId: 'u-org-001'
         }
     ];
 
@@ -197,7 +205,8 @@
             feeType: fee.feeType === 'voluntary' ? 'voluntary' : 'mandatory',
             appliesTo: normalizeAppliesToValue(fee.appliesTo, fee.specificReligion),
             specificReligion: String(fee.specificReligion || '').trim(),
-            acceptedPaymentChannels: Array.isArray(fee.acceptedPaymentChannels) ? fee.acceptedPaymentChannels : []
+            acceptedPaymentChannels: Array.isArray(fee.acceptedPaymentChannels) ? fee.acceptedPaymentChannels : [],
+            orgId: fee.orgId || 'u-org-001'
         };
     }
 
@@ -220,12 +229,10 @@
     }
 
     function getPaymentAccounts() {
-        try {
-            const parsed = JSON.parse(localStorage.getItem(PAYMENT_ACCOUNTS_KEY) || '[]');
-            return Array.isArray(parsed) ? parsed : [];
-        } catch (_err) {
-            return [];
+        if (window.CCSPaymentAccounts && typeof window.CCSPaymentAccounts.getPaymentAccounts === 'function') {
+            return window.CCSPaymentAccounts.getPaymentAccounts();
         }
+        return [];
     }
 
     function getStoredFees() {
@@ -360,7 +367,9 @@
 
     function renderFeesList() {
         const list = document.getElementById('orgFeesList');
-        const fees = getAllFees();
+        const fees = getAllFees().filter(function (fee) {
+            return String(fee.orgId || 'u-org-001') === CURRENT_ORG_ID;
+        });
 
         list.innerHTML = fees.map(function (fee) {
             const statusClass = fee.isActive ? 'badge-active' : 'badge-inactive';
@@ -473,6 +482,8 @@
             appliesTo: appliesConfig.appliesTo,
             specificReligion: appliesConfig.specificReligion,
             acceptedPaymentChannels: selectedChannels,
+            orgId: CURRENT_ORG_ID,
+            organization: CURRENT_ORG_NAME,
             createdAt: new Date().toISOString()
         });
 

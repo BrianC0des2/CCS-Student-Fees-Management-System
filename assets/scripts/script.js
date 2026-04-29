@@ -102,11 +102,6 @@ if (loginForm) {
     }
 
     const loggedUser = window.Auth.getUser();
-    if (isStudentOnlyUser(loggedUser) && loggedUser.isFirstLogin) {
-      navigateTo('pages/student/profile-setup.html');
-      return;
-    }
-
     navigateToRoleHome(loggedUser);
   });
 }
@@ -116,7 +111,6 @@ function enforceRouteAccess() {
 
   const page = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
   const isLoginPage = page === 'index.html';
-  const isProfileSetupPage = page === 'profile-setup.html';
   const user = window.Auth.getUser();
 
   if (isLoginPage) {
@@ -128,16 +122,6 @@ function enforceRouteAccess() {
 
   if (!user) {
     navigateTo('index.html');
-    return;
-  }
-
-  if (isStudentOnlyUser(user) && user.isFirstLogin && !isProfileSetupPage) {
-    navigateTo('pages/student/profile-setup.html');
-    return;
-  }
-
-  if (isProfileSetupPage && (!isStudentOnlyUser(user) || !user.isFirstLogin)) {
-    navigateToRoleHome(user);
     return;
   }
 
@@ -451,25 +435,9 @@ let paymentsFilter = null;
 let paymentsListEl = null;
 let myPayments = [];
 
-const DEMO_RECENT_PAYMENTS = [
-  {
-    desc: 'CSC Fee',
-    amount: '₱200.00',
-    date: '2026-01-03',
-    method: 'GCash',
-    forceRecent: true
-  },
-  {
-    desc: 'Insurance',
-    amount: '₱40.00',
-    date: '2026-01-03',
-    method: 'Cash',
-    forceRecent: true
-  }
-];
-
 function renderPayments(list){
   if (!paymentsListEl) return;
+  
   paymentsListEl.innerHTML = list.map(p => `
     <div class="payment-item" data-date="${p.date}">
       <div class="payment-row">
@@ -492,7 +460,7 @@ function filterPayments(value){
 
   const filtered = myPayments.filter(p => {
     const d = new Date(p.date + 'T00:00:00');
-    if (value === 'recent') return Boolean(p.forceRecent) || d >= recentThreshold;
+    if (value === 'recent') return d >= recentThreshold;
     if (value === 'old') return d < recentThreshold;
     return true;
   });
@@ -509,34 +477,31 @@ function initializePaymentsPanel() {
   const samplePayments = window.SAMPLE_PAYMENTS || [];
   const isStudentDashboardPage = (window.location.pathname || '').toLowerCase().endsWith('student-dashboard.html');
 
-  myPayments = currentUser
+  // Filter payments by current student
+  const studentPayments = currentUser && currentUser.studentId
     ? samplePayments.filter(p => p.studentNo === currentUser.studentId)
-    : samplePayments;
+    : [];
 
   if (isStudentDashboardPage) {
-    const studentNo = currentUser && currentUser.studentId ? currentUser.studentId : '';
-    const studentName = currentUser && currentUser.name ? currentUser.name : '';
-
-    const demoEntries = DEMO_RECENT_PAYMENTS.map((entry, index) => ({
-      studentNo,
-      studentName,
-      ...entry,
-      id: `demo-recent-${index}`
-    }));
-
-    myPayments = [...demoEntries, ...myPayments];
+    // For dashboard: show only the 3 most recent payments, sorted by date descending (newest first)
+    myPayments = studentPayments
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .slice(0, 3);
+    // Render immediately without any filtering
+    renderPayments(myPayments);
+  } else {
+    // For payment history page: show all payments sorted by date ascending (oldest first)
+    myPayments = studentPayments.sort((a, b) => new Date(a.date) - new Date(b.date));
+    renderPayments(myPayments);
+    
+    // Only set up filter listener for payment history page
+    if (paymentsFilter && paymentsFilter.dataset.bound !== 'true') {
+      paymentsFilter.dataset.bound = 'true';
+      paymentsFilter.addEventListener('change', (e) => {
+        filterPayments(e.target.value);
+      });
+    }
   }
-
-  renderPayments(myPayments);
-
-  if (paymentsFilter && paymentsFilter.dataset.bound !== 'true') {
-    paymentsFilter.dataset.bound = 'true';
-    paymentsFilter.addEventListener('change', (e) => {
-      filterPayments(e.target.value);
-    });
-  }
-
-  filterPayments(paymentsFilter ? (paymentsFilter.value || 'recent') : 'recent');
 }
 
 function showSection(sectionId) {

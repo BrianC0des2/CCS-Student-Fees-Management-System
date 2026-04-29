@@ -119,7 +119,8 @@
                 dueDate: '2026-02-15',
                 isActive: true,
                 feeType: 'mandatory',
-                appliesTo: 'all'
+                appliesTo: 'all',
+                orgId: 'u-org-001'
             },
             {
                 id: 'fee-default-gender',
@@ -128,7 +129,8 @@
                 dueDate: '2026-02-15',
                 isActive: true,
                 feeType: 'voluntary',
-                appliesTo: 'all'
+                appliesTo: 'all',
+                orgId: 'u-org-001'
             },
             {
                 id: 'fee-default-msa',
@@ -137,7 +139,8 @@
                 dueDate: '2026-02-15',
                 isActive: true,
                 feeType: 'mandatory',
-                appliesTo: 'Muslim'
+                appliesTo: 'Muslim/Islam',
+                orgId: 'org-msa-001'
             },
             {
                 id: 'fee-default-insurance',
@@ -146,7 +149,8 @@
                 dueDate: '2026-02-15',
                 isActive: true,
                 feeType: 'mandatory',
-                appliesTo: 'all'
+                appliesTo: 'all',
+                orgId: 'u-org-001'
             },
             {
                 id: 'fee-default-misc',
@@ -155,7 +159,8 @@
                 dueDate: '2026-02-15',
                 isActive: true,
                 feeType: 'mandatory',
-                appliesTo: 'all'
+                appliesTo: 'all',
+                orgId: 'u-org-001'
             }
         ];
 
@@ -177,7 +182,8 @@
                 isActive: fee.isActive !== false,
                 feeType: fee.feeType === 'voluntary' ? 'voluntary' : 'mandatory',
                 appliesTo: normalizeAppliesToValue(fee.appliesTo, fee.specificReligion),
-                specificReligion: String(fee.specificReligion || '').trim()
+                specificReligion: String(fee.specificReligion || '').trim(),
+                orgId: fee.orgId || 'u-org-001'
             };
         }
 
@@ -242,13 +248,26 @@
 
         function renderFeeRows() {
             const fees = getActiveFees();
-            feeListEl.innerHTML = fees.map(function (fee) {
+            const selectAllCheckbox = `
+                <div class="fees-selection fee-item-card select-all-card">
+                    <div class="fee-info">
+                        <input type="checkbox" id="selectAllCheckbox">
+                        <div class="cb">
+                            <div class="fee-name-row">
+                                <h3>Select All Fees</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            feeListEl.innerHTML = selectAllCheckbox + fees.map(function (fee) {
                 const typeClass = fee.feeType === 'voluntary' ? 'fee-pill-optional' : 'fee-pill-required';
                 const typeText = fee.feeType === 'voluntary' ? 'OPTIONAL' : 'REQUIRED';
                 return `
                     <div class="fees-selection fee-item-card" data-fee-id="${fee.id}">
                         <div class="fee-info">
-                            <input type="checkbox" data-fee-id="${fee.id}" data-fee="${fee.name}" data-price="${fee.amount}">
+                            <input type="checkbox" data-fee-id="${fee.id}" data-fee="${fee.name}" data-price="${fee.amount}" data-org-id="${fee.orgId || 'u-org-001'}">
                             <div class="cb">
                                 <div class="fee-name-row">
                                     <h3>${fee.name}</h3>
@@ -267,7 +286,7 @@
         }
 
         function getCheckboxes() {
-            return Array.from(document.querySelectorAll('input[type="checkbox"][data-fee]'));
+            return Array.from(document.querySelectorAll('input[type="checkbox"][data-fee-id]'));
         }
 
         function getChecked() {
@@ -346,9 +365,27 @@
         }
 
         function bindFeeEvents() {
+            const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+            
             getCheckboxes().forEach(function (cb) {
-                cb.addEventListener('change', updateSummary);
+                cb.addEventListener('change', function () {
+                    // If any regular checkbox is unchecked, uncheck Select All
+                    if (!this.checked && selectAllCheckbox) {
+                        selectAllCheckbox.checked = false;
+                    }
+                    updateSummary();
+                });
             });
+
+            if (selectAllCheckbox) {
+                selectAllCheckbox.addEventListener('change', function () {
+                    const isChecked = this.checked;
+                    getCheckboxes().forEach(function (cb) {
+                        cb.checked = isChecked;
+                    });
+                    updateSummary();
+                });
+            }
 
             document.querySelectorAll('.fee-action-promissory-link').forEach(function (button) {
                 button.addEventListener('click', function () {
@@ -358,6 +395,10 @@
 
                     if (feeCheckbox && feeCheckbox.checked) {
                         feeCheckbox.checked = false;
+                        // Uncheck Select All if a fee is unchecked
+                        if (selectAllCheckbox) {
+                            selectAllCheckbox.checked = false;
+                        }
                         updateSummary();
                     }
 
@@ -409,7 +450,7 @@
                 alert('Please select at least one fee.');
                 return;
             }
-            const fees = checked.map(cb => ({ feeId: cb.dataset.feeId, fee: cb.dataset.fee, price: Number(cb.dataset.price) }));
+            const fees = checked.map(cb => ({ feeId: cb.dataset.feeId, fee: cb.dataset.fee, price: Number(cb.dataset.price), orgId: cb.dataset.orgId || 'u-org-001' }));
             localStorage.setItem('ccs.selected.fees', JSON.stringify(fees));
             window.location.href = 'payment-method.html';
         });

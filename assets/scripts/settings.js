@@ -17,7 +17,51 @@
 ───────────────────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', function () {
     const isOrganizationPage = window.location.pathname.toLowerCase().includes('/organization/');
-    const PAYMENT_ACCOUNTS_KEY = 'ccs.organization.paymentAccounts';
+    const LEGACY_PAYMENT_ACCOUNTS_KEY = 'ccs.organization.paymentAccounts';
+
+    function getOrganizationScope() {
+        if (window.CCSAuthHelpers && typeof window.CCSAuthHelpers.getCurrentOrganizationScope === 'function') {
+            return window.CCSAuthHelpers.getCurrentOrganizationScope();
+        }
+        return null;
+    }
+
+    function getScopedPaymentAccountsKey() {
+        const scope = getOrganizationScope();
+        const orgId = scope && scope.orgId ? scope.orgId : 'global';
+        if (window.CCSAuthHelpers && typeof window.CCSAuthHelpers.getOrganizationStorageKey === 'function') {
+            return window.CCSAuthHelpers.getOrganizationStorageKey('ccs.organization.paymentAccounts', orgId);
+        }
+        return `ccs.organization.paymentAccounts::${orgId}`;
+    }
+
+    function getPaymentAccountsKeyForOrg(orgId) {
+        if (window.CCSAuthHelpers && typeof window.CCSAuthHelpers.getOrganizationStorageKey === 'function') {
+            return window.CCSAuthHelpers.getOrganizationStorageKey('ccs.organization.paymentAccounts', orgId);
+        }
+        return `ccs.organization.paymentAccounts::${String(orgId || 'global')}`;
+    }
+
+    function getDefaultPaymentAccounts() {
+        const scope = getOrganizationScope();
+        const organizationName = scope && scope.organization ? scope.organization : 'Organization';
+        return [
+            {
+                id: 'acct-' + (scope && scope.orgId ? scope.orgId : 'global') + '-gcash',
+                type: 'GCash',
+                name: organizationName,
+                number: '0912 345 6789',
+                isActive: true
+            },
+            {
+                id: 'acct-' + (scope && scope.orgId ? scope.orgId : 'global') + '-cash',
+                type: 'Cash',
+                name: organizationName,
+                number: '',
+                isActive: true
+            }
+        ];
+    }
 
     /* ── Inject overlay ── */
     const overlay = document.createElement('div');
@@ -82,16 +126,70 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function getPaymentAccounts() {
         try {
-            const parsed = JSON.parse(localStorage.getItem(PAYMENT_ACCOUNTS_KEY) || '[]');
-            return Array.isArray(parsed) ? parsed : [];
+            const scopedKey = getScopedPaymentAccountsKey();
+            const parsed = JSON.parse(localStorage.getItem(scopedKey) || '[]');
+            if (Array.isArray(parsed) && parsed.length) return parsed;
+
+            const legacyParsed = JSON.parse(localStorage.getItem(LEGACY_PAYMENT_ACCOUNTS_KEY) || '[]');
+            if (Array.isArray(legacyParsed) && legacyParsed.length && (!getOrganizationScope() || getOrganizationScope().orgId === 'u-org-001')) {
+                localStorage.setItem(scopedKey, JSON.stringify(legacyParsed));
+                return legacyParsed;
+            }
+
+            const defaults = getDefaultPaymentAccounts();
+            localStorage.setItem(scopedKey, JSON.stringify(defaults));
+            return defaults;
+        } catch (_err) {
+            const defaults = getDefaultPaymentAccounts();
+            try {
+                localStorage.setItem(getScopedPaymentAccountsKey(), JSON.stringify(defaults));
+            } catch (_e) {}
+            return defaults;
+        }
+    }
+
+    function getPaymentAccountsForOrg(orgId) {
+        try {
+            const scopedKey = getPaymentAccountsKeyForOrg(orgId);
+            const parsed = JSON.parse(localStorage.getItem(scopedKey) || '[]');
+            if (Array.isArray(parsed) && parsed.length) return parsed;
+
+            const orgName = orgId === 'org-msa-001' ? 'Muslim Student Association' : 'CCS Student Council';
+            const defaults = [
+                {
+                    id: 'acct-' + (orgId || 'global') + '-gcash',
+                    type: 'GCash',
+                    name: orgName,
+                    number: '0912 345 6789',
+                    isActive: true
+                },
+                {
+                    id: 'acct-' + (orgId || 'global') + '-cash',
+                    type: 'Cash',
+                    name: orgName,
+                    number: '',
+                    isActive: true
+                }
+            ];
+            localStorage.setItem(scopedKey, JSON.stringify(defaults));
+            return defaults;
         } catch (_err) {
             return [];
         }
     }
 
     function setPaymentAccounts(accounts) {
-        localStorage.setItem(PAYMENT_ACCOUNTS_KEY, JSON.stringify(accounts));
+        localStorage.setItem(getScopedPaymentAccountsKey(), JSON.stringify(accounts));
     }
+
+    window.CCSPaymentAccounts = {
+        getPaymentAccounts,
+        setPaymentAccounts,
+        getPaymentAccountsForOrg,
+        getScopedPaymentAccountsKey,
+        getPaymentAccountsKeyForOrg,
+        getDefaultPaymentAccounts
+    };
 
     if (isOrganizationPage) {
         panel.querySelector('.sp-body').insertAdjacentHTML('beforeend', `

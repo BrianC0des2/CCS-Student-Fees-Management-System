@@ -121,12 +121,12 @@
                             </div>
                             <div class="name-job">
                                 <div class="name-with-switch">
-                                    <div class="profile_name">Bryan</div>
+                                    <div class="profile_name" id="sidebarProfileName">Student</div>
                                     <button type="button" class="view-switch-container" aria-label="Switch view">
                                         <i class='bx bx-chevron-up view-switch-icon'></i>
                                     </button>
                                 </div>
-                                <div class="job">TY202500628</div>
+                                <div class="job" id="sidebarStudentId">0000000000</div>
                             </div>
                         </div>
                         <a class="logout-section">
@@ -146,7 +146,7 @@
             <br>
             <div class="dashboard-container" style="width: 100%; overflow-x: hidden; box-sizing: border-box; max-width: 100%;">
                 <div class="header">
-                    <h1>Welcome back, Bryan!</h1>
+                    <h1 id="dashboardWelcome">Welcome back, Student!</h1>
                     <p>Here's your clearance status and academic informations</p>
                 </div>
                 <div style="width:100%; overflow:hidden; box-sizing:border-box;">
@@ -276,6 +276,43 @@
             </div>
         </section>
 
+        <!-- First Login Modal -->
+        <div class="first-login-overlay" id="firstLoginModal" aria-hidden="true">
+            <div class="first-login-modal-container" role="dialog" aria-modal="true" aria-labelledby="firstLoginModalTitle">
+                <div class="first-login-modal-content">
+                    <h2 id="firstLoginModalTitle">Complete Your Profile</h2>
+                    <p class="first-login-subtitle">Please provide the following information to personalize your experience.</p>
+                    
+                    <form id="firstLoginForm">
+                        <div class="first-login-form-group">
+                            <label for="profileReligion">Religion <span class="required">*</span></label>
+                            <select id="profileReligion" required>
+                                <option value="">Select Religion</option>
+                                <option value="Roman Catholic">Roman Catholic</option>
+                                <option value="Muslim/Islam">Muslim/Islam</option>
+                                <option value="Iglesia ni Cristo">Iglesia ni Cristo</option>
+                                <option value="Born Again Christian">Born Again Christian</option>
+                                <option value="Seventh Day Adventist">Seventh Day Adventist</option>
+                                <option value="Philippine Independent Church (Aglipayan)">Philippine Independent Church (Aglipayan)</option>
+                                <option value="Judaism">Judaism</option>
+                                <option value="Buddhism">Buddhism</option>
+                                <option value="Hinduism">Hinduism</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <span class="first-login-error" id="religionError"></span>
+                        </div>
+
+                        <div class="first-login-form-group">
+                            <label for="profilePhoneNumber">Phone Number <span class="optional">(optional)</span></label>
+                            <input type="tel" id="profilePhoneNumber" placeholder="e.g. 09171234567">
+                        </div>
+
+                        <button type="submit" class="first-login-submit-btn">Complete Profile</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <div class="promissory-modal-overlay" id="promissoryModal" aria-hidden="true">
             <div class="promissory-modal-container" role="dialog" aria-modal="true" aria-labelledby="promissoryModalTitle">
                 <div class="promissory-modal-header">
@@ -331,7 +368,8 @@
                         dueDate: '2026-02-15',
                         isActive: true,
                         feeType: 'mandatory',
-                        appliesTo: 'all'
+                        appliesTo: 'all',
+                        orgId: 'u-org-001'
                     },
                     {
                         id: 'fee-default-gender',
@@ -341,7 +379,8 @@
                         dueDate: '2026-02-15',
                         isActive: true,
                         feeType: 'voluntary',
-                        appliesTo: 'all'
+                        appliesTo: 'all',
+                        orgId: 'u-org-001'
                     },
                     {
                         id: 'fee-default-msa',
@@ -351,7 +390,8 @@
                         dueDate: '2026-02-15',
                         isActive: true,
                         feeType: 'mandatory',
-                        appliesTo: 'Muslim'
+                        appliesTo: 'Muslim/Islam',
+                        orgId: 'org-msa-001'
                     },
                     {
                         id: 'fee-default-misc',
@@ -361,7 +401,8 @@
                         dueDate: '2026-02-15',
                         isActive: true,
                         feeType: 'mandatory',
-                        appliesTo: 'all'
+                        appliesTo: 'all',
+                        orgId: 'u-org-001'
                     }
                 ];
 
@@ -443,7 +484,8 @@
                         isActive: fee.isActive !== false,
                         feeType: fee.feeType === 'voluntary' ? 'voluntary' : 'mandatory',
                         appliesTo: normalizeAppliesToValue(fee.appliesTo, fee.specificReligion),
-                        specificReligion: String(fee.specificReligion || '').trim()
+                        specificReligion: String(fee.specificReligion || '').trim(),
+                        orgId: fee.orgId || 'u-org-001'
                     };
                 }
 
@@ -582,7 +624,7 @@
                                     </div>
                                     <span class="fee-amount">${formatCurrency(fee.amount)}</span>
                                 </div>
-                                <button type="button" class="pay-now-btn" data-fee-id="${fee.id}" data-fee-name="${fee.name}" data-fee-amount="${fee.amount}">Pay Now</button>
+                                <button type="button" class="pay-now-btn" data-fee-id="${fee.id}" data-fee-name="${fee.name}" data-fee-amount="${fee.amount}" data-org-id="${fee.orgId || 'u-org-001'}">Pay Now</button>
                                 <a
                                     class="promissory-link fee-action-promissory"
                                     data-fee-id="${fee.id}"
@@ -602,7 +644,8 @@
                             const selectedFee = [{
                                 feeId: button.dataset.feeId,
                                 fee: button.dataset.feeName,
-                                price: Number(button.dataset.feeAmount)
+                                price: Number(button.dataset.feeAmount),
+                                orgId: button.dataset.orgId || 'u-org-001'
                             }];
                             localStorage.setItem('ccs.selected.fees', JSON.stringify(selectedFee));
                             window.location.href = 'make-payment.html';
@@ -693,7 +736,119 @@
                     }
                 });
 
+                // Expose for external calls
+                window.renderStudentFees = renderOutstandingFees;
+                
                 renderOutstandingFees();
+            })();
+        </script>
+
+        <script>
+            /* First Login Modal Logic */
+            (function () {
+                const firstLoginModal = document.getElementById('firstLoginModal');
+                const firstLoginForm = document.getElementById('firstLoginForm');
+                const profileReligion = document.getElementById('profileReligion');
+                const profilePhoneNumber = document.getElementById('profilePhoneNumber');
+                const religionError = document.getElementById('religionError');
+
+                function showFirstLoginModal() {
+                    const user = window.Auth && typeof window.Auth.getUser === 'function' ? window.Auth.getUser() : null;
+                    if (user && user.isFirstLogin === true) {
+                        firstLoginModal.classList.add('show');
+                        firstLoginModal.setAttribute('aria-hidden', 'false');
+                        // Prevent interactions with page content behind the modal
+                        document.body.style.overflow = 'hidden';
+                    }
+                }
+
+                function closeFirstLoginModal() {
+                    firstLoginModal.classList.remove('show');
+                    firstLoginModal.setAttribute('aria-hidden', 'true');
+                    document.body.style.overflow = '';
+                }
+
+                function handleFormSubmit(event) {
+                    event.preventDefault();
+                    
+                    const selectedReligion = profileReligion.value.trim();
+                    const phoneNumber = profilePhoneNumber.value.trim();
+
+                    // Clear previous error
+                    religionError.classList.remove('show');
+                    religionError.textContent = '';
+
+                    // Validate religion
+                    if (!selectedReligion) {
+                        religionError.textContent = 'Religion is required';
+                        religionError.classList.add('show');
+                        return;
+                    }
+
+                    // Save profile data
+                    if (window.Auth && typeof window.Auth.updateCurrentUserProfile === 'function') {
+                        const result = window.Auth.updateCurrentUserProfile({
+                            religion: selectedReligion,
+                            phoneNumber: phoneNumber,
+                            isFirstLogin: false
+                        });
+
+                        if (result.ok) {
+                            closeFirstLoginModal();
+                            // Re-render fees based on new religion
+                            if (typeof window.renderStudentFees === 'function') {
+                                window.renderStudentFees();
+                            }
+                        } else {
+                            religionError.textContent = 'Failed to save profile. Please try again.';
+                            religionError.classList.add('show');
+                        }
+                    }
+                }
+
+                // Event listeners
+                firstLoginForm.addEventListener('submit', handleFormSubmit);
+
+                // Show modal on page load if needed
+                document.addEventListener('DOMContentLoaded', showFirstLoginModal);
+                
+                // Also try to show it if DOM is already loaded
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', showFirstLoginModal);
+                } else {
+                    showFirstLoginModal();
+                }
+            })();
+
+            /* Update dashboard and sidebar with logged-in student info */
+            (function () {
+                function updateStudentInfo() {
+                    const user = window.Auth && typeof window.Auth.getUser === 'function' ? window.Auth.getUser() : null;
+                    if (!user) return;
+
+                    // Update dashboard welcome message
+                    const welcomeEl = document.getElementById('dashboardWelcome');
+                    if (welcomeEl) {
+                        welcomeEl.textContent = `Welcome back, ${user.name || 'Student'}!`;
+                    }
+
+                    // Update sidebar profile name and student ID
+                    const profileNameEl = document.getElementById('sidebarProfileName');
+                    const studentIdEl = document.getElementById('sidebarStudentId');
+                    if (profileNameEl) {
+                        profileNameEl.textContent = user.name || 'Student';
+                    }
+                    if (studentIdEl) {
+                        studentIdEl.textContent = user.studentId || '0000000000';
+                    }
+                }
+
+                // Update on page load
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', updateStudentInfo);
+                } else {
+                    updateStudentInfo();
+                }
             })();
         </script>
 

@@ -1,12 +1,14 @@
 window.SAMPLE_ACCOUNTS = [
   {
     id: "u-student-001",
-    name: "Bryan",
+    name: "Bryan Saavedra",
     studentId: "TY202500100",
     email: "student1@demo.com",
     password: "123456",
-    isFirstLogin: false,
-    religion: "Catholic",
+    isFirstLogin: true,
+    religion: "",
+    phoneNumber: "",
+    sex: "Male",
     course: "BS Computer Science",
     year: "3rd Year",
     section: "CS 3-A",
@@ -26,7 +28,9 @@ window.SAMPLE_ACCOUNTS = [
     email: "student2@demo.com",
     password: "123456",
     isFirstLogin: true,
-    religion: "Muslim",
+    religion: "",
+    phoneNumber: "",
+    sex: "Female",
     course: "BS Computer Science",
     year: "3rd Year",
     section: "CS 3-A",
@@ -41,11 +45,15 @@ window.SAMPLE_ACCOUNTS = [
   },
   {
     id: "u-org-001",
-    name: "Bryan",
+    name: "CCS Student Council",
     studentId: "TY202500101",
     email: "studentorg@demo.com",
     password: "123456",
     isFirstLogin: true,
+    role: "organization",
+    organization: "CCS Student Council",
+    academicYear: "S.Y. 2025-2026",
+    semester: "2nd Semester",
     course: "BS Computer Science",
     year: "3rd Year",
     section: "CS 3-A",
@@ -55,6 +63,23 @@ window.SAMPLE_ACCOUNTS = [
       adminView: false,
       facultyView: false,
       deanView:false
+    }
+  },
+  {
+    id: "org-msa-001",
+    name: "Muslim Student Association",
+    email: "msa@demo.com",
+    password: "123456",
+    role: "organization",
+    organization: "Muslim Student Association",
+    academicYear: "S.Y. 2025-2026",
+    semester: "2nd Semester",
+    permissions: {
+      organizationView: true,
+      studentView: false,
+      adminView: false,
+      facultyView: false,
+      deanView: false
     }
   },
   {
@@ -106,16 +131,21 @@ window.SAMPLE_ACCOUNTS = [
 
 // Shared payment data for all students
 window.SAMPLE_PAYMENTS = [
-  // Bryan's payments (TY202500100) - Current Semester (2nd Sem 2025-2026)
-  { studentNo: "TY202500100", studentName: "Bryan", desc: 'CCS Fee - BSCS 1A', amount: '₱1,000.00', date: '2026-03-25' },
-  { studentNo: "TY202500100", studentName: "Bryan", desc: 'Insurance - BSCS 1A', amount: '₱150.00', date: '2026-03-28' },
-  { studentNo: "TY202500100", studentName: "Bryan", desc: 'Gender Club - BSCS 1A', amount: '₱50.00', date: '2026-03-30' },
-  { studentNo: "TY202500100", studentName: "Bryan", desc: 'Miscellaneous - BSCS 1A', amount: '₱850.00', date: '2026-03-20' },
-  // Previous Semester (1st Sem 2025-2026)
-  { studentNo: "TY202500100", studentName: "Bryan", desc: 'CCS Fee - BSCS 1A', amount: '₱1,000.00', date: '2025-12-10' },
-  { studentNo: "TY202500100", studentName: "Bryan", desc: 'Insurance - BSCS 1A', amount: '₱150.00', date: '2025-12-12' },
-  { studentNo: "TY202500100", studentName: "Bryan", desc: 'Gender Club - BSCS 1A', amount: '₱50.00', date: '2025-12-15' },
-  { studentNo: "TY202500100", studentName: "Bryan", desc: 'Miscellaneous - BSCS 1A', amount: '₱850.00', date: '2025-12-08' },
+  // Bryan's payments (TY202500100) - Most recent to oldest
+  { studentNo: "TY202500100", studentName: "Bryan", desc: 'CSC Fee', amount: '₱200.00', date: '2026-01-03', method: 'GCash' },
+  { studentNo: "TY202500100", studentName: "Bryan", desc: 'Insurance', amount: '₱40.00', date: '2025-08-03', method: 'Cash' },
+  { studentNo: "TY202500100", studentName: "Bryan", desc: 'Gender Club', amount: '₱50.00', date: '2025-01-03', method: 'GCash' },
+  { studentNo: "TY202500100", studentName: "Bryan", desc: 'Miscellaneous', amount: '₱60.00', date: '2024-08-02', method: 'Bank Transfer' },
+  { studentNo: "TY202500100", studentName: "Bryan", desc: 'CSC Fee', amount: '₱200.00', date: '2024-01-05', method: 'GCash' },
+  { studentNo: "TY202500100", studentName: "Bryan", desc: 'Insurance', amount: '₱40.00', date: '2023-08-03', method: 'Cash' },
+
+  // Johari's payments (TY202501337) - Same entries as Bryan
+  { studentNo: "TY202501337", studentName: "Johari Esmail", desc: 'CSC Fee', amount: '₱200.00', date: '2026-01-03', method: 'GCash' },
+  { studentNo: "TY202501337", studentName: "Johari Esmail", desc: 'Insurance', amount: '₱40.00', date: '2025-08-03', method: 'Cash' },
+  { studentNo: "TY202501337", studentName: "Johari Esmail", desc: 'Gender Club', amount: '₱50.00', date: '2025-01-03', method: 'GCash' },
+  { studentNo: "TY202501337", studentName: "Johari Esmail", desc: 'Miscellaneous', amount: '₱60.00', date: '2024-08-02', method: 'Bank Transfer' },
+  { studentNo: "TY202501337", studentName: "Johari Esmail", desc: 'CSC Fee', amount: '₱200.00', date: '2024-01-05', method: 'GCash' },
+  { studentNo: "TY202501337", studentName: "Johari Esmail", desc: 'Insurance', amount: '₱40.00', date: '2023-08-03', method: 'Cash' },
 
   // Other students
   { studentNo: "TY202500101", studentName: "Bryan", desc: 'CCS Fee - BSCS 1A', amount: '₱1,000.00', date: '2026-03-01' },
