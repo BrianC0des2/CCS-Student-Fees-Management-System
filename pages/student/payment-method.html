@@ -47,57 +47,10 @@
             <div class="fee-selection-container fees-panel fee-selection">
                 <div style="width:100%">
                     <h3>Choose Payment Method</h3>
-
-                    <div class="method-option selected" data-method="gcash">
-                        <div class="method-info">
-                            <i class='bx bx-wallet method-icon'></i>
-                            <div>
-                                <div class="method-name">GCash <span class="badge">Recommended</span></div>
-                                <p class="method-desc">Pay instantly using your GCash wallet</p>
-                            </div>
-                        </div>
-                        <input type="radio" name="payment-method" value="gcash" checked>
-                    </div>
-
-                    <div class="method-option" data-method="paymaya">
-                        <div class="method-info">
-                            <i class='bx bx-wallet method-icon'></i>
-                            <div>
-                                <div class="method-name">PayMaya</div>
-                                <p class="method-desc">
-                                    Pay using your PayMaya wallet
-                                </p>
-                            </div>
-                        </div>
-                        <input type="radio" name="payment-method" 
-                               value="paymaya">
-                    </div>
-
-                    <div class="method-option" data-method="bank">
-                        <div class="method-info">
-                            <i class='bx bx-building method-icon'></i>
-                            <div>
-                                <div class="method-name">Bank Transfer</div>
-                                <p class="method-desc">Direct bank transfer or online banking</p>
-                            </div>
-                        </div>
-                        <input type="radio" name="payment-method" value="bank">
-                    </div>
-
-                    <div class="method-option" data-method="cash">
-                        <div class="method-info">
-                            <i class='bx bx-money method-icon'></i>
-                            <div>
-                                <div class="method-name">Cash</div>
-                                <p class="method-desc">
-                                    Pay in person at the CCS Student 
-                                    Council office
-                                </p>
-                            </div>
-                        </div>
-                        <input type="radio" name="payment-method" 
-                               value="cash">
-                    </div>
+                    <div id="paymentAccountsList"></div>
+                    <p id="paymentAccountsEmpty" class="summary-empty" style="display:none; margin-top:12px;">
+                        No active payment accounts are configured for this organization.
+                    </p>
 
                     <!-- Security badges -->
                     <div class="security-badges">
@@ -139,13 +92,15 @@
     const fees = JSON.parse(
         localStorage.getItem('ccs.selected.fees') || '[]'
     );
-    const selectedOrgId = (fees[0] && fees[0].orgId) || 'u-org-001';
+    const selectedOrgId = (fees[0] && fees[0].orgId) || (window.CCSAuthHelpers && typeof window.CCSAuthHelpers.getCurrentOrganizationScope === 'function' && window.CCSAuthHelpers.getCurrentOrganizationScope() ? window.CCSAuthHelpers.getCurrentOrganizationScope().orgId : 'u-org-001');
     const summaryEl = document.getElementById(
         'method-summary-items'
     );
     const totalEl = document.getElementById(
         'method-summary-total'
     );
+    const paymentAccountsListEl = document.getElementById('paymentAccountsList');
+    const paymentAccountsEmptyEl = document.getElementById('paymentAccountsEmpty');
     const total = fees.reduce((s, f) => s + f.price, 0);
 
     if (fees.length === 0) {
@@ -162,90 +117,101 @@
     }
 
     const orgAccounts = window.CCSPaymentAccounts && typeof window.CCSPaymentAccounts.getPaymentAccountsForOrg === 'function'
-        ? window.CCSPaymentAccounts.getPaymentAccountsForOrg(selectedOrgId).filter(account => account.isActive)
+        ? window.CCSPaymentAccounts.getPaymentAccountsForOrg(selectedOrgId).filter(account => account.isActive !== false)
         : [];
-    const allowedMethods = new Set(orgAccounts.map(account => String(account.type || '').trim().toLowerCase()));
     const orgName = orgAccounts[0] && orgAccounts[0].name ? orgAccounts[0].name : (selectedOrgId === 'org-msa-001' ? 'Muslim Student Association' : 'CCS Student Council');
 
-    document.querySelectorAll('.method-option').forEach(option => {
-        const method = String(option.dataset.method || '').trim().toLowerCase();
-        const isAllowed = allowedMethods.size === 0 ? true : allowedMethods.has(method);
-        option.style.display = isAllowed ? '' : 'none';
-
-        if (!isAllowed) return;
-
-        const matchedAccount = orgAccounts.find(account => String(account.type || '').trim().toLowerCase() === method);
-        const methodName = option.querySelector('.method-name');
-        const methodDesc = option.querySelector('.method-desc');
-        if (methodName && matchedAccount) {
-            methodName.textContent = matchedAccount.type;
-            if (method === 'gcash') {
-                methodName.innerHTML = `${matchedAccount.type} <span class="badge">Recommended</span>`;
-            }
-        }
-        if (methodDesc && matchedAccount) {
-            if (method === 'cash') {
-                methodDesc.textContent = `${orgName} cash payment counter`;
-            } else {
-                methodDesc.textContent = `${orgName} account${matchedAccount.number ? ` • ${matchedAccount.number}` : ''}`;
-            }
-        }
-    });
-
-    const firstVisible = document.querySelector('.method-option[style=""], .method-option:not([style*="display: none"])');
-    if (firstVisible) {
-        document.querySelectorAll('.method-option').forEach(o => o.classList.remove('selected'));
-        firstVisible.classList.add('selected');
-        const radio = firstVisible.querySelector('input[type="radio"]');
-        if (radio) radio.checked = true;
-        localStorage.setItem('ccs.payment.method', firstVisible.dataset.method || 'gcash');
+    function normalizeMethod(account) {
+        return String(account.type || '').trim().toLowerCase().replace(/\s+/g, '-');
     }
 
-    // Highlight selected method card
-    const options = document.querySelectorAll(
-        '.method-option'
-    );
-    options.forEach(option => {
-        if (option.style.display === 'none') return;
-        option.addEventListener('click', () => {
-            options.forEach(o => 
-                o.classList.remove('selected')
-            );
-            option.classList.add('selected');
-            option.querySelector(
-                'input[type="radio"]'
-            ).checked = true;
-            localStorage.setItem(
-                'ccs.payment.method', 
-                option.dataset.method
-            );
+    function renderPaymentAccounts() {
+        if (!paymentAccountsListEl) return;
+
+        if (!orgAccounts.length) {
+            paymentAccountsEmptyEl.style.display = '';
+            paymentAccountsListEl.innerHTML = '';
+            document.getElementById('reviewPaymentBtn').disabled = true;
+            return;
+        }
+
+        paymentAccountsEmptyEl.style.display = 'none';
+        document.getElementById('reviewPaymentBtn').disabled = false;
+
+        paymentAccountsListEl.innerHTML = orgAccounts.map((account, index) => {
+            const method = normalizeMethod(account);
+            const isRecommended = method === 'gcash' || index === 0;
+            return `
+                <div class="method-option ${index === 0 ? 'selected' : ''}" data-account-id="${account.id}" data-method="${method}">
+                    <div class="method-info">
+                        <i class='bx bx-wallet method-icon'></i>
+                        <div>
+                            <div class="method-name">${account.type}${isRecommended ? ' <span class="badge">Recommended</span>' : ''}</div>
+                            <p class="method-desc">${account.name}${account.number ? ` • ${account.number}` : ''}</p>
+                        </div>
+                    </div>
+                    <input type="radio" name="payment-method" value="${method}" ${index === 0 ? 'checked' : ''}>
+                </div>
+            `;
+        }).join('');
+
+        document.querySelectorAll('.method-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.method-option').forEach(o => o.classList.remove('selected'));
+                option.classList.add('selected');
+                const radio = option.querySelector('input[type="radio"]');
+                if (radio) radio.checked = true;
+
+                const selectedAccount = orgAccounts.find(account => account.id === option.dataset.accountId);
+                if (selectedAccount) {
+                    localStorage.setItem('ccs.payment.method', normalizeMethod(selectedAccount));
+                    localStorage.setItem('ccs.payment.account', JSON.stringify({
+                        id: selectedAccount.id,
+                        type: selectedAccount.type,
+                        name: selectedAccount.name,
+                        number: selectedAccount.number || '',
+                        orgId: selectedOrgId
+                    }));
+                }
+            });
         });
-    });
+
+        const selectedCard = document.querySelector('.method-option.selected') || document.querySelector('.method-option');
+        if (selectedCard) {
+            const selectedAccount = orgAccounts.find(account => account.id === selectedCard.dataset.accountId) || orgAccounts[0];
+            if (selectedAccount) {
+                localStorage.setItem('ccs.payment.method', normalizeMethod(selectedAccount));
+                localStorage.setItem('ccs.payment.account', JSON.stringify({
+                    id: selectedAccount.id,
+                    type: selectedAccount.type,
+                    name: selectedAccount.name,
+                    number: selectedAccount.number || '',
+                    orgId: selectedOrgId
+                }));
+            }
+        }
+    }
+
+    renderPaymentAccounts();
 
     document.getElementById('reviewPaymentBtn')
         .addEventListener('click', function() {
-        const selected = document.querySelector(
-            '.method-option.selected'
-        );
-        const method = selected ? 
-            selected.dataset.method : 'gcash';
-        
-        localStorage.setItem(
-            'ccs.payment.method', method
-        );
-
-        if (method === 'cash') {
-            const refNum = 'CASH-' + 
-                new Date().getFullYear() + '-' +
-                String(
-                    Math.floor(Math.random() * 9000) + 1000
-                );
-            localStorage.setItem('ccs.cash.ref', refNum);
-            window.location.href = 'cash-reference.html';
-        } else {
-            window.location.href = 
-                'payment-confirmation.html';
+        const selected = document.querySelector('.method-option.selected');
+        if (selected && selected.dataset.accountId) {
+            const selectedAccount = orgAccounts.find(account => account.id === selected.dataset.accountId);
+            if (selectedAccount) {
+                localStorage.setItem('ccs.payment.method', normalizeMethod(selectedAccount));
+                localStorage.setItem('ccs.payment.account', JSON.stringify({
+                    id: selectedAccount.id,
+                    type: selectedAccount.type,
+                    name: selectedAccount.name,
+                    number: selectedAccount.number || '',
+                    orgId: selectedOrgId
+                }));
+            }
         }
+
+        window.location.href = 'payment-confirmation.html';
     });
 
 </script>

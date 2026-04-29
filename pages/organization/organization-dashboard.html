@@ -40,6 +40,96 @@
             .apply-btn:hover {
                 background: #1a5c3a !important;
             }
+            .pending-payments-section {
+                margin-top: 20px;
+                background: #ffffff;
+                border: 1px solid #d4e2d8;
+                border-radius: 14px;
+                overflow: hidden;
+            }
+            .pending-payments-header {
+                padding: 14px 16px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid #d4e2d8;
+            }
+            .pending-payments-header h2 {
+                margin: 0;
+                font-size: 16px;
+            }
+            .pending-payments-count {
+                background: #fff4e5;
+                color: #b45309;
+                border-radius: 999px;
+                font-size: 11px;
+                font-weight: 700;
+                padding: 4px 10px;
+                text-transform: uppercase;
+            }
+            .pending-payments-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            .pending-payments-table th,
+            .pending-payments-table td {
+                padding: 10px;
+                border-bottom: 1px solid #edf3ef;
+                font-size: 12px;
+                text-align: left;
+                vertical-align: top;
+            }
+            .pending-payments-table tbody tr:last-child td {
+                border-bottom: none;
+            }
+            .pending-payments-empty {
+                text-align: center;
+                color: #6b7280;
+                padding: 14px;
+            }
+            .pending-payment-status {
+                border-radius: 999px;
+                font-size: 10px;
+                font-weight: 700;
+                padding: 3px 8px;
+                text-transform: uppercase;
+                display: inline-block;
+                white-space: nowrap;
+            }
+            .pending-payment-status.pending {
+                background: #fff4e5;
+                color: #b45309;
+            }
+            .pending-payment-status.confirmed {
+                background: #dcfce7;
+                color: #166534;
+            }
+            .pending-payment-status.rejected {
+                background: #fee2e2;
+                color: #b91c1c;
+            }
+            .pending-payment-actions {
+                display: flex;
+                gap: 6px;
+                flex-wrap: wrap;
+            }
+            .pending-payment-actions button {
+                border: 1px solid #d4e2d8;
+                border-radius: 8px;
+                background: #fff;
+                padding: 5px 8px;
+                font-size: 11px;
+                cursor: pointer;
+                font-weight: 600;
+            }
+            .pending-payment-actions .confirm-btn {
+                color: #166534;
+                border-color: #bbf7d0;
+            }
+            .pending-payment-actions .reject-btn {
+                color: #b91c1c;
+                border-color: #fecaca;
+            }
         </style>
     </head>
     <body>
@@ -179,6 +269,31 @@
             </div>
         </div>
 
+        <section class="pending-payments-section" id="pendingPaymentsSection">
+            <div class="pending-payments-header">
+                <h2>Pending Payments</h2>
+                <span class="pending-payments-count" id="pendingPaymentsCount">0 Pending</span>
+            </div>
+            <div class="table-container" style="max-height: 360px;">
+                <table class="pending-payments-table">
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Student ID</th>
+                            <th>Fee Name</th>
+                            <th>Amount</th>
+                            <th>Reference Number</th>
+                            <th>Date</th>
+                            <th>Payment Method</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pendingPaymentsBody"></tbody>
+                </table>
+            </div>
+        </section>
+
     </section>
 
     <script src="../../assets/scripts/settings.js"></script>
@@ -191,6 +306,23 @@
         const FEES_STORAGE_KEY = 'ccs.organization.fees';
         const PROFILE_OVERRIDES_KEY = 'ccs.auth.accountProfileOverrides';
 
+        function getOrganizationScope() {
+            if (window.CCSAuthHelpers && typeof window.CCSAuthHelpers.getCurrentOrganizationScope === 'function') {
+                return window.CCSAuthHelpers.getCurrentOrganizationScope();
+            }
+            return null;
+        }
+
+        function getCurrentOrgId() {
+            const scope = getOrganizationScope();
+            return scope && scope.orgId ? scope.orgId : 'u-org-001';
+        }
+
+        function getCurrentOrgName() {
+            const scope = getOrganizationScope();
+            return scope && scope.organization ? scope.organization : 'CCS Student Council';
+        }
+
         function readJson(value, fallback) {
             try {
                 const parsed = JSON.parse(value);
@@ -202,10 +334,10 @@
 
         function defaultFees() {
             return [
-                { id: 'fee-default-csc', name: 'CSC Fee', amount: 200, appliesTo: 'all', isActive: true },
-                { id: 'fee-default-misc', name: 'Miscellaneous fee', amount: 60, appliesTo: 'all', isActive: true },
-                { id: 'fee-default-msa', name: 'MSA Fee', amount: 50, appliesTo: 'Muslim', isActive: true },
-                { id: 'fee-default-insurance', name: 'Insurance (Whole Year)', amount: 100, appliesTo: 'all', isActive: true }
+                { id: 'fee-default-csc', name: 'CSC Fee', amount: 200, appliesTo: 'all', isActive: true, orgId: 'u-org-001' },
+                { id: 'fee-default-misc', name: 'Miscellaneous fee', amount: 60, appliesTo: 'all', isActive: true, orgId: 'u-org-001' },
+                { id: 'fee-default-msa', name: 'MSA Fee', amount: 50, appliesTo: 'Muslim', isActive: true, orgId: 'org-msa-001' },
+                { id: 'fee-default-insurance', name: 'Insurance (Whole Year)', amount: 100, appliesTo: 'all', isActive: true, orgId: 'u-org-001' }
             ];
         }
 
@@ -222,7 +354,9 @@
 
         function getSelectedFee() {
             const savedFees = readJson(localStorage.getItem(FEES_STORAGE_KEY), []);
-            const fees = Array.isArray(savedFees) && savedFees.length ? savedFees : defaultFees();
+            const fees = (Array.isArray(savedFees) && savedFees.length ? savedFees : defaultFees()).filter(function (fee) {
+                return String(fee.orgId || 'u-org-001') === String(getCurrentOrgId());
+            });
 
             const params = new URLSearchParams(window.location.search);
             const feeIdFromQuery = params.get('feeId');
@@ -245,7 +379,7 @@
             }
 
             const selectedFeeRaw = readJson(localStorage.getItem('ccs.organization.selectedFee'), null);
-            if (selectedFeeRaw && typeof selectedFeeRaw === 'object') {
+            if (selectedFeeRaw && typeof selectedFeeRaw === 'object' && String(selectedFeeRaw.orgId || 'u-org-001') === String(getCurrentOrgId())) {
                 return selectedFeeRaw;
             }
 
@@ -291,6 +425,7 @@
             if (!tbody) return;
 
             const selectedFee = getSelectedFee();
+            const currentOrgId = getCurrentOrgId();
             const feeName = String(selectedFee.name || '').toLowerCase();
             const feeAmount = Number(selectedFee.amount) || 0;
 
@@ -307,24 +442,48 @@
                 return studentMatchesFee(student.religion, selectedFee);
             });
 
-            const allPayments = window.SAMPLE_PAYMENTS || [];
+            const allPayments = window.CCSPaymentStore && typeof window.CCSPaymentStore.getPaymentsForOrg === 'function'
+                ? window.CCSPaymentStore.getPaymentsForOrg(currentOrgId)
+                : [];
+
+            const toPaymentDate = function (payment) {
+                return new Date((payment.updatedAt || payment.dateSubmitted || payment.date || '') + 'T00:00:00');
+            };
+
+            const feeRelatedPayments = allPayments.filter(function (payment) {
+                if (!feeName) return true;
+                return String(payment.feeName || payment.desc || '').toLowerCase().includes(feeName);
+            });
 
             tbody.innerHTML = students.map(function (student) {
-                const payments = allPayments
+                const payments = feeRelatedPayments
                     .filter(function (payment) {
-                        if (payment.studentNo !== student.studentId) return false;
-                        if (!feeName) return true;
-                        return String(payment.desc || '').toLowerCase().includes(feeName);
+                        return String(payment.studentId || payment.studentNo || '') === String(student.studentId);
                     })
-                    .sort(function (a, b) { return new Date(b.date) - new Date(a.date); });
+                    .sort(function (a, b) { return toPaymentDate(b) - toPaymentDate(a); });
 
-                const paidAmount = payments.reduce(function (total, payment) {
+                const confirmedPayments = payments.filter(function (payment) {
+                    return String(payment.status || 'Confirmed') === 'Confirmed';
+                });
+
+                const paidAmount = confirmedPayments.reduce(function (total, payment) {
                     return total + parsePeso(payment.amount);
                 }, 0);
 
                 const dueAmount = Math.max(feeAmount - paidAmount, 0);
                 const isPaid = feeAmount > 0 && paidAmount >= feeAmount;
                 const latestPayment = payments[0] || null;
+                const latestStatus = String(latestPayment && latestPayment.status || '').toLowerCase();
+                const statusLabel = latestStatus === 'pending verification'
+                    ? 'Pending Verification'
+                    : latestStatus === 'rejected'
+                        ? 'Rejected'
+                        : isPaid ? 'Fully Paid' : 'Pending';
+                const statusClass = latestStatus === 'pending verification'
+                    ? 'pending'
+                    : latestStatus === 'rejected'
+                        ? 'rejected'
+                        : isPaid ? 'fully-paid' : 'pending';
 
                 return `
                     <tr>
@@ -333,16 +492,147 @@
                         <td>${student.year && student.section ? `${student.year} - ${student.section}` : '-'}</td>
                         <td>${formatPeso(paidAmount)}</td>
                         <td>${formatPeso(dueAmount)}</td>
-                        <td><span class="status ${isPaid ? 'fully-paid' : 'pending'}">${isPaid ? 'Fully Paid' : 'Pending'}</span></td>
-                        <td>${latestPayment ? latestPayment.date : '-'}</td>
-                        <td>${latestPayment && latestPayment.method ? latestPayment.method : '-'}</td>
+                        <td><span class="status ${statusClass}">${statusLabel}</span></td>
+                        <td>${latestPayment ? (latestPayment.dateSubmitted || latestPayment.date || '-') : '-'}</td>
+                        <td>${latestPayment && (latestPayment.paymentMethod || latestPayment.method) ? (latestPayment.paymentMethod || latestPayment.method) : '-'}</td>
                         <td><button class="action-btn">View Details</button></td>
                     </tr>
                 `;
             }).join('');
         }
 
+        function renderPendingPaymentsSection() {
+            const body = document.getElementById('pendingPaymentsBody');
+            const counter = document.getElementById('pendingPaymentsCount');
+            if (!body || !counter) return;
+
+            const currentOrgId = getCurrentOrgId();
+            const payments = window.CCSPaymentStore && typeof window.CCSPaymentStore.getPaymentsForOrg === 'function'
+                ? window.CCSPaymentStore.getPaymentsForOrg(currentOrgId)
+                : [];
+            const pendingPayments = payments
+                .filter(function (payment) {
+                    return String(payment.status || '').toLowerCase() === 'pending verification';
+                })
+                .sort(function (a, b) {
+                    const right = new Date((b.updatedAt || b.dateSubmitted || b.date || '') + 'T00:00:00');
+                    const left = new Date((a.updatedAt || a.dateSubmitted || a.date || '') + 'T00:00:00');
+                    return right - left;
+                });
+
+            counter.textContent = `${pendingPayments.length} Pending`;
+
+            if (!pendingPayments.length) {
+                body.innerHTML = '<tr><td colspan="9" class="pending-payments-empty">No pending payments for this organization.</td></tr>';
+                return;
+            }
+
+            body.innerHTML = pendingPayments.map(function (payment) {
+                return `
+                    <tr>
+                        <td>${payment.studentName || '-'}</td>
+                        <td>${payment.studentId || payment.studentNo || '-'}</td>
+                        <td>${payment.feeName || payment.desc || '-'}</td>
+                        <td>${formatPeso(payment.amount)}</td>
+                        <td>${payment.referenceNumber || '-'}</td>
+                        <td>${payment.dateSubmitted || payment.date || '-'}</td>
+                        <td>${payment.paymentMethod || payment.method || '-'}</td>
+                        <td><span class="pending-payment-status pending">Pending Verification</span></td>
+                        <td>
+                            <div class="pending-payment-actions">
+                                <button type="button" class="confirm-btn" data-action="confirm" data-reference="${payment.referenceNumber}">Confirm</button>
+                                <button type="button" class="reject-btn" data-action="reject" data-reference="${payment.referenceNumber}">Reject</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            body.querySelectorAll('button[data-action="confirm"]').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    if (!window.CCSPaymentStore || typeof window.CCSPaymentStore.updatePayment !== 'function') return;
+                    window.CCSPaymentStore.updatePayment(button.dataset.reference, { status: 'Confirmed' });
+                    renderDashboard();
+                });
+            });
+
+            body.querySelectorAll('button[data-action="reject"]').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    const reason = window.prompt('Enter the rejection reason:');
+                    if (reason === null) return;
+                    if (!window.CCSPaymentStore || typeof window.CCSPaymentStore.updatePayment !== 'function') return;
+                    window.CCSPaymentStore.updatePayment(button.dataset.reference, {
+                        status: 'Rejected',
+                        rejectionReason: String(reason || '').trim()
+                    });
+                    renderDashboard();
+                });
+            });
+        }
+
+        function renderDashboard() {
+            renderOrgStudentRows();
+            renderPendingPaymentsSection();
+
+            const currentOrgId = getCurrentOrgId();
+            const currentOrgName = getCurrentOrgName();
+            const payments = window.CCSPaymentStore && typeof window.CCSPaymentStore.getPaymentsForOrg === 'function'
+                ? window.CCSPaymentStore.getPaymentsForOrg(currentOrgId)
+                : [];
+            const selectedFee = getSelectedFee();
+            const feeAmount = Number(selectedFee.amount) || 0;
+            const students = (window.SAMPLE_ACCOUNTS || []).filter(function (account) {
+                return account && account.permissions && account.permissions.studentView;
+            }).filter(function (student) {
+                return studentMatchesFee(student.religion, selectedFee);
+            });
+
+            const confirmedPayments = payments.filter(function (payment) {
+                return String(payment.status || 'Confirmed') === 'Confirmed';
+            });
+
+            const totalCollected = confirmedPayments.reduce(function (total, payment) {
+                return total + parsePeso(payment.amount);
+            }, 0);
+
+            const fullyPaidStudents = students.filter(function (student) {
+                const studentPayments = confirmedPayments.filter(function (payment) {
+                    return String(payment.studentId || payment.studentNo || '') === String(student.studentId) && String(payment.feeName || payment.desc || '').toLowerCase().includes(String(selectedFee.name || '').toLowerCase());
+                });
+                const paidAmount = studentPayments.reduce(function (total, payment) {
+                    return total + parsePeso(payment.amount);
+                }, 0);
+                return feeAmount > 0 && paidAmount >= feeAmount;
+            }).length;
+
+            const pendingCount = payments.filter(function (payment) {
+                return String(payment.status || '').toLowerCase() === 'pending verification';
+            }).length;
+
+            document.querySelectorAll('.summary-cards .card').forEach(function (card) {
+                const title = card.querySelector('h3');
+                const value = card.querySelector('p');
+                if (!title || !value) return;
+                const label = String(title.textContent || '').trim().toLowerCase();
+                if (label === 'total collected') {
+                    value.textContent = formatPeso(totalCollected);
+                } else if (label === 'pending payments') {
+                    value.textContent = String(pendingCount);
+                } else if (label === 'fully paid') {
+                    value.textContent = String(fullyPaidStudents);
+                } else if (label === 'total students') {
+                    value.textContent = String(students.length);
+                }
+            });
+
+            const orgHeaderName = document.querySelector('.org-header-name');
+            if (orgHeaderName) {
+                orgHeaderName.textContent = currentOrgName;
+            }
+        }
+
         renderOrgStudentRows();
+        renderDashboard();
     })();
 
     const filtersBtn = document.getElementById('filtersBtn');

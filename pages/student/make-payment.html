@@ -110,6 +110,8 @@
         const totalAmountEl = document.getElementById('summary-total-amount');
         const continueBtn = document.querySelector('.continue-btn');
         let selectedFeeForPromissory = null;
+            const SELECTED_PAYMENT_GROUPS_KEY = 'ccs.selected.paymentGroups';
+            const SELECTED_PAYMENT_GROUP_INDEX_KEY = 'ccs.selected.paymentGroupIndex';
 
         const DEFAULT_FEES = [
             {
@@ -296,7 +298,7 @@
         function updateSummary() {
             const checked = getChecked();
             summaryItems.innerHTML = checked.length === 0
-                ? '<p class="summary-empty">No fees selected yet.</p>'
+                    ? '<p class="summary-empty">No fees selected yet.</p>'
                 : checked.map(cb =>
                     `<div class="summary-item">
                         <span>${cb.dataset.fee}</span>

@@ -8,6 +8,117 @@
         <!-- Boxicons CDN Link -->
         <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
         <link rel="stylesheet" href="../../styles/settings.css">
+        <style>
+            .payment-popup-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(18, 26, 22, 0.58);
+                display: none;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                z-index: 2000;
+            }
+            .payment-popup-overlay.show {
+                display: flex;
+            }
+            .payment-popup-card {
+                width: min(100%, 560px);
+                background: #ffffff;
+                border-radius: 20px;
+                border: 1px solid #d4e2d8;
+                box-shadow: 0 24px 80px rgba(16, 24, 20, 0.24);
+                overflow: hidden;
+            }
+            .payment-popup-header {
+                padding: 22px 24px 16px;
+                border-bottom: 1px solid #edf3ef;
+            }
+            .payment-popup-header h3 {
+                margin: 0 0 8px;
+                font-size: 24px;
+                color: #1a2420;
+            }
+            .payment-popup-header p {
+                margin: 0;
+                color: #5a7a66;
+                font-size: 14px;
+            }
+            .payment-popup-body {
+                padding: 20px 24px 24px;
+            }
+            .payment-popup-ref {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 12px;
+                border-radius: 999px;
+                background: #f0fdf4;
+                color: #2e7d52;
+                font-size: 12px;
+                font-weight: 700;
+                margin-bottom: 16px;
+            }
+            .payment-popup-grid {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 12px;
+            }
+            .payment-popup-item {
+                padding: 14px;
+                border: 1px solid #edf3ef;
+                border-radius: 14px;
+                background: #fbfdfb;
+            }
+            .payment-popup-label {
+                display: block;
+                font-size: 11px;
+                text-transform: uppercase;
+                letter-spacing: 0.6px;
+                color: #5a7a66;
+                margin-bottom: 6px;
+                font-weight: 700;
+            }
+            .payment-popup-value {
+                color: #1a2420;
+                font-size: 14px;
+                font-weight: 700;
+            }
+            .payment-popup-status {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 8px 12px;
+                border-radius: 999px;
+                background: #fff4e5;
+                color: #b45309;
+                font-size: 12px;
+                font-weight: 800;
+                margin-top: 16px;
+            }
+            .payment-popup-note {
+                margin: 14px 0 0;
+                color: #5a7a66;
+                line-height: 1.5;
+                font-size: 13px;
+            }
+            .payment-popup-actions {
+                display: flex;
+                gap: 12px;
+                padding: 0 24px 24px;
+                flex-wrap: wrap;
+            }
+            .payment-popup-actions .continue-btn,
+            .payment-popup-actions .back-btn {
+                flex: 1 1 220px;
+                text-align: center;
+            }
+            @media (max-width: 640px) {
+                .payment-popup-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
@@ -212,6 +323,47 @@
             <p class="terms-note">By confirming this payment, you agree to WMSU's payment terms and conditions</p>
         </div>
 
+        <div class="payment-popup-overlay" id="paymentSubmittedPopup" aria-hidden="true">
+            <div class="payment-popup-card" role="dialog" aria-modal="true" aria-labelledby="paymentSubmittedTitle">
+                <div class="payment-popup-header">
+                    <h3 id="paymentSubmittedTitle">Payment Submitted!</h3>
+                    <p>Your payment has been saved and is now waiting for organization verification.</p>
+                </div>
+                <div class="payment-popup-body">
+                    <div class="payment-popup-ref" id="paymentPopupRef">PAY-2026-0000-0000</div>
+                    <div class="payment-popup-grid">
+                        <div class="payment-popup-item">
+                            <span class="payment-popup-label">Fee Name</span>
+                            <div class="payment-popup-value" id="paymentPopupFeeName">—</div>
+                        </div>
+                        <div class="payment-popup-item">
+                            <span class="payment-popup-label">Amount</span>
+                            <div class="payment-popup-value" id="paymentPopupAmount">₱0.00</div>
+                        </div>
+                        <div class="payment-popup-item">
+                            <span class="payment-popup-label">Date</span>
+                            <div class="payment-popup-value" id="paymentPopupDate">—</div>
+                        </div>
+                        <div class="payment-popup-item">
+                            <span class="payment-popup-label">Payment Method</span>
+                            <div class="payment-popup-value" id="paymentPopupMethod">—</div>
+                        </div>
+                    </div>
+                    <div class="payment-popup-status">
+                        <i class='bx bx-time-five'></i>
+                        <span>Pending Verification</span>
+                    </div>
+                    <p class="payment-popup-note">
+                        Your payment is pending verification by the organization. You will be notified once confirmed.
+                    </p>
+                </div>
+                <div class="payment-popup-actions">
+                    <button type="button" class="continue-btn" id="makeAnotherPaymentBtn">Make Another Payment</button>
+                    <button type="button" class="back-btn" id="goToDashboardBtn">Go to Dashboard</button>
+                </div>
+            </div>
+        </div>
+
     <script src="../../assets/scripts/settings.js"></script>
     <script src="../../assets/scripts/sample-accounts.js"></script>
     <script src="../../assets/scripts/auth.js"></script>
@@ -220,9 +372,14 @@
         const fees = JSON.parse(
             localStorage.getItem('ccs.selected.fees') || '[]'
         );
-        const method = localStorage.getItem(
-            'ccs.payment.method'
-        ) || 'gcash';
+        const method = localStorage.getItem('ccs.payment.method') || 'gcash';
+        const selectedAccount = (() => {
+            try {
+                return JSON.parse(localStorage.getItem('ccs.payment.account') || '{}') || {};
+            } catch (_err) {
+                return {};
+            }
+        })();
         
         const feeEl = document.getElementById('confirm-fee-items');
         const totalEl = document.getElementById('confirm-total');
@@ -241,32 +398,9 @@
                 fees.reduce((s, f) => s + f.price, 0);
         }
 
-        const methodLabels = {
-            gcash: '<i class="bx bx-wallet"></i> GCash',
-            paymaya: '<i class="bx bx-wallet"></i> PayMaya',
-            bank: '<i class="bx bx-building"></i> Bank Transfer'
-        };
-        const mobileLabels = {
-            gcash: 'GCash Mobile Number',
-            paymaya: 'PayMaya Mobile Number',
-            bank: 'Bank Account Number'
-        };
-        const mobilePlaceholders = {
-            gcash: '09XX XXX XXXX',
-            paymaya: '09XX XXX XXXX',
-            bank: 'Account Number'
-        };
-
-        document.getElementById('confirm-method-label')
-            .innerHTML = methodLabels[method] || methodLabels.gcash;
-        document.getElementById('mobileNumberLabel')
-            .textContent = mobileLabels[method] || 
-                mobileLabels.gcash;
-        document.getElementById('mobileNumberInput')
-            .placeholder = mobilePlaceholders[method] || 
-                mobilePlaceholders.gcash;
-
-        const isBankTransfer = method === 'bank';
+        const methodLabel = selectedAccount.type || method || 'Cash';
+        const isBankTransfer = /bank|transfer/i.test(methodLabel);
+        const isCash = /cash/i.test(methodLabel);
         const selectBankRow = document.getElementById(
             'selectBankRow'
         );
@@ -277,12 +411,24 @@
             'transactionRefRow'
         );
 
+        document.getElementById('confirm-method-label')
+            .innerHTML = `<i class="bx bx-wallet"></i> ${methodLabel}`;
+        document.getElementById('mobileNumberLabel')
+            .textContent = isBankTransfer ? 'Bank Account Number' : `${methodLabel} Mobile Number`;
+        document.getElementById('mobileNumberInput')
+            .placeholder = isBankTransfer ? 'Account Number' : '09XX XXX XXXX';
+
         if (isBankTransfer) {
             document.getElementById('mobileNumberRow')
                 .style.display = 'none';
             selectBankRow.style.display = '';
             bankAccountRow.style.display = '';
             transactionRefRow.style.display = '';
+        } else if (isCash) {
+            document.getElementById('mobileNumberRow').style.display = 'none';
+            selectBankRow.style.display = 'none';
+            bankAccountRow.style.display = 'none';
+            transactionRefRow.style.display = 'none';
         } else {
             selectBankRow.style.display = 'none';
             bankAccountRow.style.display = 'none';
@@ -326,9 +472,88 @@
             });
         }
 
+        function readCurrentUser() {
+            return window.Auth && typeof window.Auth.getUser === 'function'
+                ? window.Auth.getUser()
+                : null;
+        }
+
+        function hidePaymentPopup() {
+            const popup = document.getElementById('paymentSubmittedPopup');
+            popup.classList.remove('show');
+            popup.setAttribute('aria-hidden', 'true');
+        }
+
+        function showPaymentPopup(payment) {
+            document.getElementById('paymentPopupRef').textContent = payment.referenceNumber;
+            document.getElementById('paymentPopupFeeName').textContent = payment.feeName;
+            document.getElementById('paymentPopupAmount').textContent = payment.amount;
+            document.getElementById('paymentPopupDate').textContent = new Date(payment.dateSubmitted + 'T00:00:00').toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+            document.getElementById('paymentPopupMethod').textContent = payment.paymentMethod;
+
+            const popup = document.getElementById('paymentSubmittedPopup');
+            popup.classList.add('show');
+            popup.setAttribute('aria-hidden', 'false');
+        }
+
         document.getElementById('confirm-pay-btn')
             .addEventListener('click', function() {
-            window.location.href = 'payment-receipt.html';
+            if (!window.CCSPaymentStore || typeof window.CCSPaymentStore.savePayment !== 'function') {
+                alert('Payment storage module failed to load. Please refresh and try again.');
+                return;
+            }
+
+            const user = readCurrentUser();
+            const referenceNumber = window.CCSPaymentStore.generateReferenceNumber();
+            const dateSubmitted = new Date().toISOString().slice(0, 10);
+            const totalAmount = fees.reduce((sum, fee) => sum + Number(fee.price || 0), 0);
+            const feeName = fees.map(function (fee) {
+                return fee.fee || fee.feeName || 'Fee';
+            }).join(', ');
+
+            const payment = {
+                id: `payment-${Date.now()}`,
+                orgId: (fees[0] && fees[0].orgId) || selectedAccount.orgId || 'u-org-001',
+                feeId: fees[0] && (fees[0].feeId || fees[0].id) || '',
+                feeName: feeName,
+                studentId: user && user.studentId ? user.studentId : '',
+                studentName: user && user.name ? user.name : '',
+                amount: '₱' + totalAmount.toFixed(2),
+                dateSubmitted: dateSubmitted,
+                paymentMethod: methodLabel,
+                referenceNumber: referenceNumber,
+                status: 'Pending Verification',
+                rejectionReason: '',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+
+            window.CCSPaymentStore.savePayment(payment);
+            showPaymentPopup(payment);
+        });
+
+        document.getElementById('makeAnotherPaymentBtn').addEventListener('click', function () {
+            localStorage.removeItem('ccs.selected.fees');
+            localStorage.removeItem('ccs.payment.method');
+            localStorage.removeItem('ccs.payment.account');
+            window.location.href = 'make-payment.html';
+        });
+
+        document.getElementById('goToDashboardBtn').addEventListener('click', function () {
+            localStorage.removeItem('ccs.selected.fees');
+            localStorage.removeItem('ccs.payment.method');
+            localStorage.removeItem('ccs.payment.account');
+            window.location.href = 'student-dashboard.html';
+        });
+
+        document.getElementById('paymentSubmittedPopup').addEventListener('click', function (event) {
+            if (event.target === this) {
+                hidePaymentPopup();
+            }
         });
     </script>
     </body>

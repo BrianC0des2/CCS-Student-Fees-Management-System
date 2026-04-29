@@ -13,6 +13,155 @@
 }());
 
 /* ─────────────────────────────────────────────────────────────────
+   PAYMENT ACCOUNTS INIT — runs immediately to seed accounts.
+   This must run BEFORE DOMContentLoaded so payment-method.html can
+   access CCSPaymentAccounts before DOMContentLoaded fires.
+───────────────────────────────────────────────────────────────── */
+(function initializePaymentAccounts() {
+    const LEGACY_PAYMENT_ACCOUNTS_KEY = 'ccs.organization.paymentAccounts';
+
+    function getPaymentAccountsKeyForOrg(orgId) {
+        if (window.CCSAuthHelpers && typeof window.CCSAuthHelpers.getOrganizationStorageKey === 'function') {
+            return window.CCSAuthHelpers.getOrganizationStorageKey('ccs.organization.paymentAccounts', orgId);
+        }
+        return `ccs.organization.paymentAccounts::${String(orgId || 'global')}`;
+    }
+
+    function seedPaymentAccountsFromSamples() {
+        if (!window.SAMPLE_PAYMENT_ACCOUNTS) return;
+        
+        try {
+            Object.keys(window.SAMPLE_PAYMENT_ACCOUNTS).forEach(function (orgId) {
+                const key = getPaymentAccountsKeyForOrg(orgId);
+                const existing = localStorage.getItem(key);
+                
+                // Only seed if accounts don't already exist for this org
+                if (!existing) {
+                    const accountData = window.SAMPLE_PAYMENT_ACCOUNTS[orgId];
+                    if (accountData && Array.isArray(accountData.accounts)) {
+                        localStorage.setItem(key, JSON.stringify(accountData.accounts));
+                    }
+                }
+            });
+        } catch (_err) {
+            // Silently fail if seeding doesn't work
+        }
+    }
+
+    function getPaymentAccountsForOrg(orgId) {
+        try {
+            const scopedKey = getPaymentAccountsKeyForOrg(orgId);
+            const parsed = JSON.parse(localStorage.getItem(scopedKey) || '[]');
+            if (Array.isArray(parsed) && parsed.length) return parsed;
+
+            const orgName = orgId === 'org-msa-001' ? 'Muslim Student Association' : 'CCS Student Council';
+            const defaults = [
+                {
+                    id: 'acct-' + (orgId || 'global') + '-gcash',
+                    type: 'GCash',
+                    name: orgName,
+                    number: '0912 345 6789',
+                    isActive: true
+                },
+                {
+                    id: 'acct-' + (orgId || 'global') + '-cash',
+                    type: 'Cash',
+                    name: orgName,
+                    number: '',
+                    isActive: true
+                }
+            ];
+            localStorage.setItem(scopedKey, JSON.stringify(defaults));
+            return defaults;
+        } catch (_err) {
+            return [];
+        }
+    }
+
+    function getScopedPaymentAccountsKey() {
+        // Try to get current org scope from auth helpers
+        if (window.CCSAuthHelpers && typeof window.CCSAuthHelpers.getCurrentOrganizationScope === 'function') {
+            const scope = window.CCSAuthHelpers.getCurrentOrganizationScope();
+            const orgId = scope && scope.orgId ? scope.orgId : 'global';
+            if (window.CCSAuthHelpers && typeof window.CCSAuthHelpers.getOrganizationStorageKey === 'function') {
+                return window.CCSAuthHelpers.getOrganizationStorageKey('ccs.organization.paymentAccounts', orgId);
+            }
+            return `ccs.organization.paymentAccounts::${orgId}`;
+        }
+        return `ccs.organization.paymentAccounts::global`;
+    }
+
+    function getDefaultPaymentAccounts() {
+        // Try to get org scope, otherwise return generic defaults
+        if (window.CCSAuthHelpers && typeof window.CCSAuthHelpers.getCurrentOrganizationScope === 'function') {
+            const scope = window.CCSAuthHelpers.getCurrentOrganizationScope();
+            if (scope && scope.orgId) {
+                return getPaymentAccountsForOrg(scope.orgId);
+            }
+        }
+        
+        // Fallback defaults
+        return [
+            {
+                id: 'acct-global-gcash',
+                type: 'GCash',
+                name: 'Organization',
+                number: '0912 345 6789',
+                isActive: true
+            },
+            {
+                id: 'acct-global-cash',
+                type: 'Cash',
+                name: 'Organization',
+                number: '',
+                isActive: true
+            }
+        ];
+    }
+
+    function getPaymentAccounts() {
+        try {
+            const scopedKey = getScopedPaymentAccountsKey();
+            const parsed = JSON.parse(localStorage.getItem(scopedKey) || '[]');
+            if (Array.isArray(parsed) && parsed.length) return parsed;
+
+            const legacyParsed = JSON.parse(localStorage.getItem(LEGACY_PAYMENT_ACCOUNTS_KEY) || '[]');
+            if (Array.isArray(legacyParsed) && legacyParsed.length) {
+                localStorage.setItem(scopedKey, JSON.stringify(legacyParsed));
+                return legacyParsed;
+            }
+
+            const defaults = getDefaultPaymentAccounts();
+            localStorage.setItem(scopedKey, JSON.stringify(defaults));
+            return defaults;
+        } catch (_err) {
+            const defaults = getDefaultPaymentAccounts();
+            try {
+                localStorage.setItem(getScopedPaymentAccountsKey(), JSON.stringify(defaults));
+            } catch (_e) {}
+            return defaults;
+        }
+    }
+
+    function setPaymentAccounts(accounts) {
+        localStorage.setItem(getScopedPaymentAccountsKey(), JSON.stringify(accounts));
+    }
+
+    // Seed accounts from SAMPLE_PAYMENT_ACCOUNTS
+    seedPaymentAccountsFromSamples();
+
+    // Export globally so other pages can access payment account functions
+    window.CCSPaymentAccounts = {
+        getPaymentAccounts,
+        setPaymentAccounts,
+        getPaymentAccountsForOrg,
+        getScopedPaymentAccountsKey,
+        getPaymentAccountsKeyForOrg,
+        getDefaultPaymentAccounts
+    };
+}());
+
+/* ─────────────────────────────────────────────────────────────────
    MODAL + EVENT LOGIC — runs after the DOM is ready.
 ───────────────────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', function () {
@@ -181,15 +330,6 @@ document.addEventListener('DOMContentLoaded', function () {
     function setPaymentAccounts(accounts) {
         localStorage.setItem(getScopedPaymentAccountsKey(), JSON.stringify(accounts));
     }
-
-    window.CCSPaymentAccounts = {
-        getPaymentAccounts,
-        setPaymentAccounts,
-        getPaymentAccountsForOrg,
-        getScopedPaymentAccountsKey,
-        getPaymentAccountsKeyForOrg,
-        getDefaultPaymentAccounts
-    };
 
     if (isOrganizationPage) {
         panel.querySelector('.sp-body').insertAdjacentHTML('beforeend', `

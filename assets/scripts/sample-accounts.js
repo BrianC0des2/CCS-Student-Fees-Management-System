@@ -28,7 +28,7 @@ window.SAMPLE_ACCOUNTS = [
     email: "student2@demo.com",
     password: "123456",
     isFirstLogin: true,
-    religion: "",
+    religion: "Muslim/Islam",
     phoneNumber: "",
     sex: "Female",
     course: "BS Computer Science",
@@ -193,3 +193,45 @@ window.SAMPLE_PAYMENTS = [
   { studentNo: "TY202200407", studentName: "Oscar Peña", desc: 'Partial Payment - ACT-AD 1B', amount: '₱750.00', date: '2026-02-15' },
   { studentNo: "TY202200409", studentName: "Victor Suarez", desc: 'Partial Payment - ACT-NET 1B', amount: '₱550.00', date: '2026-01-28' }
 ];
+
+// Default payment accounts for each organization
+window.SAMPLE_PAYMENT_ACCOUNTS = {
+  'u-org-001': {
+    orgId: 'u-org-001',
+    accounts: [
+      {
+        id: 'acct-u-org-001-gcash',
+        type: 'GCash',
+        name: 'CCS Student Council',
+        number: '0912 345 6789',
+        isActive: true
+      },
+      {
+        id: 'acct-u-org-001-cash',
+        type: 'Cash',
+        name: 'CCS Student Council',
+        number: '',
+        isActive: true
+      }
+    ]
+  },
+  'org-msa-001': {
+    orgId: 'org-msa-001',
+    accounts: [
+      {
+        id: 'msa-account-001',
+        type: 'GCash',
+        name: 'Muslim Student Association',
+        number: '0912 345 6789',
+        isActive: true
+      },
+      {
+        id: 'msa-account-002',
+        type: 'Cash',
+        name: 'Muslim Student Association',
+        number: '',
+        isActive: true
+      }
+    ]
+  }
+};

@@ -26,18 +26,32 @@ const PaymentHistory = (() => {
             }
         }
 
-        const samplePayments = window.SAMPLE_PAYMENTS || [];
+        const paymentStore = window.CCSPaymentStore && typeof window.CCSPaymentStore.getPaymentsForStudent === 'function'
+            ? window.CCSPaymentStore
+            : null;
 
-        if (!samplePayments.length) {
-            console.warn('SAMPLE_PAYMENTS not loaded');
+        if (!paymentStore) {
+            console.warn('CCSPaymentStore not loaded');
             paymentHistory = [];
             return;
         }
 
-        // Filter by current student or show all if no user
-        paymentHistory = currentUser && currentUser.studentId
-            ? samplePayments.filter(p => p.studentNo === currentUser.studentId)
-            : samplePayments;
+        // Filter by current student and show confirmed payments only
+        const studentPayments = currentUser && currentUser.studentId
+            ? paymentStore.getPaymentsForStudent(currentUser.studentId)
+            : paymentStore.getPayments();
+
+        paymentHistory = studentPayments.filter(function (payment) {
+            return String(payment.status || 'Confirmed') === 'Confirmed';
+        }).map(function (payment) {
+            return {
+                desc: payment.feeName || payment.desc || 'Payment',
+                date: payment.dateSubmitted || payment.date || '',
+                amount: payment.amount,
+                method: payment.paymentMethod || payment.method || 'Cash',
+                referenceNumber: payment.referenceNumber || ''
+            };
+        });
     }
 
     function formatDate(date) {
@@ -142,18 +156,10 @@ const PaymentHistory = (() => {
 
         // Generate detailed receipt info from payment
         const dateObj = new Date(payment.date + 'T00:00:00');
-        const methodOptions = ['gcash', 'paymaya', 'bank', 'cash'];
-        const method = methodOptions[index % methodOptions.length];
-        const methodLabels = {
-            gcash: 'GCash',
-            paymaya: 'PayMaya',
-            bank: 'Bank Transfer',
-            cash: 'Cash'
-        };
-
         const amountStr = payment.amount.replace('₱', '').replace(/,/g, '');
         const amount = parseInt(amountStr);
         const receiptId = `WMSU-FO-${dateObj.getFullYear()}-${String(index + 1000).slice(-6)}`;
+        const method = String(payment.method || payment.paymentMethod || 'Cash');
         const transactionId = `${method.toUpperCase().slice(0, 3)}-${dateObj.toISOString().slice(0, 10).replace(/-/g, '')}-${String(index).padStart(6, '0')}`;
 
         const contentHtml = `
@@ -179,7 +185,7 @@ const PaymentHistory = (() => {
                 <div class="receipt-modal-row">
                     <div class="receipt-modal-item">
                         <span class="receipt-modal-label">Payment Method</span>
-                        <span class="receipt-modal-value">${methodLabels[method]}</span>
+                        <span class="receipt-modal-value">${method}</span>
                     </div>
                     <div class="receipt-modal-item">
                         <span class="receipt-modal-label">Transaction ID</span>
@@ -189,7 +195,7 @@ const PaymentHistory = (() => {
                 <div class="receipt-modal-row">
                     <div class="receipt-modal-item">
                         <span class="receipt-modal-label">Status</span>
-                        <span class="receipt-modal-value"><span class="receipt-status-badge">✓ Paid</span></span>
+                        <span class="receipt-modal-value"><span class="receipt-status-badge">✓ Confirmed</span></span>
                     </div>
                     <div class="receipt-modal-item">
                         <span class="receipt-modal-label">Processed By</span>

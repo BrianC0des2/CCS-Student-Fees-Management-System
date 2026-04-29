@@ -437,14 +437,32 @@ let myPayments = [];
 
 function renderPayments(list){
   if (!paymentsListEl) return;
-  
+
+  const formatStatusBadge = (payment) => {
+    const status = String(payment.status || 'Confirmed').toLowerCase();
+    if (status === 'pending verification') {
+      return '<span class="payment-status-badge payment-status-pending">Pending Verification</span>';
+    }
+    if (status === 'rejected') {
+      return '<span class="payment-status-badge payment-status-rejected">Rejected</span>';
+    }
+    return '<span class="payment-status-badge payment-status-confirmed">Confirmed</span>';
+  };
+
   paymentsListEl.innerHTML = list.map(p => `
-    <div class="payment-item" data-date="${p.date}">
+    <div class="payment-item" data-date="${p.dateSubmitted || p.date || ''}">
       <div class="payment-row">
-        <span class="pay-desc">${p.desc}</span>
+        <span class="pay-desc">${p.feeName || p.desc || 'Payment'}</span>
         <span class="pay-amount">${p.amount}</span>
       </div>
-      <div class="payment-meta">${p.method ? `${p.date} • ${p.method}` : p.date}</div>
+      <div class="payment-meta">
+        ${p.referenceNumber ? `<span class="payment-ref">${p.referenceNumber}</span>` : ''}
+        <span>${p.dateSubmitted || p.date || ''}${p.paymentMethod ? ` • ${p.paymentMethod}` : ''}</span>
+      </div>
+      <div class="payment-status-row">
+        ${formatStatusBadge(p)}
+        ${String(p.status || '').toLowerCase() === 'rejected' && p.rejectionReason ? `<span class="payment-rejection-reason">${p.rejectionReason}</span>` : ''}
+      </div>
     </div>
   `).join('');
 }
@@ -459,7 +477,8 @@ function filterPayments(value){
   const recentThreshold = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000); // 30 days
 
   const filtered = myPayments.filter(p => {
-    const d = new Date(p.date + 'T00:00:00');
+    const paymentDate = p.dateSubmitted || p.date || '';
+    const d = new Date(paymentDate + 'T00:00:00');
     if (value === 'recent') return d >= recentThreshold;
     if (value === 'old') return d < recentThreshold;
     return true;
@@ -474,27 +493,38 @@ function initializePaymentsPanel() {
   if (!paymentsListEl) return;
 
   const currentUser = window.Auth ? window.Auth.getUser() : null;
-  const samplePayments = window.SAMPLE_PAYMENTS || [];
+  const paymentStore = window.CCSPaymentStore && typeof window.CCSPaymentStore.getPayments === 'function' ? window.CCSPaymentStore : null;
+  const allPayments = paymentStore ? paymentStore.getPayments() : (window.SAMPLE_PAYMENTS || []).map((payment) => ({
+    ...payment,
+    feeName: payment.feeName || payment.desc || 'Payment',
+    paymentMethod: payment.paymentMethod || payment.method || 'Cash',
+    status: payment.status || 'Confirmed',
+    dateSubmitted: payment.dateSubmitted || payment.date || '',
+    referenceNumber: payment.referenceNumber || ''
+  }));
   const isStudentDashboardPage = (window.location.pathname || '').toLowerCase().endsWith('student-dashboard.html');
 
   // Filter payments by current student
   const studentPayments = currentUser && currentUser.studentId
-    ? samplePayments.filter(p => p.studentNo === currentUser.studentId)
+    ? allPayments.filter(p => String(p.studentId || p.studentNo || '') === String(currentUser.studentId))
     : [];
 
   if (isStudentDashboardPage) {
-    // For dashboard: show only the 3 most recent payments, sorted by date descending (newest first)
+    // For dashboard: show the 3 most recent payments, including pending and rejected statuses
     myPayments = studentPayments
-      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .sort((a, b) => {
+        const right = new Date((b.updatedAt || b.dateSubmitted || b.date || '') + 'T00:00:00');
+        const left = new Date((a.updatedAt || a.dateSubmitted || a.date || '') + 'T00:00:00');
+        return right - left;
+      })
       .slice(0, 3);
-    // Render immediately without any filtering
     renderPayments(myPayments);
   } else {
-    // For payment history page: show all payments sorted by date ascending (oldest first)
-    myPayments = studentPayments.sort((a, b) => new Date(a.date) - new Date(b.date));
+    myPayments = studentPayments
+      .filter((payment) => String(payment.status || 'Confirmed') === 'Confirmed')
+      .sort((a, b) => new Date((a.dateSubmitted || a.date || '') + 'T00:00:00') - new Date((b.dateSubmitted || b.date || '') + 'T00:00:00'));
     renderPayments(myPayments);
     
-    // Only set up filter listener for payment history page
     if (paymentsFilter && paymentsFilter.dataset.bound !== 'true') {
       paymentsFilter.dataset.bound = 'true';
       paymentsFilter.addEventListener('change', (e) => {
