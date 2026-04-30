@@ -336,6 +336,16 @@ function initializeViewToggle() {
     return;
   }
 
+  const orgScope = window.CCSAuthHelpers && typeof window.CCSAuthHelpers.getCurrentOrganizationScope === 'function'
+    ? window.CCSAuthHelpers.getCurrentOrganizationScope()
+    : null;
+  const isMSA = orgScope && orgScope.orgId === 'org-msa-001';
+  
+  if (isMSA) {
+    switchContainer.style.display = 'none';
+    return;
+  }
+
   const switchIcon = switchContainer.querySelector('.view-switch-icon');
   if (!switchIcon) return;
 
@@ -435,7 +445,7 @@ let paymentsFilter = null;
 let paymentsListEl = null;
 let myPayments = [];
 
-function renderPayments(list){
+function renderPayments(list, viewMode){
   if (!paymentsListEl) return;
 
   const formatStatusBadge = (payment) => {
@@ -449,6 +459,13 @@ function renderPayments(list){
     return '<span class="payment-status-badge payment-status-confirmed">Confirmed</span>';
   };
 
+  if (!list.length) {
+    paymentsListEl.innerHTML = viewMode === 'pending'
+      ? '<div class="payment-item"><div class="payment-row"><span class="pay-desc">No pending payments</span></div></div>'
+      : '<div class="payment-item"><div class="payment-row"><span class="pay-desc">No payments found</span></div></div>';
+    return;
+  }
+
   paymentsListEl.innerHTML = list.map(p => `
     <div class="payment-item" data-date="${p.dateSubmitted || p.date || ''}">
       <div class="payment-row">
@@ -456,6 +473,7 @@ function renderPayments(list){
         <span class="pay-amount">${p.amount}</span>
       </div>
       <div class="payment-meta">
+        ${p.orgName ? `<span class="payment-org">${p.orgName}</span>` : ''}
         ${p.referenceNumber ? `<span class="payment-ref">${p.referenceNumber}</span>` : ''}
         <span>${p.dateSubmitted || p.date || ''}${p.paymentMethod ? ` • ${p.paymentMethod}` : ''}</span>
       </div>
@@ -468,23 +486,30 @@ function renderPayments(list){
 }
 
 function filterPayments(value){
-  if (value === 'all') {
-    renderPayments(myPayments);
+  const now = new Date();
+  const recentThreshold = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000); // 30 days
+  const status = (payment) => String(payment.status || 'Confirmed').toLowerCase();
+
+  if (value === 'pending') {
+    renderPayments(myPayments.filter(p => status(p) === 'pending verification'), 'pending');
     return;
   }
 
-  const now = new Date();
-  const recentThreshold = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000); // 30 days
+  if (value === 'all') {
+    renderPayments(myPayments.filter(p => status(p) === 'confirmed'), 'all');
+    return;
+  }
 
   const filtered = myPayments.filter(p => {
     const paymentDate = p.dateSubmitted || p.date || '';
     const d = new Date(paymentDate + 'T00:00:00');
+    if (status(p) !== 'confirmed') return false;
     if (value === 'recent') return d >= recentThreshold;
     if (value === 'old') return d < recentThreshold;
     return true;
   });
 
-  renderPayments(filtered);
+  renderPayments(filtered, value);
 }
 
 function initializePaymentsPanel() {
@@ -500,7 +525,8 @@ function initializePaymentsPanel() {
     paymentMethod: payment.paymentMethod || payment.method || 'Cash',
     status: payment.status || 'Confirmed',
     dateSubmitted: payment.dateSubmitted || payment.date || '',
-    referenceNumber: payment.referenceNumber || ''
+    referenceNumber: payment.referenceNumber || '',
+    orgName: payment.orgName || (payment.orgId === 'org-msa-001' ? 'Muslim Student Association' : 'CCS Student Council')
   }));
   const isStudentDashboardPage = (window.location.pathname || '').toLowerCase().endsWith('student-dashboard.html');
 
@@ -510,20 +536,31 @@ function initializePaymentsPanel() {
     : [];
 
   if (isStudentDashboardPage) {
-    // For dashboard: show the 3 most recent payments, including pending and rejected statuses
-    myPayments = studentPayments
-      .sort((a, b) => {
-        const right = new Date((b.updatedAt || b.dateSubmitted || b.date || '') + 'T00:00:00');
-        const left = new Date((a.updatedAt || a.dateSubmitted || a.date || '') + 'T00:00:00');
-        return right - left;
-      })
-      .slice(0, 3);
-    renderPayments(myPayments);
+    myPayments = studentPayments.sort((a, b) => {
+      const right = new Date((b.updatedAt || b.dateSubmitted || b.date || '') + 'T00:00:00');
+      const left = new Date((a.updatedAt || a.dateSubmitted || a.date || '') + 'T00:00:00');
+      return right - left;
+    });
+
+    const hasPendingPayments = myPayments.some(function (payment) {
+      return String(payment.status || '').toLowerCase() === 'pending verification';
+    });
+    const selectedView = hasPendingPayments ? 'pending' : 'recent';
+    if (paymentsFilter && paymentsFilter.value !== selectedView) {
+      paymentsFilter.value = selectedView;
+    }
+
+    filterPayments(selectedView);
+
+    if (paymentsFilter && paymentsFilter.dataset.bound !== 'true') {
+      paymentsFilter.dataset.bound = 'true';
+      paymentsFilter.addEventListener('change', (e) => {
+        filterPayments(e.target.value);
+      });
+    }
   } else {
-    myPayments = studentPayments
-      .filter((payment) => String(payment.status || 'Confirmed') === 'Confirmed')
-      .sort((a, b) => new Date((a.dateSubmitted || a.date || '') + 'T00:00:00') - new Date((b.dateSubmitted || b.date || '') + 'T00:00:00'));
-    renderPayments(myPayments);
+    myPayments = studentPayments.sort((a, b) => new Date((a.dateSubmitted || a.date || '') + 'T00:00:00') - new Date((b.dateSubmitted || b.date || '') + 'T00:00:00'));
+    renderPayments(myPayments.filter((payment) => String(payment.status || 'Confirmed') === 'Confirmed'), 'all');
     
     if (paymentsFilter && paymentsFilter.dataset.bound !== 'true') {
       paymentsFilter.dataset.bound = 'true';

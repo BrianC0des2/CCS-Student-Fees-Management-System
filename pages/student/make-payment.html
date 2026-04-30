@@ -44,6 +44,7 @@
                 <form action="">   
                     <h3>Select Fees to Pay</h3> 
                     <div id="makePaymentFeeList"></div>
+                    <p id="multiOrgNotice" class="summary-empty" style="display:none; margin-top:12px;"></p>
                 </form>
             </div>
 
@@ -106,12 +107,14 @@
         const FEES_STORAGE_KEY = 'ccs.organization.fees';
         const PROMISSORY_STORAGE_KEY = 'ccs.promissory.requests';
         const feeListEl = document.getElementById('makePaymentFeeList');
+        const multiOrgNoticeEl = document.getElementById('multiOrgNotice');
         const summaryItems = document.getElementById('summary-items');
         const totalAmountEl = document.getElementById('summary-total-amount');
         const continueBtn = document.querySelector('.continue-btn');
         let selectedFeeForPromissory = null;
             const SELECTED_PAYMENT_GROUPS_KEY = 'ccs.selected.paymentGroups';
             const SELECTED_PAYMENT_GROUP_INDEX_KEY = 'ccs.selected.paymentGroupIndex';
+            const SELECTED_PAYMENT_CURRENT_GROUP_KEY = 'ccs.payment.currentGroup';
 
         const DEFAULT_FEES = [
             {
@@ -140,7 +143,7 @@
                 amount: 50,
                 dueDate: '2026-02-15',
                 isActive: true,
-                feeType: 'mandatory',
+                feeType: 'voluntary',
                 appliesTo: 'Muslim/Islam',
                 orgId: 'org-msa-001'
             },
@@ -295,6 +298,54 @@
             return getCheckboxes().filter(cb => cb.checked);
         }
 
+        function getSelectedFeeGroups() {
+            const checked = getChecked().map(function (cb) {
+                return {
+                    feeId: cb.dataset.feeId,
+                    fee: cb.dataset.fee,
+                    price: Number(cb.dataset.price),
+                    orgId: cb.dataset.orgId || 'u-org-001'
+                };
+            });
+
+            const groups = [];
+            const groupMap = new Map();
+
+            checked.forEach(function (fee) {
+                const orgId = String(fee.orgId || 'u-org-001');
+                if (!groupMap.has(orgId)) {
+                    const group = {
+                        orgId: orgId,
+                        orgName: orgId === 'org-msa-001' ? 'Muslim Student Association' : 'CCS Student Council',
+                        fees: [],
+                        total: 0
+                    };
+                    groupMap.set(orgId, group);
+                    groups.push(group);
+                }
+
+                const group = groupMap.get(orgId);
+                group.fees.push(fee);
+                group.total += Number(fee.price) || 0;
+            });
+
+            return groups;
+        }
+
+        function updateMultiOrgNotice() {
+            if (!multiOrgNoticeEl) return;
+
+            const groups = getSelectedFeeGroups();
+            if (groups.length <= 1) {
+                multiOrgNoticeEl.style.display = 'none';
+                multiOrgNoticeEl.textContent = '';
+                return;
+            }
+
+            multiOrgNoticeEl.style.display = '';
+            multiOrgNoticeEl.textContent = `Your selected fees belong to ${groups.length} organizations and will be processed as ${groups.length} separate payments.`;
+        }
+
         function updateSummary() {
             const checked = getChecked();
             summaryItems.innerHTML = checked.length === 0
@@ -307,6 +358,7 @@
                   ).join('');
             const total = checked.reduce((sum, cb) => sum + Number(cb.dataset.price), 0);
             totalAmountEl.textContent = '\u20B1' + total;
+            updateMultiOrgNotice();
         }
 
         function openPromissoryModal(feeId, feeName) {
@@ -453,7 +505,13 @@
                 return;
             }
             const fees = checked.map(cb => ({ feeId: cb.dataset.feeId, fee: cb.dataset.fee, price: Number(cb.dataset.price), orgId: cb.dataset.orgId || 'u-org-001' }));
+            const paymentGroups = getSelectedFeeGroups();
             localStorage.setItem('ccs.selected.fees', JSON.stringify(fees));
+            localStorage.setItem(SELECTED_PAYMENT_GROUPS_KEY, JSON.stringify(paymentGroups));
+            localStorage.setItem(SELECTED_PAYMENT_GROUP_INDEX_KEY, '0');
+            if (paymentGroups[0]) {
+                localStorage.setItem(SELECTED_PAYMENT_CURRENT_GROUP_KEY, JSON.stringify(paymentGroups[0]));
+            }
             window.location.href = 'payment-method.html';
         });
 

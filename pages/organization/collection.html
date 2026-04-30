@@ -145,7 +145,7 @@
                     <a href="../organization/organization-dashboard.html">
                         <img src="../../assets/images/org-ccs.png" class="org-header-logo" alt="org-logo">
                         <div>
-                            <div class="org-header-name">CCS Student Council</div>
+                            <div class="org-header-name" id="collectionOrgName">CCS Student Council</div>
                             <div class="org-header-sub" id="orgYearSem"></div>
                         </div>
                     </a>
@@ -153,7 +153,7 @@
             </div>
 
             <div class="print-header">
-                <h1>CCS Student Council - Collection Report</h1>
+                <h1 id="printHeaderTitle">CCS Student Council - Collection Report</h1>
                 <p>Collection Date: <span id="printDateHeader"></span></p>
                 <p>Prepared by: <span id="printPreparedBy"></span></p>
             </div>
@@ -310,8 +310,60 @@
         <script src="../../assets/scripts/script.js"></script>
 
         <script>
+            function getOrgScope() {
+                if (window.CCSAuthHelpers && typeof window.CCSAuthHelpers.getCurrentOrganizationScope === 'function') {
+                    return window.CCSAuthHelpers.getCurrentOrganizationScope();
+                }
+                return null;
+            }
+            
+            function getCurrentOrgId() {
+                const scope = getOrgScope();
+                return scope && scope.orgId ? scope.orgId : 'u-org-001';
+            }
+            
+            function getCurrentOrgName() {
+                const scope = getOrgScope();
+                return scope && scope.organization ? scope.organization : 'CCS Student Council';
+            }
+            
+            function getOrgSystemTotal() {
+                const currentOrgId = getCurrentOrgId();
+                const payments = window.CCSPaymentStore && typeof window.CCSPaymentStore.getPaymentsForOrg === 'function'
+                    ? window.CCSPaymentStore.getPaymentsForOrg(currentOrgId)
+                    : [];
+                const confirmedPayments = payments.filter(function (payment) {
+                    return String(payment.status || 'Confirmed') === 'Confirmed';
+                });
+                const total = confirmedPayments.reduce(function (sum, payment) {
+                    const amount = String(payment.amount || '₱0').replace(/[^\d.-]/g, '');
+                    return sum + (Number(amount) || 0);
+                }, 0);
+                return Math.round(total * 100) / 100;
+            }
+            
+            function initializeCollectionPage() {
+                const orgName = getCurrentOrgName();
+                const orgHeaderName = document.getElementById('collectionOrgName');
+                const printHeaderTitle = document.getElementById('printHeaderTitle');
+                
+                if (orgHeaderName) {
+                    orgHeaderName.textContent = orgName;
+                }
+                if (printHeaderTitle) {
+                    printHeaderTitle.textContent = orgName + ' - Collection Report';
+                }
+            }
+            
             document.getElementById('collectionDate').valueAsDate = new Date();
-            const SYSTEM_TOTAL = 6640;
+            let SYSTEM_TOTAL = getOrgSystemTotal();
+            
+            window.addEventListener('load', function() {
+                initializeCollectionPage();
+                SYSTEM_TOTAL = getOrgSystemTotal();
+                document.getElementById('systemTotal').textContent = '₱' + Number(SYSTEM_TOTAL).toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                document.getElementById('compSystemTotal').textContent = '₱' + Number(SYSTEM_TOTAL).toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            });
 
             function computeTotals() {
                 const inputs = document.querySelectorAll('.denomination-input');
@@ -329,7 +381,7 @@
                 });
                 document.getElementById('grandTotal').textContent = '₱' + grandTotal.toLocaleString('en-PH');
                 document.getElementById('totalCounted').textContent = '₱' + grandTotal.toLocaleString('en-PH');
-                document.getElementById('compTotalCounted').textContent = '₱' + grandTotal.toLocaleString('en-PH');
+                document.getElementById('compTotalCounted').textContent = '₱' + grandTotal.toLocaleString('en-PH', {minimumFractionDigits: 2, maximumFractionDigits: 2});
                 const difference = SYSTEM_TOTAL - grandTotal;
                 const differenceText = '₱' + Math.abs(difference).toLocaleString('en-PH');
                 const differenceDisplay = difference >= 0 ? differenceText : '-' + differenceText;

@@ -212,6 +212,27 @@ window.SAMPLE_PAYMENT_ACCOUNTS = {
         name: 'CCS Student Council',
         number: '',
         isActive: true
+      },
+      {
+        id: 'acct-u-org-001-bpi',
+        type: 'BPI',
+        name: 'CCS Student Council',
+        number: '3456-7890-12',
+        isActive: true
+      },
+      {
+        id: 'acct-u-org-001-pnb',
+        type: 'PNB',
+        name: 'CCS Student Council',
+        number: '6789-0123-45',
+        isActive: true
+      },
+      {
+        id: 'acct-u-org-001-landbank',
+        type: 'Landbank',
+        name: 'CCS Student Council',
+        number: '1234-5678-90',
+        isActive: true
       }
     ]
   },

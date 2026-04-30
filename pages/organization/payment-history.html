@@ -132,7 +132,7 @@
                 <a href="../organization/organization-dashboard.html">
                 <img src="../../assets/images/org-ccs.png" class="org-header-logo" alt="org-logo">
                 <div>
-                    <div class="org-header-name">CCS Student Council</div>
+                    <div class="org-header-name" id="paymentHistoryOrgName">CCS Student Council</div>
                     <div class="org-header-sub" id="orgYearSem"></div>
                 </a>
                 </div>
@@ -273,6 +273,31 @@
             const FEES_STORAGE_KEY = 'ccs.organization.fees';
             const PROFILE_OVERRIDES_KEY = 'ccs.auth.accountProfileOverrides';
 
+            function getOrgScope() {
+                if (window.CCSAuthHelpers && typeof window.CCSAuthHelpers.getCurrentOrganizationScope === 'function') {
+                    return window.CCSAuthHelpers.getCurrentOrganizationScope();
+                }
+                return null;
+            }
+
+            function getCurrentOrgId() {
+                const scope = getOrgScope();
+                return scope && scope.orgId ? scope.orgId : 'u-org-001';
+            }
+
+            function getCurrentOrgName() {
+                const scope = getOrgScope();
+                return scope && scope.organization ? scope.organization : 'CCS Student Council';
+            }
+            
+            function initializePageForOrg() {
+                const orgName = getCurrentOrgName();
+                const orgHeaderName = document.getElementById('paymentHistoryOrgName');
+                if (orgHeaderName) {
+                    orgHeaderName.textContent = orgName;
+                }
+            }
+
             function readJson(value, fallback) {
                 try {
                     const parsed = JSON.parse(value);
@@ -382,12 +407,13 @@
                 if (!tbody) return;
 
                 const selectedFee = getSelectedFee();
+                const currentOrgId = getCurrentOrgId();
                 const feeName = String(selectedFee.name || '').toLowerCase();
                 const feeAmount = Number(selectedFee.amount) || 0;
                 const schedule = getSchoolYearAndSemester();
 
                 const overrides = readJson(localStorage.getItem(PROFILE_OVERRIDES_KEY), {});
-                const students = (window.SAMPLE_ACCOUNTS || []).filter(function (account) {
+                const allStudents = (window.SAMPLE_ACCOUNTS || []).filter(function (account) {
                     return account && account.permissions && account.permissions.studentView;
                 }).map(function (account) {
                     const override = overrides[account.id] || {};
@@ -395,8 +421,17 @@
                         ...account,
                         religion: typeof override.religion === 'string' ? override.religion : account.religion
                     };
-                }).filter(function (student) {
-                    return studentMatchesFee(student.religion, selectedFee);
+                });
+                
+                const students = allStudents.filter(function (student) {
+                    const feeMatches = studentMatchesFee(student.religion, selectedFee);
+                    const isMuslimStudent = String(student.religion || '').toLowerCase() === 'muslim/islam' || String(student.religion || '').toLowerCase() === 'muslim';
+                    
+                    if (currentOrgId === 'org-msa-001') {
+                        return isMuslimStudent && feeMatches;
+                    } else {
+                        return !isMuslimStudent && feeMatches;
+                    }
                 });
 
                 const allPayments = window.SAMPLE_PAYMENTS || [];
@@ -430,6 +465,7 @@
             }
 
             renderPaymentHistoryRows();
+            initializePageForOrg();
         })();
     </script>
     <script>

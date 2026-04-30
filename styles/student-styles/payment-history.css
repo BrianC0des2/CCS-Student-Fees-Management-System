@@ -543,6 +543,16 @@
     font-size: 12px;
 }
 
+.receipt-status-badge--pending {
+    background: rgba(249, 115, 22, 0.12);
+    color: #c2410c;
+}
+
+.receipt-status-badge--rejected {
+    background: rgba(239, 68, 68, 0.12);
+    color: #b91c1c;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .table-header {

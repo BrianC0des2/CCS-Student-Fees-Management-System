@@ -2,6 +2,7 @@
 
 const PaymentHistory = (() => {
     let paymentHistory = [];
+    let currentReceiptList = [];
     let currentFilter = 'recent';
     let currentModal = null;
 
@@ -36,20 +37,21 @@ const PaymentHistory = (() => {
             return;
         }
 
-        // Filter by current student and show confirmed payments only
+        // Filter by current student and keep all payment states
         const studentPayments = currentUser && currentUser.studentId
             ? paymentStore.getPaymentsForStudent(currentUser.studentId)
             : paymentStore.getPayments();
 
-        paymentHistory = studentPayments.filter(function (payment) {
-            return String(payment.status || 'Confirmed') === 'Confirmed';
-        }).map(function (payment) {
+        paymentHistory = studentPayments.map(function (payment) {
             return {
                 desc: payment.feeName || payment.desc || 'Payment',
                 date: payment.dateSubmitted || payment.date || '',
                 amount: payment.amount,
                 method: payment.paymentMethod || payment.method || 'Cash',
-                referenceNumber: payment.referenceNumber || ''
+                referenceNumber: payment.referenceNumber || '',
+                orgName: payment.orgName || (payment.orgId === 'org-msa-001' ? 'Muslim Student Association' : 'CCS Student Council'),
+                status: payment.status || 'Confirmed',
+                rejectionReason: payment.rejectionReason || ''
             };
         });
     }
@@ -92,8 +94,12 @@ const PaymentHistory = (() => {
 
     function buildTable(payments) {
         if (payments.length === 0) {
+            currentReceiptList = [];
             return '';
         }
+
+        const sortedPayments = payments.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+        currentReceiptList = sortedPayments;
 
         let html = `
             <div class="receipt-table-wrapper">
@@ -110,13 +116,21 @@ const PaymentHistory = (() => {
         `;
 
         // Sort oldest to newest (chronological order)
-        payments.sort((a, b) => new Date(a.date) - new Date(b.date)).forEach((payment, idx) => {
+        sortedPayments.forEach((payment, idx) => {
+            const status = String(payment.status || 'Confirmed').toLowerCase();
+            const statusBadge = status === 'pending verification'
+                ? '<span class="receipt-status-badge receipt-status-badge--pending">Pending Verification</span>'
+                : status === 'rejected'
+                    ? '<span class="receipt-status-badge receipt-status-badge--rejected">Rejected</span>'
+                    : '<span class="receipt-status-badge">✓ Confirmed</span>';
+            const referenceBlock = payment.referenceNumber ? `<div class="receipt-date">Ref: ${payment.referenceNumber}</div>` : '';
             html += `
                 <tr>
-                    <td><span class="receipt-num">${payment.desc}</span></td>
+                    <td><span class="receipt-num">${payment.desc}</span>${referenceBlock}${payment.orgName ? `<div class="receipt-date">${payment.orgName}</div>` : ''}</td>
                     <td><span class="receipt-date">${payment.date}</span></td>
                     <td><span class="receipt-amount">${payment.amount}</span></td>
                     <td>
+                        ${statusBadge}
                         <button class="btn-view-details" onclick="PaymentHistory.viewDetails(${idx})">
                             <i class='bx bx-show'></i> View
                         </button>
@@ -134,22 +148,49 @@ const PaymentHistory = (() => {
         return html;
     }
 
-    function renderAll() {
+    function renderFiltered(filter) {
         const container = document.getElementById('receipt-filter-sections');
         if (!container) return;
 
-        // Show all payments without grouping by recent/old
-        let html = '';
-        
-        if (paymentHistory && paymentHistory.length > 0) {
-            html = buildTable(paymentHistory);
+        const now = new Date();
+        const recentThreshold = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        const status = function (payment) {
+            return String(payment.status || 'Confirmed').toLowerCase();
+        };
+
+        const filtered = paymentHistory.filter(function (payment) {
+            const paymentDate = payment.date || '';
+            const dateObj = new Date(paymentDate + 'T00:00:00');
+
+            if (filter === 'pending') {
+                return status(payment) === 'pending verification';
+            }
+
+            if (filter === 'all') {
+                return status(payment) === 'confirmed';
+            }
+
+            if (status(payment) !== 'confirmed') {
+                return false;
+            }
+
+            if (filter === 'recent') return dateObj >= recentThreshold;
+            if (filter === 'old') return dateObj < recentThreshold;
+            return true;
+        });
+
+        if (!filtered.length) {
+            container.innerHTML = filter === 'pending'
+                ? '<div class="receipt-filter-section"><p class="summary-empty">No pending receipts</p></div>'
+                : '<div class="receipt-filter-section"><p class="summary-empty">No receipts found</p></div>';
+            return;
         }
 
-        container.innerHTML = html;
+        container.innerHTML = buildTable(filtered);
     }
 
     function viewDetails(index) {
-        const payment = paymentHistory[index];
+        const payment = currentReceiptList[index] || paymentHistory[index];
         if (!payment) return;
 
         currentModal = payment;
@@ -195,7 +236,11 @@ const PaymentHistory = (() => {
                 <div class="receipt-modal-row">
                     <div class="receipt-modal-item">
                         <span class="receipt-modal-label">Status</span>
-                        <span class="receipt-modal-value"><span class="receipt-status-badge">✓ Confirmed</span></span>
+                        <span class="receipt-modal-value">${payment.status && String(payment.status).toLowerCase() === 'pending verification'
+                    ? '<span class="receipt-status-badge receipt-status-badge--pending">Pending Verification</span>'
+                    : String(payment.status || '').toLowerCase() === 'rejected'
+                        ? '<span class="receipt-status-badge receipt-status-badge--rejected">Rejected</span>'
+                        : '<span class="receipt-status-badge">✓ Confirmed</span>'}</span>
                     </div>
                     <div class="receipt-modal-item">
                         <span class="receipt-modal-label">Processed By</span>
@@ -276,32 +321,20 @@ const PaymentHistory = (() => {
 
     function filterReceipts(filter) {
         currentFilter = filter;
-        
-        if (filter === 'all') {
-            // Show all payments in chronological order (oldest to newest)
-            renderAll();
-        } else {
-            // Filter by recent (30 days) or old (older than 30 days)
-            const now = new Date();
-            const recentThreshold = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-            
-            const filtered = paymentHistory.filter(p => {
-                const d = new Date(p.date + 'T00:00:00');
-                if (filter === 'recent') return d >= recentThreshold;
-                if (filter === 'old') return d < recentThreshold;
-                return true;
-            });
-            
-            const container = document.getElementById('receipt-filter-sections');
-            if (container) {
-                container.innerHTML = buildTable(filtered);
-            }
-        }
+        renderFiltered(filter);
     }
 
     function initializePage() {
         initializeFromDashboard();
-        renderAll();
+        const hasPending = paymentHistory.some(function (payment) {
+            return String(payment.status || '').toLowerCase() === 'pending verification';
+        });
+        const defaultFilter = hasPending ? 'pending' : 'all';
+        const filterSelect = document.getElementById('receipt-filter-select');
+        if (filterSelect) {
+            filterSelect.value = defaultFilter;
+        }
+        renderFiltered(defaultFilter);
     }
 
     return {

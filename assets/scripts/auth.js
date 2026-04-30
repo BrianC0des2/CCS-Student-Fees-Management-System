@@ -326,6 +326,7 @@
   };
 
   const PAYMENTS_STORAGE_KEY = 'ccs.payments';
+  const STUDENT_FEE_STATUS_KEY = 'ccs.student.feeStatus';
 
   function normalizePaymentStatus(value) {
     const normalized = String(value || '').trim().toLowerCase();
@@ -430,6 +431,45 @@
     });
   }
 
+  function readFeeStatusMap() {
+    try {
+      const raw = localStorage.getItem(STUDENT_FEE_STATUS_KEY);
+      const parsed = raw ? JSON.parse(raw) : {};
+      return parsed && typeof parsed === 'object' ? parsed : {};
+    } catch (_err) {
+      return {};
+    }
+  }
+
+  function saveFeeStatusMap(map) {
+    localStorage.setItem(STUDENT_FEE_STATUS_KEY, JSON.stringify(map || {}));
+  }
+
+  function setFeeStatuses(studentId, feeIds, status) {
+    const map = readFeeStatusMap();
+    const normalized = String(status || '').trim().toLowerCase();
+    const normalizedStatus = normalized === 'confirmed' || normalized === 'paid'
+      ? 'paid'
+      : normalized === 'rejected'
+        ? 'rejected'
+        : 'pending verification';
+    const ids = Array.isArray(feeIds) ? feeIds : [feeIds];
+
+    ids.forEach(function (feeId) {
+      const key = `${String(studentId || '')}::${String(feeId || '')}`;
+      if (!String(feeId || '').trim()) return;
+      map[key] = normalizedStatus;
+    });
+
+    saveFeeStatusMap(map);
+    return map;
+  }
+
+  function getFeeStatus(studentId, feeId) {
+    const map = readFeeStatusMap();
+    return map[`${String(studentId || '')}::${String(feeId || '')}`] || '';
+  }
+
   window.CCSPaymentStore = {
     getPayments,
     savePayment,
@@ -437,7 +477,10 @@
     generateReferenceNumber,
     getPaymentsForOrg,
     getPaymentsForStudent,
-    normalizePaymentStatus
+    normalizePaymentStatus,
+    setFeeStatuses,
+    getFeeStatus,
+    readFeeStatusMap
   };
 
   const PENDING_SIGNUPS_KEY = "ccs.pending.signups";

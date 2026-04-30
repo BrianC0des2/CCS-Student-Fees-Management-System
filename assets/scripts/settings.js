@@ -27,6 +27,93 @@
         return `ccs.organization.paymentAccounts::${String(orgId || 'global')}`;
     }
 
+    function normalizePaymentAccountType(type) {
+        return String(type || '').trim().toLowerCase();
+    }
+
+    function mergeMissingPaymentAccounts(existingAccounts, defaultAccounts) {
+        const merged = Array.isArray(existingAccounts) ? existingAccounts.slice() : [];
+        const existingTypes = new Set(merged.map(function (account) {
+            return normalizePaymentAccountType(account && account.type);
+        }));
+
+        defaultAccounts.forEach(function (account) {
+            const normalizedType = normalizePaymentAccountType(account && account.type);
+            if (!existingTypes.has(normalizedType)) {
+                merged.push(account);
+                existingTypes.add(normalizedType);
+            }
+        });
+
+        return merged;
+    }
+
+    function getOrganizationDefaultPaymentAccounts(orgId, organizationName) {
+        const resolvedOrgId = String(orgId || 'global');
+        const resolvedOrganizationName = organizationName || (resolvedOrgId === 'org-msa-001' ? 'Muslim Student Association' : 'CCS Student Council');
+        const defaults = [
+            {
+                id: 'acct-' + resolvedOrgId + '-gcash',
+                type: 'GCash',
+                name: resolvedOrganizationName,
+                number: '0912 345 6789',
+                isActive: true
+            },
+            {
+                id: 'acct-' + resolvedOrgId + '-cash',
+                type: 'Cash',
+                name: resolvedOrganizationName,
+                number: '',
+                isActive: true
+            }
+        ];
+
+        if (resolvedOrgId === 'u-org-001') {
+            defaults.push(
+                {
+                    id: 'acct-' + resolvedOrgId + '-bpi',
+                    type: 'BPI',
+                    name: resolvedOrganizationName,
+                    number: '3456-7890-12',
+                    isActive: true
+                },
+                {
+                    id: 'acct-' + resolvedOrgId + '-pnb',
+                    type: 'PNB',
+                    name: resolvedOrganizationName,
+                    number: '6789-0123-45',
+                    isActive: true
+                },
+                {
+                    id: 'acct-' + resolvedOrgId + '-landbank',
+                    type: 'Landbank',
+                    name: resolvedOrganizationName,
+                    number: '1234-5678-90',
+                    isActive: true
+                }
+            );
+        }
+
+        return defaults;
+    }
+
+    function mergeMissingPaymentAccounts(existingAccounts, defaultAccounts) {
+        const merged = Array.isArray(existingAccounts) ? existingAccounts.slice() : [];
+        const existingTypes = new Set(merged.map(function (account) {
+            return normalizePaymentAccountType(account && account.type);
+        }));
+
+        defaultAccounts.forEach(function (account) {
+            const normalizedType = normalizePaymentAccountType(account && account.type);
+            if (!existingTypes.has(normalizedType)) {
+                merged.push(account);
+                existingTypes.add(normalizedType);
+            }
+        });
+
+        return merged;
+    }
+
     function seedPaymentAccountsFromSamples() {
         if (!window.SAMPLE_PAYMENT_ACCOUNTS) return;
         
@@ -52,25 +139,16 @@
         try {
             const scopedKey = getPaymentAccountsKeyForOrg(orgId);
             const parsed = JSON.parse(localStorage.getItem(scopedKey) || '[]');
-            if (Array.isArray(parsed) && parsed.length) return parsed;
-
-            const orgName = orgId === 'org-msa-001' ? 'Muslim Student Association' : 'CCS Student Council';
-            const defaults = [
-                {
-                    id: 'acct-' + (orgId || 'global') + '-gcash',
-                    type: 'GCash',
-                    name: orgName,
-                    number: '0912 345 6789',
-                    isActive: true
-                },
-                {
-                    id: 'acct-' + (orgId || 'global') + '-cash',
-                    type: 'Cash',
-                    name: orgName,
-                    number: '',
-                    isActive: true
+            const defaults = getOrganizationDefaultPaymentAccounts(orgId);
+            if (Array.isArray(parsed) && parsed.length) {
+                const merged = mergeMissingPaymentAccounts(parsed, defaults);
+                if (merged.length !== parsed.length) {
+                    localStorage.setItem(scopedKey, JSON.stringify(merged));
+                    return merged;
                 }
-            ];
+                return parsed;
+            }
+
             localStorage.setItem(scopedKey, JSON.stringify(defaults));
             return defaults;
         } catch (_err) {
@@ -101,34 +179,36 @@
         }
         
         // Fallback defaults
-        return [
-            {
-                id: 'acct-global-gcash',
-                type: 'GCash',
-                name: 'Organization',
-                number: '0912 345 6789',
-                isActive: true
-            },
-            {
-                id: 'acct-global-cash',
-                type: 'Cash',
-                name: 'Organization',
-                number: '',
-                isActive: true
-            }
-        ];
+        return getOrganizationDefaultPaymentAccounts('global', 'Organization');
     }
 
     function getPaymentAccounts() {
         try {
             const scopedKey = getScopedPaymentAccountsKey();
             const parsed = JSON.parse(localStorage.getItem(scopedKey) || '[]');
-            if (Array.isArray(parsed) && parsed.length) return parsed;
+            if (Array.isArray(parsed) && parsed.length) {
+                const scope = window.CCSAuthHelpers && typeof window.CCSAuthHelpers.getCurrentOrganizationScope === 'function'
+                    ? window.CCSAuthHelpers.getCurrentOrganizationScope()
+                    : null;
+                const orgId = scope && scope.orgId ? scope.orgId : 'global';
+                const defaults = getOrganizationDefaultPaymentAccounts(orgId, scope && scope.organization ? scope.organization : undefined);
+                const merged = mergeMissingPaymentAccounts(parsed, defaults);
+                if (merged.length !== parsed.length) {
+                    localStorage.setItem(scopedKey, JSON.stringify(merged));
+                    return merged;
+                }
+                return parsed;
+            }
 
             const legacyParsed = JSON.parse(localStorage.getItem(LEGACY_PAYMENT_ACCOUNTS_KEY) || '[]');
             if (Array.isArray(legacyParsed) && legacyParsed.length) {
-                localStorage.setItem(scopedKey, JSON.stringify(legacyParsed));
-                return legacyParsed;
+                const scope = window.CCSAuthHelpers && typeof window.CCSAuthHelpers.getCurrentOrganizationScope === 'function'
+                    ? window.CCSAuthHelpers.getCurrentOrganizationScope()
+                    : null;
+                const defaults = getOrganizationDefaultPaymentAccounts(scope && scope.orgId ? scope.orgId : 'global', scope && scope.organization ? scope.organization : undefined);
+                const merged = mergeMissingPaymentAccounts(legacyParsed, defaults);
+                localStorage.setItem(scopedKey, JSON.stringify(merged));
+                return merged;
             }
 
             const defaults = getDefaultPaymentAccounts();
@@ -191,25 +271,75 @@ document.addEventListener('DOMContentLoaded', function () {
         return `ccs.organization.paymentAccounts::${String(orgId || 'global')}`;
     }
 
+    function normalizePaymentAccountType(type) {
+        return String(type || '').trim().toLowerCase();
+    }
+
+    function mergeMissingPaymentAccounts(existingAccounts, defaultAccounts) {
+        const merged = Array.isArray(existingAccounts) ? existingAccounts.slice() : [];
+        const existingTypes = new Set(merged.map(function (account) {
+            return normalizePaymentAccountType(account && account.type);
+        }));
+
+        defaultAccounts.forEach(function (account) {
+            const normalizedType = normalizePaymentAccountType(account && account.type);
+            if (!existingTypes.has(normalizedType)) {
+                merged.push(account);
+                existingTypes.add(normalizedType);
+            }
+        });
+
+        return merged;
+    }
+
     function getDefaultPaymentAccounts() {
         const scope = getOrganizationScope();
         const organizationName = scope && scope.organization ? scope.organization : 'Organization';
-        return [
+        const orgId = scope && scope.orgId ? scope.orgId : 'global';
+        const defaults = [
             {
-                id: 'acct-' + (scope && scope.orgId ? scope.orgId : 'global') + '-gcash',
+                id: 'acct-' + orgId + '-gcash',
                 type: 'GCash',
                 name: organizationName,
                 number: '0912 345 6789',
                 isActive: true
             },
             {
-                id: 'acct-' + (scope && scope.orgId ? scope.orgId : 'global') + '-cash',
+                id: 'acct-' + orgId + '-cash',
                 type: 'Cash',
                 name: organizationName,
                 number: '',
                 isActive: true
             }
         ];
+
+        if (orgId === 'u-org-001') {
+            defaults.push(
+                {
+                    id: 'acct-' + orgId + '-bpi',
+                    type: 'BPI',
+                    name: organizationName,
+                    number: '3456-7890-12',
+                    isActive: true
+                },
+                {
+                    id: 'acct-' + orgId + '-pnb',
+                    type: 'PNB',
+                    name: organizationName,
+                    number: '6789-0123-45',
+                    isActive: true
+                },
+                {
+                    id: 'acct-' + orgId + '-landbank',
+                    type: 'Landbank',
+                    name: organizationName,
+                    number: '1234-5678-90',
+                    isActive: true
+                }
+            );
+        }
+
+        return defaults;
     }
 
     /* ── Inject overlay ── */
@@ -277,12 +407,21 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             const scopedKey = getScopedPaymentAccountsKey();
             const parsed = JSON.parse(localStorage.getItem(scopedKey) || '[]');
-            if (Array.isArray(parsed) && parsed.length) return parsed;
+            if (Array.isArray(parsed) && parsed.length) {
+                const defaults = getDefaultPaymentAccounts();
+                const merged = mergeMissingPaymentAccounts(parsed, defaults);
+                if (merged.length !== parsed.length) {
+                    localStorage.setItem(scopedKey, JSON.stringify(merged));
+                    return merged;
+                }
+                return parsed;
+            }
 
             const legacyParsed = JSON.parse(localStorage.getItem(LEGACY_PAYMENT_ACCOUNTS_KEY) || '[]');
             if (Array.isArray(legacyParsed) && legacyParsed.length && (!getOrganizationScope() || getOrganizationScope().orgId === 'u-org-001')) {
-                localStorage.setItem(scopedKey, JSON.stringify(legacyParsed));
-                return legacyParsed;
+                const mergedLegacy = mergeMissingPaymentAccounts(legacyParsed, getDefaultPaymentAccounts());
+                localStorage.setItem(scopedKey, JSON.stringify(mergedLegacy));
+                return mergedLegacy;
             }
 
             const defaults = getDefaultPaymentAccounts();
@@ -301,25 +440,34 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             const scopedKey = getPaymentAccountsKeyForOrg(orgId);
             const parsed = JSON.parse(localStorage.getItem(scopedKey) || '[]');
-            if (Array.isArray(parsed) && parsed.length) return parsed;
+            const defaults = orgId === 'org-msa-001'
+                ? [
+                    {
+                        id: 'acct-' + (orgId || 'global') + '-gcash',
+                        type: 'GCash',
+                        name: 'Muslim Student Association',
+                        number: '0912 345 6789',
+                        isActive: true
+                    },
+                    {
+                        id: 'acct-' + (orgId || 'global') + '-cash',
+                        type: 'Cash',
+                        name: 'Muslim Student Association',
+                        number: '',
+                        isActive: true
+                    }
+                ]
+                : getDefaultPaymentAccounts();
 
-            const orgName = orgId === 'org-msa-001' ? 'Muslim Student Association' : 'CCS Student Council';
-            const defaults = [
-                {
-                    id: 'acct-' + (orgId || 'global') + '-gcash',
-                    type: 'GCash',
-                    name: orgName,
-                    number: '0912 345 6789',
-                    isActive: true
-                },
-                {
-                    id: 'acct-' + (orgId || 'global') + '-cash',
-                    type: 'Cash',
-                    name: orgName,
-                    number: '',
-                    isActive: true
+            if (Array.isArray(parsed) && parsed.length) {
+                const merged = mergeMissingPaymentAccounts(parsed, defaults);
+                if (merged.length !== parsed.length) {
+                    localStorage.setItem(scopedKey, JSON.stringify(merged));
+                    return merged;
                 }
-            ];
+                return parsed;
+            }
+
             localStorage.setItem(scopedKey, JSON.stringify(defaults));
             return defaults;
         } catch (_err) {

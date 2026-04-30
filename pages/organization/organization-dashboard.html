@@ -323,6 +323,17 @@
             return scope && scope.organization ? scope.organization : 'CCS Student Council';
         }
 
+        function initializePageForOrg() {
+            const orgName = getCurrentOrgName();
+            const orgId = getCurrentOrgId();
+            const pageTitle = orgId === 'org-msa-001' ? 'MSA FEES' : 'CCS FEES';
+            const pageSubtitle = `${orgName} Fee Types, Amounts, and Collection Due Dates`;
+            const headerElement = document.querySelector('.home-content span.text');
+            if (headerElement) {
+                headerElement.textContent = 'Organization Dashboard';
+            }
+        }
+
         function readJson(value, fallback) {
             try {
                 const parsed = JSON.parse(value);
@@ -430,7 +441,7 @@
             const feeAmount = Number(selectedFee.amount) || 0;
 
             const overrides = readJson(localStorage.getItem(PROFILE_OVERRIDES_KEY), {});
-            const students = (window.SAMPLE_ACCOUNTS || []).filter(function (account) {
+            const allStudents = (window.SAMPLE_ACCOUNTS || []).filter(function (account) {
                 return account && account.permissions && account.permissions.studentView;
             }).map(function (account) {
                 const override = overrides[account.id] || {};
@@ -438,8 +449,17 @@
                     ...account,
                     religion: typeof override.religion === 'string' ? override.religion : account.religion
                 };
-            }).filter(function (student) {
-                return studentMatchesFee(student.religion, selectedFee);
+            });
+            
+            const students = allStudents.filter(function (student) {
+                const feeMatches = studentMatchesFee(student.religion, selectedFee);
+                const isMuslimStudent = String(student.religion || '').toLowerCase() === 'muslim/islam' || String(student.religion || '').toLowerCase() === 'muslim';
+                
+                if (currentOrgId === 'org-msa-001') {
+                    return isMuslimStudent && feeMatches;
+                } else {
+                    return !isMuslimStudent && feeMatches;
+                }
             });
 
             const allPayments = window.CCSPaymentStore && typeof window.CCSPaymentStore.getPaymentsForOrg === 'function'
@@ -548,9 +568,25 @@
                 `;
             }).join('');
 
+            function getPaymentFeeIds(payment) {
+                if (Array.isArray(payment.feeIds) && payment.feeIds.length) {
+                    return payment.feeIds.filter(Boolean);
+                }
+                if (payment.feeId) {
+                    return [payment.feeId];
+                }
+                return [];
+            }
+
             body.querySelectorAll('button[data-action="confirm"]').forEach(function (button) {
                 button.addEventListener('click', function () {
                     if (!window.CCSPaymentStore || typeof window.CCSPaymentStore.updatePayment !== 'function') return;
+                    const payment = pendingPayments.find(function (item) {
+                        return String(item.referenceNumber || '') === String(button.dataset.reference || '');
+                    });
+                    if (payment && typeof window.CCSPaymentStore.setFeeStatuses === 'function') {
+                        window.CCSPaymentStore.setFeeStatuses(payment.studentId || payment.studentNo || '', getPaymentFeeIds(payment), 'paid');
+                    }
                     window.CCSPaymentStore.updatePayment(button.dataset.reference, { status: 'Confirmed' });
                     renderDashboard();
                 });
@@ -561,6 +597,12 @@
                     const reason = window.prompt('Enter the rejection reason:');
                     if (reason === null) return;
                     if (!window.CCSPaymentStore || typeof window.CCSPaymentStore.updatePayment !== 'function') return;
+                    const payment = pendingPayments.find(function (item) {
+                        return String(item.referenceNumber || '') === String(button.dataset.reference || '');
+                    });
+                    if (payment && typeof window.CCSPaymentStore.setFeeStatuses === 'function') {
+                        window.CCSPaymentStore.setFeeStatuses(payment.studentId || payment.studentNo || '', getPaymentFeeIds(payment), 'rejected');
+                    }
                     window.CCSPaymentStore.updatePayment(button.dataset.reference, {
                         status: 'Rejected',
                         rejectionReason: String(reason || '').trim()
@@ -581,10 +623,19 @@
                 : [];
             const selectedFee = getSelectedFee();
             const feeAmount = Number(selectedFee.amount) || 0;
-            const students = (window.SAMPLE_ACCOUNTS || []).filter(function (account) {
+            const allStudents = (window.SAMPLE_ACCOUNTS || []).filter(function (account) {
                 return account && account.permissions && account.permissions.studentView;
-            }).filter(function (student) {
-                return studentMatchesFee(student.religion, selectedFee);
+            });
+            
+            const students = allStudents.filter(function (student) {
+                const feeMatches = studentMatchesFee(student.religion, selectedFee);
+                const isMuslimStudent = String(student.religion || '').toLowerCase() === 'muslim/islam' || String(student.religion || '').toLowerCase() === 'muslim';
+                
+                if (currentOrgId === 'org-msa-001') {
+                    return isMuslimStudent && feeMatches;
+                } else {
+                    return !isMuslimStudent && feeMatches;
+                }
             });
 
             const confirmedPayments = payments.filter(function (payment) {
@@ -631,6 +682,7 @@
             }
         }
 
+        initializePageForOrg();
         renderOrgStudentRows();
         renderDashboard();
     })();

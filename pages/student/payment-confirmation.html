@@ -160,6 +160,8 @@
 
             <h3 class="confirm-section-title">Payment Details</h3>
 
+                <div id="paymentGroupBanner" class="summary-empty" style="display:none; max-width: 960px; margin: 0 auto 12px;">
+                </div>
 <div id="confirm-fee-items"></div>
                     <div class="summary-total">
                         <span>Total Amount</span>
@@ -358,8 +360,8 @@
                     </p>
                 </div>
                 <div class="payment-popup-actions">
-                    <button type="button" class="continue-btn" id="makeAnotherPaymentBtn">Make Another Payment</button>
-                    <button type="button" class="back-btn" id="goToDashboardBtn">Go to Dashboard</button>
+                    <button type="button" class="continue-btn" id="makeAnotherPaymentBtn">Go to Dashboard</button>
+                    <button type="button" class="back-btn" id="goToDashboardBtn" style="display:none;">Go to Dashboard</button>
                 </div>
             </div>
         </div>
@@ -369,9 +371,51 @@
     <script src="../../assets/scripts/auth.js"></script>
     <script src="../../assets/scripts/script.js"></script>
     <script>
-        const fees = JSON.parse(
+            const SELECTED_PAYMENT_GROUPS_KEY = 'ccs.selected.paymentGroups';
+            const SELECTED_PAYMENT_GROUP_INDEX_KEY = 'ccs.selected.paymentGroupIndex';
+            const SELECTED_PAYMENT_CURRENT_GROUP_KEY = 'ccs.payment.currentGroup';
+            const SELECTED_FEES_KEY = 'ccs.selected.fees';
+            const fees = JSON.parse(
             localStorage.getItem('ccs.selected.fees') || '[]'
         );
+            const storedGroups = (() => {
+                try {
+                    const parsed = JSON.parse(localStorage.getItem(SELECTED_PAYMENT_GROUPS_KEY) || '[]');
+                    return Array.isArray(parsed) && parsed.length ? parsed : null;
+                } catch (_err) {
+                    return null;
+                }
+            })();
+            const derivedGroups = (() => {
+                const groups = [];
+                const groupMap = new Map();
+                fees.forEach(function (fee) {
+                    const orgId = String(fee.orgId || 'u-org-001');
+                    if (!groupMap.has(orgId)) {
+                        const group = {
+                            orgId: orgId,
+                            orgName: orgId === 'org-msa-001' ? 'Muslim Student Association' : 'CCS Student Council',
+                            fees: [],
+                            total: 0
+                        };
+                        groupMap.set(orgId, group);
+                        groups.push(group);
+                    }
+                    const group = groupMap.get(orgId);
+                    group.fees.push(fee);
+                    group.total += Number(fee.price) || 0;
+                });
+                return groups;
+            })();
+            const paymentGroups = storedGroups || derivedGroups;
+            const currentGroupIndex = Math.max(0, Number(localStorage.getItem(SELECTED_PAYMENT_GROUP_INDEX_KEY) || '0') || 0);
+            const currentGroup = paymentGroups[currentGroupIndex] || paymentGroups[0] || {
+                orgId: (fees[0] && fees[0].orgId) || 'u-org-001',
+                orgName: 'CCS Student Council',
+                fees: fees,
+                total: fees.reduce((sum, fee) => sum + Number(fee.price || 0), 0)
+            };
+            localStorage.setItem(SELECTED_PAYMENT_CURRENT_GROUP_KEY, JSON.stringify(currentGroup));
         const method = localStorage.getItem('ccs.payment.method') || 'gcash';
         const selectedAccount = (() => {
             try {
@@ -383,19 +427,43 @@
         
         const feeEl = document.getElementById('confirm-fee-items');
         const totalEl = document.getElementById('confirm-total');
+            const paymentGroupBannerEl = document.getElementById('paymentGroupBanner');
+            const confirmPopupTitleEl = document.getElementById('paymentSubmittedTitle');
+            const confirmPopupSubtitleEl = document.querySelector('.payment-popup-header p');
+            const confirmPopupPrimaryBtn = document.getElementById('makeAnotherPaymentBtn');
+            const confirmPopupSecondaryBtn = document.getElementById('goToDashboardBtn');
+            const totalPayments = paymentGroups.length || 1;
+            const isMultiOrgFlow = totalPayments > 1;
+
+            if (isMultiOrgFlow && paymentGroupBannerEl) {
+                paymentGroupBannerEl.style.display = '';
+                paymentGroupBannerEl.textContent = `Payment ${currentGroupIndex + 1} of ${totalPayments} — ${currentGroup.orgName || 'Organization'}`;
+            }
+
+            if (confirmPopupTitleEl) {
+                confirmPopupTitleEl.textContent = isMultiOrgFlow ? `Payment ${currentGroupIndex + 1} of ${totalPayments} Submitted!` : 'Payment Submitted!';
+            }
+            if (confirmPopupSubtitleEl) {
+                confirmPopupSubtitleEl.textContent = 'Your payment has been saved and is now waiting for organization verification.';
+            }
+            if (confirmPopupPrimaryBtn && confirmPopupSecondaryBtn) {
+                confirmPopupSecondaryBtn.style.display = 'none';
+            }
+
+        const currentFees = Array.isArray(currentGroup.fees) && currentGroup.fees.length ? currentGroup.fees : fees;
         
-        if (fees.length === 0) {
+        if (currentFees.length === 0) {
             feeEl.innerHTML = 
                 '<p class="summary-empty">No fees selected.</p>';
         } else {
-            feeEl.innerHTML = fees.map(f =>
+            feeEl.innerHTML = currentFees.map(f =>
                 `<div class="summary-item">
                     <span>${f.fee}</span>
                     <span>&#8369;${f.price}</span>
                 </div>`
             ).join('');
             totalEl.textContent = '\u20B1' + 
-                fees.reduce((s, f) => s + f.price, 0);
+                currentFees.reduce((s, f) => s + f.price, 0);
         }
 
         const methodLabel = selectedAccount.type || method || 'Cash';
@@ -464,7 +532,7 @@
                         orgBankDetails[selectedBank] || '—';
                     document.getElementById('orgBankAmount')
                         .textContent = '₱' + 
-                        fees.reduce((s, f) => s + f.price, 0);
+                        currentFees.reduce((s, f) => s + f.price, 0);
                     orgDetails.style.display = 'block';
                 } else {
                     orgDetails.style.display = 'none';
@@ -478,13 +546,45 @@
                 : null;
         }
 
+            function getCurrentGroupFees() {
+                return Array.isArray(currentGroup.fees) && currentGroup.fees.length ? currentGroup.fees : fees;
+            }
+
+            function getCurrentGroupTotal() {
+                return Number(currentGroup.total) || getCurrentGroupFees().reduce((sum, fee) => sum + Number(fee.price || 0), 0);
+            }
+
+            function getCurrentFeeNames() {
+                return getCurrentGroupFees().map(function (fee) {
+                    return fee.fee || fee.feeName || 'Fee';
+                });
+            }
+
+            function clearCheckoutState() {
+                localStorage.removeItem(SELECTED_FEES_KEY);
+                localStorage.removeItem(SELECTED_PAYMENT_GROUPS_KEY);
+                localStorage.removeItem(SELECTED_PAYMENT_GROUP_INDEX_KEY);
+                localStorage.removeItem(SELECTED_PAYMENT_CURRENT_GROUP_KEY);
+                localStorage.removeItem('ccs.payment.method');
+                localStorage.removeItem('ccs.payment.account');
+            }
+
+            function setFeeVerificationStatus(studentId, feeIds, status) {
+                if (!window.CCSPaymentStore || typeof window.CCSPaymentStore.setFeeStatuses !== 'function') return;
+                window.CCSPaymentStore.setFeeStatuses(studentId, feeIds, status);
+            }
+
+            function getNextPaymentGroup() {
+                return paymentGroups[currentGroupIndex + 1] || null;
+            }
+
         function hidePaymentPopup() {
             const popup = document.getElementById('paymentSubmittedPopup');
             popup.classList.remove('show');
             popup.setAttribute('aria-hidden', 'true');
         }
 
-        function showPaymentPopup(payment) {
+            function showPaymentPopup(payment, hasMorePayments) {
             document.getElementById('paymentPopupRef').textContent = payment.referenceNumber;
             document.getElementById('paymentPopupFeeName').textContent = payment.feeName;
             document.getElementById('paymentPopupAmount').textContent = payment.amount;
@@ -494,6 +594,13 @@
                 day: 'numeric'
             });
             document.getElementById('paymentPopupMethod').textContent = payment.paymentMethod;
+
+                if (confirmPopupPrimaryBtn) {
+                    confirmPopupPrimaryBtn.textContent = hasMorePayments ? 'Continue to Next Payment' : 'Go to Dashboard';
+                }
+                if (confirmPopupSecondaryBtn) {
+                    confirmPopupSecondaryBtn.style.display = 'none';
+                }
 
             const popup = document.getElementById('paymentSubmittedPopup');
             popup.classList.add('show');
@@ -510,16 +617,24 @@
             const user = readCurrentUser();
             const referenceNumber = window.CCSPaymentStore.generateReferenceNumber();
             const dateSubmitted = new Date().toISOString().slice(0, 10);
-            const totalAmount = fees.reduce((sum, fee) => sum + Number(fee.price || 0), 0);
-            const feeName = fees.map(function (fee) {
-                return fee.fee || fee.feeName || 'Fee';
-            }).join(', ');
+                const currentFees = getCurrentGroupFees();
+                const totalAmount = getCurrentGroupTotal();
+                const feeNames = getCurrentFeeNames();
+                const feeIds = currentFees.map(function (fee) {
+                    return fee.feeId || fee.id || '';
+                }).filter(Boolean);
+                const feeName = feeNames.join(', ');
+                const orgId = currentGroup.orgId || (currentFees[0] && currentFees[0].orgId) || selectedAccount.orgId || 'u-org-001';
+                const orgName = currentGroup.orgName || (orgId === 'org-msa-001' ? 'Muslim Student Association' : 'CCS Student Council');
 
             const payment = {
                 id: `payment-${Date.now()}`,
-                orgId: (fees[0] && fees[0].orgId) || selectedAccount.orgId || 'u-org-001',
-                feeId: fees[0] && (fees[0].feeId || fees[0].id) || '',
+                    orgId: orgId,
+                    orgName: orgName,
+                    feeId: feeIds[0] || '',
+                    feeIds: feeIds,
                 feeName: feeName,
+                    feeNames: feeNames,
                 studentId: user && user.studentId ? user.studentId : '',
                 studentName: user && user.name ? user.name : '',
                 amount: '₱' + totalAmount.toFixed(2),
@@ -533,20 +648,26 @@
             };
 
             window.CCSPaymentStore.savePayment(payment);
-            showPaymentPopup(payment);
+                setFeeVerificationStatus(payment.studentId, feeIds, 'Pending Verification');
+                showPaymentPopup(payment, !!getNextPaymentGroup());
         });
 
         document.getElementById('makeAnotherPaymentBtn').addEventListener('click', function () {
-            localStorage.removeItem('ccs.selected.fees');
-            localStorage.removeItem('ccs.payment.method');
-            localStorage.removeItem('ccs.payment.account');
-            window.location.href = 'make-payment.html';
+                const nextGroup = getNextPaymentGroup();
+                if (nextGroup) {
+                    localStorage.setItem(SELECTED_PAYMENT_GROUP_INDEX_KEY, String(currentGroupIndex + 1));
+                    localStorage.setItem(SELECTED_PAYMENT_CURRENT_GROUP_KEY, JSON.stringify(nextGroup));
+                    localStorage.setItem(SELECTED_FEES_KEY, JSON.stringify(nextGroup.fees || []));
+                    window.location.href = 'payment-method.html';
+                    return;
+                }
+
+                clearCheckoutState();
+                window.location.href = 'student-dashboard.html';
         });
 
         document.getElementById('goToDashboardBtn').addEventListener('click', function () {
-            localStorage.removeItem('ccs.selected.fees');
-            localStorage.removeItem('ccs.payment.method');
-            localStorage.removeItem('ccs.payment.account');
+                clearCheckoutState();
             window.location.href = 'student-dashboard.html';
         });
 

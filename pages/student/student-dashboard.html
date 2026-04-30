@@ -212,6 +212,7 @@
                             <label for="payments-filter" class="payments-label">View:</label>
                             <select id="payments-filter" class="payments-filter">
                                 <option value="recent">Recent Payments</option>
+                                <option value="pending">Pending Payments</option>
                                 <option value="all">All Payments</option>
                                 <option value="old">Older Payments</option>
                             </select>
@@ -389,7 +390,7 @@
                         amount: 50,
                         dueDate: '2026-02-15',
                         isActive: true,
-                        feeType: 'mandatory',
+                        feeType: 'voluntary',
                         appliesTo: 'Muslim/Islam',
                         orgId: 'org-msa-001'
                     },
@@ -582,6 +583,9 @@
                     const fees = getFees();
                     const latestRequestByFee = getLatestRequestByFee(studentId);
                     const feeStatusMap = getFeeStatusMap();
+                    const payments = window.CCSPaymentStore && typeof window.CCSPaymentStore.getPaymentsForStudent === 'function'
+                        ? window.CCSPaymentStore.getPaymentsForStudent(studentId)
+                        : [];
                     const listEl = document.getElementById('outstandingFeeList');
 
                     if (!fees.length) {
@@ -610,8 +614,17 @@
                         const latestRequest = latestRequestByFee.get(fee.id);
                         const promissoryBadge = getPromissoryBadge(latestRequest);
                         const isPendingReview = latestRequest && latestRequest.status === 'Pending Review';
-                        const paid = feeStatusMap[statusKey(studentId, fee.id)] === 'paid';
-                        const paidBadge = paid ? '<span class="fee-pill fee-pill-paid">Paid</span>' : '';
+                        const feeStatus = feeStatusMap[statusKey(studentId, fee.id)] || '';
+                        const paidBadge = feeStatus === 'paid' ? '<span class="fee-pill fee-pill-paid">Paid</span>' : '';
+                        const pendingBadge = feeStatus === 'pending verification' ? '<span class="fee-pill fee-pill-pending-review">Pending Verification</span>' : '';
+                        const rejectedPayment = payments.find(function (payment) {
+                            const feeIds = Array.isArray(payment.feeIds) ? payment.feeIds : (payment.feeId ? [payment.feeId] : []);
+                            return String(payment.status || '').toLowerCase() === 'rejected' && feeIds.some(function (feeId) {
+                                return String(feeId || '') === String(fee.id);
+                            });
+                        });
+                        const rejectedBadge = feeStatus === 'rejected' ? '<span class="fee-pill fee-pill-promissory-rejected">Rejected</span>' : '';
+                        const rejectionReason = rejectedPayment && rejectedPayment.rejectionReason ? `<div class="payment-rejection-reason">${rejectedPayment.rejectionReason}</div>` : '';
 
                         return `
                             <li data-fee-id="${fee.id}">
@@ -621,6 +634,9 @@
                                         <span class="fee-pill ${typeClass}">${typeText}</span>
                                         ${promissoryBadge}
                                         ${paidBadge}
+                                        ${pendingBadge}
+                                        ${rejectedBadge}
+                                ${rejectionReason}
                                     </div>
                                     <span class="fee-amount">${formatCurrency(fee.amount)}</span>
                                 </div>
