@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="UTF-8">
+        <title>Promissory Notes - CCS PAY++</title>
+        <link rel="stylesheet" href="../../styles/sidebar.css">
+        <link rel="stylesheet" href="../../styles/organization-styles/organization-dashboard.css">
+        <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+        <link rel="stylesheet" href="../../styles/settings.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            .promissory-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+
+            .promissory-table thead th {
+                background: #f5f5f5;
+                padding: 12px;
+                text-align: left;
+                font-size: 13px;
+                font-weight: 600;
+                border-bottom: 2px solid #e5e7eb;
+            }
+
+            .promissory-table tbody td {
+                padding: 12px;
+                border-bottom: 1px solid #edf3ef;
+                font-size: 13px;
+            }
+
+            .promissory-table tbody tr:hover {
+                background: #f9fafb;
+            }
+
+            .promissory-status-pending {
+                background: #fef3c7;
+                color: #92400e;
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 11px;
+                font-weight: 600;
+                display: inline-block;
+            }
+
+            .promissory-status-approved {
+                background: #d1fae5;
+                color: #065f46;
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 11px;
+                font-weight: 600;
+                display: inline-block;
+            }
+
+            .promissory-status-rejected {
+                background: #fee2e2;
+                color: #7f1d1d;
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 11px;
+                font-weight: 600;
+                display: inline-block;
+            }
+
+            .promissory-actions {
+                display: flex;
+                gap: 6px;
+                align-items: center;
+            }
+
+            .promissory-btn-approve,
+            .promissory-btn-reject {
+                padding: 4px 12px;
+                border: none;
+                border-radius: 4px;
+                font-size: 11px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+
+            .promissory-btn-approve {
+                background: #d1fae5;
+                color: #065f46;
+                border: 1px solid #a7f3d0;
+            }
+
+            .promissory-btn-approve:hover {
+                background: #a7f3d0;
+            }
+
+            .promissory-btn-reject {
+                background: #fee2e2;
+                color: #7f1d1d;
+                border: 1px solid #fca5a5;
+            }
+
+            .promissory-btn-reject:hover {
+                background: #fca5a5;
+            }
+
+            .promissory-empty {
+                text-align: center;
+                padding: 40px 20px;
+                color: #6b7280;
+            }
+
+            .rejection-modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1000;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .rejection-modal.active {
+                display: flex;
+            }
+
+            .rejection-modal-content {
+                background: white;
+                border-radius: 8px;
+                padding: 24px;
+                width: 90%;
+                max-width: 400px;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            }
+
+            .rejection-modal-header {
+                font-size: 16px;
+                font-weight: 600;
+                margin-bottom: 16px;
+            }
+
+            .rejection-modal-body {
+                margin-bottom: 20px;
+            }
+
+            .rejection-modal-body label {
+                display: block;
+                font-size: 12px;
+                font-weight: 600;
+                margin-bottom: 8px;
+                color: #374151;
+            }
+
+            .rejection-modal-body textarea {
+                width: 100%;
+                padding: 8px 12px;
+                border: 1px solid #d4e2d8;
+                border-radius: 4px;
+                font-size: 13px;
+                font-family: inherit;
+                resize: vertical;
+                min-height: 100px;
+            }
+
+            .rejection-modal-actions {
+                display: flex;
+                gap: 10px;
+                justify-content: flex-end;
+            }
+
+            .rejection-modal-actions button {
+                padding: 8px 16px;
+                border: none;
+                border-radius: 4px;
+                font-size: 12px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+
+            .rejection-modal-actions .btn-cancel {
+                background: #f5f5f5;
+                color: #1a2420;
+                border: 1px solid #d4e2d8;
+            }
+
+            .rejection-modal-actions .btn-cancel:hover {
+                background: #efefef;
+            }
+
+            .rejection-modal-actions .btn-confirm {
+                background: #dc2626;
+                color: white;
+                border: 1px solid #dc2626;
+            }
+
+            .rejection-modal-actions .btn-confirm:hover {
+                background: #b91c1c;
+            }
+
+            .members-table {
+                margin-top: 20px;
+                background: white;
+                border: 1px solid #d4e2d8;
+                border-radius: 14px;
+                overflow: hidden;
+            }
+
+            .table-header {
+                padding: 16px;
+                border-bottom: 1px solid #d4e2d8;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .table-header h2 {
+                margin: 0;
+                font-size: 16px;
+            }
+
+            .promissory-count-badge {
+                background: #fff4e5;
+                color: #b45309;
+                border-radius: 999px;
+                font-size: 11px;
+                font-weight: 700;
+                padding: 4px 10px;
+                text-transform: uppercase;
+            }
+
+            .table-container {
+                max-height: 700px;
+                overflow-y: auto;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="sidebar-container"></div>
+
+        <section class="home-section active">
+            <div class="home-content">
+                <span class="text">Promissory Notes Management</span>
+            </div>
+            <div class="members-table">
+                <div class="table-header">
+                    <h2>Promissory Note Requests</h2>
+                    <span class="promissory-count-badge" id="promissoryCountBadge">0 Pending</span>
+                </div>
+                <div class="table-container">
+                    <table class="promissory-table">
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Student ID</th>
+                                <th>Fee Name</th>
+                                <th>Partial Amount</th>
+                                <th>Reason</th>
+                                <th>Promised Date</th>
+                                <th>Date Requested</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="promissoryTableBody">
+                            <tr>
+                                <td colspan="9" class="promissory-empty">
+                                    No promissory note requests found.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Rejection Modal -->
+        <div class="rejection-modal" id="rejectionModal">
+            <div class="rejection-modal-content">
+                <div class="rejection-modal-header">Reject Promissory Note</div>
+                <div class="rejection-modal-body">
+                    <label for="rejectionReason">Reason for Rejection:</label>
+                    <textarea id="rejectionReason" placeholder="Enter reason for rejection..."></textarea>
+                </div>
+                <div class="rejection-modal-actions">
+                    <button class="btn-cancel" id="rejectionModalCancel">Cancel</button>
+                    <button class="btn-confirm" id="rejectionModalConfirm">Confirm Rejection</button>
+                </div>
+            </div>
+        </div>
+
+        <script src="../../assets/scripts/settings.js"></script>
+        <script src="../../assets/scripts/sample-accounts.js"></script>
+        <script src="../../assets/scripts/auth.js"></script>
+        <script src="../../assets/scripts/sidebar-template.js"></script>
+        <script src="../../assets/scripts/script.js"></script>
+
+        <script>
+        (function () {
+            const PROMISSORY_STORAGE_KEY = 'ccs.promissory.requests'; // Shared key with student promissory submit flow
+            const FEES_STORAGE_KEY = 'ccs.organization.fees';
+
+            let pendingRejectionId = null;
+
+            function getOrganizationScope() {
+                if (window.CCSAuthHelpers && typeof window.CCSAuthHelpers.getCurrentOrganizationScope === 'function') {
+                    return window.CCSAuthHelpers.getCurrentOrganizationScope();
+                }
+                return null;
+            }
+
+            function getCurrentOrgId() {
+                const scope = getOrganizationScope();
+                return scope && scope.orgId ? scope.orgId : 'u-org-001';
+            }
+
+            function getCurrentOrgName() {
+                const scope = getOrganizationScope();
+                return scope && scope.organization ? scope.organization : 'CCS Student Council';
+            }
+
+            function readJson(value, fallback) {
+                try {
+                    const parsed = JSON.parse(value);
+                    return parsed === null || parsed === undefined ? fallback : parsed;
+                } catch (_err) {
+                    return fallback;
+                }
+            }
+
+            function readJsonArray(key) {
+                return readJson(localStorage.getItem(key), []);
+            }
+
+            function formatDate(dateStr) {
+                if (!dateStr) return '-';
+                try {
+                    const date = new Date(dateStr);
+                    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                } catch (e) {
+                    return dateStr;
+                }
+            }
+
+            function formatCurrency(amount) {
+                if (!amount) return '₱0.00';
+                const num = Number(amount);
+                return '₱' + num.toFixed(2);
+            }
+
+            function getFeesForOrg(orgId) {
+                const fees = readJsonArray(FEES_STORAGE_KEY);
+                return fees.filter(fee => (fee.orgId === orgId || (!fee.orgId && orgId === 'u-org-001')));
+            }
+
+            function getPromissoryRequestsForOrg(orgId) {
+                const orgFees = getFeesForOrg(orgId);
+                const orgFeeIds = orgFees.map(f => f.id);
+                const allRequests = readJsonArray(PROMISSORY_STORAGE_KEY);
+                return allRequests.filter(req => orgFeeIds.includes(req.feeId));
+            }
+
+            function renderPromissoryTable() {
+                const orgId = getCurrentOrgId();
+                const requests = getPromissoryRequestsForOrg(orgId).sort(function(a, b) {
+                    return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+                });
+
+                const body = document.getElementById('promissoryTableBody');
+                const badge = document.getElementById('promissoryCountBadge');
+                const pendingCount = requests.filter(r => r.status === 'Pending Review').length;
+
+                if (requests.length === 0) {
+                    body.innerHTML = '<tr><td colspan="9" class="promissory-empty">No promissory note requests found.</td></tr>';
+                    badge.textContent = '0 Pending';
+                    return;
+                }
+
+                badge.textContent = pendingCount + ' Pending';
+
+                body.innerHTML = requests.map(request => {
+                    const statusClass = request.status === 'Pending Review' 
+                        ? 'promissory-status-pending'
+                        : request.status === 'Promissory Approved'
+                        ? 'promissory-status-approved'
+                        : 'promissory-status-rejected';
+
+                    let actionsHTML = '';
+                    if (request.status === 'Pending Review') {
+                        actionsHTML = `
+                            <div class="promissory-actions">
+                                <button class="promissory-btn-approve" data-id="${request.id}" data-action="approve">Approve</button>
+                                <button class="promissory-btn-reject" data-id="${request.id}" data-action="reject">Reject</button>
+                            </div>
+                        `;
+                    } else {
+                        actionsHTML = `<span class="${statusClass}">${request.status}</span>`;
+                    }
+
+                    return `
+                        <tr>
+                            <td>${request.studentName}</td>
+                            <td>${request.studentNumber}</td>
+                            <td>${request.feeName}</td>
+                            <td>${request.partialAmount ? formatCurrency(request.partialAmount) : '-'}</td>
+                            <td>${request.reason}</td>
+                            <td>${formatDate(request.promisedDate)}</td>
+                            <td>${formatDate(request.createdAt)}</td>
+                            <td><span class="${statusClass}">${request.status}</span></td>
+                            <td>${actionsHTML}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+                attachActionHandlers();
+            }
+
+            function attachActionHandlers() {
+                const approveButtons = document.querySelectorAll('[data-action="approve"]');
+                const rejectButtons = document.querySelectorAll('[data-action="reject"]');
+
+                approveButtons.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = this.dataset.id;
+                        approvePromissory(id);
+                    });
+                });
+
+                rejectButtons.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = this.dataset.id;
+                        pendingRejectionId = id;
+                        document.getElementById('rejectionReason').value = '';
+                        document.getElementById('rejectionModal').classList.add('active');
+                    });
+                });
+            }
+
+            function approvePromissory(id) {
+                const requests = readJsonArray(PROMISSORY_STORAGE_KEY);
+                const request = requests.find(r => r.id === id);
+                if (!request) return;
+
+                request.status = 'Promissory Approved';
+                request.updatedAt = new Date().toISOString();
+
+                localStorage.setItem(PROMISSORY_STORAGE_KEY, JSON.stringify(requests));
+
+                // Mark notification as unread for student
+                const studentId = request.studentId;
+                const unreadKey = 'ccs.promissory.unread.' + studentId;
+                const unread = readJsonArray(unreadKey);
+                if (!unread.find(u => u.requestId === id)) {
+                    unread.push({ requestId: id, status: 'Promissory Approved', timestamp: new Date().toISOString() });
+                    localStorage.setItem(unreadKey, JSON.stringify(unread));
+                }
+
+                renderPromissoryTable();
+                alert('Promissory note approved successfully.');
+            }
+
+            function rejectPromissory(id, reason) {
+                const requests = readJsonArray(PROMISSORY_STORAGE_KEY);
+                const request = requests.find(r => r.id === id);
+                if (!request) return;
+
+                request.status = 'Promissory Rejected';
+                request.rejectionReason = reason;
+                request.updatedAt = new Date().toISOString();
+
+                localStorage.setItem(PROMISSORY_STORAGE_KEY, JSON.stringify(requests));
+
+                // Mark notification as unread for student
+                const studentId = request.studentId;
+                const unreadKey = 'ccs.promissory.unread.' + studentId;
+                const unread = readJsonArray(unreadKey);
+                if (!unread.find(u => u.requestId === id)) {
+                    unread.push({ requestId: id, status: 'Promissory Rejected', reason: reason, timestamp: new Date().toISOString() });
+                    localStorage.setItem(unreadKey, JSON.stringify(unread));
+                }
+
+                renderPromissoryTable();
+                alert('Promissory note rejected successfully.');
+            }
+
+            function initializeModal() {
+                const modal = document.getElementById('rejectionModal');
+                const cancelBtn = document.getElementById('rejectionModalCancel');
+                const confirmBtn = document.getElementById('rejectionModalConfirm');
+
+                cancelBtn.addEventListener('click', function() {
+                    modal.classList.remove('active');
+                    pendingRejectionId = null;
+                });
+
+                confirmBtn.addEventListener('click', function() {
+                    if (!pendingRejectionId) return;
+                    const reason = document.getElementById('rejectionReason').value.trim();
+                    if (!reason) {
+                        alert('Please enter a rejection reason.');
+                        return;
+                    }
+                    rejectPromissory(pendingRejectionId, reason);
+                    modal.classList.remove('active');
+                    pendingRejectionId = null;
+                });
+
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.classList.remove('active');
+                        pendingRejectionId = null;
+                    }
+                });
+            }
+
+            function initializePage() {
+                loadSidebar();
+                const orgName = getCurrentOrgName();
+                const headerElement = document.querySelector('.home-content span.text');
+                if (headerElement) {
+                    headerElement.textContent = `${orgName} - Promissory Notes Management`;
+                }
+                renderPromissoryTable();
+                initializeModal();
+            }
+
+            document.addEventListener('DOMContentLoaded', initializePage);
+        })();
+        </script>
+    </body>
+</html>

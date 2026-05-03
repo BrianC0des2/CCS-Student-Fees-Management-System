@@ -3,6 +3,7 @@
 const PaymentHistory = (() => {
     let paymentHistory = [];
     let currentReceiptList = [];
+    let currentPromissoryList = [];
     let currentFilter = 'recent';
     let currentModal = null;
 
@@ -27,20 +28,9 @@ const PaymentHistory = (() => {
             }
         }
 
-        const paymentStore = window.CCSPaymentStore && typeof window.CCSPaymentStore.getPaymentsForStudent === 'function'
-            ? window.CCSPaymentStore
-            : null;
-
-        if (!paymentStore) {
-            console.warn('CCSPaymentStore not loaded');
-            paymentHistory = [];
-            return;
-        }
-
-        // Filter by current student and keep all payment states
-        const studentPayments = currentUser && currentUser.studentId
-            ? paymentStore.getPaymentsForStudent(currentUser.studentId)
-            : paymentStore.getPayments();
+        const studentPayments = window.getStudentPayments
+            ? window.getStudentPayments(currentUser && currentUser.studentId ? currentUser.studentId : '')
+            : [];
 
         paymentHistory = studentPayments.map(function (payment) {
             return {
@@ -122,7 +112,7 @@ const PaymentHistory = (() => {
                 ? '<span class="receipt-status-badge receipt-status-badge--pending">Pending Verification</span>'
                 : status === 'rejected'
                     ? '<span class="receipt-status-badge receipt-status-badge--rejected">Rejected</span>'
-                    : '<span class="receipt-status-badge">✓ Confirmed</span>';
+                    : '<span class="receipt-status-badge">Confirmed</span>';
             const referenceBlock = payment.referenceNumber ? `<div class="receipt-date">Ref: ${payment.referenceNumber}</div>` : '';
             html += `
                 <tr>
@@ -148,6 +138,97 @@ const PaymentHistory = (() => {
         return html;
     }
 
+    function getStudentPromissoryNotes() {
+        const currentUser = window.Auth && typeof window.Auth.getUser === 'function'
+            ? window.Auth.getUser()
+            : null;
+
+        if (!currentUser || !currentUser.studentId || !window.getStudentPromissoryRequests) {
+            return [];
+        }
+
+        const requests = window.getStudentPromissoryRequests(currentUser.studentId);
+        const studentReligion = String(currentUser.religion || '').trim().toLowerCase();
+
+        return requests
+            .filter(function (request) {
+                const feeName = String(request.feeName || '').toLowerCase();
+                if (feeName.includes('msa')) {
+                    return studentReligion === 'muslim' || studentReligion === 'muslim/islam';
+                }
+                return true;
+            })
+            .sort(function (a, b) {
+                return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+            });
+    }
+
+    function buildPromissoryTable(requests) {
+        currentPromissoryList = requests.slice();
+
+        if (!requests.length) {
+            return '<p class="summary-empty" style="padding: 20px; text-align: center;">No promissory notes found.</p>';
+        }
+
+        let html = `
+            <div class="receipt-table-wrapper">
+                <table class="receipt-history-table">
+                    <thead>
+                        <tr>
+                            <th>Fee Name</th>
+                            <th>Amount</th>
+                            <th>Date Requested</th>
+                            <th>Reason</th>
+                            <th>Promised Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        requests.forEach(function (request) {
+            const status = String(request.status || 'Pending Review').toLowerCase();
+            const statusBadge = status === 'pending review'
+                ? '<span class="receipt-status-badge receipt-status-badge--pending">Pending Review</span>'
+                : status === 'promissory approved'
+                    ? '<span class="receipt-status-badge receipt-status-badge--approved">Promissory Approved</span>'
+                    : '<span class="receipt-status-badge receipt-status-badge--rejected">Promissory Rejected</span>';
+
+            const amount = request.partialAmount ? `₱${Number(request.partialAmount).toFixed(2)}` : (() => {
+                try {
+                    const fees = JSON.parse(localStorage.getItem('ccs.organization.fees') || '[]');
+                    const found = fees.find(function (fee) {
+                        return String(fee.id || '') === String(request.feeId || '');
+                    }) || fees.find(function (fee) {
+                        return String(fee.name || '').toLowerCase() === String(request.feeName || '').toLowerCase();
+                    });
+                    return found ? `₱${Number(found.amount || 0).toFixed(2)}` : 'Full Payment';
+                } catch (_err) {
+                    return 'Full Payment';
+                }
+            })();
+
+            html += `
+                <tr>
+                    <td><span class="receipt-num">${request.feeName || 'Promissory Note'}</span></td>
+                    <td><span class="receipt-amount">${amount}</span></td>
+                    <td><span class="receipt-date">${formatDate(request.createdAt || '')}</span></td>
+                    <td><span class="promissory-reason" title="${request.reason || ''}">${request.reason || ''}</span></td>
+                    <td><span class="receipt-date">${formatDate(request.promisedDate || '')}</span></td>
+                    <td>${statusBadge}</td>
+                </tr>
+            `;
+        });
+
+        html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        return html;
+    }
+
     function renderFiltered(filter) {
         const container = document.getElementById('receipt-filter-sections');
         if (!container) return;
@@ -157,6 +238,11 @@ const PaymentHistory = (() => {
         const status = function (payment) {
             return String(payment.status || 'Confirmed').toLowerCase();
         };
+
+        if (filter === 'promissory') {
+            container.innerHTML = buildPromissoryTable(getStudentPromissoryNotes());
+            return;
+        }
 
         const filtered = paymentHistory.filter(function (payment) {
             const paymentDate = payment.date || '';
@@ -240,7 +326,7 @@ const PaymentHistory = (() => {
                     ? '<span class="receipt-status-badge receipt-status-badge--pending">Pending Verification</span>'
                     : String(payment.status || '').toLowerCase() === 'rejected'
                         ? '<span class="receipt-status-badge receipt-status-badge--rejected">Rejected</span>'
-                        : '<span class="receipt-status-badge">✓ Confirmed</span>'}</span>
+                        : '<span class="receipt-status-badge">Confirmed</span>'}</span>
                     </div>
                     <div class="receipt-modal-item">
                         <span class="receipt-modal-label">Processed By</span>

@@ -214,7 +214,7 @@
             justify-content: space-between;
             align-items: center;
             gap: 12px;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
         }
 
         .fee-line-left {
@@ -222,10 +222,20 @@
             flex: 1;
         }
 
+        .fee-status-row {
+            margin-bottom: 8px;
+            padding-left: 0;
+        }
+
+        .fee-actions-row {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
         .pay-now-btn {
             display: inline-block;
-            margin-top: 6px;
-            margin-bottom: 6px;
             padding: 6px 14px;
             width: auto;
             white-space: nowrap;
@@ -235,6 +245,7 @@
             color: var(--color-light);
             cursor: pointer;
             font-weight: 700;
+            font-size: 13px;
         }
 
         .pay-now-btn:hover {
@@ -242,10 +253,7 @@
         }
 
         .promissory-link {
-            display: block;
-            clear: both;
-            margin-left: 0;
-            margin-top: 4px;
+            display: inline-block;
             font-size: 0.78rem;
             color: #666;
             text-decoration: underline;

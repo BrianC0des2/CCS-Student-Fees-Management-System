@@ -76,6 +76,54 @@ function navigateToRoleHome(user) {
   }
 }
 
+function readJsonArrayFromStorage(key) {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(key) || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function getStudentDataKey(name, fallbackValue) {
+  return window.CCSStudentDataKeys && window.CCSStudentDataKeys[name]
+    ? window.CCSStudentDataKeys[name]
+    : fallbackValue;
+}
+
+function getStudentPayments(studentId) {
+  const payments = readJsonArrayFromStorage(getStudentDataKey('STUDENT_PAYMENTS_STORAGE_KEY', 'ccs.student.payments'));
+  const targetStudentId = String(studentId || '').trim();
+
+  if (!targetStudentId) {
+    return payments.slice();
+  }
+
+  return payments.filter(function (payment) {
+    return String(payment.studentId || payment.studentNo || '').trim() === targetStudentId;
+  });
+}
+
+function getStudentPromissoryRequests(studentId) {
+  const requests = readJsonArrayFromStorage(getStudentDataKey('PROMISSORY_STORAGE_KEY', 'ccs.promissory.requests'));
+  const targetStudentId = String(studentId || '').trim();
+
+  if (!targetStudentId) {
+    return requests.slice();
+  }
+
+  return requests.filter(function (request) {
+    return String(request.studentId || request.studentNumber || '').trim() === targetStudentId;
+  });
+}
+
+window.getStudentPayments = getStudentPayments;
+window.getStudentPromissoryRequests = getStudentPromissoryRequests;
+window.CCSStudentDataHelpers = {
+  getStudentPayments: getStudentPayments,
+  getStudentPromissoryRequests: getStudentPromissoryRequests
+};
+
 const loginForm = document.getElementById("login-form");
 if (loginForm) {
   loginForm.addEventListener("submit", (e) => {
