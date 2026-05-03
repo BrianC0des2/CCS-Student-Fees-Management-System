@@ -7,6 +7,7 @@
 		<link rel="stylesheet" href="../../styles/faculty-styles/faculty-dashboard.css">
 		<link href="https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
 		<link rel="stylesheet" href="../../styles/settings.css">
+		<link rel="stylesheet" href="../../styles/semester.css">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	</head>
 	<body>
@@ -23,7 +24,6 @@
 						<img src="../../assets/images/org-ccs.png" class="org-header-logo" alt="ccs-logo">
 						<div>
 							<div class="org-header-name">College of Computing Studies</div>
-							<div class="org-header-sub" id="orgYearSem"></div>
 						</div>
 					</a>
 				</div>
@@ -149,7 +149,23 @@
 		<script src="../../assets/scripts/settings.js"></script>
 		<script src="../../assets/scripts/sample-accounts.js"></script>
 		<script src="../../assets/scripts/auth.js"></script>
+		<script src="../../assets/scripts/semester-manager.js"></script>
 		<script src="../../assets/scripts/sidebar-template.js"></script>
 		<script src="../../assets/scripts/script.js"></script>
+		<script>
+			// Update semester badge
+			function updateSemesterBadge() {
+				const current = window.SemesterManager?.getCurrentSemester();
+				const badge = document.getElementById('sidebar-semester-badge');
+				if (badge && current) {
+					badge.innerHTML = window.SemesterManager.getSemesterSidebarBadgeHTML();
+				}
+			}
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', updateSemesterBadge);
+			} else {
+				updateSemesterBadge();
+			}
+		</script>
 	</body>
 </html>

@@ -7,6 +7,7 @@ const sidebarHTML = `
             <span class="logo_name">Pay++</span>
         </div>
     </a>
+    <div id="sidebar-semester-badge" class="sidebar-semester-badge"></div>
     <ul class="nav-links">
         <li>
             <a href="../organization/organization-dashboard.html">

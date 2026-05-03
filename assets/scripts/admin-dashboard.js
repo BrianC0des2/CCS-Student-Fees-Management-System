@@ -78,13 +78,18 @@ const STUDENT_PERM_DETAILS = {
     manage_students: { icon: 'shield', desc: 'Full control — includes add, edit, remove, suspend', risk: 'high' },
 };
 
+let departmentList = [
+    { id: 'DEPT-001', name: 'BS Computer Science',         abbreviation: 'CS',   deanId: 'FAC-005', faculty: [], status: 'active' },
+    { id: 'DEPT-002', name: 'BS Information Technology',   abbreviation: 'IT',   deanId: 'FAC-002', faculty: [], status: 'active' },
+];
+
 let facultyList = [
-    { id: 'FAC-001', name: 'Prof. Mark L. Flores, PhD.',   email: 'ml.flores@wmsu.edu.ph',   phone: '+63-912-345-6789', role: 'dean',            department: 'College of Computer Studies',   status: 'active',   permissions: ['view_students','approve_clearance','reject_clearance','generate_reports','export_data','view_payments','view_audit'], dateAdded: 'Jun 1, 2022',  lastLogin: 'Mar 7, 2026' },
-    { id: 'FAC-002', name: 'Mr. Jaydee C. Ballaho, MIT',   email: 'jc.ballaho@wmsu.edu.ph',  phone: '+63-912-345-6790', role: 'dept_head',       department: 'BS Information Technology',      status: 'active',   permissions: ['view_students','approve_clearance','sign_clearance','generate_reports','view_payments'], dateAdded: 'Jun 1, 2022',  lastLogin: 'Mar 6, 2026' },
-    { id: 'FAC-003', name: 'Asst Prof Marjorie A. Rojas',  email: 'ma.rojas@wmsu.edu.ph',    phone: '+63-912-345-6791', role: 'coordinator',     department: 'College of Computer Studies',   status: 'active',   permissions: ['view_students','approve_clearance','sign_clearance','edit_students','generate_reports'], dateAdded: 'Jun 1, 2022',  lastLogin: 'Mar 5, 2026' },
-    { id: 'FAC-004', name: 'Ms. Jennifer Santos',           email: 'j.santos@wmsu.edu.ph',    phone: '+63-912-345-6792', role: 'finance_officer', department: 'Finance Office',                 status: 'active',   permissions: ['view_students','view_payments','process_payments','generate_reports','export_data','manage_fees'], dateAdded: 'Aug 15, 2022', lastLogin: 'Mar 7, 2026' },
-    { id: 'FAC-005', name: 'Prof. Ricardo Dela Cruz, MIT',  email: 'r.delacruz@wmsu.edu.ph',  phone: '+63-912-345-6793', role: 'adviser',         department: 'BS Computer Science',            status: 'active',   permissions: ['view_students','verify_signup','approve_clearance','sign_clearance'], dateAdded: 'Jan 10, 2023', lastLogin: 'Mar 4, 2026' },
-    { id: 'FAC-006', name: 'Prof. Elena Mercado',           email: 'e.mercado@wmsu.edu.ph',   phone: '+63-912-345-6794', role: 'professor',       department: 'BS Information Technology',      status: 'inactive', permissions: ['view_students','verify_signup','sign_clearance'], dateAdded: 'Mar 1, 2023',  lastLogin: 'Jan 20, 2026' },
+    { id: 'FAC-001', name: 'Prof. Mark L. Flores, PhD.',   email: 'ml.flores@wmsu.edu.ph',   phone: '+63-912-345-6789', role: 'dean',            department: 'BS Computer Science',            sex: 'M', status: 'active',   permissions: ['view_students','approve_clearance','reject_clearance','generate_reports','export_data','view_payments','view_audit'], dateAdded: 'Jun 1, 2022',  lastLogin: 'Mar 7, 2026' },
+    { id: 'FAC-002', name: 'Mr. Jaydee C. Ballaho, MIT',   email: 'jc.ballaho@wmsu.edu.ph',  phone: '+63-912-345-6790', role: 'dept_head',       department: 'BS Information Technology',      sex: 'M', status: 'active',   permissions: ['view_students','approve_clearance','sign_clearance','generate_reports','view_payments'], dateAdded: 'Jun 1, 2022',  lastLogin: 'Mar 6, 2026' },
+    { id: 'FAC-003', name: 'Asst Prof Marjorie A. Rojas',  email: 'ma.rojas@wmsu.edu.ph',    phone: '+63-912-345-6791', role: 'coordinator',     department: 'BS Computer Science',            sex: 'F', status: 'active',   permissions: ['view_students','approve_clearance','sign_clearance','edit_students','generate_reports'], dateAdded: 'Jun 1, 2022',  lastLogin: 'Mar 5, 2026' },
+    { id: 'FAC-004', name: 'Ms. Jennifer Santos',           email: 'j.santos@wmsu.edu.ph',    phone: '+63-912-345-6792', role: 'finance_officer', department: 'BS Computer Science',            sex: 'F', status: 'active',   permissions: ['view_students','view_payments','process_payments','generate_reports','export_data','manage_fees'], dateAdded: 'Aug 15, 2022', lastLogin: 'Mar 7, 2026' },
+    { id: 'FAC-005', name: 'Prof. Ricardo Dela Cruz, MIT',  email: 'r.delacruz@wmsu.edu.ph',  phone: '+63-912-345-6793', role: 'adviser',         department: 'BS Computer Science',            sex: 'M', status: 'active',   permissions: ['view_students','verify_signup','approve_clearance','sign_clearance'], dateAdded: 'Jan 10, 2023', lastLogin: 'Mar 4, 2026' },
+    { id: 'FAC-006', name: 'Prof. Elena Mercado',           email: 'e.mercado@wmsu.edu.ph',   phone: '+63-912-345-6794', role: 'professor',       department: 'BS Information Technology',      sex: 'F', status: 'inactive', permissions: ['view_students','verify_signup','sign_clearance'], dateAdded: 'Mar 1, 2023',  lastLogin: 'Jan 20, 2026' },
 ];
 
 let studentList = [
@@ -135,7 +140,18 @@ const systemSettings = {
     requireTwoFactor:       false,
     allowNewRegistrations:  true,
     maintenanceMode:        false,
+    currentSemesterId:      'SEM-001',
 };
+
+// Initialize semester data if not exists
+if (!window.semesterList) {
+    window.semesterList = [
+        { id: 'SEM-001', schoolYear: '2025-2026', name: '1st Semester', status: 'active', startDate: '2025-08-01', endDate: '2025-12-20', paymentDeadline: '2025-09-15', autoStartEnabled: false, autoStartDate: null, createdDate: '2025-06-01', description: 'First semester of academic year 2025-2026' },
+        { id: 'SEM-002', schoolYear: '2025-2026', name: '2nd Semester', status: 'inactive', startDate: '2026-01-06', endDate: '2026-05-31', paymentDeadline: '2026-02-15', autoStartEnabled: false, autoStartDate: null, createdDate: '2025-06-01', description: 'Second semester of academic year 2025-2026' },
+        { id: 'SEM-003', schoolYear: '2026-2027', name: '1st Semester', status: 'inactive', startDate: '2026-08-01', endDate: '2026-12-20', paymentDeadline: '2026-09-15', autoStartEnabled: true, autoStartDate: '2026-08-01', createdDate: '2025-06-01', description: 'First semester of academic year 2026-2027' },
+    ];
+    localStorage.setItem('ccs.semesters', JSON.stringify(window.semesterList));
+}
 
 /* ══════════════════════════════
    SECTION B — UTILITIES
@@ -234,6 +250,7 @@ const TAB_LABELS = {
     fees:        'Fee Configuration',
     clearance:   'Clearance Setup',
     system:      'System Settings',
+    semester:    'Semester Management',
     audit:       'Audit Logs',
 };
 
@@ -285,6 +302,7 @@ function renderTab(tab) {
     if (tab === 'fees')        renderFees();
     if (tab === 'clearance')   renderClearance();
     if (tab === 'system')      renderSystem();
+    if (tab === 'semester')    renderSemester();
     if (tab === 'audit')       renderAudit();
 }
 
@@ -372,9 +390,13 @@ function renderOverview() {
 let facultySearch = '';
 let facultyRoleFilter = 'all';
 let facultyStatusFilter = 'all';
+let facultyDepartmentFilter = 'all';
 let showAddFacultyForm = false;
 let editingFacultyId = null;
 let deleteConfirmFacultyId = null;
+let showAddDepartmentForm = false;
+let editingDepartmentId = null;
+let deleteConfirmDepartmentId = null;
 let newFacultyData = {
     facultyId: '',
     lastName: '',
@@ -382,8 +404,15 @@ let newFacultyData = {
     middleName: '',
     email: '',
     phone: '',
+    sex: 'M',
     role: 'professor',
     department: 'BS Computer Science'
+};
+let newDepartmentData = {
+    name: '',
+    abbreviation: '',
+    deanId: '',
+    description: ''
 };
 
 function renderFaculty() {
@@ -392,7 +421,8 @@ function renderFaculty() {
         const q = facultySearch.toLowerCase();
         return (f.name.toLowerCase().includes(q) || f.email.toLowerCase().includes(q))
             && (facultyRoleFilter === 'all' || f.role === facultyRoleFilter)
-            && (facultyStatusFilter === 'all' || f.status === facultyStatusFilter);
+            && (facultyStatusFilter === 'all' || f.status === facultyStatusFilter)
+            && (facultyDepartmentFilter === 'all' || f.department === facultyDepartmentFilter);
     });
 
     el.innerHTML = `
@@ -401,16 +431,153 @@ function renderFaculty() {
                 <div class="section-title">Faculty Management</div>
                 <div class="section-sub">Add, edit, or remove faculty members and assign their roles</div>
             </div>
-            <button class="btn btn-green" id="show-add-faculty-btn">
+        </div>
+
+        <div style="margin-bottom: 24px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                <span style="font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">Departments</span>
+                <button class="btn btn-outline" id="show-add-dept-btn" style="font-size: 12px; padding: 6px 12px;">
+                    ${bxi('plus')} Add Department
+                </button>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 16px;">
+                ${departmentList.map(d => {
+                    const deptFaculty = facultyList.filter(f => f.department === d.name);
+                    const dean = facultyList.find(f => f.id === d.deanId);
+                    const professorCount = deptFaculty.filter(f => f.role === 'professor').length;
+                    const headCount = deptFaculty.filter(f => f.role === 'dept_head').length;
+                    return `
+                    <div class="card" style="padding: 16px; border: 1px solid #e5e7eb; border-radius: 12px; ${deleteConfirmDepartmentId === d.id ? 'background: #fef2f2; border-color: #fca5a5;' : ''}">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                            <div>
+                                <div style="font-weight: 600; font-size: 14px; color: #111827;">${d.name}</div>
+                                <div style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.3px; margin-top: 2px;">
+                                    <span class="badge badge-blue">${d.abbreviation}</span>
+                                </div>
+                            </div>
+                            ${deleteConfirmDepartmentId === d.id ? '' : `
+                            <div style="display: flex; gap: 4px;">
+                                <button class="icon-btn icon-btn--blue dept-edit-btn" data-id="${d.id}" title="Edit" style="width: 28px; height: 28px; font-size: 14px;">
+                                    ${bxi('edit')}
+                                </button>
+                                <button class="icon-btn icon-btn--red dept-delete-btn" data-id="${d.id}" title="Delete" style="width: 28px; height: 28px; font-size: 14px;">
+                                    ${bxi('trash')}
+                                </button>
+                            </div>
+                            `}
+                        </div>
+                        <div style="margin: 12px 0; padding: 8px 0; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb;">
+                            <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">
+                                <strong>Faculty:</strong> ${deptFaculty.length} total
+                                ${professorCount > 0 ? `, ${professorCount} Professor${professorCount > 1 ? 's' : ''}` : ''}
+                                ${headCount > 0 ? `, ${headCount} Head${headCount > 1 ? 's' : ''}` : ''}
+                            </div>
+                            ${dean ? `
+                            <div style="font-size: 12px; color: #6b7280;">
+                                <strong>Dean:</strong> ${dean.name.split(',')[0]}
+                            </div>
+                            ` : ''}
+                        </div>
+                        ${deleteConfirmDepartmentId === d.id ? `
+                        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #fca5a5; display: flex; gap: 8px;">
+                            <button class="btn btn-outline dept-cancel-delete" data-id="${d.id}" style="font-size: 12px; padding: 6px 12px;">Cancel</button>
+                            <button class="btn btn-red dept-confirm-delete" data-id="${d.id}" style="font-size: 12px; padding: 6px 12px;">Delete</button>
+                        </div>
+                        ` : ''}
+                    </div>
+                    `;
+                }).join('')}
+            </div>
+
+        ${showAddDepartmentForm ? `
+        <div class="form-box form-box--green" id="add-department-form" style="margin-bottom: 24px;">
+            <div class="form-box-header">
+                <span class="form-box-title form-box-title--green">${bxi('plus')} Add New Department</span>
+                <button class="form-close-btn" id="close-add-dept">${bxi('x')}</button>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Department Name *</label>
+                    <input id="nd-name" value="${newDepartmentData.name}" placeholder="e.g. BS Computer Science">
+                </div>
+                <div class="form-group">
+                    <label>Abbreviation *</label>
+                    <input id="nd-abbr" value="${newDepartmentData.abbreviation}" placeholder="e.g. CS" maxlength="4">
+                </div>
+                <div class="form-group">
+                    <label>Department Dean</label>
+                    <select id="nd-dean">
+                        <option value="">Select a dean...</option>
+                        ${facultyList.filter(f => f.role === 'dean' && f.status === 'active').map(f =>
+                            `<option value="${f.id}"${newDepartmentData.deanId === f.id ? ' selected' : ''}>${f.name}</option>`
+                        ).join('')}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Description (Optional)</label>
+                    <input id="nd-desc" value="${newDepartmentData.description}" placeholder="e.g. Bachelor of Science in Computer Science">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-outline" id="cancel-add-dept">Cancel</button>
+                <button class="btn btn-green" id="save-add-dept">${bxi('save')} Save Department</button>
+            </div>
+        </div>` : ''}
+
+        ${editingDepartmentId ? (() => {
+            const d = departmentList.find(x => x.id === editingDepartmentId);
+            return d ? `
+            <div class="form-box form-box--blue" id="edit-department-form" style="margin-bottom: 24px;">
+                <div class="form-box-header">
+                    <span class="form-box-title form-box-title--blue">${bxi('edit')} Edit Department – ${d.name}</span>
+                    <button class="form-close-btn" id="close-edit-dept">${bxi('x')}</button>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Department Name *</label>
+                        <input id="ed-name" value="${d.name}" placeholder="Department name">
+                    </div>
+                    <div class="form-group">
+                        <label>Abbreviation *</label>
+                        <input id="ed-abbr" value="${d.abbreviation}" placeholder="Abbreviation" maxlength="4">
+                    </div>
+                    <div class="form-group">
+                        <label>Department Dean</label>
+                        <select id="ed-dean">
+                            <option value="">Select a dean...</option>
+                            ${facultyList.filter(f => f.role === 'dean' && f.status === 'active').map(f =>
+                                `<option value="${f.id}"${d.deanId === f.id ? ' selected' : ''}>${f.name}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Description (Optional)</label>
+                        <input id="ed-desc" value="${d.description || ''}" placeholder="Description">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-outline" id="cancel-edit-dept">Cancel</button>
+                    <button class="btn btn-blue" id="save-edit-dept">${bxi('save')} Save Changes</button>
+                </div>
+            </div>` : '';
+        })() : ''}
+
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; margin-top: 24px;">
+            <span style="font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">Faculty Members</span>
+            <button class="btn btn-green" id="show-add-faculty-btn" style="font-size: 12px; padding: 6px 12px;">
                 ${bxi('plus')} Add Faculty
             </button>
         </div>
-
-        <div class="filters-row">
             <div class="search-wrap">
                 <span class="search-icon">${bxi('search')}</span>
                 <input id="faculty-search" value="${facultySearch}" placeholder="Search by name or email…">
             </div>
+            <select class="filter-select" id="faculty-department-filter">
+                <option value="all">All Departments</option>
+                ${departmentList.map(d =>
+                    `<option value="${d.name}"${facultyDepartmentFilter === d.name ? ' selected' : ''}>${d.name}</option>`
+                ).join('')}
+            </select>
             <select class="filter-select" id="faculty-role-filter">
                 <option value="all">All Roles</option>
                 ${Object.entries(ROLE_LABELS).map(([k, v]) =>
@@ -447,6 +614,19 @@ function renderFaculty() {
                 <div class="form-group">
                     <label>Last Name *</label>
                     <input id="nf-lastName" value="${newFacultyData.lastName}" placeholder="e.g. Dela Cruz">
+                </div>
+                <div class="form-group">
+                    <label>Sex *</label>
+                    <div style="display: flex; gap: 16px; padding-top: 6px;">
+                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: normal;">
+                            <input type="radio" id="nf-sex-m" name="nf-sex" value="M" ${newFacultyData.sex === 'M' ? 'checked' : ''} style="cursor: pointer;">
+                            Male
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: normal;">
+                            <input type="radio" id="nf-sex-f" name="nf-sex" value="F" ${newFacultyData.sex === 'F' ? 'checked' : ''} style="cursor: pointer;">
+                            Female
+                        </label>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Suffix (Optional)</label>
@@ -495,6 +675,19 @@ function renderFaculty() {
                     <div class="form-group"><label>Last Name *</label><input id="ef-lastname" value="${f.name.split(',')[0] || ''}"></div>
                     <div class="form-group"><label>First Name *</label><input id="ef-firstname" value="${f.name.split(',')[1]?.trim().split(' ')[0] || ''}"></div>
                     <div class="form-group"><label>Middle Initial (Optional)</label><input id="ef-mi" value="${f.name.split(',')[1]?.trim().split(' ')[1] || ''}"></div>
+                    <div class="form-group">
+                        <label>Sex *</label>
+                        <div style="display: flex; gap: 16px; padding-top: 6px;">
+                            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: normal;">
+                                <input type="radio" id="ef-sex-m" name="ef-sex" value="M" ${f.sex === 'M' ? 'checked' : ''} style="cursor: pointer;">
+                                Male
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: normal;">
+                                <input type="radio" id="ef-sex-f" name="ef-sex" value="F" ${f.sex === 'F' ? 'checked' : ''} style="cursor: pointer;">
+                                Female
+                            </label>
+                        </div>
+                    </div>
                     <div class="form-group"><label>Suffix (Optional)</label><input id="ef-suffix" value="${f.name.split(',')[1]?.trim().split(' ')[2] || ''}"></div>
                     <div class="form-group"><label>Email</label><input id="ef-email" type="email" value="${f.email}"></div>
                     <div class="form-group"><label>Phone</label><input id="ef-phone" value="${f.phone}"></div>
@@ -517,8 +710,8 @@ function renderFaculty() {
                     <div class="form-group">
                         <label>Department</label>
                         <select id="ef-dept">
-                            ${['BS Computer Science', 'BS Information Technology', 'College of Computer Studies', 'Finance Office'].map(d =>
-                                `<option${f.department === d ? ' selected' : ''}>${d}</option>`
+                            ${departmentList.map(d =>
+                                `<option${f.department === d.name ? ' selected' : ''}>${d.name}</option>`
                             ).join('')}
                         </select>
                     </div>
@@ -541,6 +734,7 @@ function renderFaculty() {
                         <div class="member-name">
                             ${f.name}
                             <span class="badge ${ROLE_BADGE_CLASS[f.role]}">${ROLE_LABELS[f.role]}</span>
+                            <span class="badge ${f.sex === 'M' ? 'badge-blue' : 'badge-indigo'}">${f.sex === 'M' ? 'Male' : 'Female'}</span>
                             <span class="badge ${f.status === 'active' ? 'badge-green' : f.status === 'inactive' ? 'badge-gray' : 'badge-red'}">
                                 ${f.status.charAt(0).toUpperCase() + f.status.slice(1)}
                             </span>
@@ -595,19 +789,25 @@ function renderFaculty() {
         const generated = facultyEmailFromId(e.target.value.trim());
         document.getElementById('nf-email').value = e.target.value.trim() ? generated : '';
     });
+    document.querySelectorAll('input[name="nf-sex"]').forEach(radio => {
+        radio.addEventListener('change', e => {
+            newFacultyData.sex = e.target.value;
+        });
+    });
     document.getElementById('save-add-faculty')?.addEventListener('click', () => {
         const facultyId = document.getElementById('nf-id').value.trim();
         const firstName = document.getElementById('nf-firstName').value.trim();
         const middleName = document.getElementById('nf-middleName').value.trim();
         const lastName = document.getElementById('nf-lastName').value.trim();
         const suffix = document.getElementById('nf-suffix').value.trim();
+        const sex = document.querySelector('input[name="nf-sex"]:checked')?.value || '';
         const email = document.getElementById('nf-email').value.trim();
         const role = document.getElementById('nf-role').value.trim();
         const department = document.getElementById('nf-dept').value.trim();
         const phone = document.getElementById('nf-phone').value.trim();
 
-        if (!facultyId || !firstName || !lastName || !email || !role || !department) {
-            showToast('Faculty ID, First Name, Last Name, Email, Role, and Department are required.', true);
+        if (!facultyId || !firstName || !lastName || !email || !role || !department || !sex) {
+            showToast('Faculty ID, First Name, Last Name, Email, Role, Department, and Sex are required.', true);
             return;
         }
 
@@ -628,6 +828,7 @@ function renderFaculty() {
             name: name,
             email: email,
             phone: phone,
+            sex: sex,
             role: role,
             department: department,
             status: 'active',
@@ -644,6 +845,7 @@ function renderFaculty() {
             middleName: '',
             email: '',
             phone: '',
+            sex: 'M',
             role: 'professor',
             department: 'BS Computer Science'
         };
@@ -668,6 +870,7 @@ function renderFaculty() {
             ].filter(Boolean).join(' ').trim(),
             email:      document.getElementById('ef-email').value,
             phone:      document.getElementById('ef-phone').value,
+            sex:        document.querySelector('input[name="ef-sex"]:checked')?.value || 'M',
             role:       document.getElementById('ef-role').value,
             status:     document.getElementById('ef-status').value,
             department: document.getElementById('ef-dept').value,
@@ -679,6 +882,9 @@ function renderFaculty() {
 
     document.getElementById('faculty-search')?.addEventListener('input', e => {
         facultySearch = e.target.value; renderFaculty();
+    });
+    document.getElementById('faculty-department-filter')?.addEventListener('change', e => {
+        facultyDepartmentFilter = e.target.value; renderFaculty();
     });
     document.getElementById('faculty-role-filter')?.addEventListener('change', e => {
         facultyRoleFilter = e.target.value; renderFaculty();
@@ -706,6 +912,91 @@ function renderFaculty() {
         facultyList = facultyList.filter(f => f.id !== b.dataset.id);
         deleteConfirmFacultyId = null;
         showToast('Faculty removed.'); renderFaculty();
+    }));
+
+    // Department management listeners
+    document.getElementById('show-add-dept-btn')?.addEventListener('click', () => {
+        showAddDepartmentForm = true; renderFaculty();
+    });
+    document.getElementById('close-add-dept')?.addEventListener('click', () => {
+        showAddDepartmentForm = false; renderFaculty();
+    });
+    document.getElementById('cancel-add-dept')?.addEventListener('click', () => {
+        showAddDepartmentForm = false; renderFaculty();
+    });
+    document.getElementById('save-add-dept')?.addEventListener('click', () => {
+        const name = document.getElementById('nd-name').value.trim();
+        const abbr = document.getElementById('nd-abbr').value.trim();
+        const deanId = document.getElementById('nd-dean').value.trim();
+
+        if (!name || !abbr) {
+            showToast('Department Name and Abbreviation are required.', true);
+            return;
+        }
+
+        if (departmentList.find(d => d.name === name)) {
+            showToast('Department with this name already exists.', true);
+            return;
+        }
+
+        departmentList.push({
+            id: 'DEPT-' + String(Date.now()).slice(-6),
+            name: name,
+            abbreviation: abbr,
+            deanId: deanId,
+            description: document.getElementById('nd-desc').value.trim(),
+            faculty: [],
+            status: 'active'
+        });
+
+        showAddDepartmentForm = false;
+        newDepartmentData = { name: '', abbreviation: '', deanId: '', description: '' };
+        showToast('Department added successfully.');
+        renderFaculty();
+    });
+
+    document.getElementById('close-edit-dept')?.addEventListener('click', () => {
+        editingDepartmentId = null; renderFaculty();
+    });
+    document.getElementById('cancel-edit-dept')?.addEventListener('click', () => {
+        editingDepartmentId = null; renderFaculty();
+    });
+    document.getElementById('save-edit-dept')?.addEventListener('click', () => {
+        const name = document.getElementById('ed-name').value.trim();
+        const abbr = document.getElementById('ed-abbr').value.trim();
+        const deanId = document.getElementById('ed-dean').value.trim();
+
+        if (!name || !abbr) {
+            showToast('Department Name and Abbreviation are required.', true);
+            return;
+        }
+
+        departmentList = departmentList.map(d => d.id !== editingDepartmentId ? d : {
+            ...d,
+            name: name,
+            abbreviation: abbr,
+            deanId: deanId,
+            description: document.getElementById('ed-desc').value.trim(),
+        });
+        editingDepartmentId = null;
+        showToast('Department updated.');
+        renderFaculty();
+    });
+
+    el.querySelectorAll('.dept-edit-btn').forEach(b => b.addEventListener('click', () => {
+        editingDepartmentId = b.dataset.id; showAddDepartmentForm = false; renderFaculty();
+    }));
+    el.querySelectorAll('.dept-delete-btn').forEach(b => b.addEventListener('click', () => {
+        deleteConfirmDepartmentId = b.dataset.id; renderFaculty();
+    }));
+    el.querySelectorAll('.dept-cancel-delete').forEach(b => b.addEventListener('click', () => {
+        deleteConfirmDepartmentId = null; renderFaculty();
+    }));
+    el.querySelectorAll('.dept-confirm-delete').forEach(b => b.addEventListener('click', () => {
+        departmentList = departmentList.filter(d => d.id !== b.dataset.id);
+        deleteConfirmDepartmentId = null;
+        showToast('Department removed.');
+        renderFaculty();
     }));
 }
 
@@ -1592,6 +1883,236 @@ function renderSystem() {
     );
     document.getElementById('open-appearance-btn')?.addEventListener('click', () => {
         if (typeof window.openSettingsPanel === 'function') window.openSettingsPanel();
+    });
+}
+
+/* ── SEMESTER MANAGEMENT ──────── */
+function renderSemester() {
+    const el = document.getElementById('tab-semester');
+    const semesters = window.SemesterManager.getAllSemesters();
+    const current = window.SemesterManager.getCurrentSemester();
+
+    el.innerHTML = `
+        <div class="section-header">
+            <div>
+                <div class="section-title">Semester Management</div>
+                <div class="section-sub">Manage academic semesters and schedule transitions</div>
+            </div>
+        </div>
+
+        <div class="info-banner info-banner--blue">
+            <span class="info-banner-icon">${bxi('info-circle')}</span>
+            <p><strong>Current Semester:</strong> ${current ? window.SemesterManager.formatSemesterInfo(current) : 'None selected'}</p>
+        </div>
+
+        <div class="card" style="margin-bottom: 24px;">
+            <div class="card-title">Active Semester</div>
+            ${current ? `
+                <div style="padding: 16px; background: #f0fdf4; border-radius: 8px; border-left: 4px solid #16a34a;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px;">
+                        <div>
+                            <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.3px;">School Year</div>
+                            <div style="font-size: 16px; font-weight: 600; color: #111827; margin-top: 4px;">${current.schoolYear}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.3px;">Semester</div>
+                            <div style="font-size: 16px; font-weight: 600; color: #111827; margin-top: 4px;">${current.name}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.3px;">Start Date</div>
+                            <div style="font-size: 14px; color: #111827; margin-top: 4px;">${window.SemesterManager.formatDate(current.startDate)}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.3px;">End Date</div>
+                            <div style="font-size: 14px; color: #111827; margin-top: 4px;">${window.SemesterManager.formatDate(current.endDate)}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.3px;">Payment Deadline</div>
+                            <div style="font-size: 14px; color: #111827; margin-top: 4px;">${window.SemesterManager.formatDate(current.paymentDeadline)}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.3px;">Days Until Deadline</div>
+                            <div style="font-size: 14px; font-weight: 600; color: ${window.SemesterManager.daysUntilDeadline(current) <= 7 ? '#dc2626' : '#16a34a'}; margin-top: 4px;">
+                                ${window.SemesterManager.daysUntilDeadline(current)} days
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ` : `
+                <div style="padding: 16px; text-align: center; color: #6b7280;">
+                    No semester is currently active. Select one below to activate.
+                </div>
+            `}
+        </div>
+
+        <div class="card">
+            <div class="card-title">All Semesters</div>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #e5e7eb; background: #f9fafb;">
+                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">School Year</th>
+                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">Semester</th>
+                            <th style="padding: 12px; text-align: center; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">Status</th>
+                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">Start Date</th>
+                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">End Date</th>
+                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">Auto-Start</th>
+                            <th style="padding: 12px; text-align: center; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${semesters.map(sem => `
+                        <tr style="border-bottom: 1px solid #e5e7eb; ${sem.status === 'active' ? 'background: #f0fdf4;' : ''}">
+                            <td style="padding: 12px; font-size: 13px; color: #111827;">${sem.schoolYear}</td>
+                            <td style="padding: 12px; font-size: 13px; color: #111827; font-weight: 500;">${sem.name}</td>
+                            <td style="padding: 12px; text-align: center;">
+                                <span class="badge ${sem.status === 'active' ? 'badge-green' : sem.status === 'completed' ? 'badge-gray' : 'badge-amber'}">
+                                    ${sem.status.charAt(0).toUpperCase() + sem.status.slice(1)}
+                                </span>
+                            </td>
+                            <td style="padding: 12px; font-size: 13px; color: #6b7280;">${window.SemesterManager.formatDate(sem.startDate)}</td>
+                            <td style="padding: 12px; font-size: 13px; color: #6b7280;">${window.SemesterManager.formatDate(sem.endDate)}</td>
+                            <td style="padding: 12px; font-size: 13px; color: #6b7280;">
+                                ${sem.autoStartEnabled ? `${window.SemesterManager.formatDate(sem.autoStartDate)} ✓` : '—'}
+                            </td>
+                            <td style="padding: 12px; text-align: center;">
+                                ${sem.status !== 'active' ? `
+                                    <button class="btn btn-green semester-activate-btn" data-id="${sem.id}" style="font-size: 12px; padding: 6px 12px;">
+                                        ${bxi('check')} Activate
+                                    </button>
+                                ` : `
+                                    <button class="btn btn-amber semester-complete-btn" data-id="${sem.id}" style="font-size: 12px; padding: 6px 12px;">
+                                        ${bxi('check-double')} Complete
+                                    </button>
+                                `}
+                            </td>
+                        </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 24px;">
+            <div class="card-title">Create New Semester</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>School Year *</label>
+                    <input id="ns-year" placeholder="e.g. 2026-2027">
+                </div>
+                <div class="form-group">
+                    <label>Semester Name *</label>
+                    <select id="ns-name">
+                        <option value="">Select semester</option>
+                        <option value="1st Semester">1st Semester</option>
+                        <option value="2nd Semester">2nd Semester</option>
+                        <option value="Summer">Summer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Start Date *</label>
+                    <input id="ns-start" type="date">
+                </div>
+                <div class="form-group">
+                    <label>End Date *</label>
+                    <input id="ns-end" type="date">
+                </div>
+                <div class="form-group">
+                    <label>Payment Deadline *</label>
+                    <input id="ns-payment" type="date">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input id="ns-desc" placeholder="e.g. First semester of AY 2026-2027">
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-weight: normal;">
+                        <input type="checkbox" id="ns-auto" style="width: 18px; height: 18px; cursor: pointer;">
+                        Enable auto-start on specific date
+                    </label>
+                </div>
+                <div class="form-group" id="ns-auto-date-group" style="display: none;">
+                    <label>Auto-Start Date</label>
+                    <input id="ns-auto-date" type="date">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-green" id="save-new-semester">${bxi('plus')} Create Semester</button>
+            </div>
+        </div>
+    `;
+
+    // Event listeners
+    el.querySelectorAll('.semester-activate-btn').forEach(b => b.addEventListener('click', () => {
+        const semId = b.dataset.id;
+        const sem = window.SemesterManager.getSemesterById(semId);
+        if (confirm(`Activate "${sem.name} (${sem.schoolYear})"?`)) {
+            window.SemesterManager.setActiveSemester(semId);
+            showToast(`Activated: ${sem.name}`);
+            renderSemester();
+        }
+    }));
+
+    el.querySelectorAll('.semester-complete-btn').forEach(b => b.addEventListener('click', () => {
+        const semId = b.dataset.id;
+        const sem = window.SemesterManager.getSemesterById(semId);
+        if (confirm(`Mark "${sem.name}" as completed?`)) {
+            window.SemesterManager.completeSemester(semId);
+            showToast(`Completed: ${sem.name}`);
+            renderSemester();
+        }
+    }));
+
+    document.getElementById('ns-auto')?.addEventListener('change', e => {
+        document.getElementById('ns-auto-date-group').style.display = e.target.checked ? 'block' : 'none';
+    });
+
+    document.getElementById('save-new-semester')?.addEventListener('click', () => {
+        const year = document.getElementById('ns-year').value.trim();
+        const name = document.getElementById('ns-name').value.trim();
+        const start = document.getElementById('ns-start').value;
+        const end = document.getElementById('ns-end').value;
+        const payment = document.getElementById('ns-payment').value;
+        const autoEnabled = document.getElementById('ns-auto').checked;
+        const autoDate = document.getElementById('ns-auto-date').value;
+        const desc = document.getElementById('ns-desc').value.trim();
+
+        if (!year || !name || !start || !end || !payment) {
+            showToast('Please fill in all required fields.', true);
+            return;
+        }
+
+        if (autoEnabled && !autoDate) {
+            showToast('Please specify auto-start date.', true);
+            return;
+        }
+
+        const result = window.SemesterManager.createSemester({
+            schoolYear: year,
+            name: name,
+            startDate: start,
+            endDate: end,
+            paymentDeadline: payment,
+            autoStartEnabled: autoEnabled,
+            autoStartDate: autoEnabled ? autoDate : null,
+            description: desc
+        });
+
+        if (result) {
+            showToast(`Created: ${year} ${name}`);
+            document.getElementById('ns-year').value = '';
+            document.getElementById('ns-name').value = '';
+            document.getElementById('ns-start').value = '';
+            document.getElementById('ns-end').value = '';
+            document.getElementById('ns-payment').value = '';
+            document.getElementById('ns-desc').value = '';
+            document.getElementById('ns-auto').checked = false;
+            document.getElementById('ns-auto-date').value = '';
+            document.getElementById('ns-auto-date-group').style.display = 'none';
+            renderSemester();
+        } else {
+            showToast('Failed to create semester.', true);
+        }
     });
 }
 

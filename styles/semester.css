@@ -1,0 +1,269 @@
+/* Semester Badge Styling */
+
+/* Sidebar Semester Badge */
+.sidebar-semester-badge {
+    display: flex;
+    justify-content: center;
+    padding: 12px 8px;
+    margin: 8px;
+    border-radius: 8px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    font-size: 11px;
+    font-weight: 600;
+    min-height: 36px;
+    align-items: center;
+}
+
+.sidebar-semester-badge .semester-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 16px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.sidebar-semester-badge .semester-badge--active {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.sidebar-semester-badge .semester-badge--active::before {
+    content: '●';
+    color: #10b981;
+    font-size: 6px;
+}
+
+.sidebar-semester-badge .semester-badge--inactive {
+    background: #f3f4f6;
+    color: #6b7280;
+    border: 1px solid #e5e7eb;
+}
+
+.sidebar-semester-badge .semester-badge--inactive::before {
+    content: '○';
+    color: #9ca3af;
+    font-size: 6px;
+}
+
+.semester-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.semester-badge--active {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.semester-badge--active::before {
+    content: '●';
+    color: #10b981;
+    font-size: 8px;
+}
+
+.semester-badge--inactive {
+    background: #f3f4f6;
+    color: #6b7280;
+    border: 1px solid #e5e7eb;
+}
+
+.semester-badge--inactive::before {
+    content: '○';
+    color: #9ca3af;
+    font-size: 8px;
+}
+
+.semester-badge--upcoming {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fde68a;
+}
+
+.semester-badge--upcoming::before {
+    content: '◐';
+    color: #f59e0b;
+    font-size: 8px;
+}
+
+.semester-badge--completed {
+    background: #dbeafe;
+    color: #0c4a6e;
+    border: 1px solid #bfdbfe;
+}
+
+.semester-badge--completed::before {
+    content: '✓';
+    color: #3b82f6;
+    font-size: 10px;
+}
+
+/* Semester info banner in dashboards */
+.semester-info-banner {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid #16a34a;
+}
+
+.semester-info-banner--icon {
+    font-size: 20px;
+    color: #15803d;
+}
+
+.semester-info-banner--content {
+    flex: 1;
+}
+
+.semester-info-banner--title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #065f46;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.semester-info-banner--value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #15803d;
+    margin-top: 2px;
+}
+
+.semester-info-banner--deadline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #65a30d;
+    margin-top: 4px;
+}
+
+.semester-info-banner--deadline.urgent {
+    color: #dc2626;
+    font-weight: 600;
+}
+
+/* Semester indicator in navigation/header */
+.nav-semester-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #374151;
+}
+
+.nav-semester-indicator--label {
+    font-weight: 500;
+    color: #6b7280;
+}
+
+.nav-semester-indicator--value {
+    font-weight: 600;
+    color: #111827;
+}
+
+/* Semester status card */
+.semester-status-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.semester-status-card--info {
+    flex: 1;
+}
+
+.semester-status-card--label {
+    font-size: 12px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 6px;
+}
+
+.semester-status-card--value {
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.semester-status-card--deadline {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-left: 16px;
+    border-left: 1px solid #e5e7eb;
+}
+
+.semester-status-card--deadline-label {
+    font-size: 11px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.semester-status-card--deadline-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #15803d;
+}
+
+.semester-status-card--deadline-value.urgent {
+    color: #dc2626;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .semester-info-banner {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .semester-status-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .semester-status-card--deadline {
+        margin-top: 12px;
+        padding-left: 0;
+        border-left: none;
+    }
+
+    .semester-badge {
+        font-size: 11px;
+        padding: 5px 10px;
+    }
+}
