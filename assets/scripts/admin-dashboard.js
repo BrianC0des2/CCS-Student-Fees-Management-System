@@ -89,10 +89,10 @@ let departmentList = [
 
 let facultyList = [
     { id: 'FAC-001', name: 'Prof. Mark L. Flores, PhD.',   email: 'ml.flores@wmsu.edu.ph',   phone: '+63-912-345-6789', role: 'dean',            department: 'BS Computer Science',            sex: 'M', status: 'active',   permissions: ['view_students','approve_clearance','reject_clearance','generate_reports','export_data','view_payments','view_audit'], dateAdded: 'Jun 1, 2022',  lastLogin: 'Mar 7, 2026' },
-    { id: 'FAC-002', name: 'Mr. Jaydee C. Ballaho, MIT',   email: 'jc.ballaho@wmsu.edu.ph',  phone: '+63-912-345-6790', role: 'dept_head',       department: 'BS Information Technology',      sex: 'M', status: 'active',   permissions: ['view_students','approve_clearance','sign_clearance','generate_reports','view_payments'], dateAdded: 'Jun 1, 2022',  lastLogin: 'Mar 6, 2026' },
+    { id: 'FAC-002', name: 'Mr. Robert Johnson, MIT',   email: 'r.johnson@wmsu.edu.ph',  phone: '+63-912-345-6790', role: 'dept_head',       department: 'BS Information Technology',      sex: 'M', status: 'active',   permissions: ['view_students','approve_clearance','sign_clearance','generate_reports','view_payments'], dateAdded: 'Jun 1, 2022',  lastLogin: 'Mar 6, 2026' },
     { id: 'FAC-003', name: 'Asst Prof Marjorie A. Rojas',  email: 'ma.rojas@wmsu.edu.ph',    phone: '+63-912-345-6791', role: 'coordinator',     department: 'BS Computer Science',            sex: 'F', status: 'active',   permissions: ['view_students','approve_clearance','sign_clearance','edit_students','generate_reports'], dateAdded: 'Jun 1, 2022',  lastLogin: 'Mar 5, 2026' },
     { id: 'FAC-004', name: 'Ms. Jennifer Santos',           email: 'j.santos@wmsu.edu.ph',    phone: '+63-912-345-6792', role: 'finance_officer', department: 'BS Computer Science',            sex: 'F', status: 'active',   permissions: ['view_students','view_payments','process_payments','generate_reports','export_data','manage_fees'], dateAdded: 'Aug 15, 2022', lastLogin: 'Mar 7, 2026' },
-    { id: 'FAC-005', name: 'Prof. Ricardo Dela Cruz, MIT',  email: 'r.delacruz@wmsu.edu.ph',  phone: '+63-912-345-6793', role: 'adviser',         department: 'BS Computer Science',            sex: 'M', status: 'active',   permissions: ['view_students','verify_signup','approve_clearance','sign_clearance'], dateAdded: 'Jan 10, 2023', lastLogin: 'Mar 4, 2026' },
+    { id: 'FAC-005', name: 'Prof. John Smith, MIT',  email: 'j.smith@wmsu.edu.ph',  phone: '+63-912-345-6793', role: 'dean',         department: 'BS Computer Science',            sex: 'M', status: 'active',   permissions: ['view_students','verify_signup','approve_clearance','sign_clearance'], dateAdded: 'Jan 10, 2023', lastLogin: 'Mar 4, 2026' },
     { id: 'FAC-006', name: 'Prof. Elena Mercado',           email: 'e.mercado@wmsu.edu.ph',   phone: '+63-912-345-6794', role: 'professor',       department: 'BS Information Technology',      sex: 'F', status: 'inactive', permissions: ['view_students','verify_signup','sign_clearance'], dateAdded: 'Mar 1, 2023',  lastLogin: 'Jan 20, 2026' },
 ];
 
@@ -116,14 +116,14 @@ let signatoryList = [
     { id: 'phiccs',        name: 'PHICCS',                         role: 'Organization',                type: 'organization', order: 2, status: 'active',   assignedTo: '' },
     { id: 'venom',         name: 'Venom Publication',              role: 'Publication Office',           type: 'organization', order: 3, status: 'active',   assignedTo: '' },
     { id: 'gender_club',   name: 'CSC Gender Club',                role: 'Student Organization',        type: 'organization', order: 4, status: 'active',   assignedTo: '' },
-    { id: 'dept_head',     name: 'Mr. Jaydee C. Ballaho, MIT',     role: 'Department Head',              type: 'faculty',      order: 5, status: 'active',   assignedTo: 'FAC-002' },
+    { id: 'dept_head',     name: 'Mr. Robert Johnson, MIT',     role: 'Department Head',              type: 'faculty',      order: 5, status: 'active',   assignedTo: 'FAC-002' },
     { id: 'class_adviser', name: 'Class Adviser',                   role: 'Faculty',                      type: 'faculty',      order: 6, status: 'active',   assignedTo: '' },
     { id: 'student_affairs', name: 'Asst Prof Marjorie A. Rojas',  role: 'Student Affairs Coordinator', type: 'faculty',      order: 7, status: 'active',   assignedTo: 'FAC-003' },
     { id: 'dean',          name: 'Prof. Mark L. Flores, PhD.',     role: 'College Dean CCS',             type: 'dean',         order: 8, status: 'active',   assignedTo: 'FAC-001' },
 ];
 
 const auditLogs = [
-    { id: 'LOG-001', timestamp: 'Mar 7, 2026 – 09:15 AM', user: 'Admin',                       role: 'System Admin',    action: 'Faculty Added',         details: 'Added Prof. Ricardo Dela Cruz to BS Computer Science department',         ipAddress: '192.168.1.1',   type: 'success' },
+    { id: 'LOG-001', timestamp: 'Mar 7, 2026 – 09:15 AM', user: 'Admin',                       role: 'System Admin',    action: 'Faculty Added',         details: 'Added Prof. John Smith to BS Computer Science department',         ipAddress: '192.168.1.1',   type: 'success' },
     { id: 'LOG-002', timestamp: 'Mar 7, 2026 – 08:42 AM', user: 'Ms. Jennifer Santos',         role: 'Finance Officer', action: 'Payment Processed',      details: 'Processed payment of ₱350 for student 2022-00123',                       ipAddress: '192.168.1.22',  type: 'info' },
     { id: 'LOG-003', timestamp: 'Mar 6, 2026 – 04:30 PM', user: 'Admin',                       role: 'System Admin',    action: 'Permission Modified',    details: 'Updated permissions for Carlos Mendoza (2023-00212) – account suspended', ipAddress: '192.168.1.1',   type: 'warning' },
     { id: 'LOG-004', timestamp: 'Mar 6, 2026 – 02:11 PM', user: 'Prof. Mark L. Flores, PhD.',  role: 'College Dean',    action: 'Clearance Approved',     details: 'Approved clearance for Juan Dela Cruz (2022-00124)',                      ipAddress: '192.168.1.35',  type: 'success' },
@@ -473,12 +473,10 @@ function renderFaculty() {
                         <div style="margin: 12px 0; padding: 8px 0; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb;">
                             <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">
                                 <strong>Faculty:</strong> ${deptFaculty.length} total
-                                ${professorCount > 0 ? `, ${professorCount} Professor${professorCount > 1 ? 's' : ''}` : ''}
-                                ${headCount > 0 ? `, ${headCount} Head${headCount > 1 ? 's' : ''}` : ''}
                             </div>
                             ${dean ? `
                             <div style="font-size: 12px; color: #6b7280;">
-                                <strong>Dean:</strong> ${dean.name.split(',')[0]}
+                                <strong>Department Head:</strong> ${dean.name.split(',')[0]}
                             </div>
                             ` : ''}
                         </div>

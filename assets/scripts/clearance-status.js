@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       id: 5,
-      name: 'Mr. Jaydee C. Ballaho, MIT',
+      name: 'Mr. Robert Johnson, MIT',
       role: 'Department Head',
       organization: 'Department of Computer Studies',
       type: 'faculty',
