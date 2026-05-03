@@ -220,6 +220,8 @@
                                 <option value="recent">Recent Payments</option>
                                 <option value="pending">Pending Payments</option>
                                 <option value="promissory">Promissory Notes</option>
+                                <option value="all">All Payments</option>
+                                <option value="old">Older Payments</option>
                             </select>
                         </div>
 
@@ -365,6 +367,9 @@
                 const PROMISSORY_STORAGE_KEY = window.CCSStudentDataHelpers && typeof window.CCSStudentDataHelpers.getStudentDataStorageKey === 'function'
                     ? window.CCSStudentDataHelpers.getStudentDataStorageKey('PROMISSORY_STORAGE_KEY')
                     : (window.CCSStudentDataKeys && window.CCSStudentDataKeys.PROMISSORY_STORAGE_KEY);
+                const PROMISSORY_STORAGE_KEY = window.CCSStudentDataKeys
+                    ? window.CCSStudentDataKeys.PROMISSORY_STORAGE_KEY
+                    : 'ccs.promissory.requests';
                 const STUDENT_FEE_STATUS_KEY = 'ccs.student.feeStatus';
 
                 const DEFAULT_FEES = [
@@ -512,7 +517,11 @@
                 }
 
                 function getStudentRequests(studentId) {
-                    if (!window.getStudentPromissoryRequests) return [];
+                    if (!window.getStudentPromissoryRequests) {
+                        return readJsonArray(PROMISSORY_STORAGE_KEY)
+                            .filter(function (request) { return request.studentId === studentId; });
+                    }
+
                     return window.getStudentPromissoryRequests(studentId);
                 }
 
@@ -692,10 +701,18 @@
                             buttonsRow += `<a class="promissory-link fee-action-promissory" data-fee-id="${fee.id}" data-fee-name="${fee.name}" data-student-id="${studentId}" data-student-name="${studentName}">Request promissory note</a>`;
                         }
 
+                        // compute paid/remaining for display
+                        const key = String(fee.id || '');
+                        const byId = paymentsByFee[key] || 0;
+                        const paidAmount = Math.max(byId, 0);
+                        const remainingAmount = Math.max(Number(fee.amount) - paidAmount, 0);
+
                         // show partially paid indicator
                         const partialPaidIndicator = paidAmount > 0 && remainingAmount > 0
                             ? `<div class="fee-partial">Partially paid: ${formatCurrency(paidAmount)}</div>`
-                            : '';
+                            : paidAmount > 0 && remainingAmount <= 0
+                                ? `<div class="fee-partial">Fully paid</div>`
+                                : '';
 
                         return `
                             <li data-fee-id="${fee.id}">
@@ -859,8 +876,11 @@
                     }
 
                     const allPayments = window.getStudentPayments ? window.getStudentPayments(studentId) : [];
+                    const now = new Date();
+                    const recentThreshold = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
                     const filteredPayments = allPayments.filter(function (payment) {
+                        const paymentDate = new Date(String(payment.dateSubmitted || payment.date || '') + 'T00:00:00');
                         const paymentStatus = String(payment.status || 'Confirmed').toLowerCase();
 
                         if (filterValue === 'pending') {
@@ -868,11 +888,9 @@
                         }
 
                         if (filterValue === 'recent') {
-                            // Show all confirmed payments (no 30-day cutoff)
-                            return paymentStatus === 'confirmed';
+                            return paymentStatus === 'confirmed' && paymentDate >= recentThreshold;
                         }
 
-                        // Default/all: show all confirmed payments
                         return paymentStatus === 'confirmed';
                     });
 
@@ -979,9 +997,7 @@
                         }
                     });
 
-                    // Initialize with 'recent' filter to show confirmed payments from last 30 days
-                    const initialFilter = paymentsFilterSelect.value || 'recent';
-                    renderStudentPaymentsInPanel(initialFilter);
+                    renderStudentPaymentsInPanel(paymentsFilterSelect.value || 'recent');
                 }
 
                 // Expose for external calls
