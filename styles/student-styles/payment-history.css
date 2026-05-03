@@ -127,6 +127,7 @@
 
 .receipt-history-table {
     width: 100%;
+    table-layout: auto;
     border-collapse: collapse;
     font-family: 'Poppins', sans-serif;
 }
@@ -162,9 +163,42 @@
     vertical-align: middle;
 }
 
-.receipt-num {
-    font-weight: 700;
+.receipt-history-table td:last-child {
+    width: 120px;
+    min-width: 120px;
+    max-width: 120px;
+    white-space: nowrap;
+    text-align: right;
+    padding: 10px 12px;
+}
+
+.receipt-history-table th:last-child {
+    width: 120px;
+    min-width: 120px;
+    max-width: 120px;
+    white-space: nowrap;
+    text-align: right;
+}
+
+.btn-view-details {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    width: auto;
+    min-width: unset;
+    max-width: 100px;
+    font-size: 13px;
+    border: 1px solid var(--color-primary);
+    background: white;
     color: var(--color-primary);
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Poppins', sans-serif;
+    justify-content: center;
+    white-space: nowrap;
 }
 
 .receipt-date {
@@ -210,19 +244,28 @@
 }
 
 .btn-view-details {
-    padding: 6px 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    width: auto;
+    min-width: unset;
+    max-width: 100px;
+    font-size: 13px;
     border: 1px solid var(--color-primary);
     background: white;
     color: var(--color-primary);
-    border-radius: 8px;
-    font-size: 12px;
+    border-radius: 6px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
     font-family: 'Poppins', sans-serif;
+    justify-content: center;
+}
+
+.receipt-action-cell .receipt-status-badge {
     display: inline-flex;
-    align-items: center;
-    gap: 6px;
+    margin-bottom: 6px;
 }
 
 .btn-view-details:hover {

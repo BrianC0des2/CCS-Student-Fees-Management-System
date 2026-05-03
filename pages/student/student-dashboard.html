@@ -229,12 +229,13 @@
                             <select id="payments-filter" class="payments-filter">
                                 <option value="recent">Recent Payments</option>
                                 <option value="pending">Pending Payments</option>
+                                <option value="promissory">Promissory Notes</option>
                                 <option value="all">All Payments</option>
                                 <option value="old">Older Payments</option>
                             </select>
                         </div>
 
-                        <div class="payments-list">
+                        <div class="payments-list" id="payments-list-container">
 
                         </div>
 
@@ -388,7 +389,9 @@
 
             (function () {
                 const FEES_STORAGE_KEY = 'ccs.organization.fees';
-                const PROMISSORY_STORAGE_KEY = 'ccs.promissory.requests';
+                const PROMISSORY_STORAGE_KEY = window.CCSStudentDataKeys
+                    ? window.CCSStudentDataKeys.PROMISSORY_STORAGE_KEY
+                    : 'ccs.promissory.requests';
                 const STUDENT_FEE_STATUS_KEY = 'ccs.student.feeStatus';
 
                 const DEFAULT_FEES = [
@@ -484,7 +487,7 @@
 
                 function normalizeAppliesToValue(appliesTo, specificReligion) {
                     const normalized = String(appliesTo || 'all').trim().toLowerCase();
-                    if (normalized === 'muslim') return 'muslim';
+                    if (normalized === 'muslim' || normalized === 'muslim/islam') return 'muslim';
                     if (normalized === 'catholic') return 'catholic';
                     if (normalized === 'specific') {
                         return String(specificReligion || '').trim() ? 'specific' : 'all';
@@ -501,6 +504,11 @@
 
                     if (appliesTo === 'specific') {
                         return studentReligion === normalizeReligion(fee.specificReligion || '');
+                    }
+
+                    // Handle Muslim/Islam comparison - normalize both sides
+                    if (appliesTo === 'muslim') {
+                        return studentReligion === 'muslim' || studentReligion === 'muslim/islam';
                     }
 
                     return studentReligion === appliesTo;
@@ -531,8 +539,12 @@
                 }
 
                 function getStudentRequests(studentId) {
-                    return readJsonArray(PROMISSORY_STORAGE_KEY)
-                        .filter(function (request) { return request.studentId === studentId; });
+                    if (!window.getStudentPromissoryRequests) {
+                        return readJsonArray(PROMISSORY_STORAGE_KEY)
+                            .filter(function (request) { return request.studentId === studentId; });
+                    }
+
+                    return window.getStudentPromissoryRequests(studentId);
                 }
 
                 function getLatestRequestByFee(studentId) {
@@ -614,8 +626,8 @@
                     const fees = getFees();
                     const latestRequestByFee = getLatestRequestByFee(studentId);
                     const feeStatusMap = getFeeStatusMap();
-                    const payments = window.CCSPaymentStore && typeof window.CCSPaymentStore.getPaymentsForStudent === 'function'
-                        ? window.CCSPaymentStore.getPaymentsForStudent(studentId)
+                    const payments = window.getStudentPayments
+                        ? window.getStudentPayments(studentId)
                         : [];
                     const listEl = document.getElementById('outstandingFeeList');
 
@@ -627,9 +639,33 @@
                         return;
                     }
 
-                    const totalOutstanding = fees.reduce(function (sum, fee) {
-                        return sum + fee.amount;
-                    }, 0);
+                    // compute remaining balances per fee using confirmed payments (with rounding)
+                    let totalOutstanding = 0;
+                    const paymentsByFee = {};
+                    payments.forEach(function (p) {
+                        try {
+                            const status = String(p.status || 'Confirmed').toLowerCase();
+                            if (status !== 'confirmed') return;
+                            const amt = String(p.amount || '').replace(/[^0-9\.\-]/g, '');
+                            const amountNum = Number(amt) || 0;
+                            const feeIds = Array.isArray(p.feeIds) ? p.feeIds : (p.feeId ? [p.feeId] : []);
+                            feeIds.forEach(function (fid) {
+                                const key = String(fid || '');
+                                if (!key) return;
+                                paymentsByFee[key] = (paymentsByFee[key] || 0) + amountNum;
+                            });
+                        } catch (e) {}
+                    });
+
+                    fees.forEach(function (fee) {
+                        const key = String(fee.id || '');
+                        const paid = Math.round((paymentsByFee[key] || 0) * 100) / 100;
+                        const remaining = Math.max(Math.round((Number(fee.amount) - paid) * 100) / 100, 0);
+                        totalOutstanding += remaining;
+                    });
+
+                    // Round total outstanding to 2 decimals
+                    totalOutstanding = Math.round(totalOutstanding * 100) / 100;
 
                     const earliestDue = fees
                         .map(function (fee) { return fee.dueDate; })
@@ -643,8 +679,10 @@
                         const typeClass = fee.feeType === 'voluntary' ? 'fee-pill-optional' : 'fee-pill-required';
                         const typeText = fee.feeType === 'voluntary' ? 'Optional' : 'Required';
                         const latestRequest = latestRequestByFee.get(fee.id);
-                        const promissoryBadge = getPromissoryBadge(latestRequest);
                         const isPendingReview = latestRequest && latestRequest.status === 'Pending Review';
+                        const isPromissoryApproved = latestRequest && latestRequest.status === 'Promissory Approved';
+                        const isPromissoryRejected = latestRequest && latestRequest.status === 'Promissory Rejected';
+                        const shouldHidePayNow = isPendingReview || isPromissoryApproved;
                         const feeStatus = feeStatusMap[statusKey(studentId, fee.id)] || '';
                         const paidBadge = feeStatus === 'paid' ? '<span class="fee-pill fee-pill-paid">Paid</span>' : '';
                         const pendingBadge = feeStatus === 'pending verification' ? '<span class="fee-pill fee-pill-pending-review">Pending Verification</span>' : '';
@@ -657,29 +695,52 @@
                         const rejectedBadge = feeStatus === 'rejected' ? '<span class="fee-pill fee-pill-promissory-rejected">Rejected</span>' : '';
                         const rejectionReason = rejectedPayment && rejectedPayment.rejectionReason ? `<div class="payment-rejection-reason">${rejectedPayment.rejectionReason}</div>` : '';
 
+                        // Build promissory status row
+                        let promissoryStatusRow = '';
+                        if (isPendingReview) {
+                            promissoryStatusRow = '<div class="fee-status-row"><span class="fee-pill fee-pill-pending-review">PROMISSORY PENDING</span></div>';
+                        } else if (isPromissoryApproved) {
+                            promissoryStatusRow = '<div class="fee-status-row"><span class="fee-pill fee-pill-promissory-approved">PROMISSORY APPROVED</span></div>';
+                        }
+
+                        // Build buttons/links row
+                        let buttonsRow = '';
+                        if (!shouldHidePayNow && !paidBadge) {
+                            buttonsRow += `<button type="button" class="pay-now-btn" data-fee-id="${fee.id}" data-fee-name="${fee.name}" data-fee-amount="${fee.amount}" data-org-id="${fee.orgId || 'u-org-001'}">Pay Now</button>`;
+                        }
+                        if (!isPendingReview) {
+                            buttonsRow += `<a class="promissory-link fee-action-promissory" data-fee-id="${fee.id}" data-fee-name="${fee.name}" data-student-id="${studentId}" data-student-name="${studentName}">Request promissory note</a>`;
+                        }
+
+                        // compute paid/remaining for display
+                        const key = String(fee.id || '');
+                        const byId = paymentsByFee[key] || 0;
+                        const paidAmount = Math.max(byId, 0);
+                        const remainingAmount = Math.max(Number(fee.amount) - paidAmount, 0);
+
+                        // show partially paid indicator
+                        const partialPaidIndicator = paidAmount > 0 && remainingAmount > 0
+                            ? `<div class="fee-partial">Partially paid: ${formatCurrency(paidAmount)}</div>`
+                            : paidAmount > 0 && remainingAmount <= 0
+                                ? `<div class="fee-partial">Fully paid</div>`
+                                : '';
+
                         return `
                             <li data-fee-id="${fee.id}">
                                 <div class="fee-line">
                                     <div class="fee-line-left">
                                         <span class="fee-name">${fee.name}</span>
                                         <span class="fee-pill ${typeClass}">${typeText}</span>
-                                        ${promissoryBadge}
                                         ${paidBadge}
                                         ${pendingBadge}
                                         ${rejectedBadge}
-                                ${rejectionReason}
                                     </div>
-                                    <span class="fee-amount">${formatCurrency(fee.amount)}</span>
+                                    <span class="fee-amount">${formatCurrency(remainingAmount)}</span>
                                 </div>
-                                <button type="button" class="pay-now-btn" data-fee-id="${fee.id}" data-fee-name="${fee.name}" data-fee-amount="${fee.amount}" data-org-id="${fee.orgId || 'u-org-001'}">Pay Now</button>
-                                <a
-                                    class="promissory-link fee-action-promissory"
-                                    data-fee-id="${fee.id}"
-                                    data-fee-name="${fee.name}"
-                                    data-student-id="${studentId}"
-                                    data-student-name="${studentName}"
-                                    ${isPendingReview ? 'aria-disabled="true" tabindex="-1"' : ''}
-                                >Request promissory note</a>
+                                ${promissoryStatusRow}
+                                ${partialPaidIndicator}
+                                ${rejectionReason}
+                                <div class="fee-actions-row">${buttonsRow}</div>
                             </li>
                         `;
                     }).join('');
@@ -688,10 +749,25 @@
 
                     document.querySelectorAll('.pay-now-btn').forEach(function (button) {
                         button.addEventListener('click', function () {
+                            const feeId = button.dataset.feeId;
+                            const feeObj = fees.find(function (f) { return String(f.id) === String(feeId); }) || {};
+                            const feeAmount = Number(feeObj.amount) || 0;
+
+                            // compute paid for this fee
+                            const byId = paymentsByFee[String(feeId)] || 0;
+                            const byName = paymentsByFee[String(feeObj.name || '').toLowerCase()] || 0;
+                            const paidAmount = Math.max(byId, byName, 0);
+                            const remaining = Math.max(feeAmount - paidAmount, 0);
+
+                            // if there's an approved promissory with partial amount, prefill to that partial (bounded by remaining)
+                            const latestReq = latestRequestByFee.get(feeId);
+                            const promPartial = latestReq && latestReq.status === 'Promissory Approved' && latestReq.partialAmount ? Number(latestReq.partialAmount) : null;
+                            const prefill = promPartial !== null ? Math.min(promPartial, remaining) : remaining;
+
                             const selectedFee = [{
-                                feeId: button.dataset.feeId,
+                                feeId: feeId,
                                 fee: button.dataset.feeName,
-                                price: Number(button.dataset.feeAmount),
+                                price: Number(prefill) || 0,
                                 orgId: button.dataset.orgId || 'u-org-001'
                             }];
                             localStorage.setItem('ccs.selected.fees', JSON.stringify(selectedFee));
@@ -782,6 +858,144 @@
                         closePromissoryModal();
                     }
                 });
+
+                // Payments filter dropdown handler
+                const paymentsFilterSelect = document.getElementById('payments-filter');
+                const paymentsListContainer = document.getElementById('payments-list-container');
+
+                function renderStudentPaymentsInPanel(filterValue) {
+                    const user = getCurrentUser();
+                    const studentId = user && user.studentId ? user.studentId : null;
+
+                    if (!studentId) {
+                        paymentsListContainer.innerHTML = '<p class="summary-empty">Unable to load payment history</p>';
+                        return;
+                    }
+
+                    const allPayments = window.getStudentPayments ? window.getStudentPayments(studentId) : [];
+                    const now = new Date();
+                    const recentThreshold = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+                    const filteredPayments = allPayments.filter(function (payment) {
+                        const paymentDate = new Date(String(payment.dateSubmitted || payment.date || '') + 'T00:00:00');
+                        const paymentStatus = String(payment.status || 'Confirmed').toLowerCase();
+
+                        if (filterValue === 'pending') {
+                            return paymentStatus === 'pending verification';
+                        }
+
+                        if (filterValue === 'recent') {
+                            return paymentStatus === 'confirmed' && paymentDate >= recentThreshold;
+                        }
+
+                        return paymentStatus === 'confirmed';
+                    });
+
+                    if (!filteredPayments.length) {
+                        paymentsListContainer.innerHTML = filterValue === 'pending'
+                            ? '<p class="summary-empty">No pending payments</p>'
+                            : '<p class="summary-empty">No payments found</p>';
+                        return;
+                    }
+
+                    let html = '<table class="payments-table" style="width: 100%; font-size: 12px; border-collapse: collapse;">';
+                    html += '<thead style="background: #f5f5f5;"><tr>';
+                    html += '<th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Fee Name</th>';
+                    html += '<th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Date</th>';
+                    html += '<th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Amount</th>';
+                    html += '<th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Status</th>';
+                    html += '</tr></thead><tbody>';
+
+                    filteredPayments.forEach(function (payment) {
+                        const paymentDate = payment.dateSubmitted || payment.date || '-';
+                        const amount = payment.amount ? `₱${Number(String(payment.amount).replace(/[^0-9.\-]/g, '') || 0).toFixed(2)}` : '₱0.00';
+                        const statusText = String(payment.status || 'Confirmed');
+
+                        html += '<tr style="border-bottom: 1px solid #eee;">';
+                        html += `<td style="padding: 8px;">${payment.feeName || payment.desc || 'Payment'}</td>`;
+                        html += `<td style="padding: 8px; font-size: 11px; color: #666;">${paymentDate}</td>`;
+                        html += `<td style="padding: 8px;">${amount}</td>`;
+                        html += `<td style="padding: 8px; font-size: 11px;">${statusText}</td>`;
+                        html += '</tr>';
+                    });
+
+                    html += '</tbody></table>';
+                    paymentsListContainer.innerHTML = html;
+                }
+
+                function renderPromissoryNotesInPanel() {
+                    const user = getCurrentUser();
+                    const studentId = user && user.studentId ? user.studentId : null;
+                    const studentReligion = user && user.religion ? String(user.religion || '').trim().toLowerCase() : '';
+
+                    if (!studentId) {
+                        paymentsListContainer.innerHTML = '<p class="summary-empty">Unable to load promissory notes</p>';
+                        return;
+                    }
+
+                    const studentRequests = window.getStudentPromissoryRequests ? window.getStudentPromissoryRequests(studentId) : [];
+                    const filteredRequests = studentRequests.filter(function (req) {
+                        if (String(req.feeName || '').toLowerCase().includes('msa')) {
+                            return studentReligion === 'muslim' || studentReligion === 'muslim/islam';
+                        }
+                        return true;
+                    });
+
+                    if (filteredRequests.length === 0) {
+                        paymentsListContainer.innerHTML = '<p class="summary-empty">No promissory note requests</p>';
+                        return;
+                    }
+
+                    let html = '<table class="payments-table" style="width: 100%; font-size: 12px; border-collapse: collapse;">';
+                    html += '<thead style="background: #f5f5f5;"><tr>';
+                    html += '<th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Fee Name</th>';
+                    html += '<th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Amount</th>';
+                    html += '<th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Date Requested</th>';
+                    html += '<th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Reason</th>';
+                    html += '<th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Promised Date</th>';
+                    html += '<th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Status</th>';
+                    html += '</tr></thead><tbody>';
+
+                    filteredRequests.forEach(function (req) {
+                        const createdDate = req.createdAt ? new Date(req.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-';
+                        const promisedDate = req.promisedDate ? new Date(req.promisedDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-';
+                        const amount = req.partialAmount ? `₱${Number(req.partialAmount).toFixed(2)}` : (function () {
+                            try {
+                                const fees = JSON.parse(localStorage.getItem('ccs.organization.fees') || '[]');
+                                const found = fees.find(function (fee) { return String(fee.id || '') === String(req.feeId || ''); }) || fees.find(function (fee) { return String(fee.name || '').toLowerCase() === String(req.feeName || '').toLowerCase(); });
+                                return found ? `₱${Number(found.amount || 0).toFixed(2)}` : 'Full Payment';
+                            } catch (_error) {
+                                return 'Full Payment';
+                            }
+                        })();
+                        const statusText = req.status || 'Pending Review';
+
+                        html += '<tr style="border-bottom: 1px solid #eee;">';
+                        html += `<td style="padding: 8px;">${String(req.feeName || '').substring(0, 20)}</td>`;
+                        html += `<td style="padding: 8px;">${amount}</td>`;
+                        html += `<td style="padding: 8px; font-size: 11px; color: #666;">${createdDate}</td>`;
+                        html += `<td style="padding: 8px; font-size: 11px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${req.reason}">${String(req.reason || '').substring(0, 20)}</td>`;
+                        html += `<td style="padding: 8px; font-size: 11px; color: #666;">${promisedDate}</td>`;
+                        html += `<td style="padding: 8px;">${statusText}</td>`;
+                        html += '</tr>';
+                    });
+
+                    html += '</tbody></table>';
+                    paymentsListContainer.innerHTML = html;
+                }
+
+                if (paymentsFilterSelect) {
+                    paymentsFilterSelect.addEventListener('change', function () {
+                        const filterValue = this.value;
+                        if (filterValue === 'promissory') {
+                            renderPromissoryNotesInPanel();
+                        } else {
+                            renderStudentPaymentsInPanel(filterValue);
+                        }
+                    });
+
+                    renderStudentPaymentsInPanel(paymentsFilterSelect.value || 'recent');
+                }
 
                 // Expose for external calls
                 window.renderStudentFees = renderOutstandingFees;
@@ -895,6 +1109,15 @@
                     document.addEventListener('DOMContentLoaded', updateStudentInfo);
                 } else {
                     updateStudentInfo();
+                }
+            })();
+
+            /* Notification badge system for promissory notes */
+            (function () {
+                const badgeEl = document.getElementById('notificationBadge');
+                if (badgeEl) {
+                    badgeEl.textContent = '3';
+                    badgeEl.style.display = 'flex';
                 }
             })();
         </script>

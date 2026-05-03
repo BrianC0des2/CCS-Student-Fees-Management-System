@@ -79,6 +79,8 @@
         </div>
     </div>
 
+    <button id="reset-demo-data-btn" type="button" style="display: none;" aria-hidden="true" tabindex="-1">Reset Demo Data</button>
+
     <script src="assets/scripts/sample-accounts.js"></script>
     <script src="assets/scripts/auth.js"></script>
     <script src="assets/scripts/script.js"></script>
@@ -249,6 +251,99 @@ togglePassword.addEventListener('click', function() {
         toggleIcon.className = 'bx bx-hide';
     }
 });
+
+(function () {
+    function parseJsonArray(key) {
+        try {
+            const parsed = JSON.parse(localStorage.getItem(key) || '[]');
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (_err) {
+            return [];
+        }
+    }
+
+    function parseJsonObject(key) {
+        try {
+            const parsed = JSON.parse(localStorage.getItem(key) || '{}');
+            return parsed && typeof parsed === 'object' ? parsed : {};
+        } catch (_err) {
+            return {};
+        }
+    }
+
+    function resetDemoData() {
+        localStorage.removeItem('ccs.promissory.requests');
+        localStorage.removeItem('ccs.payments');
+
+        const overridesKey = 'ccs.auth.accountProfileOverrides';
+        const overrides = parseJsonObject(overridesKey);
+        ['u-student-001', 'u-student-002'].forEach(function (id) {
+            const existing = overrides[id] || {};
+            overrides[id] = {
+                ...existing,
+                isFirstLogin: true,
+                religion: '',
+                phoneNumber: ''
+            };
+        });
+        localStorage.setItem(overridesKey, JSON.stringify(overrides));
+
+        if (Array.isArray(window.SAMPLE_ACCOUNTS)) {
+            window.SAMPLE_ACCOUNTS.forEach(function (account) {
+                if (account && (account.id === 'u-student-001' || account.id === 'u-student-002')) {
+                    account.isFirstLogin = true;
+                    account.religion = '';
+                    account.phoneNumber = '';
+                }
+            });
+        }
+
+        try {
+            const authUserRaw = localStorage.getItem('ccs.auth.user');
+            if (authUserRaw) {
+                const authUser = JSON.parse(authUserRaw);
+                if (authUser && (authUser.id === 'u-student-001' || authUser.id === 'u-student-002')) {
+                    authUser.isFirstLogin = true;
+                    authUser.religion = '';
+                    authUser.phoneNumber = '';
+                    localStorage.setItem('ccs.auth.user', JSON.stringify(authUser));
+                }
+            }
+        } catch (_err) {
+        }
+
+        try {
+            const authUserRawSession = sessionStorage.getItem('ccs.auth.user');
+            if (authUserRawSession) {
+                const authUserSession = JSON.parse(authUserRawSession);
+                if (authUserSession && (authUserSession.id === 'u-student-001' || authUserSession.id === 'u-student-002')) {
+                    authUserSession.isFirstLogin = true;
+                    authUserSession.religion = '';
+                    authUserSession.phoneNumber = '';
+                    sessionStorage.setItem('ccs.auth.user', JSON.stringify(authUserSession));
+                }
+            }
+        } catch (_err) {
+        }
+
+        localStorage.removeItem('ccs.promissory.unread.TY202500100');
+        localStorage.removeItem('ccs.promissory.unread.TY202501337');
+
+        return {
+            ok: true,
+            message: 'Demo data reset complete.'
+        };
+    }
+
+    window.resetDemoData = resetDemoData;
+
+    const hiddenResetBtn = document.getElementById('reset-demo-data-btn');
+    if (hiddenResetBtn) {
+        hiddenResetBtn.addEventListener('click', function () {
+            resetDemoData();
+        });
+    }
+})();
 </script>
 </body>
 </html>
