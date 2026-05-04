@@ -141,12 +141,6 @@
                 <div>
                     <i class='bx bx-menu' ></i>
                     <span class="text">Organization Dashboard</span>
-                    <div style="margin-left: auto; display: flex; align-items: center; gap: 16px;">
-                        <div style="position: relative; cursor: pointer;" title="Pending promissory notifications" id="orgNotificationBellContainer">
-                            <i class='bx bx-bell' style="font-size: 24px;"></i>
-                            <span id="orgNotificationBadge" style="position: absolute; top: -5px; right: -8px; background: #dc2626; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;">3</span>
-                        </div>
-                    </div>
                 </div>
                 <div class="topbar-right">
                     <div class="notif-bell" aria-label="Notifications">
@@ -308,15 +302,11 @@
                     <tbody id="pendingPaymentsBody"></tbody>
                 </table>
             </div>
-        </section>
-
-    </section>
-
-    <script src="../../assets/scripts/settings.js"></script>
     <script src="../../assets/scripts/sample-accounts.js"></script>
     <script src="../../assets/scripts/auth.js"></script>
     <script src="../../assets/scripts/semester-manager.js"></script>
     <script src="../../assets/scripts/sidebar-template.js"></script>
+    <script src="../../assets/scripts/settings.js"></script>
     <script src="../../assets/scripts/script.js"></script>
     <script>
     (function () {
@@ -704,14 +694,6 @@
         renderDashboard();
     })();
 
-    const filtersBtn = document.getElementById('filtersBtn');
-    const filtersPopover = document.getElementById('filtersPopover');
-    const searchInput = document.getElementById('searchInput');
-    const searchBtn = document.getElementById('searchBtn');
-    const yearLevelSelect = document.getElementById('yearLevel');
-    const courseSelect = document.getElementById('course');
-    const sectionSelect = document.getElementById('section');
-    const paymentMethodSelect = document.getElementById('paymentMethodFilter');
 
     const yearLabelMap = {
         '1': '1st Year',

@@ -18,7 +18,16 @@ const sidebarHTML = `
                 <li><a class="link_name" href="#">Dashboard</a></li>
             </ul>
         </li>
-       
+        <li>
+            <a href="../organization/profile.html">
+                <i class='bx bx-user-circle'></i>
+                <span class="link_name">Profile</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="#">Profile</a></li>
+            </ul>
+        </li>
+
         <li>
             <div class="iocn-link">
                 <a href="#">
