@@ -114,15 +114,15 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentOpenId = null;
 
   const badgeConfig = {
-    complete: { icon: '\u2713', label: 'Signed',  cls: 'badge-complete' },
-    pending:  { icon: '\u23f0', label: 'Pending', cls: 'badge-pending'  },
-    locked:   { icon: '\uD83D\uDD12', label: 'Locked',  cls: 'badge-locked'   }
+    complete: { icon: '', label: 'Signed',  cls: 'badge-complete' },
+    pending:  { icon: '', label: 'Pending', cls: 'badge-pending'  },
+    locked:   { icon: '', label: 'Locked',  cls: 'badge-locked'   }
   };
 
   const bannerConfig = {
-    complete: { icon: '\u2713', text: 'This clearance has been signed and recorded.',            cls: 'banner-complete' },
-    pending:  { icon: '\u23f0', text: 'Action needed \u2014 please contact the signatory to proceed.', cls: 'banner-pending'  },
-    locked:   { icon: '\uD83D\uDD12', text: 'Complete all previous steps to unlock this signatory.',    cls: 'banner-locked'   }
+    complete: { icon: '', text: 'This clearance has been signed and recorded.',            cls: 'banner-complete' },
+    pending:  { icon: '', text: 'Action needed — please contact the signatory to proceed.', cls: 'banner-pending'  },
+    locked:   { icon: '', text: 'Complete all previous steps to unlock this signatory.',    cls: 'banner-locked'   }
   };
 
   signatories.forEach((sig, index) => {
@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sig.status === 'complete' && sig.signedDate) {
       const signedDiv = document.createElement('div');
       signedDiv.className = 'card-signed';
-      signedDiv.textContent = '\uD83D\uDCC5 Signed ' + sig.signedDate;
+      signedDiv.textContent = 'Signed ' + sig.signedDate;
       info.appendChild(signedDiv);
     }
 
@@ -227,16 +227,16 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     /* Requirement row */
-    details.appendChild(makeDetailRow('\u26a0', 'Requirement', sig.requirement));
+    details.appendChild(makeDetailRow('', 'Requirement', sig.requirement));
 
     /* Note row (optional) */
     if (sig.note) {
-      details.appendChild(makeDetailRow('\u2139', 'Note', sig.note));
+      details.appendChild(makeDetailRow('', 'Note', sig.note));
     }
 
     /* Contact row */
     if (sig.contact) {
-      details.appendChild(makeDetailRow('\u2709', 'Contact', sig.contact, 'contact-email'));
+      details.appendChild(makeDetailRow('', 'Contact', sig.contact, 'contact-email'));
     }
 
     /* Status banner */

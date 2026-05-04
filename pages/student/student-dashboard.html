@@ -220,8 +220,6 @@
                                 <option value="recent">Recent Payments</option>
                                 <option value="pending">Pending Payments</option>
                                 <option value="promissory">Promissory Notes</option>
-                                <option value="all">All Payments</option>
-                                <option value="old">Older Payments</option>
                             </select>
                         </div>
 
@@ -364,9 +362,9 @@
         <script>
             (function () {
                 const FEES_STORAGE_KEY = 'ccs.organization.fees';
-                const PROMISSORY_STORAGE_KEY = window.CCSStudentDataKeys
-                    ? window.CCSStudentDataKeys.PROMISSORY_STORAGE_KEY
-                    : 'ccs.promissory.requests';
+                const PROMISSORY_STORAGE_KEY = window.CCSStudentDataHelpers && typeof window.CCSStudentDataHelpers.getStudentDataStorageKey === 'function'
+                    ? window.CCSStudentDataHelpers.getStudentDataStorageKey('PROMISSORY_STORAGE_KEY')
+                    : (window.CCSStudentDataKeys && window.CCSStudentDataKeys.PROMISSORY_STORAGE_KEY);
                 const STUDENT_FEE_STATUS_KEY = 'ccs.student.feeStatus';
 
                 const DEFAULT_FEES = [
@@ -514,11 +512,7 @@
                 }
 
                 function getStudentRequests(studentId) {
-                    if (!window.getStudentPromissoryRequests) {
-                        return readJsonArray(PROMISSORY_STORAGE_KEY)
-                            .filter(function (request) { return request.studentId === studentId; });
-                    }
-
+                    if (!window.getStudentPromissoryRequests) return [];
                     return window.getStudentPromissoryRequests(studentId);
                 }
 
@@ -651,6 +645,17 @@
                     document.getElementById('outstandingDueLabel').textContent = `Due: ${formatDueDate(earliestDue)}`;
 
                     listEl.innerHTML = fees.map(function (fee) {
+                        // compute paid/remaining first to check if we should hide this fee
+                        const key = String(fee.id || '');
+                        const byId = paymentsByFee[key] || 0;
+                        const paidAmount = Math.max(byId, 0);
+                        const remainingAmount = Math.max(Number(fee.amount) - paidAmount, 0);
+
+                        // HIDE FULLY PAID FEES ENTIRELY
+                        if (remainingAmount <= 0) {
+                            return '';
+                        }
+
                         const typeClass = fee.feeType === 'voluntary' ? 'fee-pill-optional' : 'fee-pill-required';
                         const typeText = fee.feeType === 'voluntary' ? 'Optional' : 'Required';
                         const latestRequest = latestRequestByFee.get(fee.id);
@@ -687,18 +692,10 @@
                             buttonsRow += `<a class="promissory-link fee-action-promissory" data-fee-id="${fee.id}" data-fee-name="${fee.name}" data-student-id="${studentId}" data-student-name="${studentName}">Request promissory note</a>`;
                         }
 
-                        // compute paid/remaining for display
-                        const key = String(fee.id || '');
-                        const byId = paymentsByFee[key] || 0;
-                        const paidAmount = Math.max(byId, 0);
-                        const remainingAmount = Math.max(Number(fee.amount) - paidAmount, 0);
-
                         // show partially paid indicator
                         const partialPaidIndicator = paidAmount > 0 && remainingAmount > 0
                             ? `<div class="fee-partial">Partially paid: ${formatCurrency(paidAmount)}</div>`
-                            : paidAmount > 0 && remainingAmount <= 0
-                                ? `<div class="fee-partial">Fully paid</div>`
-                                : '';
+                            : '';
 
                         return `
                             <li data-fee-id="${fee.id}">
@@ -718,7 +715,7 @@
                                 <div class="fee-actions-row">${buttonsRow}</div>
                             </li>
                         `;
-                    }).join('');
+                    }).filter(Boolean).join('');
 
                     updateClearanceProgress(fees, latestRequestByFee, studentId);
 
@@ -804,22 +801,36 @@
                         return;
                     }
 
+                    if (!PROMISSORY_STORAGE_KEY) {
+                        alert('Promissory storage is unavailable. Please refresh and try again.');
+                        return;
+                    }
+
+                    // Get the fee object to extract orgId
+                    const fees = getFees();
+                    const feeObj = fees.find(function (f) { return String(f.id || '') === String(selectedFee.feeId); }) || {};
+                    const orgId = feeObj.orgId || selectedFee.orgId || 'u-org-001';
+
                     const requests = readJsonArray(PROMISSORY_STORAGE_KEY);
-                    requests.push({
+                    const newRequest = {
                         id: 'promissory-' + Date.now(),
                         feeId: selectedFee.feeId,
                         feeName: selectedFee.feeName,
                         studentId: selectedFee.studentId,
                         studentNumber: selectedFee.studentNumber,
                         studentName: selectedFee.studentName,
-                        reason: reason,
+                        amount: feeObj.amount || null,
                         partialAmount: partialAmount,
+                        reason: reason,
                         promisedDate: promisedDate,
+                        dateRequested: new Date().toISOString().split('T')[0],
                         status: 'Pending Review',
+                        orgId: orgId,
                         createdAt: new Date().toISOString(),
                         updatedAt: new Date().toISOString()
-                    });
+                    };
 
+                    requests.push(newRequest);
                     localStorage.setItem(PROMISSORY_STORAGE_KEY, JSON.stringify(requests));
                     closePromissoryModal();
                     renderOutstandingFees();
@@ -848,11 +859,8 @@
                     }
 
                     const allPayments = window.getStudentPayments ? window.getStudentPayments(studentId) : [];
-                    const now = new Date();
-                    const recentThreshold = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
                     const filteredPayments = allPayments.filter(function (payment) {
-                        const paymentDate = new Date(String(payment.dateSubmitted || payment.date || '') + 'T00:00:00');
                         const paymentStatus = String(payment.status || 'Confirmed').toLowerCase();
 
                         if (filterValue === 'pending') {
@@ -860,9 +868,11 @@
                         }
 
                         if (filterValue === 'recent') {
-                            return paymentStatus === 'confirmed' && paymentDate >= recentThreshold;
+                            // Show all confirmed payments (no 30-day cutoff)
+                            return paymentStatus === 'confirmed';
                         }
 
+                        // Default/all: show all confirmed payments
                         return paymentStatus === 'confirmed';
                     });
 
@@ -969,7 +979,9 @@
                         }
                     });
 
-                    renderStudentPaymentsInPanel(paymentsFilterSelect.value || 'recent');
+                    // Initialize with 'recent' filter to show confirmed payments from last 30 days
+                    const initialFilter = paymentsFilterSelect.value || 'recent';
+                    renderStudentPaymentsInPanel(initialFilter);
                 }
 
                 // Expose for external calls

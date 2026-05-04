@@ -37,3 +37,12 @@
     --brand-rgb: 22, 163, 74;
     --text-rgb: 17, 24, 39;
 }
+
+/* Global alignment fix - ensure all main content is left-aligned */
+body,
+.home-section,
+section.home-section,
+.page-content,
+#page-content {
+    text-align: left;
+}

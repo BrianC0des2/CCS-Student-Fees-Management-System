@@ -138,7 +138,7 @@
 }
 
 .receipt-history-table th {
-    padding: 12px 16px;
+    padding: 10px 14px;
     text-align: left;
     font-size: 11px;
     font-weight: 700;
@@ -157,27 +157,22 @@
 }
 
 .receipt-history-table td {
-    padding: 14px 16px;
+    padding: 10px 14px;
     font-size: 13px;
     color: var(--sys-text-900);
     vertical-align: middle;
 }
 
 .receipt-history-table td:last-child {
-    width: 120px;
-    min-width: 120px;
-    max-width: 120px;
-    white-space: nowrap;
-    text-align: right;
-    padding: 10px 12px;
+    width: 240px;
+    min-width: 240px;
+    max-width: 240px;
 }
 
 .receipt-history-table th:last-child {
-    width: 120px;
-    min-width: 120px;
-    max-width: 120px;
-    white-space: nowrap;
-    text-align: right;
+    width: 240px;
+    min-width: 240px;
+    max-width: 240px;
 }
 
 .btn-view-details {
@@ -186,12 +181,12 @@
     gap: 6px;
     padding: 6px 12px;
     width: auto;
-    min-width: unset;
-    max-width: 100px;
+    min-width: 0;
+    max-width: none;
     font-size: 13px;
-    border: 1px solid var(--color-primary);
-    background: white;
-    color: var(--color-primary);
+    background: var(--color-primary);
+    color: white;
+    border: none;
     border-radius: 6px;
     font-weight: 600;
     cursor: pointer;
@@ -199,6 +194,16 @@
     font-family: 'Poppins', sans-serif;
     justify-content: center;
     white-space: nowrap;
+}
+
+.receipt-action-cell .receipt-status-badge {
+    display: inline-block;
+    margin-bottom: 4px;
+}
+
+.btn-view-details:hover {
+    background: var(--brand-600);
+    box-shadow: 0 2px 4px rgba(21, 128, 61, 0.15);
 }
 
 .receipt-date {
@@ -208,69 +213,13 @@
 
 .receipt-amount {
     font-weight: 700;
-    font-size: 14px;
+    font-size: 13px;
     color: var(--sys-text-900);
 }
 
-.receipt-status-cell {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.receipt-status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--color-primary);
-}
-
-.receipt-status-text {
-    font-size: 12px;
+.receipt-num {
     font-weight: 600;
-    color: var(--color-primary);
-}
-
-.receipt-method-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
-    border-radius: 6px;
-    background: var(--sys-surface-muted);
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--sys-text-700);
-}
-
-.btn-view-details {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    width: auto;
-    min-width: unset;
-    max-width: 100px;
-    font-size: 13px;
-    border: 1px solid var(--color-primary);
-    background: white;
-    color: var(--color-primary);
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-family: 'Poppins', sans-serif;
-    justify-content: center;
-}
-
-.receipt-action-cell .receipt-status-badge {
-    display: inline-flex;
-    margin-bottom: 6px;
-}
-
-.btn-view-details:hover {
-    background: rgba(var(--brand-rgb), 0.08);
-    box-shadow: 0 2px 4px rgba(21, 128, 61, 0.1);
+    color: var(--sys-text-900);
 }
 
 /* Modal Styles */

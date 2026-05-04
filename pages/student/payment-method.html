@@ -9,6 +9,149 @@
         <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
         <link rel="stylesheet" href="../../styles/settings.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            /* Modal Styles */
+            .modal-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 1000;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .modal-overlay.active {
+                display: flex;
+            }
+
+            .modal-content {
+                background: white;
+                border-radius: 8px;
+                padding: 24px;
+                max-width: 450px;
+                width: 90%;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                animation: slideUp 0.3s ease-out;
+            }
+
+            @keyframes slideUp {
+                from {
+                    transform: translateY(30px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+
+            .modal-header {
+                font-size: 1.3rem;
+                font-weight: 700;
+                margin-bottom: 16px;
+                color: #1f2937;
+            }
+
+            .modal-body {
+                margin-bottom: 20px;
+            }
+
+            .modal-instruction {
+                font-size: 0.95rem;
+                color: #6b7280;
+                margin-bottom: 12px;
+                line-height: 1.5;
+            }
+
+            .modal-account-info {
+                background-color: #f3f4f6;
+                border-left: 4px solid #059669;
+                padding: 12px;
+                margin-bottom: 16px;
+                border-radius: 4px;
+                font-size: 0.95rem;
+                font-weight: 600;
+                color: #1f2937;
+                word-break: break-all;
+            }
+
+            .modal-form-group {
+                margin-bottom: 16px;
+            }
+
+            .modal-form-group label {
+                display: block;
+                margin-bottom: 6px;
+                font-weight: 600;
+                font-size: 0.95rem;
+                color: #374151;
+            }
+
+            .modal-form-group input {
+                width: 100%;
+                padding: 10px 12px;
+                border: 1px solid #d1d5db;
+                border-radius: 4px;
+                font-size: 0.95rem;
+                box-sizing: border-box;
+            }
+
+            .modal-form-group input:focus {
+                outline: none;
+                border-color: #059669;
+                box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+            }
+
+            .modal-error {
+                color: #dc2626;
+                font-size: 0.85rem;
+                margin-top: 4px;
+                display: none;
+            }
+
+            .modal-buttons {
+                display: flex;
+                gap: 12px;
+                justify-content: flex-end;
+            }
+
+            .modal-btn {
+                padding: 10px 20px;
+                border: none;
+                border-radius: 4px;
+                font-size: 0.95rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+
+            .modal-btn-confirm {
+                background-color: #059669;
+                color: white;
+            }
+
+            .modal-btn-confirm:hover:not(:disabled) {
+                background-color: #047857;
+            }
+
+            .modal-btn-confirm:disabled {
+                background-color: #d1d5db;
+                cursor: not-allowed;
+            }
+
+            .modal-btn-cancel {
+                background-color: #f3f4f6;
+                color: #374151;
+            }
+
+            .modal-btn-cancel:hover {
+                background-color: #e5e7eb;
+            }
+        </style>
     </head>
     <body>
         <nav class="navbar page-header payment-header">
@@ -45,7 +188,7 @@
             <div id="paymentGroupBanner" style="display:none; width:100%; text-align:center; font-size:0.9rem; color:#666; margin-bottom:16px; font-weight:600;"></div>
 
             <!-- Payment Method Options -->
-            <div class="fee-selection-container fees-panel fee-selection" style="align-self:flex-start;">
+            <div class="fee-selection-container fees-panel fee-selection">
                 <div style="width:100%">
                     <h3>Choose Payment Method</h3>
                     <div id="paymentAccountsList"></div>
@@ -66,7 +209,7 @@
             </div>
 
             <!-- Payment Summary -->
-            <div class="payment-summary summary-panel" style="min-width:280px; align-self:flex-start;">
+            <div class="payment-summary summary-panel" style="min-width:280px;">
                 <h3>Payment Summary</h3>
                 <div id="method-summary-items"></div>
                 <div class="summary-total">
@@ -83,6 +226,79 @@
                 </div>
             </div>
 
+        </div>
+
+        <!-- GCash Payment Modal -->
+        <div id="gcashModal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">GCash Payment</div>
+                <div class="modal-body">
+                    <div class="modal-instruction" id="gcashInstruction">
+                        Open your GCash app, send the exact amount, then enter your reference number below.
+                    </div>
+                    <div id="gcashAccountInfo" class="modal-account-info">
+                        Send payment to: [GCash Number]
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="gcashReferenceNumberInput">GCash Reference Number</label>
+                        <input 
+                            id="gcashReferenceNumberInput" 
+                            type="text" 
+                            placeholder="Enter 13-digit reference number"
+                            maxlength="13"
+                            inputmode="numeric">
+                        <div class="modal-error" id="gcashRefError"></div>
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button class="modal-btn modal-btn-cancel" id="gcashCancelBtn">Cancel</button>
+                    <button class="modal-btn modal-btn-confirm" id="gcashConfirmBtn">Confirm Payment</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bank Payment Modal -->
+        <div id="bankModal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header" id="bankModalTitle">Bank Payment</div>
+                <div class="modal-body">
+                    <div class="modal-instruction">
+                        Transfer the exact amount to this account via your banking app or branch, then fill in the details below.
+                    </div>
+                    <div id="bankAccountInfo" class="modal-account-info">
+                        Transfer to account: [Account Number]
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="bankReferenceNumberInput">Bank Reference Number</label>
+                        <input 
+                            id="bankReferenceNumberInput" 
+                            type="text" 
+                            placeholder="Enter transaction reference number">
+                        <div class="modal-error" id="bankRefError"></div>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="bankAccountNameInput">Account Name Used</label>
+                        <input 
+                            id="bankAccountNameInput" 
+                            type="text" 
+                            placeholder="Enter the name on your account">
+                        <div class="modal-error" id="bankNameError"></div>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="bankAmountInput">Amount Transferred</label>
+                        <input 
+                            id="bankAmountInput" 
+                            type="number" 
+                            placeholder="Enter exact amount transferred"
+                            step="0.01">
+                        <div class="modal-error" id="bankAmountError"></div>
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button class="modal-btn modal-btn-cancel" id="bankCancelBtn">Cancel</button>
+                    <button class="modal-btn modal-btn-confirm" id="bankConfirmBtn">Confirm Payment</button>
+                </div>
+            </div>
         </div>
 
     <script src="../../assets/scripts/settings.js"></script>
@@ -184,6 +400,80 @@
         return String(account.type || '').trim().toLowerCase().replace(/\s+/g, '-');
     }
 
+    // Modal helper functions
+    function generateCashReferenceNumber() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const random = String(Math.floor(Math.random() * 10000)).padStart(4, '0');
+        return `PAY-${year}${month}${day}-${random}`;
+    }
+
+    function showGCashModal(account) {
+        const modal = document.getElementById('gcashModal');
+        const accountInfo = document.getElementById('gcashAccountInfo');
+        const input = document.getElementById('gcashReferenceNumberInput');
+        const errorEl = document.getElementById('gcashRefError');
+
+        // Populate account info
+        accountInfo.textContent = `Send payment to: ${account.number || 'N/A'}`;
+
+        // Clear previous input and error
+        input.value = '';
+        errorEl.textContent = '';
+        errorEl.style.display = 'none';
+
+        // Show modal
+        modal.classList.add('active');
+
+        // Focus on input
+        input.focus();
+    }
+
+    function showBankModal(account) {
+        const modal = document.getElementById('bankModal');
+        const accountInfo = document.getElementById('bankAccountInfo');
+        const titleEl = document.getElementById('bankModalTitle');
+        const refInput = document.getElementById('bankReferenceNumberInput');
+        const nameInput = document.getElementById('bankAccountNameInput');
+        const amountInput = document.getElementById('bankAmountInput');
+        const refError = document.getElementById('bankRefError');
+        const nameError = document.getElementById('bankNameError');
+        const amountError = document.getElementById('bankAmountError');
+
+        // Populate modal title and account info
+        titleEl.textContent = `${account.type} Payment`;
+        accountInfo.textContent = `Transfer to account: ${account.number || 'N/A'}`;
+
+        // Clear previous inputs and errors
+        refInput.value = '';
+        nameInput.value = '';
+        amountInput.value = '';
+        refError.textContent = '';
+        nameError.textContent = '';
+        amountError.textContent = '';
+        refError.style.display = 'none';
+        nameError.style.display = 'none';
+        amountError.style.display = 'none';
+
+        // Show modal
+        modal.classList.add('active');
+
+        // Focus on first input
+        refInput.focus();
+    }
+
+    function closeGCashModal() {
+        const modal = document.getElementById('gcashModal');
+        modal.classList.remove('active');
+    }
+
+    function closeBankModal() {
+        const modal = document.getElementById('bankModal');
+        modal.classList.remove('active');
+    }
+
     function renderPaymentAccounts() {
         if (!paymentAccountsListEl) return;
 
@@ -255,29 +545,140 @@
 
     renderPaymentAccounts();
 
-    document.getElementById('reviewPaymentBtn')
-        .addEventListener('click', function() {
-        const selected = document.querySelector('.method-option.selected');
-        if (selected && selected.dataset.accountId) {
-            const selectedAccount = orgAccounts.find(account => account.id === selected.dataset.accountId);
-            if (selectedAccount) {
-                localStorage.setItem('ccs.payment.method', normalizeMethod(selectedAccount));
-                localStorage.setItem('ccs.payment.account', JSON.stringify({
-                    id: selectedAccount.id,
-                    type: selectedAccount.type,
-                    name: selectedAccount.name,
-                    number: selectedAccount.number || '',
-                    orgId: selectedOrgId,
-                    orgName: orgName
-                }));
-            }
+    // GCash Modal Event Listeners
+    document.getElementById('gcashCancelBtn').addEventListener('click', closeGCashModal);
+    
+    document.getElementById('gcashConfirmBtn').addEventListener('click', function() {
+        const input = document.getElementById('gcashReferenceNumberInput');
+        const errorEl = document.getElementById('gcashRefError');
+        const referenceValue = (input.value || '').trim();
+
+        // Validate
+        if (!referenceValue || referenceValue.length !== 13 || !/^\d{13}$/.test(referenceValue)) {
+            errorEl.textContent = 'Please enter exactly 13 digits.';
+            errorEl.style.display = '';
+            return;
         }
 
-        localStorage.setItem(SELECTED_PAYMENT_CURRENT_GROUP_KEY, JSON.stringify(currentGroup));
+        // Save reference number
+        localStorage.setItem('ccs.payment.referenceNumber', referenceValue);
 
-        window.location.href = 'payment-confirmation.html';
+        // Close modal and navigate
+        closeGCashModal();
+        navigateToConfirmation();
     });
 
-</script>
+    document.getElementById('gcashReferenceNumberInput').addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '').slice(0, 13);
+    });
+
+    // Bank Modal Event Listeners
+    document.getElementById('bankCancelBtn').addEventListener('click', closeBankModal);
+
+    document.getElementById('bankConfirmBtn').addEventListener('click', function() {
+        const refInput = document.getElementById('bankReferenceNumberInput');
+        const nameInput = document.getElementById('bankAccountNameInput');
+        const amountInput = document.getElementById('bankAmountInput');
+        const refError = document.getElementById('bankRefError');
+        const nameError = document.getElementById('bankNameError');
+        const amountError = document.getElementById('bankAmountError');
+
+        // Clear previous errors
+        refError.textContent = '';
+        nameError.textContent = '';
+        amountError.textContent = '';
+        refError.style.display = 'none';
+        nameError.style.display = 'none';
+        amountError.style.display = 'none';
+
+        const refValue = (refInput.value || '').trim();
+        const nameValue = (nameInput.value || '').trim();
+        const amountValue = (amountInput.value || '').trim();
+
+        let hasError = false;
+
+        // Validate reference number
+        if (!refValue) {
+            refError.textContent = 'Bank reference number is required.';
+            refError.style.display = '';
+            hasError = true;
+        }
+
+        // Validate account name
+        if (!nameValue) {
+            nameError.textContent = 'Account name is required.';
+            nameError.style.display = '';
+            hasError = true;
+        }
+
+        // Validate amount
+        if (!amountValue || isNaN(parseFloat(amountValue)) || parseFloat(amountValue) <= 0) {
+            amountError.textContent = 'Please enter a valid amount.';
+            amountError.style.display = '';
+            hasError = true;
+        }
+
+        if (hasError) return;
+
+        // Save all bank payment details
+        localStorage.setItem('ccs.payment.bankDetails', JSON.stringify({
+            referenceNumber: refValue,
+            accountName: nameValue,
+            amountTransferred: parseFloat(amountValue)
+        }));
+
+        // Close modal and navigate
+        closeBankModal();
+        navigateToConfirmation();
+    });
+
+    // Review Payment Button
+    document.getElementById('reviewPaymentBtn').addEventListener('click', function() {
+        const selected = document.querySelector('.method-option.selected');
+        if (!selected || !selected.dataset.accountId) return;
+
+        const selectedAccount = orgAccounts.find(account => account.id === selected.dataset.accountId);
+        if (!selectedAccount) return;
+
+        const method = normalizeMethod(selectedAccount);
+
+        // Save account info
+        localStorage.setItem('ccs.payment.method', method);
+        localStorage.setItem('ccs.payment.account', JSON.stringify({
+            id: selectedAccount.id,
+            type: selectedAccount.type,
+            name: selectedAccount.name,
+            number: selectedAccount.number || '',
+            orgId: selectedOrgId,
+            orgName: orgName
+        }));
+
+        if (method === 'gcash') {
+            // Show GCash modal
+            showGCashModal(selectedAccount);
+        } else if (method === 'bpi' || method === 'pnb' || method === 'landbank') {
+            // Show Bank modal
+            showBankModal(selectedAccount);
+        } else if (method === 'cash') {
+            // For cash, generate reference and go directly to confirmation
+            const referenceNumber = generateCashReferenceNumber();
+            localStorage.setItem('ccs.payment.referenceNumber', referenceNumber);
+            localStorage.setItem('ccs.payment.bankDetails', JSON.stringify({
+                referenceNumber: referenceNumber,
+                accountName: 'N/A',
+                amountTransferred: total
+            }));
+            navigateToConfirmation();
+        } else {
+            // Default: show bank modal for other payment methods
+            showBankModal(selectedAccount);
+        }
+    });
+
+    function navigateToConfirmation() {
+        localStorage.setItem(SELECTED_PAYMENT_CURRENT_GROUP_KEY, JSON.stringify(currentGroup));
+        window.location.href = 'payment-confirmation.html';
+    }
+    </script>
     </body>
 </html>

@@ -148,7 +148,7 @@
       return { ok: false, message: "Invalid credentials" };
     }
 
-    // Clean up legacy test override that incorrectly skipped first-login for Bryan.
+    // Clean up legacy test override that incorrectly skipped first-login for student1.
     const overrides = getProfileOverrides();
     const accountOverride = overrides[account.id];
     if (
@@ -332,6 +332,8 @@
 
   const PAYMENTS_STORAGE_KEY = window.CCSStudentDataKeys.STUDENT_PAYMENTS_STORAGE_KEY;
   const LEGACY_PAYMENTS_STORAGE_KEY = 'ccs.payments';
+  const PAYMENTS_SEED_VERSION_KEY = 'ccs.student.payments.seedVersion';
+  const PAYMENTS_SEED_VERSION = String(window.SAMPLE_PAYMENTS_SEED_VERSION || 1);
   const STUDENT_FEE_STATUS_KEY = 'ccs.student.feeStatus';
 
   function normalizePaymentStatus(value) {
@@ -357,6 +359,38 @@
           localStorage.setItem(PAYMENTS_STORAGE_KEY, raw);
         }
       }
+
+      const currentSeedVersion = localStorage.getItem(PAYMENTS_SEED_VERSION_KEY);
+      if (currentSeedVersion !== PAYMENTS_SEED_VERSION) {
+        const seeded = (window.SAMPLE_PAYMENTS || []).map(function (payment, index) {
+          const orgId = getFallbackOrgIdForPayment(payment);
+          const normalizedDate = String(payment.date || '').trim();
+          return {
+            id: `seed-${index}-${orgId}-${normalizedDate}`,
+            orgId: orgId,
+            feeId: payment.feeId || `legacy-${orgId}-${String(payment.desc || '').replace(/\s+/g, '-').toLowerCase()}`,
+            feeName: payment.desc || payment.feeName || 'Fee',
+            studentId: payment.studentNo || payment.studentId || '',
+            studentName: payment.studentName || '',
+            amount: payment.amount || '₱0.00',
+            dateSubmitted: normalizedDate,
+            paymentMethod: payment.method || 'Cash',
+            referenceNumber: payment.referenceNumber || `PAY-${normalizedDate.slice(0, 4)}-${normalizedDate.slice(5).replace(/-/g, '')}-${String(1000 + index).slice(-4)}`,
+            status: 'Confirmed',
+            rejectionReason: '',
+            createdAt: payment.date ? `${payment.date}T00:00:00.000Z` : new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
+        });
+
+        savePayments(seeded);
+        try {
+          localStorage.setItem(PAYMENTS_SEED_VERSION_KEY, PAYMENTS_SEED_VERSION);
+        } catch (_err) {
+        }
+        return seeded;
+      }
+
       const parsed = raw ? JSON.parse(raw) : [];
       return Array.isArray(parsed) ? parsed : [];
     } catch (_err) {
@@ -394,6 +428,10 @@
     });
 
     savePayments(seeded);
+    try {
+      localStorage.setItem(PAYMENTS_SEED_VERSION_KEY, PAYMENTS_SEED_VERSION);
+    } catch (_err) {
+    }
     return seeded;
   }
 

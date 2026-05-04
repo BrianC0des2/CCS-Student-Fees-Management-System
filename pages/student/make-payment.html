@@ -5,22 +5,9 @@
         <title> CCS PAY++ - Finance </title>
         <link rel="stylesheet" href="../../styles/student-styles/payment-process.css">
         <link rel="stylesheet" href="../../styles/sidebar.css">
-        <!-- Boxiocns CDN Link -->
         <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
         <link rel="stylesheet" href="../../styles/settings.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-            /* Hide number input spinners */
-            .fee-payment-amount {
-                -moz-appearance: textfield;
-            }
-
-            .fee-payment-amount::-webkit-outer-spin-button,
-            .fee-payment-amount::-webkit-inner-spin-button {
-                -webkit-appearance: none;
-                margin: 0;
-            }
-        </style>
     </head>
     <body>
         <nav class="navbar page-header payment-header">
@@ -117,7 +104,9 @@
     <script src="../../assets/scripts/script.js"></script>
     <script>
         const FEES_STORAGE_KEY = 'ccs.organization.fees';
-        const PROMISSORY_STORAGE_KEY = 'ccs.promissory.requests';
+        const PROMISSORY_STORAGE_KEY = window.CCSStudentDataHelpers && typeof window.CCSStudentDataHelpers.getStudentDataStorageKey === 'function'
+            ? window.CCSStudentDataHelpers.getStudentDataStorageKey('PROMISSORY_STORAGE_KEY')
+            : (window.CCSStudentDataKeys && window.CCSStudentDataKeys.PROMISSORY_STORAGE_KEY);
         const feeListEl = document.getElementById('makePaymentFeeList');
         const multiOrgNoticeEl = document.getElementById('multiOrgNotice');
         const summaryItems = document.getElementById('summary-items');
@@ -237,6 +226,68 @@
             return studentReligion === appliesTo;
         }
 
+        function isMuslimStudent(user) {
+            const religion = normalizeReligion(user && user.religion ? user.religion : '');
+            return religion === 'muslim' || religion === 'muslim/islam';
+        }
+
+        function getConfirmedPaidAmountForFee(studentId, fee) {
+            if (!studentId || !fee) return 0;
+
+            const feeId = String(fee.id || '').trim();
+            const feeName = String(fee.name || '').trim().toLowerCase();
+            const payments = window.getStudentPayments ? window.getStudentPayments(studentId) : [];
+
+            const total = payments.reduce(function (sum, payment) {
+                const status = String(payment.status || 'Confirmed').toLowerCase();
+                if (status !== 'confirmed') {
+                    return sum;
+                }
+
+                const paymentFeeIds = Array.isArray(payment.feeIds)
+                    ? payment.feeIds.map(function (value) { return String(value || '').trim(); }).filter(Boolean)
+                    : (payment.feeId ? [String(payment.feeId || '').trim()] : []);
+
+                const matchesFeeId = feeId && paymentFeeIds.some(function (value) {
+                    return value === feeId;
+                });
+                const matchesFeeName = !paymentFeeIds.length && feeName && String(payment.feeName || payment.desc || '').trim().toLowerCase() === feeName;
+
+                if (!matchesFeeId && !matchesFeeName) {
+                    return sum;
+                }
+
+                const amount = Number(String(payment.amount || '').replace(/[^0-9.\-]/g, '')) || 0;
+                return sum + amount;
+            }, 0);
+
+            return Math.round(total * 100) / 100;
+        }
+
+        function getRemainingBalanceForFee(studentId, fee) {
+            const paid = getConfirmedPaidAmountForFee(studentId, fee);
+            const remaining = Number(fee.amount || 0) - paid;
+            return Math.round(Math.max(remaining, 0) * 100) / 100;
+        }
+
+        function getRenderableFees() {
+            const user = getCurrentUser();
+            const studentId = user && user.studentId ? user.studentId : null;
+
+            return getActiveFees().filter(function (fee) {
+                if (!feeAppliesToStudent(fee, user)) {
+                    return false;
+                }
+
+                if (String(fee.appliesTo || '').trim().toLowerCase() === 'muslim' && !isMuslimStudent(user)) {
+                    return false;
+                }
+
+                const remaining = studentId ? getRemainingBalanceForFee(studentId, fee) : Math.round(Number(fee.amount || 0) * 100) / 100;
+                return remaining > 0;
+            });
+        }
+
         function getActiveFees() {
             const stored = readJsonArray(FEES_STORAGE_KEY).map(normalizeFee);
             const source = stored.length ? stored : DEFAULT_FEES.map(normalizeFee);
@@ -269,7 +320,9 @@
         }
 
         function renderFeeRows() {
-            const fees = getActiveFees();
+            const user = getCurrentUser();
+            const studentId = user && user.studentId ? user.studentId : null;
+            const fees = getRenderableFees();
             const selectAllCheckbox = `
                 <div class="fees-selection fee-item-card select-all-card">
                     <div class="fee-info">
@@ -282,51 +335,35 @@
                     </div>
                 </div>
             `;
-            
-            // Build fee rows with editable amount input and remaining balance awareness
-            const user = getCurrentUser();
-            const studentId = user && user.studentId ? user.studentId : null;
 
             feeListEl.innerHTML = selectAllCheckbox + fees.map(function (fee) {
                 const typeClass = fee.feeType === 'voluntary' ? 'fee-pill-optional' : 'fee-pill-required';
                 const typeText = fee.feeType === 'voluntary' ? 'OPTIONAL' : 'REQUIRED';
 
-                // compute total confirmed payments for this fee for current user (with rounding)
-                let totalPaid = 0;
-                if (window.CCSPaymentStore && typeof window.CCSPaymentStore.getPaymentsForStudent === 'function' && studentId) {
-                    const payments = window.CCSPaymentStore.getPaymentsForStudent(studentId) || [];
-                    payments.forEach(function (p) {
-                        try {
-                            const status = String(p.status || 'Confirmed').toLowerCase();
-                            if (status !== 'confirmed') return;
-                            const feeIds = Array.isArray(p.feeIds) ? p.feeIds : (p.feeId ? [p.feeId] : []);
-                            const matches = feeIds.some(function (fid) { return String(fid || '') === String(fee.id); });
-                            if (matches) {
-                                const amt = String(p.amount || '').replace(/[^0-9\.\-]/g, '');
-                                totalPaid += Number(amt) || 0;
-                            }
-                        } catch (e) {}
-                    });
-                }
-
-                // Round to 2 decimal places
-                totalPaid = Math.round(totalPaid * 100) / 100;
-                const remaining = Math.max(Math.round((Number(fee.amount) - totalPaid) * 100) / 100, 0);
+                const remaining = studentId ? getRemainingBalanceForFee(studentId, fee) : Math.round(Number(fee.amount || 0) * 100) / 100;
 
                 // check for promissory status for this fee
-                const requests = readJsonArray(PROMISSORY_STORAGE_KEY).filter(r => String(r.feeId || '').trim() === String(fee.id).trim());
+                const studentPromissoryRequests = window.getStudentPromissoryRequests && studentId
+                    ? window.getStudentPromissoryRequests(studentId)
+                    : [];
+                const requests = studentPromissoryRequests.filter(function (request) {
+                    return String(request.feeId || '').trim() === String(fee.id).trim();
+                });
                 const latest = requests.sort(function(a,b) { return new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0); })[0];
                 const promissoryStatus = latest ? String(latest.status || '').toLowerCase() : null;
                 const isPendingReview = promissoryStatus === 'pending review';
                 const isPromissoryApproved = promissoryStatus === 'promissory approved';
-                const isPromissoryRejected = promissoryStatus === 'promissory rejected';
+
+                if (remaining <= 0) {
+                    return '';
+                }
 
                 // if pending review: disable and show label
                 if (isPendingReview) {
                     return `
                         <div class="fees-selection fee-item-card" data-fee-id="${fee.id}">
                             <div class="fee-info">
-                                <input type="checkbox" data-fee-id="${fee.id}" data-fee="${fee.name}" data-price="${fee.amount}" data-org-id="${fee.orgId || 'u-org-001'}" disabled>
+                                <input type="checkbox" data-fee-id="${fee.id}" data-fee="${fee.name}" data-price="${remaining}" data-org-id="${fee.orgId || 'u-org-001'}" disabled>
                                 <div class="cb">
                                     <div class="fee-name-row">
                                         <h3>${fee.name}</h3>
@@ -335,26 +372,19 @@
                                     <p>Due: ${formatDueDate(fee.dueDate)}</p>
                                 </div>
                             </div>
-                            <div style="display:flex; align-items:center; gap:8px;">
+                            <div class="fee-balance-row">
                                 <div class="fee-prices" style="color:#f59e0b; font-weight:600;">Promissory Pending — awaiting approval</div>
+                                <div class="fee-prices">Remaining: ₱${Number(remaining).toFixed(2)}</div>
                             </div>
                             <button type="button" class="fee-action-promissory-link" data-fee-id="${fee.id}" data-fee-name="${fee.name}" disabled style="opacity:0.5;">Request promissory note instead</button>
                         </div>
                     `;
                 }
 
-                // if approved with partial: show remaining and prefill
-                let promissoryPartial = null;
-                if (isPromissoryApproved && latest && latest.partialAmount) {
-                    promissoryPartial = Number(latest.partialAmount);
-                }
-                const inputValue = promissoryPartial !== null && promissoryPartial > 0 ? Math.min(promissoryPartial, remaining) : (remaining > 0 ? remaining : 0);
-                const isCleared = remaining <= 0;
-
                 return `
                     <div class="fees-selection fee-item-card" data-fee-id="${fee.id}">
                         <div class="fee-info">
-                            <input type="checkbox" data-fee-id="${fee.id}" data-fee="${fee.name}" data-price="${fee.amount}" data-org-id="${fee.orgId || 'u-org-001'}" ${isCleared ? 'disabled' : ''}>
+                            <input type="checkbox" data-fee-id="${fee.id}" data-fee="${fee.name}" data-price="${remaining}" data-org-id="${fee.orgId || 'u-org-001'}">
                             <div class="cb">
                                 <div class="fee-name-row">
                                     <h3>${fee.name}</h3>
@@ -363,14 +393,8 @@
                                 <p>Due: ${formatDueDate(fee.dueDate)}</p>
                             </div>
                         </div>
-                        <div style="display:flex; align-items:center; gap:8px;">
+                        <div class="fee-balance-row">
                             <div class="fee-prices">Remaining: ₱${Number(remaining).toFixed(2)}</div>
-                            <div class="fee-pay-input" style="display:inline-block;">
-                                <div style="display:flex; align-items:center; gap:6px;">
-                                    <span>₱</span>
-                                    <input type="number" class="fee-payment-amount" data-fee-id="${fee.id}" min="1" max="${Number(remaining).toFixed(2)}" step="0.01" value="${inputValue}" ${isCleared ? 'disabled' : 'disabled'} style="width:100px;">
-                                </div>
-                            </div>
                         </div>
                         <button type="button" class="fee-action-promissory-link" data-fee-id="${fee.id}" data-fee-name="${fee.name}">Request promissory note instead</button>
                     </div>
@@ -390,13 +414,10 @@
 
         function getSelectedFeeGroups() {
             const checked = getChecked().map(function (cb) {
-                // prefer amount from input if present
-                const input = document.querySelector(`.fee-payment-amount[data-fee-id="${cb.dataset.feeId}"]`);
-                const price = input ? Number(input.value) : Number(cb.dataset.price);
                 return {
                     feeId: cb.dataset.feeId,
                     fee: cb.dataset.fee,
-                    price: Number(price) || 0,
+                    price: Number(cb.dataset.price) || 0,
                     orgId: cb.dataset.orgId || 'u-org-001'
                 };
             });
@@ -444,17 +465,13 @@
             summaryItems.innerHTML = checked.length === 0
                     ? '<p class="summary-empty">No fees selected yet.</p>'
                 : checked.map(cb => {
-                    const input = document.querySelector(`.fee-payment-amount[data-fee-id="${cb.dataset.feeId}"]`);
-                    const price = input ? Number(input.value) : Number(cb.dataset.price);
                     return `<div class="summary-item">
                         <span>${cb.dataset.fee}</span>
-                        <span>&#8369;${Number(price || 0).toFixed(2)}</span>
+                        <span>&#8369;${Number(cb.dataset.price || 0).toFixed(2)}</span>
                     </div>`;
                 }).join('');
             const total = checked.reduce((sum, cb) => {
-                const input = document.querySelector(`.fee-payment-amount[data-fee-id="${cb.dataset.feeId}"]`);
-                const price = input ? Number(input.value) : Number(cb.dataset.price);
-                return sum + (Number(price) || 0);
+                return sum + (Number(cb.dataset.price) || 0);
             }, 0);
             totalAmountEl.textContent = '\u20B1' + total;
             updateMultiOrgNotice();
@@ -480,6 +497,11 @@
 
         function submitPromissoryRequest() {
             if (!selectedFeeForPromissory) return;
+
+            if (!PROMISSORY_STORAGE_KEY) {
+                alert('Promissory storage is unavailable. Please refresh and try again.');
+                return;
+            }
 
             const reason = document.getElementById('promissoryReason').value.trim();
             const promisedDate = document.getElementById('promissoryDate').value;
@@ -527,13 +549,6 @@
                         selectAllCheckbox.checked = false;
                     }
 
-                    // enable/disable corresponding amount input
-                    const feeId = this.dataset.feeId;
-                    const input = document.querySelector(`.fee-payment-amount[data-fee-id="${feeId}"]`);
-                    if (input) {
-                        input.disabled = !this.checked;
-                    }
-
                     updateSummary();
                 });
             });
@@ -543,9 +558,6 @@
                     const isChecked = this.checked;
                     getCheckboxes().forEach(function (cb) {
                         if (!cb.disabled) cb.checked = isChecked;
-                        const feeId = cb.dataset.feeId;
-                        const input = document.querySelector(`.fee-payment-amount[data-fee-id="${feeId}"]`);
-                        if (input) input.disabled = !isChecked;
                     });
                     updateSummary();
                 });
@@ -590,15 +602,6 @@
                 const shouldCheck = preselectedIds.has(feeId) || preselectedNames.has(feeName);
                 if (shouldCheck) {
                     checkbox.checked = true;
-                    // enable the corresponding amount input and set value if provided
-                    const input = document.querySelector(`.fee-payment-amount[data-fee-id="${feeId}"]`);
-                    if (input) {
-                        input.disabled = false;
-                        const match = preselected.find(p => (String(p.feeId || '') === feeId) || String(p.fee || '') === feeName);
-                        if (match && (match.price || match.price === 0)) {
-                            input.value = Number(match.price) || 0;
-                        }
-                    }
                     changed = true;
                 }
             });
@@ -624,9 +627,7 @@
                 return;
             }
             const fees = checked.map(cb => {
-                const input = document.querySelector(`.fee-payment-amount[data-fee-id="${cb.dataset.feeId}"]`);
-                const price = input ? Number(input.value) : Number(cb.dataset.price);
-                return { feeId: cb.dataset.feeId, fee: cb.dataset.fee, price: Number(price) || 0, orgId: cb.dataset.orgId || 'u-org-001' };
+                return { feeId: cb.dataset.feeId, fee: cb.dataset.fee, price: Number(cb.dataset.price) || 0, orgId: cb.dataset.orgId || 'u-org-001' };
             });
             const paymentGroups = getSelectedFeeGroups();
             localStorage.setItem('ccs.selected.fees', JSON.stringify(fees));

@@ -7,26 +7,22 @@ const PaymentHistory = (() => {
     let currentFilter = 'recent';
     let currentModal = null;
 
+    function getCurrentUser() {
+        if (window.Auth && typeof window.Auth.getUser === 'function') {
+            return window.Auth.getUser();
+        }
+
+        try {
+            const authData = localStorage.getItem('ccs.auth.user') || sessionStorage.getItem('ccs.auth.user');
+            return authData ? JSON.parse(authData) : null;
+        } catch (_error) {
+            return null;
+        }
+    }
+
     // Initialize payment history from dashboard payments
     function initializeFromDashboard() {
-        // Get current user from Auth or storage
-        let currentUser = null;
-
-        if (window.Auth && typeof window.Auth.getUser === 'function') {
-            currentUser = window.Auth.getUser();
-        }
-
-        // If Auth not ready, try to get from storage
-        if (!currentUser) {
-            try {
-                const authData = localStorage.getItem('ccs.auth.user') || sessionStorage.getItem('ccs.auth.user');
-                if (authData) {
-                    currentUser = JSON.parse(authData);
-                }
-            } catch (e) {
-                console.warn('Could not parse auth data:', e);
-            }
-        }
+        const currentUser = getCurrentUser();
 
         const studentPayments = window.getStudentPayments
             ? window.getStudentPayments(currentUser && currentUser.studentId ? currentUser.studentId : '')
@@ -47,8 +43,9 @@ const PaymentHistory = (() => {
     }
 
     function formatDate(date) {
-        // date is already a string like "2026-03-01"
+        if (!date) return '-';
         const d = new Date(date + 'T00:00:00');
+        if (Number.isNaN(d.getTime())) return String(date);
         return d.toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
@@ -119,9 +116,9 @@ const PaymentHistory = (() => {
                     <td><span class="receipt-num">${payment.desc}</span>${referenceBlock}${payment.orgName ? `<div class="receipt-date">${payment.orgName}</div>` : ''}</td>
                     <td><span class="receipt-date">${payment.date}</span></td>
                     <td><span class="receipt-amount">${payment.amount}</span></td>
-                    <td>
+                    <td class="receipt-action-cell">
                         ${statusBadge}
-                        <button class="btn-view-details" onclick="PaymentHistory.viewDetails(${idx})">
+                        <button class="btn-view-details" style="width:auto;min-width:0;max-width:none;display:inline-flex;" onclick="PaymentHistory.viewDetails(${idx})">
                             <i class='bx bx-show'></i> View
                         </button>
                     </td>
@@ -139,9 +136,7 @@ const PaymentHistory = (() => {
     }
 
     function getStudentPromissoryNotes() {
-        const currentUser = window.Auth && typeof window.Auth.getUser === 'function'
-            ? window.Auth.getUser()
-            : null;
+        const currentUser = getCurrentUser();
 
         if (!currentUser || !currentUser.studentId || !window.getStudentPromissoryRequests) {
             return [];
@@ -194,7 +189,7 @@ const PaymentHistory = (() => {
                     ? '<span class="receipt-status-badge receipt-status-badge--approved">Promissory Approved</span>'
                     : '<span class="receipt-status-badge receipt-status-badge--rejected">Promissory Rejected</span>';
 
-            const amount = request.partialAmount ? `₱${Number(request.partialAmount).toFixed(2)}` : (() => {
+            const amount = request.partialAmount ? `₱${Number(request.partialAmount).toFixed(2)}` : (request.amount ? `₱${Number(request.amount).toFixed(2)}` : (() => {
                 try {
                     const fees = JSON.parse(localStorage.getItem('ccs.organization.fees') || '[]');
                     const found = fees.find(function (fee) {
@@ -206,13 +201,16 @@ const PaymentHistory = (() => {
                 } catch (_err) {
                     return 'Full Payment';
                 }
-            })();
+            })());
+
+            // Use dateRequested if available, otherwise fall back to createdAt
+            const dateRequestedDisplay = formatDate(request.dateRequested || request.createdAt || '');
 
             html += `
                 <tr>
                     <td><span class="receipt-num">${request.feeName || 'Promissory Note'}</span></td>
                     <td><span class="receipt-amount">${amount}</span></td>
-                    <td><span class="receipt-date">${formatDate(request.createdAt || '')}</span></td>
+                    <td><span class="receipt-date">${dateRequestedDisplay}</span></td>
                     <td><span class="promissory-reason" title="${request.reason || ''}">${request.reason || ''}</span></td>
                     <td><span class="receipt-date">${formatDate(request.promisedDate || '')}</span></td>
                     <td>${statusBadge}</td>
@@ -256,12 +254,13 @@ const PaymentHistory = (() => {
                 return status(payment) === 'confirmed';
             }
 
+            // For 'recent' and any other filter, show all confirmed payments
+            // (The 30-day logic was filtering out valid confirmed payments)
             if (status(payment) !== 'confirmed') {
                 return false;
             }
 
-            if (filter === 'recent') return dateObj >= recentThreshold;
-            if (filter === 'old') return dateObj < recentThreshold;
+            // Show all confirmed payments regardless of date
             return true;
         });
 

@@ -90,6 +90,19 @@ body {
     padding: 0 40px;
 }
 
+.step-one-wrapper.payment-content {
+    width: min(1200px, calc(100% - 32px));
+    margin-left: auto;
+    margin-right: auto;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.step-one-wrapper.payment-content > #paymentGroupBanner {
+    flex: 1 0 100%;
+    text-align: center;
+}
+
 .fee-selection-container{
     color: var(--sys-text-900);
     background-color: white;
@@ -100,6 +113,11 @@ body {
     justify-content:center;
     align-items: center;
     padding: 20px;
+}
+
+.payment-content .fee-selection-container {
+    width: min(100%, 560px);
+    flex: 1 1 560px;
 }
 
 .fee-selection-container form {
@@ -213,6 +231,11 @@ input[type="checkbox"]{
     padding: 20px;
     width: 300px;
     color: var(--sys-text-900);
+}
+
+.payment-content .payment-summary {
+    width: min(100%, 340px);
+    flex: 0 1 340px;
 }
 
 .payment-summary h3 {

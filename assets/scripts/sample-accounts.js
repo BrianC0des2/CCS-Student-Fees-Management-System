@@ -1,7 +1,7 @@
 window.SAMPLE_ACCOUNTS = [
   {
     id: "u-student-001",
-    name: "Bryan Saavedra",
+    name: "Kayden Break",
     studentId: "TY202500100",
     email: "student1@demo.com",
     password: "123456",
@@ -22,30 +22,8 @@ window.SAMPLE_ACCOUNTS = [
     }
   },
   {
-    id: "u-student-002",
-    name: "Johari Esmail",
-    studentId: "TY202501337",
-    email: "student2@demo.com",
-    password: "123456",
-    isFirstLogin: true,
-    religion: "Muslim/Islam",
-    phoneNumber: "",
-    sex: "Female",
-    course: "BS Computer Science",
-    year: "3rd Year",
-    section: "CS 3-A",
-    permissions: {
-      studentView: true,
-      organizationView: false,
-      adminView: false,
-      facultyView: false,
-      deanView: false
-
-    }
-  },
-  {
     id: "u-org-001",
-    name: "CCS Student Council",
+    name: "Landis Tarro",
     studentId: "TY202500101",
     email: "studentorg@demo.com",
     password: "123456",
@@ -130,32 +108,23 @@ window.SAMPLE_ACCOUNTS = [
 ];
 
 // Shared payment data for all students
+window.SAMPLE_PAYMENTS_SEED_VERSION = 2;
 window.SAMPLE_PAYMENTS = [
-  // Bryan's payments (TY202500100) - Most recent to oldest
+  // Kayden's payments (TY202500100) - Most recent to oldest
   // Seed a confirmed partial payment for the approved promissory
-  { studentNo: "TY202500100", studentName: "Bryan Saavedra", desc: 'CSC Fee', amount: '₱100.00', date: '2026-02-20', method: 'GCash' },
-  { studentNo: "TY202500100", studentName: "Bryan", desc: 'CSC Fee', amount: '₱200.00', date: '2026-01-03', method: 'GCash' },
-  { studentNo: "TY202500100", studentName: "Bryan", desc: 'Insurance', amount: '₱40.00', date: '2025-08-03', method: 'Cash' },
-  { studentNo: "TY202500100", studentName: "Bryan", desc: 'Gender Club', amount: '₱50.00', date: '2025-01-03', method: 'GCash' },
-  { studentNo: "TY202500100", studentName: "Bryan", desc: 'Miscellaneous', amount: '₱60.00', date: '2024-08-02', method: 'Bank Transfer' },
-  { studentNo: "TY202500100", studentName: "Bryan", desc: 'CSC Fee', amount: '₱200.00', date: '2024-01-05', method: 'GCash' },
-  { studentNo: "TY202500100", studentName: "Bryan", desc: 'Insurance', amount: '₱40.00', date: '2023-08-03', method: 'Cash' },
-
-  // Johari's payments (TY202501337)
-  // Confirmed partial payment for approved MSA promissory
-  { studentNo: "TY202501337", studentName: "Johari Esmail", desc: 'MSA Fee', amount: '₱30.00', date: '2026-02-25', method: 'GCash', feeId: 'fee-default-msa', feeName: 'MSA Fee' },
-  { studentNo: "TY202501337", studentName: "Johari Esmail", desc: 'CSC Fee', amount: '₱200.00', date: '2026-01-03', method: 'GCash' },
-  { studentNo: "TY202501337", studentName: "Johari Esmail", desc: 'Insurance', amount: '₱40.00', date: '2025-08-03', method: 'Cash' },
-  { studentNo: "TY202501337", studentName: "Johari Esmail", desc: 'Gender Club', amount: '₱50.00', date: '2025-01-03', method: 'GCash' },
-  { studentNo: "TY202501337", studentName: "Johari Esmail", desc: 'Miscellaneous', amount: '₱60.00', date: '2024-08-02', method: 'Bank Transfer' },
-  { studentNo: "TY202501337", studentName: "Johari Esmail", desc: 'CSC Fee', amount: '₱200.00', date: '2024-01-05', method: 'GCash' },
-  { studentNo: "TY202501337", studentName: "Johari Esmail", desc: 'Insurance', amount: '₱40.00', date: '2023-08-03', method: 'Cash' },
+  { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'CSC Fee', amount: '₱100.00', date: '2026-02-20', method: 'GCash' },
+  { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'CSC Fee', amount: '₱200.00', date: '2026-01-03', method: 'GCash' },
+  { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'Insurance', amount: '₱40.00', date: '2025-08-03', method: 'Cash' },
+  { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'Gender Club', amount: '₱50.00', date: '2025-01-03', method: 'GCash' },
+  { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'Miscellaneous', amount: '₱60.00', date: '2024-08-02', method: 'Bank Transfer' },
+  { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'CSC Fee', amount: '₱200.00', date: '2024-01-05', method: 'GCash' },
+  { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'Insurance', amount: '₱40.00', date: '2023-08-03', method: 'Cash' },
 
   // Other students
-  { studentNo: "TY202500101", studentName: "Bryan", desc: 'CCS Fee - BSCS 1A', amount: '₱1,000.00', date: '2026-03-01' },
-  { studentNo: "TY202500101", studentName: "Bryan", desc: 'Insurance - BSCS 1A', amount: '₱150.00', date: '2026-03-10' },
-  { studentNo: "TY202500101", studentName: "Bryan", desc: 'Gender Club - BSCS 1A', amount: '₱50.00', date: '2026-03-15' },
-  { studentNo: "TY202500101", studentName: "Bryan", desc: 'Partial Payment - BSCS 1B', amount: '₱500.00', date: '2026-01-15' },
+  { studentNo: "TY202500101", studentName: "Landis Tarro", desc: 'CCS Fee - BSCS 1A', amount: '₱1,000.00', date: '2026-03-01' },
+  { studentNo: "TY202500101", studentName: "Landis Tarro", desc: 'Insurance - BSCS 1A', amount: '₱150.00', date: '2026-03-10' },
+  { studentNo: "TY202500101", studentName: "Landis Tarro", desc: 'Gender Club - BSCS 1A', amount: '₱50.00', date: '2026-03-15' },
+  { studentNo: "TY202500101", studentName: "Landis Tarro", desc: 'Partial Payment - BSCS 1B', amount: '₱500.00', date: '2026-01-15' },
   { studentNo: "TY202500102", studentName: "Maria Santos", desc: 'CCSC Fee - BSCS 1A', amount: '₱1,000.00', date: '2026-02-10' },
   { studentNo: "TY202500104", studentName: "Ana Garcia", desc: 'Insurance - BSCS 1B', amount: '₱150.00', date: '2026-02-05' },
   { studentNo: "TY202500106", studentName: "Sofia Martinez", desc: 'Miscellaneous - BSIT 1A', amount: '₱850.00', date: '2026-02-01' },

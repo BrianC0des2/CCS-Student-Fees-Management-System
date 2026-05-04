@@ -91,8 +91,71 @@ function getStudentDataKey(name, fallbackValue) {
     : fallbackValue;
 }
 
+function getStudentDataStorageKey(name) {
+  if (!window.CCSStudentDataKeys) {
+    window.CCSStudentDataKeys = {
+      STUDENT_PAYMENTS_STORAGE_KEY: 'ccs.student.payments',
+      PROMISSORY_STORAGE_KEY: 'ccs.promissory.requests'
+    };
+  }
+
+  if (!window.CCSStudentDataKeys[name]) {
+    return '';
+  }
+
+  return window.CCSStudentDataKeys[name];
+}
+
+function dedupePayments(payments) {
+  const seen = new Set();
+
+  return payments.filter(function (payment) {
+    const key = [
+      String(payment.referenceNumber || '').trim(),
+      String(payment.id || '').trim(),
+      String(payment.studentId || payment.studentNo || '').trim(),
+      String(payment.feeId || payment.feeName || payment.desc || '').trim(),
+      String(payment.amount || '').trim(),
+      String(payment.dateSubmitted || payment.date || '').trim(),
+      String(payment.orgId || '').trim()
+    ].join('|');
+
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
+}
+
+function readStudentPaymentsWithMigration() {
+  const paymentsKey = getStudentDataStorageKey('STUDENT_PAYMENTS_STORAGE_KEY') || getStudentDataKey('STUDENT_PAYMENTS_STORAGE_KEY', 'ccs.student.payments');
+  const legacyKeys = ['ccs.payments'];
+  const currentPayments = readJsonArrayFromStorage(paymentsKey);
+  let combined = currentPayments.slice();
+
+  legacyKeys.forEach(function (legacyKey) {
+    if (legacyKey === paymentsKey) return;
+    const legacyPayments = readJsonArrayFromStorage(legacyKey);
+    if (!legacyPayments.length) return;
+    combined = combined.concat(legacyPayments);
+  });
+
+  const migrated = dedupePayments(combined);
+
+  if (migrated.length !== currentPayments.length) {
+    try {
+      localStorage.setItem(paymentsKey, JSON.stringify(migrated));
+    } catch (error) {
+    }
+  }
+
+  return migrated;
+}
+
 function getStudentPayments(studentId) {
-  const payments = readJsonArrayFromStorage(getStudentDataKey('STUDENT_PAYMENTS_STORAGE_KEY', 'ccs.student.payments'));
+  const payments = readStudentPaymentsWithMigration();
   const targetStudentId = String(studentId || '').trim();
 
   if (!targetStudentId) {
@@ -105,7 +168,8 @@ function getStudentPayments(studentId) {
 }
 
 function getStudentPromissoryRequests(studentId) {
-  const requests = readJsonArrayFromStorage(getStudentDataKey('PROMISSORY_STORAGE_KEY', 'ccs.promissory.requests'));
+  const promissoryKey = getStudentDataStorageKey('PROMISSORY_STORAGE_KEY') || getStudentDataKey('PROMISSORY_STORAGE_KEY', 'ccs.promissory.requests');
+  const requests = readJsonArrayFromStorage(promissoryKey);
   const targetStudentId = String(studentId || '').trim();
 
   if (!targetStudentId) {
@@ -120,6 +184,7 @@ function getStudentPromissoryRequests(studentId) {
 window.getStudentPayments = getStudentPayments;
 window.getStudentPromissoryRequests = getStudentPromissoryRequests;
 window.CCSStudentDataHelpers = {
+  getStudentDataStorageKey: getStudentDataStorageKey,
   getStudentPayments: getStudentPayments,
   getStudentPromissoryRequests: getStudentPromissoryRequests
 };

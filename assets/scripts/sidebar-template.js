@@ -1,7 +1,7 @@
 
 const sidebarHTML = `
 <div class="sidebar">
-    <a href="organization-dashboard.html" style="text-decoration: none;">
+    <a href="#" class="logo-link" style="text-decoration: none;">
         <div class="logo-details">
             <img src="../../assets/images/pyt.png" alt="Pay++ Logo" class="sidebar-logo-img">
             <span class="logo_name">Pay++</span>
@@ -109,112 +109,146 @@ function applyRoleBasedSidebarAccess() {
     const user = window.Auth.getUser();
     if (!user || !user.permissions) return;
 
+    const hasAdminView = Boolean(user.permissions.adminView);
+    const hasOrganizationView = Boolean(user.permissions.organizationView);
     const hasFacultyView = Boolean(user.permissions.facultyView);
     const hasDeanView = Boolean(user.permissions.deanView);
-    const hasFacultyOrDeanView = hasFacultyView || hasDeanView;
-    const currentPage = (window.location.pathname.split('/').pop() || '').toLowerCase();
-    const useDeanDashboard = hasDeanView && (!hasFacultyView || currentPage === 'dean-dashboard.html');
-    const dashboardHref = useDeanDashboard
-        ? '../dean/dean-dashboard.html'
-        : '../faculty/faculty-dashboard.html';
+    const isStudentOnly = !hasAdminView && !hasOrganizationView && !hasFacultyView && !hasDeanView;
 
-    const logoLink = document.querySelector('.sidebar .logo-details').closest('a');
+    // Determine dashboard href based on role priority: admin > dean > faculty > organization > student
+    let dashboardHref = '../student/student-dashboard.html'; // default
+    
+    if (hasAdminView) {
+        dashboardHref = '../admin/admin-dashboard.html';
+    } else if (hasDeanView) {
+        dashboardHref = '../dean/dean-dashboard.html';
+    } else if (hasFacultyView) {
+        dashboardHref = '../faculty/faculty-dashboard.html';
+    } else if (hasOrganizationView) {
+        dashboardHref = '../organization/organization-dashboard.html';
+    }
 
-    if (hasFacultyOrDeanView) {
-        if (logoLink) {
-            logoLink.setAttribute('href', dashboardHref);
-        }
-    } else if (user.permissions.organizationView) {
-        if (logoLink) {
-            logoLink.setAttribute('href', '../organization/organization-dashboard.html');
+    // Update logo link (both dynamic template and static sidebars)
+    const logoLink = document.querySelector('.sidebar .logo-link') || document.querySelector('.sidebar .logo-details')?.closest('a');
+    if (logoLink) {
+        logoLink.setAttribute('href', dashboardHref);
+        logoLink.style.textDecoration = 'none';
+        logoLink.style.color = 'inherit';
+        logoLink.style.cursor = 'pointer';
+    } else {
+        // Fallback: if logo is not wrapped in anchor, add click handler to logo-details
+        const logoDetails = document.querySelector('.sidebar .logo-details');
+        if (logoDetails && !logoDetails.hasClickHandler) {
+            logoDetails.hasClickHandler = true;
+            logoDetails.style.cursor = 'pointer';
+            logoDetails.addEventListener('click', function (e) {
+                e.preventDefault();
+                window.location.href = dashboardHref;
+            });
         }
     }
 
-    const isFacultyOrDean = hasFacultyOrDeanView;
-    if (!isFacultyOrDean) return;
-
+    // Update first nav-link (Dashboard link)
     const dashboardLink = document.querySelector('.nav-links > li:first-child > a');
     if (dashboardLink) {
         dashboardLink.setAttribute('href', dashboardHref);
     }
 
-    const walletIcon = document.querySelector('.nav-links .bx-wallet');
-    const paymentsListItem = walletIcon ? walletIcon.closest('li') : null;
-    if (paymentsListItem) {
-        paymentsListItem.remove();
+    // Hide navigation items not applicable to student role
+    if (isStudentOnly) {
+        // Remove Payments menu for students
+        const walletIcon = document.querySelector('.nav-links .bx-wallet');
+        const paymentsListItem = walletIcon ? walletIcon.closest('li') : null;
+        if (paymentsListItem) {
+            paymentsListItem.remove();
+        }
+
+        // Remove Reports menu for students
+        const fileIcon = document.querySelector('.nav-links .bx-file');
+        const reportsListItem = fileIcon ? fileIcon.closest('li') : null;
+        if (reportsListItem) {
+            reportsListItem.remove();
+        }
+        return;
     }
 
-    // Remove Reports for faculty and dean
-    const fileIcon = document.querySelector(
-        '.nav-links .bx-file'
-    );
-    const reportsListItem = fileIcon ? 
-        fileIcon.closest('li') : null;
-    if (reportsListItem) reportsListItem.remove();
-
-    // Add My Students link for faculty only (not dean)
-    const isFacultyOnly = hasFacultyView && !hasDeanView;
-    if (isFacultyOnly) {
-        const dashLi = document.querySelector(
-            '.nav-links > li:first-child'
-        );
-        const myStudentsLi = document.createElement('li');
-        myStudentsLi.innerHTML = `
-            <a id="myStudentsSidebarLink" href="../faculty/students.html">
-                <i class='bx bx-group'></i>
-                <span class="link_name">My Students</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" 
-                       href="../faculty/students.html">
-                    My Students
-                </a></li>
-            </ul>
-        `;
-        dashLi.insertAdjacentElement('afterend', myStudentsLi);
+    // Handle admin-specific navigation
+    if (hasAdminView) {
+        // Admin has all menu items, no modifications needed
+        return;
     }
 
-    if (isFacultyOnly) {
-        const myStudentsLi = document.getElementById(
-            'myStudentsSidebarLink'
-        ).closest('li');
-        const historyLi = document.createElement('li');
-        historyLi.innerHTML = `
-            <a href="../faculty/clearance-history.html">
-                <i class='bx bx-history'></i>
-                <span class="link_name">History</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" 
-                       href="../faculty/clearance-history.html">
-                    History
-                </a></li>
-            </ul>
-        `;
-        myStudentsLi.insertAdjacentElement(
-            'afterend', historyLi
-        );
+    // Handle faculty/dean-specific navigation
+    const hasFacultyOrDeanView = hasFacultyView || hasDeanView;
+    if (hasFacultyOrDeanView) {
+        // Remove Payments menu for faculty/dean
+        const walletIcon = document.querySelector('.nav-links .bx-wallet');
+        const paymentsListItem = walletIcon ? walletIcon.closest('li') : null;
+        if (paymentsListItem) {
+            paymentsListItem.remove();
+        }
+
+        // Remove Reports menu for faculty/dean
+        const fileIcon = document.querySelector('.nav-links .bx-file');
+        const reportsListItem = fileIcon ? fileIcon.closest('li') : null;
+        if (reportsListItem) {
+            reportsListItem.remove();
+        }
+
+        // Add My Students link for faculty only (not dean)
+        const isFacultyOnly = hasFacultyView && !hasDeanView;
+        if (isFacultyOnly) {
+            const dashLi = document.querySelector('.nav-links > li:first-child');
+            const myStudentsLi = document.createElement('li');
+            myStudentsLi.innerHTML = `
+                <a id="myStudentsSidebarLink" href="../faculty/students.html">
+                    <i class='bx bx-group'></i>
+                    <span class="link_name">My Students</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="../faculty/students.html">My Students</a></li>
+                </ul>
+            `;
+            dashLi.insertAdjacentElement('afterend', myStudentsLi);
+
+            // Add History link for faculty
+            const myStudentsLi_elem = document.getElementById('myStudentsSidebarLink').closest('li');
+            const historyLi = document.createElement('li');
+            historyLi.innerHTML = `
+                <a href="../faculty/clearance-history.html">
+                    <i class='bx bx-history'></i>
+                    <span class="link_name">History</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="../faculty/clearance-history.html">History</a></li>
+                </ul>
+            `;
+            myStudentsLi_elem.insertAdjacentElement('afterend', historyLi);
+        }
+
+        // Add History link for dean only
+        const isDeanOnly = hasDeanView && !hasFacultyView;
+        if (isDeanOnly) {
+            const dashLi = document.querySelector('.nav-links > li:first-child');
+            const deanHistoryLi = document.createElement('li');
+            deanHistoryLi.innerHTML = `
+                <a href="../dean/clearance-history.html">
+                    <i class='bx bx-history'></i>
+                    <span class="link_name">History</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="../dean/clearance-history.html">History</a></li>
+                </ul>
+            `;
+            dashLi.insertAdjacentElement('afterend', deanHistoryLi);
+        }
+        return;
     }
 
-    const isDeanOnly = hasDeanView && !hasFacultyView;
-    if (isDeanOnly) {
-        const dashLi = document.querySelector(
-            '.nav-links > li:first-child'
-        );
-        const deanHistoryLi = document.createElement('li');
-        deanHistoryLi.innerHTML = `
-            <a href="../dean/clearance-history.html">
-                <i class='bx bx-history'></i>
-                <span class="link_name">History</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" 
-                       href="../dean/clearance-history.html">
-                    History
-                </a></li>
-            </ul>
-        `;
-        dashLi.insertAdjacentElement('afterend', deanHistoryLi);
+    // Handle organization-specific navigation
+    if (hasOrganizationView) {
+        // Organizations have all menu items available
+        return;
     }
 }
 

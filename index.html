@@ -272,66 +272,16 @@ togglePassword.addEventListener('click', function() {
     }
 
     function resetDemoData() {
-        localStorage.removeItem('ccs.promissory.requests');
-        localStorage.removeItem('ccs.payments');
-
-        const overridesKey = 'ccs.auth.accountProfileOverrides';
-        const overrides = parseJsonObject(overridesKey);
-        ['u-student-001', 'u-student-002'].forEach(function (id) {
-            const existing = overrides[id] || {};
-            overrides[id] = {
-                ...existing,
-                isFirstLogin: true,
-                religion: '',
-                phoneNumber: ''
-            };
-        });
-        localStorage.setItem(overridesKey, JSON.stringify(overrides));
-
-        if (Array.isArray(window.SAMPLE_ACCOUNTS)) {
-            window.SAMPLE_ACCOUNTS.forEach(function (account) {
-                if (account && (account.id === 'u-student-001' || account.id === 'u-student-002')) {
-                    account.isFirstLogin = true;
-                    account.religion = '';
-                    account.phoneNumber = '';
-                }
-            });
-        }
-
-        try {
-            const authUserRaw = localStorage.getItem('ccs.auth.user');
-            if (authUserRaw) {
-                const authUser = JSON.parse(authUserRaw);
-                if (authUser && (authUser.id === 'u-student-001' || authUser.id === 'u-student-002')) {
-                    authUser.isFirstLogin = true;
-                    authUser.religion = '';
-                    authUser.phoneNumber = '';
-                    localStorage.setItem('ccs.auth.user', JSON.stringify(authUser));
-                }
-            }
-        } catch (_err) {
-        }
-
-        try {
-            const authUserRawSession = sessionStorage.getItem('ccs.auth.user');
-            if (authUserRawSession) {
-                const authUserSession = JSON.parse(authUserRawSession);
-                if (authUserSession && (authUserSession.id === 'u-student-001' || authUserSession.id === 'u-student-002')) {
-                    authUserSession.isFirstLogin = true;
-                    authUserSession.religion = '';
-                    authUserSession.phoneNumber = '';
-                    sessionStorage.setItem('ccs.auth.user', JSON.stringify(authUserSession));
-                }
-            }
-        } catch (_err) {
-        }
-
-        localStorage.removeItem('ccs.promissory.unread.TY202500100');
-        localStorage.removeItem('ccs.promissory.unread.TY202501337');
-
+        // Clear everything in localStorage completely
+        localStorage.clear();
+        
+        // Also clear sessionStorage
+        sessionStorage.clear();
+        
+        // Confirm reset
         return {
             ok: true,
-            message: 'Demo data reset complete.'
+            message: 'Demo data reset complete. Please refresh the page.'
         };
     }
 
