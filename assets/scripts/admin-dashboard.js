@@ -667,6 +667,15 @@ function renderFaculty() {
                         <input type="checkbox" class="nf-role-check role-pill-input" id="role-coordinator" value="coordinator" ${newFacultyData.roles.includes('coordinator') ? 'checked' : ''}>
                         <label for="role-coordinator" class="role-pill">Coordinator</label>
                     </div>
+
+                    <div class="add-role-section" style="margin-top: 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <button type="button" class="btn btn-outline" id="btn-add-role" style="padding: 6px 12px; font-size: 13px; font-weight: 500;">+ Add Custom Role</button>
+                        <div class="add-role-input-form" id="add-role-form" style="display: none; gap: 8px; align-items: center; flex-wrap: wrap;">
+                            <input type="text" id="custom-role-input" placeholder="Enter role name" maxlength="30" style="padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; flex: 1; min-width: 150px; max-width: 200px;">
+                            <button type="button" id="confirm-custom-role" class="btn btn-green" style="padding: 6px 16px; font-size: 13px; font-weight: 500;">Add</button>
+                            <button type="button" id="cancel-custom-role" class="btn btn-outline" style="padding: 6px 16px; font-size: 13px; font-weight: 500;">Cancel</button>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Department *</label>
@@ -833,6 +842,78 @@ function renderFaculty() {
             }
         });
     });
+
+    // Custom Role Button Listeners
+    document.getElementById('btn-add-role')?.addEventListener('click', () => {
+        document.getElementById('add-role-form').style.display = 'flex';
+        document.getElementById('btn-add-role').style.display = 'none';
+        document.getElementById('custom-role-input').focus();
+    });
+
+    document.getElementById('cancel-custom-role')?.addEventListener('click', () => {
+        document.getElementById('add-role-form').style.display = 'none';
+        document.getElementById('btn-add-role').style.display = 'block';
+        document.getElementById('custom-role-input').value = '';
+    });
+
+    document.getElementById('confirm-custom-role')?.addEventListener('click', () => {
+        const roleName = document.getElementById('custom-role-input').value.trim();
+        if (!roleName) {
+            showToast('Please enter a role name.', true);
+            return;
+        }
+
+        const roleId = roleName.toLowerCase().replace(/\s+/g, '_');
+        if (ROLE_LABELS[roleId]) {
+            showToast('This role already exists.', true);
+            return;
+        }
+
+        ROLE_LABELS[roleId] = roleName;
+        ROLE_BADGE_CLASS[roleId] = 'badge-purple';
+
+        const roleCheckbox = document.createElement('div');
+        roleCheckbox.innerHTML = `
+            <input type="checkbox" class="nf-role-check role-pill-input" id="role-${roleId}" value="${roleId}">
+            <label for="role-${roleId}" class="role-pill">${roleName}</label>
+        `;
+
+        const container = document.querySelector('.roles-pill-container');
+        if (container) {
+            const addSection = document.querySelector('.add-role-section');
+            container.insertBefore(roleCheckbox, addSection);
+
+            // Attach event listener to new checkbox
+            const newCheckbox = roleCheckbox.querySelector('.nf-role-check');
+            newCheckbox.addEventListener('change', e => {
+                if (e.target.checked) {
+                    if (!newFacultyData.roles.includes(e.target.value)) {
+                        newFacultyData.roles.push(e.target.value);
+                    }
+                } else {
+                    newFacultyData.roles = newFacultyData.roles.filter(r => r !== e.target.value);
+                }
+            });
+        }
+
+        document.getElementById('add-role-form').style.display = 'none';
+        document.getElementById('btn-add-role').style.display = 'block';
+        document.getElementById('custom-role-input').value = '';
+        showToast(`Custom role "${roleName}" added successfully.`);
+    });
+
+    document.getElementById('custom-role-input')?.addEventListener('keypress', e => {
+        if (e.key === 'Enter') {
+            document.getElementById('confirm-custom-role').click();
+        }
+    });
+
+    document.getElementById('btn-add-role')?.addEventListener('click', () => {
+        document.getElementById('add-role-form').style.display = 'flex';
+        document.getElementById('btn-add-role').style.display = 'none';
+        document.getElementById('custom-role-input').focus();
+    });
+
     document.getElementById('save-add-faculty')?.addEventListener('click', () => {
         const facultyId = document.getElementById('nf-id').value.trim();
         const firstName = document.getElementById('nf-firstName').value.trim();

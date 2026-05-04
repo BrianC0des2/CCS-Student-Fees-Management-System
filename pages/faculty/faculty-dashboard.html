@@ -182,20 +182,5 @@
 		<script src="../../assets/scripts/sidebar-template.js"></script>
 		<script src="../../assets/scripts/script.js"></script>
 		<script src="../../assets/scripts/faculty-dashboard.js"></script>
-		<script>
-			// Update semester badge
-			function updateSemesterBadge() {
-				const current = window.SemesterManager?.getCurrentSemester();
-				const badge = document.getElementById('sidebar-semester-badge');
-				if (badge && current) {
-					badge.innerHTML = window.SemesterManager.getSemesterSidebarBadgeHTML();
-				}
-			}
-			if (document.readyState === 'loading') {
-				document.addEventListener('DOMContentLoaded', updateSemesterBadge);
-			} else {
-				updateSemesterBadge();
-			}
-		</script>
 	</body>
 </html>

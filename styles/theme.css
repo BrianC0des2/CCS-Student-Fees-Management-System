@@ -46,3 +46,15 @@ section.home-section,
 #page-content {
     text-align: left;
 }
+
+/* School Year & Semester Badge */
+.ay-badge {
+    display: inline-block;
+    background: var(--brand-700, #166534);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+}

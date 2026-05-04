@@ -146,6 +146,7 @@
                     <span class="text">Student Dashboard</span>
                 </div>
                 <div class="topbar-right">
+                    <span class="ay-badge"></span>
                     <div class="notif-bell" aria-label="Notifications">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
@@ -370,20 +371,6 @@
         <script src="../../assets/scripts/semester-manager.js"></script>
         <script src="../../assets/scripts/script.js"></script>
         <script>
-            // Update semester badge
-            function updateSemesterBadge() {
-                const current = window.SemesterManager?.getCurrentSemester();
-                const badge = document.getElementById('sidebar-semester-badge');
-                if (badge && current) {
-                    badge.innerHTML = window.SemesterManager.getSemesterSidebarBadgeHTML();
-                }
-            }
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', updateSemesterBadge);
-            } else {
-                updateSemesterBadge();
-            }
-
             (function () {
                 const FEES_STORAGE_KEY = 'ccs.organization.fees';
                 const PROMISSORY_STORAGE_KEY = window.CCSStudentDataKeys
