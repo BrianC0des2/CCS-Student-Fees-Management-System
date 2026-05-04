@@ -325,7 +325,13 @@
     getOrganizationScope
   };
 
-  const PAYMENTS_STORAGE_KEY = 'ccs.payments';
+  window.CCSStudentDataKeys = window.CCSStudentDataKeys || {
+    STUDENT_PAYMENTS_STORAGE_KEY: 'ccs.student.payments',
+    PROMISSORY_STORAGE_KEY: 'ccs.promissory.requests'
+  };
+
+  const PAYMENTS_STORAGE_KEY = window.CCSStudentDataKeys.STUDENT_PAYMENTS_STORAGE_KEY;
+  const LEGACY_PAYMENTS_STORAGE_KEY = 'ccs.payments';
   const STUDENT_FEE_STATUS_KEY = 'ccs.student.feeStatus';
 
   function normalizePaymentStatus(value) {
@@ -344,7 +350,13 @@
 
   function readPayments() {
     try {
-      const raw = localStorage.getItem(PAYMENTS_STORAGE_KEY);
+      let raw = localStorage.getItem(PAYMENTS_STORAGE_KEY);
+      if (!raw) {
+        raw = localStorage.getItem(LEGACY_PAYMENTS_STORAGE_KEY);
+        if (raw) {
+          localStorage.setItem(PAYMENTS_STORAGE_KEY, raw);
+        }
+      }
       const parsed = raw ? JSON.parse(raw) : [];
       return Array.isArray(parsed) ? parsed : [];
     } catch (_err) {

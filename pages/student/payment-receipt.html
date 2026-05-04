@@ -28,10 +28,11 @@
                     <p style="color: var(--sys-text-500); font-size: 13px; margin-top: 4px;">View all your receipts and transactions</p>
                 </div>
                 <select class="receipt-filter-select" id="receipt-filter-select" onchange="PaymentHistory.filterReceipts(this.value)">
-                    <option value="recent">Recent Receipts</option>
-                    <option value="pending">Pending Receipts</option>
-                    <option value="old">Old Receipts</option>
                     <option value="all">All Receipts</option>
+                        <option value="recent">Recent Receipts</option>
+                        <option value="pending">Pending Receipts</option>
+                        <option value="old">Old Receipts</option>
+                        <option value="promissory">Promissory Notes</option>
                 </select>
             </div>
 

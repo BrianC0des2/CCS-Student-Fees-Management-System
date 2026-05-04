@@ -132,6 +132,8 @@ window.SAMPLE_ACCOUNTS = [
 // Shared payment data for all students
 window.SAMPLE_PAYMENTS = [
   // Bryan's payments (TY202500100) - Most recent to oldest
+  // Seed a confirmed partial payment for the approved promissory
+  { studentNo: "TY202500100", studentName: "Bryan Saavedra", desc: 'CSC Fee', amount: '₱100.00', date: '2026-02-20', method: 'GCash' },
   { studentNo: "TY202500100", studentName: "Bryan", desc: 'CSC Fee', amount: '₱200.00', date: '2026-01-03', method: 'GCash' },
   { studentNo: "TY202500100", studentName: "Bryan", desc: 'Insurance', amount: '₱40.00', date: '2025-08-03', method: 'Cash' },
   { studentNo: "TY202500100", studentName: "Bryan", desc: 'Gender Club', amount: '₱50.00', date: '2025-01-03', method: 'GCash' },
@@ -139,7 +141,9 @@ window.SAMPLE_PAYMENTS = [
   { studentNo: "TY202500100", studentName: "Bryan", desc: 'CSC Fee', amount: '₱200.00', date: '2024-01-05', method: 'GCash' },
   { studentNo: "TY202500100", studentName: "Bryan", desc: 'Insurance', amount: '₱40.00', date: '2023-08-03', method: 'Cash' },
 
-  // Johari's payments (TY202501337) - Same entries as Bryan
+  // Johari's payments (TY202501337)
+  // Confirmed partial payment for approved MSA promissory
+  { studentNo: "TY202501337", studentName: "Johari Esmail", desc: 'MSA Fee', amount: '₱30.00', date: '2026-02-25', method: 'GCash', feeId: 'fee-default-msa', feeName: 'MSA Fee' },
   { studentNo: "TY202501337", studentName: "Johari Esmail", desc: 'CSC Fee', amount: '₱200.00', date: '2026-01-03', method: 'GCash' },
   { studentNo: "TY202501337", studentName: "Johari Esmail", desc: 'Insurance', amount: '₱40.00', date: '2025-08-03', method: 'Cash' },
   { studentNo: "TY202501337", studentName: "Johari Esmail", desc: 'Gender Club', amount: '₱50.00', date: '2025-01-03', method: 'GCash' },
@@ -256,3 +260,70 @@ window.SAMPLE_PAYMENT_ACCOUNTS = {
     ]
   }
 };
+
+// Versioned default fees seed to keep localStorage in sync with sample updates.
+window.SAMPLE_ORGANIZATION_FEES_SEED_VERSION = 2;
+window.SAMPLE_ORGANIZATION_FEES = [
+  {
+    id: 'fee-default-csc',
+    name: 'CSC Fee',
+    description: 'College Student Council Fee',
+    amount: 200,
+    dueDate: '2026-02-15',
+    isActive: true,
+    feeType: 'mandatory',
+    appliesTo: 'all',
+    orgId: 'u-org-001'
+  },
+  {
+    id: 'fee-default-gender',
+    name: 'Gender Club',
+    description: 'Gender Club Membership Fee',
+    amount: 50,
+    dueDate: '2026-02-15',
+    isActive: true,
+    feeType: 'mandatory',
+    appliesTo: 'all',
+    orgId: 'u-org-001'
+  },
+  {
+    id: 'fee-default-msa',
+    name: 'MSA Fee',
+    description: 'Muslim Students Association Fee',
+    amount: 50,
+    dueDate: '2026-02-15',
+    isActive: true,
+    feeType: 'voluntary',
+    appliesTo: 'Muslim/Islam',
+    orgId: 'org-msa-001'
+  },
+  {
+    id: 'fee-default-misc',
+    name: 'Miscellaneous',
+    description: 'Miscellaneous Supplies',
+    amount: 60,
+    dueDate: '2026-02-15',
+    isActive: true,
+    feeType: 'mandatory',
+    appliesTo: 'all',
+    orgId: 'u-org-001'
+  }
+];
+
+(function seedOrganizationFeesFromSamples() {
+  const FEES_STORAGE_KEY = 'ccs.organization.fees';
+  const FEES_SEED_VERSION_KEY = 'ccs.organization.fees.seedVersion';
+  const nextVersion = String(window.SAMPLE_ORGANIZATION_FEES_SEED_VERSION || 1);
+
+  try {
+    const currentVersion = localStorage.getItem(FEES_SEED_VERSION_KEY);
+    if (currentVersion !== nextVersion) {
+      localStorage.setItem(FEES_STORAGE_KEY, JSON.stringify(window.SAMPLE_ORGANIZATION_FEES || []));
+      localStorage.setItem(FEES_SEED_VERSION_KEY, nextVersion);
+    }
+  } catch (_err) {
+  }
+})();
+
+// Promissory requests are intentionally not auto-seeded for demo reset testing.
+window.SAMPLE_PROMISSORY_REQUESTS = [];
