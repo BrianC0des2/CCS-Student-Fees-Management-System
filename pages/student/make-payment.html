@@ -80,11 +80,12 @@
                         <textarea id="promissoryReason" rows="4" placeholder="Explain your reason for requesting a promissory note"></textarea>
                     </div>
                     <div class="promissory-form-group">
-                        <label for="promissoryPartialAmount">Partial Payment Amount (optional)</label>
+                        <label for="promissoryPartialAmount">How much can you pay now? (optional)</label>
                         <div class="promissory-input-prefix">
                             <span>₱</span>
-                            <input type="number" id="promissoryPartialAmount" min="0" step="0.01" placeholder="0.00">
+                            <input type="number" id="promissoryPartialAmount" min="0" step="0.01" placeholder="" oninput="if(this.value !== '' && Number(this.value) <= 0) this.value = '';">
                         </div>
+                        <p style="font-size:12px; color:#5a7a66; margin-top:4px; line-height:1.4;">Leave empty if you cannot pay any amount at this time. If filled, this becomes your committed payment amount.</p>
                     </div>
                     <div class="promissory-form-group">
                         <label for="promissoryDate">Promised Payment Date <span class="required">*</span></label>
@@ -340,25 +341,94 @@
                 const typeClass = fee.feeType === 'voluntary' ? 'fee-pill-optional' : 'fee-pill-required';
                 const typeText = fee.feeType === 'voluntary' ? 'OPTIONAL' : 'REQUIRED';
 
-                const remaining = studentId ? getRemainingBalanceForFee(studentId, fee) : Math.round(Number(fee.amount || 0) * 100) / 100;
-
-                // check for promissory status for this fee
-                const studentPromissoryRequests = window.getStudentPromissoryRequests && studentId
-                    ? window.getStudentPromissoryRequests(studentId)
-                    : [];
-                const requests = studentPromissoryRequests.filter(function (request) {
-                    return String(request.feeId || '').trim() === String(fee.id).trim();
+                const feeAmount = Number(fee.amount || 0);
+                
+                // Read confirmed payments for this fee
+                const payments = window.getStudentPayments ? window.getStudentPayments(studentId) : [];
+                const confirmedPayments = payments.filter(function (p) {
+                    const status = String(p.status || 'Confirmed').toLowerCase();
+                    if (status !== 'confirmed') return false;
+                    const feeIds = Array.isArray(p.feeIds) ? p.feeIds : (p.feeId ? [p.feeId] : []);
+                    return feeIds.some(function (fid) { return String(fid || '') === String(fee.id); });
                 });
-                const latest = requests.sort(function(a,b) { return new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0); })[0];
-                const promissoryStatus = latest ? String(latest.status || '').toLowerCase() : null;
-                const isPendingReview = promissoryStatus === 'pending review';
-                const isPromissoryApproved = promissoryStatus === 'promissory approved';
+                const confirmedPaidAmount = confirmedPayments.reduce(function (sum, p) {
+                    const amt = String(p.amount || '').replace(/[^0-9\.\-]/g, '');
+                    return sum + (Number(amt) || 0);
+                }, 0);
+
+                // Check for promissory request for this fee
+                const promissoryRequests = readJsonArray('ccs.promissory.requests') || [];
+                const feePromissoryRequests = promissoryRequests.filter(function (req) {
+                    return String(req.feeId || '') === String(fee.id) && String(req.studentId || '') === studentId;
+                });
+                const latestPromissory = feePromissoryRequests.length > 0
+                    ? feePromissoryRequests.sort(function(a, b) { return new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0); })[0]
+                    : null;
+                const promStatus = latestPromissory ? String(latestPromissory.status || '').toLowerCase() : null;
+                const isPendingReview = promStatus === 'pending review';
+                const isPromissoryApproved = promStatus === 'promissory approved';
+                const isPromissoryRejected = promStatus === 'promissory rejected';
+                
+                // Check if this fee has a pending verification payment
+                const hasPendingVerificationPayment = payments.some(function (p) {
+                    const status = String(p.status || '').toLowerCase();
+                    if (status !== 'pending verification') return false;
+                    const feeIds = Array.isArray(p.feeIds) ? p.feeIds : (p.feeId ? [p.feeId] : []);
+                    return feeIds.some(function (fid) { return String(fid || '') === String(fee.id); });
+                });
+
+                // Calculate remaining balance based on promissory status
+                let remaining = 0;
+                let labelText = '';
+                let isDisabled = false;
+                let hasLabel = false;
+                
+                if (isPendingReview) {
+                    // Status: Pending Review - disable, show label
+                    remaining = Math.round((feeAmount - confirmedPaidAmount) * 100) / 100;
+                    labelText = 'Promissory Pending — awaiting approval';
+                    isDisabled = true;
+                    hasLabel = true;
+                } else if (isPromissoryApproved && latestPromissory && latestPromissory.partialAmount) {
+                    // Status: Promissory Approved - show remaining (fee - partial - confirmed), selectable
+                    const partialAmount = Number(latestPromissory.partialAmount) || 0;
+                    remaining = Math.round(Math.max(feeAmount - partialAmount - confirmedPaidAmount, 0) * 100) / 100;
+                } else if (isPromissoryRejected || !latestPromissory) {
+                    // Status: Rejected or No request - show full fee - confirmed, selectable
+                    remaining = Math.round(Math.max(feeAmount - confirmedPaidAmount, 0) * 100) / 100;
+                } else {
+                    // Fallback
+                    remaining = Math.round(Math.max(feeAmount - confirmedPaidAmount, 0) * 100) / 100;
+                }
 
                 if (remaining <= 0) {
                     return '';
                 }
 
-                // if pending review: disable and show label
+                // if pending verification payment: disable and show label (takes precedence)
+                if (hasPendingVerificationPayment) {
+                    return `
+                        <div class="fees-selection fee-item-card" data-fee-id="${fee.id}">
+                            <div class="fee-info">
+                                <input type="checkbox" data-fee-id="${fee.id}" data-fee="${fee.name}" data-price="${remaining}" data-org-id="${fee.orgId || 'u-org-001'}" disabled>
+                                <div class="cb">
+                                    <div class="fee-name-row">
+                                        <h3>${fee.name}</h3>
+                                        <span class="fee-pill ${typeClass}">${typeText}</span>
+                                    </div>
+                                    <p>Due: ${formatDueDate(fee.dueDate)}</p>
+                                </div>
+                            </div>
+                            <div class="fee-balance-row">
+                                <div class="fee-prices" style="color:#f59e0b; font-weight:600;">Payment Pending Verification — awaiting org confirmation</div>
+                                <div class="fee-prices">Remaining: ₱${Number(remaining).toFixed(2)}</div>
+                            </div>
+                            <button type="button" class="fee-action-promissory-link" data-fee-id="${fee.id}" data-fee-name="${fee.name}" disabled style="opacity:0.5;" ${isPromissoryApproved ? 'style="display:none;"' : ''}>Request promissory note instead</button>
+                        </div>
+                    `;
+                }
+                
+                // if promissory pending review: disable and show label
                 if (isPendingReview) {
                     return `
                         <div class="fees-selection fee-item-card" data-fee-id="${fee.id}">
@@ -376,7 +446,7 @@
                                 <div class="fee-prices" style="color:#f59e0b; font-weight:600;">Promissory Pending — awaiting approval</div>
                                 <div class="fee-prices">Remaining: ₱${Number(remaining).toFixed(2)}</div>
                             </div>
-                            <button type="button" class="fee-action-promissory-link" data-fee-id="${fee.id}" data-fee-name="${fee.name}" disabled style="opacity:0.5;">Request promissory note instead</button>
+                            <button type="button" class="fee-action-promissory-link" data-fee-id="${fee.id}" data-fee-name="${fee.name}" disabled style="opacity:0.5;" ${isPromissoryApproved ? 'style="display:none;"' : ''}>Request promissory note instead</button>
                         </div>
                     `;
                 }
@@ -396,7 +466,7 @@
                         <div class="fee-balance-row">
                             <div class="fee-prices">Remaining: ₱${Number(remaining).toFixed(2)}</div>
                         </div>
-                        <button type="button" class="fee-action-promissory-link" data-fee-id="${fee.id}" data-fee-name="${fee.name}">Request promissory note instead</button>
+                        <button type="button" class="fee-action-promissory-link" data-fee-id="${fee.id}" data-fee-name="${fee.name}" ${isPromissoryApproved ? 'style="display:none;"' : ''}>Request promissory note instead</button>
                     </div>
                 `;
             }).join('');
