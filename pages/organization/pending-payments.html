@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="UTF-8">
+        <title>Pending Payments - CCS PAY++</title>
+        <link rel="stylesheet" href="../../styles/sidebar.css">
+        <link rel="stylesheet" href="../../styles/organization-styles/organization-dashboard.css">
+        <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+        <link rel="stylesheet" href="../../styles/settings.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            .pending-payments-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+
+            .pending-payments-table thead th {
+                background: #f5f5f5;
+                padding: 12px;
+                text-align: left;
+                font-size: 13px;
+                font-weight: 600;
+                border-bottom: 2px solid #e5e7eb;
+            }
+
+            .pending-payments-table tbody td {
+                padding: 12px;
+                border-bottom: 1px solid #edf3ef;
+                font-size: 13px;
+            }
+
+            .pending-payments-table tbody tr:hover {
+                background: #f9fafb;
+            }
+
+            .payment-status-pending {
+                background: #fef3c7;
+                color: #92400e;
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 11px;
+                font-weight: 600;
+                display: inline-block;
+            }
+
+            .payment-status-confirmed {
+                background: #d1fae5;
+                color: #065f46;
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 11px;
+                font-weight: 600;
+                display: inline-block;
+            }
+
+            .payment-status-rejected {
+                background: #fee2e2;
+                color: #7f1d1d;
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 11px;
+                font-weight: 600;
+                display: inline-block;
+            }
+
+            .payment-actions {
+                display: flex;
+                gap: 6px;
+                align-items: center;
+            }
+
+            .payment-btn-confirm,
+            .payment-btn-reject {
+                padding: 4px 12px;
+                border: none;
+                border-radius: 4px;
+                font-size: 11px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+
+            .payment-btn-confirm {
+                background: #d1fae5;
+                color: #065f46;
+                border: 1px solid #a7f3d0;
+            }
+
+            .payment-btn-confirm:hover {
+                background: #a7f3d0;
+            }
+
+            .payment-btn-reject {
+                background: #fee2e2;
+                color: #7f1d1d;
+                border: 1px solid #fca5a5;
+            }
+
+            .payment-btn-reject:hover {
+                background: #fca5a5;
+            }
+
+            .payment-confirm-all-btn {
+                background: #1a5c2a;
+                color: #ffffff;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 8px;
+                font-size: 13px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+
+            .payment-confirm-all-btn:hover:not(:disabled) {
+                background: #0f3a1b;
+            }
+
+            .payment-confirm-all-btn:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+
+            .payment-empty {
+                text-align: center;
+                padding: 40px 20px;
+                color: #6b7280;
+            }
+
+            .rejection-modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1000;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .rejection-modal.active {
+                display: flex;
+            }
+
+            .rejection-modal-content {
+                background: white;
+                border-radius: 8px;
+                padding: 24px;
+                width: 90%;
+                max-width: 400px;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            }
+
+            .rejection-modal-header {
+                font-size: 16px;
+                font-weight: 600;
+                margin-bottom: 16px;
+            }
+
+            .rejection-modal-body {
+                margin-bottom: 20px;
+            }
+
+            .rejection-modal-body label {
+                display: block;
+                font-size: 12px;
+                font-weight: 600;
+                margin-bottom: 8px;
+                color: #374151;
+            }
+
+            .rejection-modal-body textarea {
+                width: 100%;
+                padding: 8px 12px;
+                border: 1px solid #d4e2d8;
+                border-radius: 4px;
+                font-size: 13px;
+                font-family: inherit;
+                resize: vertical;
+                min-height: 100px;
+            }
+
+            .rejection-modal-actions {
+                display: flex;
+                gap: 10px;
+                justify-content: flex-end;
+            }
+
+            .rejection-modal-actions button {
+                padding: 8px 16px;
+                border: none;
+                border-radius: 4px;
+                font-size: 12px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+
+            .rejection-modal-actions .btn-cancel {
+                background: #f5f5f5;
+                color: #1a2420;
+                border: 1px solid #d4e2d8;
+            }
+
+            .rejection-modal-actions .btn-cancel:hover {
+                background: #efefef;
+            }
+
+            .rejection-modal-actions .btn-confirm {
+                background: #dc2626;
+                color: white;
+                border: 1px solid #dc2626;
+            }
+
+            .rejection-modal-actions .btn-confirm:hover {
+                background: #b91c1c;
+            }
+
+            .members-table {
+                margin-top: 20px;
+                background: white;
+                border: 1px solid #d4e2d8;
+                border-radius: 14px;
+                overflow: hidden;
+            }
+
+            .table-header {
+                padding: 16px;
+                border-bottom: 1px solid #d4e2d8;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 16px;
+                flex-wrap: wrap;
+            }
+
+            .table-header h2 {
+                margin: 0;
+                font-size: 16px;
+            }
+
+            .table-header-controls {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .payment-count-badge {
+                background: #fff4e5;
+                color: #b45309;
+                border-radius: 999px;
+                font-size: 11px;
+                font-weight: 700;
+                padding: 4px 10px;
+                text-transform: uppercase;
+            }
+
+            .table-container {
+                max-height: 700px;
+                overflow-y: auto;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="sidebar-container"></div>
+
+        <section class="home-section active">
+            <div class="home-content">
+                <span class="text">Pending Payments Management</span>
+            </div>
+            <div class="members-table">
+                <div class="table-header">
+                    <h2>Pending Payments</h2>
+                    <div class="table-header-controls">
+                        <span class="payment-count-badge" id="pendingCountBadge">0 Pending</span>
+                        <button type="button" class="payment-confirm-all-btn" id="confirmAllBtn" style="display: none;">Confirm All</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="pending-payments-table">
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Student ID</th>
+                                <th>Fee Name</th>
+                                <th>Amount</th>
+                                <th>Reference Number</th>
+                                <th>Date Submitted</th>
+                                <th>Payment Method</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pendingPaymentsTableBody">
+                            <tr>
+                                <td colspan="9" class="payment-empty">
+                                    No pending payments found.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Rejection Modal -->
+        <div class="rejection-modal" id="rejectionModal">
+            <div class="rejection-modal-content">
+                <div class="rejection-modal-header">Reject Payment</div>
+                <div class="rejection-modal-body">
+                    <label for="rejectionReason">Reason for Rejection:</label>
+                    <textarea id="rejectionReason" placeholder="Enter reason for rejection..."></textarea>
+                </div>
+                <div class="rejection-modal-actions">
+                    <button class="btn-cancel" id="rejectionModalCancel">Cancel</button>
+                    <button class="btn-confirm" id="rejectionModalConfirm">Confirm Rejection</button>
+                </div>
+            </div>
+        </div>
+
+        <script src="../../assets/scripts/settings.js"></script>
+        <script src="../../assets/scripts/sample-accounts.js"></script>
+        <script src="../../assets/scripts/auth.js"></script>
+        <script src="../../assets/scripts/sidebar-template.js"></script>
+        <script src="../../assets/scripts/script.js"></script>
+
+        <script>
+        (function () {
+            const PAYMENTS_STORAGE_KEY = 'ccs.student.payments';
+
+            let pendingRejectionId = null;
+
+            function getOrganizationScope() {
+                if (window.CCSAuthHelpers && typeof window.CCSAuthHelpers.getCurrentOrganizationScope === 'function') {
+                    return window.CCSAuthHelpers.getCurrentOrganizationScope();
+                }
+                return null;
+            }
+
+            function getCurrentOrgId() {
+                const scope = getOrganizationScope();
+                return scope && scope.orgId ? scope.orgId : 'u-org-001';
+            }
+
+            function readJson(value, fallback) {
+                try {
+                    const parsed = JSON.parse(value);
+                    return parsed === null || parsed === undefined ? fallback : parsed;
+                } catch (_err) {
+                    return fallback;
+                }
+            }
+
+            function readJsonArray(key) {
+                return readJson(localStorage.getItem(key), []);
+            }
+
+            function formatDate(dateStr) {
+                if (!dateStr) return '-';
+                try {
+                    const date = new Date(dateStr);
+                    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                } catch (e) {
+                    return dateStr;
+                }
+            }
+
+            function formatPeso(amount) {
+                if (!amount) return '₱0.00';
+                const str = String(amount);
+                if (str.startsWith('₱')) return str;
+                const num = Number(str.replace(/[₱,]/g, ''));
+                return '₱' + num.toFixed(2);
+            }
+
+            function getPendingPaymentsForOrg(orgId) {
+                const allPayments = readJsonArray(PAYMENTS_STORAGE_KEY);
+                return allPayments.filter(payment => 
+                    String(payment.status || '').toLowerCase() === 'pending verification' &&
+                    (payment.orgId === orgId || (!payment.orgId && orgId === 'u-org-001'))
+                );
+            }
+
+            function renderPendingPaymentsTable() {
+                const orgId = getCurrentOrgId();
+                const payments = getPendingPaymentsForOrg(orgId).sort(function(a, b) {
+                    const dateA = new Date(a.updatedAt || a.dateSubmitted || a.date || '');
+                    const dateB = new Date(b.updatedAt || b.dateSubmitted || b.date || '');
+                    return dateB - dateA;
+                });
+
+                const body = document.getElementById('pendingPaymentsTableBody');
+                const badge = document.getElementById('pendingCountBadge');
+                const confirmAllBtn = document.getElementById('confirmAllBtn');
+
+                badge.textContent = payments.length + ' Pending';
+
+                // Show/hide Confirm All button based on pending count
+                if (confirmAllBtn) {
+                    confirmAllBtn.style.display = payments.length >= 2 ? 'block' : 'none';
+                }
+
+                if (payments.length === 0) {
+                    body.innerHTML = '<tr><td colspan="9" class="payment-empty">No pending payments found.</td></tr>';
+                    return;
+                }
+
+                body.innerHTML = payments.map(payment => {
+                    return `
+                        <tr>
+                            <td>${payment.studentName || '-'}</td>
+                            <td>${payment.studentId || payment.studentNo || '-'}</td>
+                            <td>${payment.feeName || payment.desc || '-'}</td>
+                            <td>${formatPeso(payment.amount)}</td>
+                            <td>${payment.referenceNumber || '-'}</td>
+                            <td>${formatDate(payment.dateSubmitted || payment.date)}</td>
+                            <td>${payment.paymentMethod || payment.method || '-'}</td>
+                            <td><span class="payment-status-pending">Pending Verification</span></td>
+                            <td>
+                                <div class="payment-actions">
+                                    <button class="payment-btn-confirm" data-action="confirm" data-id="${payment.id}">Confirm</button>
+                                    <button class="payment-btn-reject" data-action="reject" data-id="${payment.id}">Reject</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                attachActionHandlers();
+            }
+
+            function attachActionHandlers() {
+                const confirmButtons = document.querySelectorAll('[data-action="confirm"]');
+                const rejectButtons = document.querySelectorAll('[data-action="reject"]');
+
+                confirmButtons.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = this.dataset.id;
+                        confirmPayment(id);
+                    });
+                });
+
+                rejectButtons.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = this.dataset.id;
+                        pendingRejectionId = id;
+                        document.getElementById('rejectionReason').value = '';
+                        document.getElementById('rejectionModal').classList.add('active');
+                    });
+                });
+            }
+
+            function confirmPayment(id) {
+                const payments = readJsonArray(PAYMENTS_STORAGE_KEY);
+                const payment = payments.find(p => p.id === id);
+                if (!payment) return;
+
+                payment.status = 'Confirmed';
+                payment.updatedAt = new Date().toISOString();
+
+                localStorage.setItem(PAYMENTS_STORAGE_KEY, JSON.stringify(payments));
+
+                renderPendingPaymentsTable();
+                alert('Payment confirmed successfully.');
+            }
+
+            function rejectPayment(id, reason) {
+                const payments = readJsonArray(PAYMENTS_STORAGE_KEY);
+                const payment = payments.find(p => p.id === id);
+                if (!payment) return;
+
+                payment.status = 'Rejected';
+                payment.rejectionReason = reason;
+                payment.updatedAt = new Date().toISOString();
+
+                localStorage.setItem(PAYMENTS_STORAGE_KEY, JSON.stringify(payments));
+
+                renderPendingPaymentsTable();
+                alert('Payment rejected successfully.');
+            }
+
+            function confirmAllPayments() {
+                const orgId = getCurrentOrgId();
+                const payments = readJsonArray(PAYMENTS_STORAGE_KEY);
+                const pendingPayments = payments.filter(p => 
+                    String(p.status || '').toLowerCase() === 'pending verification' &&
+                    (p.orgId === orgId || (!p.orgId && orgId === 'u-org-001'))
+                );
+
+                if (pendingPayments.length === 0) {
+                    alert('No pending payments to confirm.');
+                    return;
+                }
+
+                const confirmed = window.confirm(`Are you sure you want to confirm all ${pendingPayments.length} pending payments? This action cannot be undone.`);
+                if (!confirmed) return;
+
+                pendingPayments.forEach(payment => {
+                    payment.status = 'Confirmed';
+                    payment.updatedAt = new Date().toISOString();
+                });
+
+                localStorage.setItem(PAYMENTS_STORAGE_KEY, JSON.stringify(payments));
+
+                renderPendingPaymentsTable();
+                alert('All pending payments confirmed successfully.');
+            }
+
+            function initializeModal() {
+                const modal = document.getElementById('rejectionModal');
+                const cancelBtn = document.getElementById('rejectionModalCancel');
+                const confirmBtn = document.getElementById('rejectionModalConfirm');
+
+                cancelBtn.addEventListener('click', function() {
+                    modal.classList.remove('active');
+                    pendingRejectionId = null;
+                });
+
+                confirmBtn.addEventListener('click', function() {
+                    if (!pendingRejectionId) return;
+                    const reason = document.getElementById('rejectionReason').value.trim();
+                    if (!reason) {
+                        alert('Please enter a rejection reason.');
+                        return;
+                    }
+                    rejectPayment(pendingRejectionId, reason);
+                    modal.classList.remove('active');
+                    pendingRejectionId = null;
+                });
+            }
+
+            // Initialize page
+            document.addEventListener('DOMContentLoaded', function() {
+                initializeModal();
+                renderPendingPaymentsTable();
+
+                const confirmAllBtn = document.getElementById('confirmAllBtn');
+                if (confirmAllBtn) {
+                    confirmAllBtn.addEventListener('click', confirmAllPayments);
+                }
+            });
+
+        })();
+        </script>
+    </body>
+</html>

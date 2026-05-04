@@ -28,6 +28,8 @@ window.SAMPLE_ACCOUNTS = [
     email: "studentorg@demo.com",
     password: "123456",
     isFirstLogin: true,
+    sex: "Male",
+    dateOfBirth: "January 15, 2004",
     role: "organization",
     organization: "CCS Student Council",
     academicYear: "S.Y. 2025-2026",
@@ -120,11 +122,15 @@ window.SAMPLE_PAYMENTS = [
   { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'CSC Fee', amount: '₱200.00', date: '2024-01-05', method: 'GCash' },
   { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'Insurance', amount: '₱40.00', date: '2023-08-03', method: 'Cash' },
 
-  // Other students
-  { studentNo: "TY202500101", studentName: "Landis Tarro", desc: 'CCS Fee - BSCS 1A', amount: '₱1,000.00', date: '2026-03-01' },
-  { studentNo: "TY202500101", studentName: "Landis Tarro", desc: 'Insurance - BSCS 1A', amount: '₱150.00', date: '2026-03-10' },
-  { studentNo: "TY202500101", studentName: "Landis Tarro", desc: 'Gender Club - BSCS 1A', amount: '₱50.00', date: '2026-03-15' },
-  { studentNo: "TY202500101", studentName: "Landis Tarro", desc: 'Partial Payment - BSCS 1B', amount: '₱500.00', date: '2026-01-15' },
+  // Demo students for organization dashboard
+  // Student 1: Marco Reyes - Fully Paid (all mandatory fees confirmed)
+  { studentNo: "TY202500115", studentName: "Marco Reyes", desc: 'CSC Fee', amount: '₱200.00', date: '2026-02-20', method: 'GCash', status: 'Confirmed' },
+  { studentNo: "TY202500115", studentName: "Marco Reyes", desc: 'Gender Club', amount: '₱50.00', date: '2026-02-25', method: 'GCash', status: 'Confirmed' },
+  { studentNo: "TY202500115", studentName: "Marco Reyes", desc: 'Miscellaneous', amount: '₱60.00', date: '2026-03-01', method: 'GCash', status: 'Confirmed' },
+  // Student 2: Jessica Santos - Pending (partial payment submitted)
+  { studentNo: "TY202500116", studentName: "Jessica Santos", desc: 'CSC Fee', amount: '₱200.00', date: '2026-03-10', method: 'GCash', status: 'Pending Verification' },
+  // Student 3: Vincent Aquino - Unpaid (no payments made)
+  // (No entries - demonstrates zero payment state)
   { studentNo: "TY202500102", studentName: "Maria Santos", desc: 'CCSC Fee - BSCS 1A', amount: '₱1,000.00', date: '2026-02-10' },
   { studentNo: "TY202500104", studentName: "Ana Garcia", desc: 'Insurance - BSCS 1B', amount: '₱150.00', date: '2026-02-05' },
   { studentNo: "TY202500106", studentName: "Sofia Martinez", desc: 'Miscellaneous - BSIT 1A', amount: '₱850.00', date: '2026-02-01' },

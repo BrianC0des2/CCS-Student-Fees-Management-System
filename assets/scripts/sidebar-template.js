@@ -18,15 +18,6 @@ const sidebarHTML = `
                 <li><a class="link_name" href="#">Dashboard</a></li>
             </ul>
         </li>
-        <li>
-            <a href="../organization/profile.html">
-                <i class='bx bx-user-circle'></i>
-                <span class="link_name">Profile</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="#">Profile</a></li>
-            </ul>
-        </li>
 
         <li>
             <div class="iocn-link">
@@ -39,8 +30,9 @@ const sidebarHTML = `
             <ul class="sub-menu">
             <li><a class="link_name" href="#">Payments</a></li>
              <li><a href="../organization/add-payment.html">Manage Fees</a></li>
-            <li><a href="../organization/payment-history.html">Payment History</a></li>
-            <li><a href="../organization/promissory-notes.html">Promissory Notes</a></li>     
+            <li><a href="../organization/pending-payments.html">Pending Payments</a></li>
+            <li><a href="../organization/promissory-notes.html">Promissory Notes</a></li>
+            <li><a href="../organization/payment-history.html">Payment History</a></li>     
             </ul>
         </li>
 
@@ -66,6 +58,15 @@ const sidebarHTML = `
             </a>
             <ul class="sub-menu blank">
                 <li><a class="link_name js-settings-open" href="#">Settings</a></li>
+            </ul>
+        </li>
+        <li id="profile-link-item">
+            <a href="../organization/profile.html">
+                <i class='bx bx-user-circle'></i>
+                <span class="link_name">Profile</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="#">Profile</a></li>
             </ul>
         </li>
         <li>
@@ -161,6 +162,26 @@ function applyRoleBasedSidebarAccess() {
     const dashboardLink = document.querySelector('.nav-links > li:first-child > a');
     if (dashboardLink) {
         dashboardLink.setAttribute('href', dashboardHref);
+    }
+
+    // Update Profile link href based on role
+    let profileHref = '../student/student-profile.html'; // default for students
+    if (hasAdminView) {
+        // Admin profile - may need to create or use organization profile
+        profileHref = '../organization/profile.html';
+    } else if (hasDeanView) {
+        // Dean profile - may need to create or use organization profile
+        profileHref = '../organization/profile.html';
+    } else if (hasFacultyView) {
+        // Faculty profile - may need to create or use organization profile
+        profileHref = '../organization/profile.html';
+    } else if (hasOrganizationView) {
+        profileHref = '../organization/profile.html';
+    }
+
+    const profileLink = document.querySelector('#profile-link-item a');
+    if (profileLink) {
+        profileLink.setAttribute('href', profileHref);
     }
 
     // Hide navigation items not applicable to student role
