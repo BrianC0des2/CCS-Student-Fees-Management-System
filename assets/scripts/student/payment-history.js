@@ -284,9 +284,22 @@ const PaymentHistory = (() => {
         const dateObj = new Date(payment.date + 'T00:00:00');
         const amountStr = payment.amount.replace('₱', '').replace(/,/g, '');
         const amount = parseInt(amountStr);
-        const receiptId = `WMSU-FO-${dateObj.getFullYear()}-${String(index + 1000).slice(-6)}`;
+        
+        // Use receipt number from payment data if available, otherwise generate format
+        let receiptId = payment.referenceNumber || '';
+        if (!receiptId || receiptId.indexOf('PAY-') !== 0) {
+            // Format: PAY-YYYY-MMDD-XXXX
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            receiptId = `PAY-${year}-${month}${day}-${String(index).padStart(4, '0')}`;
+        }
+        
         const method = String(payment.method || payment.paymentMethod || 'Cash');
         const transactionId = `${method.toUpperCase().slice(0, 3)}-${dateObj.toISOString().slice(0, 10).replace(/-/g, '')}-${String(index).padStart(6, '0')}`;
+        
+        // Use org name from payment data
+        const processedBy = payment.orgName || 'Finance Office';
 
         const contentHtml = `
             <!-- Receipt Header -->
@@ -329,7 +342,7 @@ const PaymentHistory = (() => {
                     </div>
                     <div class="receipt-modal-item">
                         <span class="receipt-modal-label">Processed By</span>
-                        <span class="receipt-modal-value">Finance Office</span>
+                        <span class="receipt-modal-value">${processedBy}</span>
                     </div>
                 </div>
             </div>

@@ -350,6 +350,10 @@
                             <span class="payment-popup-label">Payment Method</span>
                             <div class="payment-popup-value" id="paymentPopupMethod">—</div>
                         </div>
+                        <div class="payment-popup-item" id="refNumberProvidedItem" style="display:none;">
+                            <span class="payment-popup-label">Reference Number Provided</span>
+                            <div class="payment-popup-value" id="paymentPopupRefProvided">—</div>
+                        </div>
                     </div>
                     <div class="payment-popup-status">
                         <i class='bx bx-time-five'></i>
@@ -594,6 +598,17 @@
                 day: 'numeric'
             });
             document.getElementById('paymentPopupMethod').textContent = payment.paymentMethod;
+            
+            // Show Reference Number Provided field only for non-Cash payments
+            const refNumberItem = document.getElementById('refNumberProvidedItem');
+            const isCash = /cash/i.test(payment.paymentMethod || '');
+            if (isCash) {
+                refNumberItem.style.display = 'none';
+            } else {
+                refNumberItem.style.display = '';
+                const refNumber = payment.referenceNumberProvided || payment.mobileNumber || payment.bankAccountNumber || payment.transactionRef || '';
+                document.getElementById('paymentPopupRefProvided').textContent = refNumber || '—';
+            }
 
                 if (confirmPopupPrimaryBtn) {
                     confirmPopupPrimaryBtn.textContent = hasMorePayments ? 'Continue to Next Payment' : 'Go to Dashboard';
