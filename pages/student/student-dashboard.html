@@ -8,6 +8,7 @@
         <!-- Boxiocns CDN Link -->
         <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
         <link rel="stylesheet" href="../../styles/settings.css">
+        <link rel="stylesheet" href="../../styles/semester.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
@@ -272,7 +273,7 @@
                         <p class="pendings"><i class='bx bx-time-five'></i> Pending</p>
                     </div>
                     <div class="personels">
-                        <h2>Mr. Jaydee C. Ballaho, MIT</h2>
+                        <h2>Mr. Robert Johnson, MIT</h2>
                         <h3>Department Head</h3>
                         <p class="pendings"><i class='bx bx-time-five'></i> Pending</p>
                     </div>
@@ -366,13 +367,25 @@
         <script src="../../assets/scripts/settings.js"></script>
         <script src="../../assets/scripts/sample-accounts.js"></script>
         <script src="../../assets/scripts/auth.js"></script>
+        <script src="../../assets/scripts/semester-manager.js"></script>
         <script src="../../assets/scripts/script.js"></script>
         <script>
+            // Update semester badge
+            function updateSemesterBadge() {
+                const current = window.SemesterManager?.getCurrentSemester();
+                const badge = document.getElementById('sidebar-semester-badge');
+                if (badge && current) {
+                    badge.innerHTML = window.SemesterManager.getSemesterSidebarBadgeHTML();
+                }
+            }
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', updateSemesterBadge);
+            } else {
+                updateSemesterBadge();
+            }
+
             (function () {
                 const FEES_STORAGE_KEY = 'ccs.organization.fees';
-                const PROMISSORY_STORAGE_KEY = window.CCSStudentDataHelpers && typeof window.CCSStudentDataHelpers.getStudentDataStorageKey === 'function'
-                    ? window.CCSStudentDataHelpers.getStudentDataStorageKey('PROMISSORY_STORAGE_KEY')
-                    : (window.CCSStudentDataKeys && window.CCSStudentDataKeys.PROMISSORY_STORAGE_KEY);
                 const PROMISSORY_STORAGE_KEY = window.CCSStudentDataKeys
                     ? window.CCSStudentDataKeys.PROMISSORY_STORAGE_KEY
                     : 'ccs.promissory.requests';
@@ -660,17 +673,6 @@
                     document.getElementById('outstandingDueLabel').textContent = `Due: ${formatDueDate(earliestDue)}`;
 
                     listEl.innerHTML = fees.map(function (fee) {
-                        // compute paid/remaining first to check if we should hide this fee
-                        const key = String(fee.id || '');
-                        const byId = paymentsByFee[key] || 0;
-                        const paidAmount = Math.max(byId, 0);
-                        const remainingAmount = Math.max(Number(fee.amount) - paidAmount, 0);
-
-                        // HIDE FULLY PAID FEES ENTIRELY
-                        if (remainingAmount <= 0) {
-                            return '';
-                        }
-
                         const typeClass = fee.feeType === 'voluntary' ? 'fee-pill-optional' : 'fee-pill-required';
                         const typeText = fee.feeType === 'voluntary' ? 'Optional' : 'Required';
                         const latestRequest = latestRequestByFee.get(fee.id);
@@ -738,7 +740,7 @@
                                 <div class="fee-actions-row">${buttonsRow}</div>
                             </li>
                         `;
-                    }).filter(Boolean).join('');
+                    }).join('');
 
                     updateClearanceProgress(fees, latestRequestByFee, studentId);
 
@@ -824,36 +826,22 @@
                         return;
                     }
 
-                    if (!PROMISSORY_STORAGE_KEY) {
-                        alert('Promissory storage is unavailable. Please refresh and try again.');
-                        return;
-                    }
-
-                    // Get the fee object to extract orgId
-                    const fees = getFees();
-                    const feeObj = fees.find(function (f) { return String(f.id || '') === String(selectedFee.feeId); }) || {};
-                    const orgId = feeObj.orgId || selectedFee.orgId || 'u-org-001';
-
                     const requests = readJsonArray(PROMISSORY_STORAGE_KEY);
-                    const newRequest = {
+                    requests.push({
                         id: 'promissory-' + Date.now(),
                         feeId: selectedFee.feeId,
                         feeName: selectedFee.feeName,
                         studentId: selectedFee.studentId,
                         studentNumber: selectedFee.studentNumber,
                         studentName: selectedFee.studentName,
-                        amount: feeObj.amount || null,
-                        partialAmount: partialAmount,
                         reason: reason,
+                        partialAmount: partialAmount,
                         promisedDate: promisedDate,
-                        dateRequested: new Date().toISOString().split('T')[0],
                         status: 'Pending Review',
-                        orgId: orgId,
                         createdAt: new Date().toISOString(),
                         updatedAt: new Date().toISOString()
-                    };
+                    });
 
-                    requests.push(newRequest);
                     localStorage.setItem(PROMISSORY_STORAGE_KEY, JSON.stringify(requests));
                     closePromissoryModal();
                     renderOutstandingFees();
