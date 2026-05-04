@@ -80,6 +80,7 @@ const STUDENT_PERM_DETAILS = {
     edit_students:   { icon: 'edit',  desc: 'Can update student info and enrollment status',       risk: 'medium' },
     remove_students: { icon: 'trash', desc: 'Can permanently delete student records',              risk: 'high' },
     manage_students: { icon: 'shield', desc: 'Full control — includes add, edit, remove, suspend', risk: 'high' },
+    verify_signup:   { icon: 'check-circle', desc: 'Can verify and approve new student signups',    risk: 'medium' },
 };
 
 let departmentList = [
@@ -301,9 +302,7 @@ document.querySelector('.logout-section').addEventListener('click', () => {
 function renderTab(tab) {
     if (tab === 'overview')    renderOverview();
     if (tab === 'faculty')     renderFaculty();
-    if (tab === 'students')    renderStudents();
     if (tab === 'permissions') renderPermissions();
-    if (tab === 'fees')        renderFees();
     if (tab === 'clearance')   renderClearance();
     if (tab === 'system')      renderSystem();
     if (tab === 'semester')    renderSemester();
@@ -2178,27 +2177,6 @@ function renderAudit() {
         showToast('Audit log exported as CSV.')
     );
 }
-
-/* ══════════════════════════════
-   ADDITIONAL CSS CLASSES injected
-   for elements only resolvable at runtime
-══════════════════════════════ */
-
-const runtimeStyles = `
-    .faculty-empty-state { text-align: center; color: var(--text-muted); padding: 40px; }
-    .perm-table-faculty-cell { display: flex; align-items: center; gap: 8px; }
-    .perm-table-avatar { width: 28px; height: 28px; font-size: 11px; }
-    .perm-table-fname { font-size: 12px; font-weight: 600; }
-    .perm-th-cell { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-    .student-id-badge { font-size: 12px; }
-    .clearance-save-row { display: flex; justify-content: flex-end; margin-top: 16px; }
-    .text-dark { font-size: 13px; color: var(--text-dark); display: flex; align-items: center; gap: 6px; }
-    .text-dark i { font-size: 15px; }
-`;
-
-const styleTag = document.createElement('style');
-styleTag.textContent = runtimeStyles;
-document.head.appendChild(styleTag);
 
 /* ══════════════════════════════
    SECTION F — INIT

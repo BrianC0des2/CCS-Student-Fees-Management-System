@@ -1921,3 +1921,15 @@ select.filter-select:focus {
 }
 
 
+/* ══════════════════════════════════════
+   RUNTIME STYLES
+══════════════════════════════════════ */
+.faculty-empty-state { text-align: center; color: var(--text-muted); padding: 40px; }
+.perm-table-faculty-cell { display: flex; align-items: center; gap: 8px; }
+.perm-table-avatar { width: 28px; height: 28px; font-size: 11px; }
+.perm-table-fname { font-size: 12px; font-weight: 600; }
+.perm-th-cell { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.student-id-badge { font-size: 12px; }
+.clearance-save-row { display: flex; justify-content: flex-end; margin-top: 16px; }
+.text-dark { font-size: 13px; color: var(--text-dark); display: flex; align-items: center; gap: 6px; }
+.text-dark i { font-size: 15px; }
