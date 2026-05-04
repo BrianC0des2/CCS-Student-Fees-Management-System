@@ -105,6 +105,21 @@ let studentList = [
     { id: '2024-00301', name: 'Liza Tan',        email: 'liza.tan@wmsu.edu.ph',      course: 'BS Computer Science',       year: '1st Year', section: 'A', status: 'active',    paymentStatus: 'pending', clearanceStatus: 'not_started', permissions: ['view_dashboard','make_payment'], enrollmentDate: 'Aug 1, 2024' },
 ];
 
+let organizationList = [
+    { id: 'ORG-001', name: 'Supreme Student Council', abbreviation: 'SSC', description: 'Main student governing body', head: 'u-student-001', pendingHandover: null, createdAt: '2026-01-15T08:00:00.000Z' },
+    { id: 'ORG-002', name: 'Computer Science Club', abbreviation: 'CSC', description: 'Tech enthusiasts club', head: 'u-student-002', pendingHandover: null, createdAt: '2026-02-01T10:30:00.000Z' },
+];
+
+let showAddOrgForm = false;
+let editingOrgId = null;
+let deleteConfirmOrgId = null;
+let newOrgData = {
+    name: '',
+    abbreviation: '',
+    description: '',
+    head: ''
+};
+
 let feeList = [
     { id: 'csc',       name: 'CSC Fee',                                 amount: 200, description: 'College Student Council Fee',       dueDate: 'Feb 15, 2026', status: 'active' },
     { id: 'gender',    name: 'Gender Club Membership Fee',              amount: 50,  description: 'CSC Gender Club Annual Membership', dueDate: 'Feb 15, 2026', status: 'active' },
@@ -250,7 +265,7 @@ function riskCheckClass(r) {
 const TAB_LABELS = {
     overview:    'Overview',
     faculty:     'Faculty Management',
-    students:    'Student Accounts',
+    organizations: 'Organizations',
     permissions: 'Permissions',
     fees:        'Fee Configuration',
     clearance:   'Clearance Setup',
@@ -302,6 +317,7 @@ document.querySelector('.logout-section').addEventListener('click', () => {
 function renderTab(tab) {
     if (tab === 'overview')    renderOverview();
     if (tab === 'faculty')     renderFaculty();
+    if (tab === 'organizations') renderOrganizations();
     if (tab === 'permissions') renderPermissions();
     if (tab === 'clearance')   renderClearance();
     if (tab === 'system')      renderSystem();
@@ -355,7 +371,7 @@ function renderOverview() {
             <div class="quick-grid">
                 <button class="quick-btn qbtn--green" data-goto="faculty">${bxi('plus')} <span>Add Faculty</span></button>
                 <button class="quick-btn qbtn--blue"  data-goto="permissions">${bxi('key')} <span>Manage Permissions</span></button>
-                <button class="quick-btn qbtn--amber" data-goto="fees">${bxi('dollar-circle')} <span>Update Fees</span></button>
+                <button class="quick-btn qbtn--amber" data-goto="organizations">${bxi('group')} <span>Add Organization</span></button>
                 <button class="quick-btn qbtn--purple" data-goto="audit">${bxi('bar-chart-alt-2')} <span>View Audit Logs</span></button>
             </div>
         </div>
@@ -408,7 +424,7 @@ let newFacultyData = {
     email: '',
     phone: '',
     sex: 'M',
-    role: 'professor',
+    roles: [],
     department: 'BS Computer Science'
 };
 let newDepartmentData = {
@@ -438,7 +454,7 @@ function renderFaculty() {
 
         <div style="margin-bottom: 24px;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-                <span style="font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">Departments</span>
+                <h2 style="font-size: 16px; font-weight: 600; color: #111827; margin: 0;">Departments</h2>
                 <button class="btn btn-outline" id="show-add-dept-btn" style="font-size: 12px; padding: 6px 12px;">
                     ${bxi('plus')} Add Department
                 </button>
@@ -565,8 +581,8 @@ function renderFaculty() {
             </div>` : '';
         })() : ''}
 
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; margin-top: 24px;">
-            <span style="font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">Faculty Members</span>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; margin-top: 24px; padding-top: 24px; border-top: 2px solid #e5e7eb;">
+            <h2 style="font-size: 16px; font-weight: 600; color: #111827; margin: 0;">Faculty Members</h2>
             <button class="btn btn-green" id="show-add-faculty-btn" style="font-size: 12px; padding: 6px 12px;">
                 ${bxi('plus')} Add Faculty
             </button>
@@ -635,13 +651,26 @@ function renderFaculty() {
                     <label>Suffix (Optional)</label>
                     <input id="nf-suffix" value="${newFacultyData.suffix}" placeholder="e.g. PhD., MIT, Jr.">
                 </div>
-                <div class="form-group">
-                    <label>Role *</label>
-                    <select id="nf-role">
-                        ${Object.entries(ROLE_LABELS).map(([k, v]) =>
-                            `<option value="${k}"${newFacultyData.role === k ? ' selected' : ''}>${v}</option>`
-                        ).join('')}
-                    </select>
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label>Roles * (select at least one)</label>
+                    <div style="display: flex; flex-direction: column; gap: 8px; padding-top: 6px;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
+                            <input type="checkbox" class="nf-role-check" value="adviser" ${newFacultyData.roles.includes('adviser') ? 'checked' : ''} style="cursor: pointer;">
+                            Adviser
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
+                            <input type="checkbox" class="nf-role-check" value="dept_head" ${newFacultyData.roles.includes('dept_head') ? 'checked' : ''} style="cursor: pointer;">
+                            Head
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
+                            <input type="checkbox" class="nf-role-check" value="dean" ${newFacultyData.roles.includes('dean') ? 'checked' : ''} style="cursor: pointer;">
+                            Dean
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
+                            <input type="checkbox" class="nf-role-check" value="coordinator" ${newFacultyData.roles.includes('coordinator') ? 'checked' : ''} style="cursor: pointer;">
+                            Coordinator
+                        </label>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Department *</label>
@@ -736,7 +765,7 @@ function renderFaculty() {
                     <div class="member-info">
                         <div class="member-name">
                             ${f.name}
-                            <span class="badge ${ROLE_BADGE_CLASS[f.role]}">${ROLE_LABELS[f.role]}</span>
+                            ${(f.roles || [f.role]).map(r => `<span class="badge ${ROLE_BADGE_CLASS[r]}">${ROLE_LABELS[r]}</span>`).join('')}
                             <span class="badge ${f.sex === 'M' ? 'badge-blue' : 'badge-indigo'}">${f.sex === 'M' ? 'Male' : 'Female'}</span>
                             <span class="badge ${f.status === 'active' ? 'badge-green' : f.status === 'inactive' ? 'badge-gray' : 'badge-red'}">
                                 ${f.status.charAt(0).toUpperCase() + f.status.slice(1)}
@@ -797,6 +826,17 @@ function renderFaculty() {
             newFacultyData.sex = e.target.value;
         });
     });
+    document.querySelectorAll('.nf-role-check').forEach(checkbox => {
+        checkbox.addEventListener('change', e => {
+            if (e.target.checked) {
+                if (!newFacultyData.roles.includes(e.target.value)) {
+                    newFacultyData.roles.push(e.target.value);
+                }
+            } else {
+                newFacultyData.roles = newFacultyData.roles.filter(r => r !== e.target.value);
+            }
+        });
+    });
     document.getElementById('save-add-faculty')?.addEventListener('click', () => {
         const facultyId = document.getElementById('nf-id').value.trim();
         const firstName = document.getElementById('nf-firstName').value.trim();
@@ -805,12 +845,12 @@ function renderFaculty() {
         const suffix = document.getElementById('nf-suffix').value.trim();
         const sex = document.querySelector('input[name="nf-sex"]:checked')?.value || '';
         const email = document.getElementById('nf-email').value.trim();
-        const role = document.getElementById('nf-role').value.trim();
+        const roles = Array.from(document.querySelectorAll('.nf-role-check:checked')).map(c => c.value);
         const department = document.getElementById('nf-dept').value.trim();
         const phone = document.getElementById('nf-phone').value.trim();
 
-        if (!facultyId || !firstName || !lastName || !email || !role || !department || !sex) {
-            showToast('Faculty ID, First Name, Last Name, Email, Role, Department, and Sex are required.', true);
+        if (!facultyId || !firstName || !lastName || !email || roles.length === 0 || !department || !sex) {
+            showToast('Faculty ID, First Name, Last Name, Email, at least one Role, Department, and Sex are required.', true);
             return;
         }
 
@@ -832,7 +872,8 @@ function renderFaculty() {
             email: email,
             phone: phone,
             sex: sex,
-            role: role,
+            role: roles[0],
+            roles: roles,
             department: department,
             status: 'active',
             permissions: [],
@@ -849,7 +890,7 @@ function renderFaculty() {
             email: '',
             phone: '',
             sex: 'M',
-            role: 'professor',
+            roles: [],
             department: 'BS Computer Science'
         };
         showToast('Faculty member ' + name + ' added.');
@@ -1272,6 +1313,267 @@ function toggleFacultyPerm(facultyId, permId) {
         return { ...f, permissions: perms };
     });
     renderPermissions();
+}
+
+function renderOrganizations() {
+    const el = document.getElementById('tab-organizations');
+
+    function getStudentName(studentId) {
+        const account = window.SAMPLE_ACCOUNTS?.find(a => a.id === studentId);
+        return account ? `${account.name} (${account.studentId})` : studentId;
+    }
+
+    function addAuditLogOrg(action, details) {
+        const log = {
+            id: 'LOG-' + Date.now(),
+            timestamp: new Date().toLocaleString(),
+            user: 'Admin',
+            role: 'System Admin',
+            action: action,
+            details: details,
+            ipAddress: '192.168.1.1',
+            type: 'info'
+        };
+        auditLogs.unshift(log);
+    }
+
+    el.innerHTML = `
+        <div class="section-header">
+            <div>
+                <div class="section-title">Organizations</div>
+                <div class="section-sub">Manage student organizations and assign organization heads</div>
+            </div>
+        </div>
+
+        ${showAddOrgForm ? `
+        <div class="form-box form-box--green" style="margin-bottom: 24px;">
+            <div class="form-box-header">
+                <span class="form-box-title form-box-title--green">${bxi('plus')} Add New Organization</span>
+                <button class="form-close-btn" id="close-add-org">${bxi('x')}</button>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Organization Name *</label>
+                    <input id="no-name" value="${newOrgData.name}" placeholder="e.g. Supreme Student Council">
+                </div>
+                <div class="form-group">
+                    <label>Abbreviation *</label>
+                    <input id="no-abbr" value="${newOrgData.abbreviation}" placeholder="e.g. SSC" maxlength="10">
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label>Description (Optional)</label>
+                    <textarea id="no-desc" placeholder="Organization description" style="resize: vertical; min-height: 60px;">${newOrgData.description}</textarea>
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label>Organization Head *</label>
+                    <select id="no-head">
+                        <option value="">Select a student...</option>
+                        ${(window.SAMPLE_ACCOUNTS || []).filter(a => a.permissions?.studentView).map(a =>
+                            `<option value="${a.id}"${newOrgData.head === a.id ? ' selected' : ''}>${a.name} (${a.studentId})</option>`
+                        ).join('')}
+                    </select>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-outline" id="cancel-add-org">Cancel</button>
+                <button class="btn btn-green" id="save-add-org">${bxi('save')} Save Organization</button>
+            </div>
+        </div>` : ''}
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-bottom: 24px;">
+            ${organizationList.length === 0 ? `
+            <div class="card" style="grid-column: 1 / -1; padding: 32px; text-align: center; color: #9ca3af;">
+                No organizations yet. Create one to get started.
+            </div>` : organizationList.map(org => {
+                const head = window.SAMPLE_ACCOUNTS?.find(a => a.id === org.head);
+                const hasPending = org.pendingHandover !== null;
+                return `
+                <div class="card" style="padding: 16px; border: 1px solid #e5e7eb; border-radius: 12px; ${deleteConfirmOrgId === org.id ? 'background: #fef2f2; border-color: #fca5a5;' : ''}">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 14px; color: #111827;">${org.name}</div>
+                            <div style="font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.3px; margin-top: 2px;">
+                                <span class="badge badge-blue">${org.abbreviation}</span>
+                                ${hasPending ? '<span class="badge badge-amber">Pending Handover</span>' : ''}
+                            </div>
+                        </div>
+                        ${deleteConfirmOrgId === org.id ? '' : `
+                        <div style="display: flex; gap: 4px;">
+                            <button class="icon-btn icon-btn--blue org-edit-btn" data-id="${org.id}" title="Edit" style="width: 28px; height: 28px; font-size: 14px;">
+                                ${bxi('edit')}
+                            </button>
+                            <button class="icon-btn icon-btn--red org-delete-btn" data-id="${org.id}" title="Delete" style="width: 28px; height: 28px; font-size: 14px;">
+                                ${bxi('trash')}
+                            </button>
+                        </div>
+                        `}
+                    </div>
+                    ${org.description ? `<div style="font-size: 12px; color: #6b7280; margin-bottom: 12px;">${org.description}</div>` : ''}
+                    <div style="margin: 12px 0; padding: 12px 0; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb;">
+                        <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">
+                            <strong>Head:</strong> ${head ? head.name : 'Unassigned'}
+                        </div>
+                        ${head ? `<div style="font-size: 11px; color: #9ca3af;">${head.studentId} • ${head.email}</div>` : ''}
+                    </div>
+                    ${hasPending ? `
+                    <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb; display: flex; gap: 8px;">
+                        <button class="btn btn-outline org-approve-handover" data-id="${org.id}" style="font-size: 12px; padding: 6px 12px; flex: 1;">
+                            ${bxi('check')} Approve
+                        </button>
+                        <button class="btn btn-red org-reject-handover" data-id="${org.id}" style="font-size: 12px; padding: 6px 12px; flex: 1;">
+                            ${bxi('x')} Reject
+                        </button>
+                    </div>
+                    ` : ''}
+                    ${deleteConfirmOrgId === org.id ? `
+                    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #fca5a5; display: flex; gap: 8px;">
+                        <button class="btn btn-outline org-cancel-delete" data-id="${org.id}" style="font-size: 12px; padding: 6px 12px;">Cancel</button>
+                        <button class="btn btn-red org-confirm-delete" data-id="${org.id}" style="font-size: 12px; padding: 6px 12px;">Delete</button>
+                    </div>
+                    ` : ''}
+                </div>
+                `;
+            }).join('')}
+        </div>
+
+        ${!showAddOrgForm ? `
+        <button class="btn btn-green" id="show-add-org-btn" style="font-size: 12px; padding: 8px 16px;">
+            ${bxi('plus')} Add Organization
+        </button>` : ''}
+    `;
+
+    document.getElementById('show-add-org-btn')?.addEventListener('click', () => {
+        showAddOrgForm = true; renderOrganizations();
+    });
+    document.getElementById('close-add-org')?.addEventListener('click', () => {
+        showAddOrgForm = false; renderOrganizations();
+    });
+    document.getElementById('cancel-add-org')?.addEventListener('click', () => {
+        showAddOrgForm = false; renderOrganizations();
+    });
+
+    document.getElementById('save-add-org')?.addEventListener('click', () => {
+        const name = document.getElementById('no-name').value.trim();
+        const abbr = document.getElementById('no-abbr').value.trim();
+        const description = document.getElementById('no-desc').value.trim();
+        const head = document.getElementById('no-head').value.trim();
+
+        if (!name || !abbr || !head) {
+            showToast('Organization Name, Abbreviation, and Head are required.', true);
+            return;
+        }
+
+        if (organizationList.find(o => o.name === name)) {
+            showToast('Organization with this name already exists.', true);
+            return;
+        }
+
+        const newOrg = {
+            id: 'ORG-' + String(Date.now()).slice(-6),
+            name: name,
+            abbreviation: abbr,
+            description: description,
+            head: head,
+            pendingHandover: null,
+            createdAt: new Date().toISOString()
+        };
+
+        organizationList.push(newOrg);
+
+        const headAccount = window.SAMPLE_ACCOUNTS.find(a => a.id === head);
+        if (headAccount) {
+            headAccount.permissions.organizationView = true;
+            const user = window.Auth.getUser();
+            if (user && user.id === head) {
+                user.permissions.organizationView = true;
+                window.Auth.setStoredUser(user);
+            }
+        }
+
+        addAuditLogOrg('Organization Created', `Created organization "${name}" with head ${getStudentName(head)}`);
+
+        showAddOrgForm = false;
+        newOrgData = { name: '', abbreviation: '', description: '', head: '' };
+        showToast('Organization created successfully.');
+        renderOrganizations();
+    });
+
+    el.querySelectorAll('.org-edit-btn').forEach(b => b.addEventListener('click', () => {
+        const org = organizationList.find(o => o.id === b.dataset.id);
+        if (org) {
+            newOrgData = { name: org.name, abbreviation: org.abbreviation, description: org.description, head: org.head };
+            editingOrgId = b.dataset.id;
+            showAddOrgForm = true;
+            renderOrganizations();
+        }
+    }));
+
+    el.querySelectorAll('.org-delete-btn').forEach(b => b.addEventListener('click', () => {
+        deleteConfirmOrgId = b.dataset.id; renderOrganizations();
+    }));
+    el.querySelectorAll('.org-cancel-delete').forEach(b => b.addEventListener('click', () => {
+        deleteConfirmOrgId = null; renderOrganizations();
+    }));
+    el.querySelectorAll('.org-confirm-delete').forEach(b => b.addEventListener('click', () => {
+        const org = organizationList.find(o => o.id === b.dataset.id);
+        if (org && org.head) {
+            const headAccount = window.SAMPLE_ACCOUNTS.find(a => a.id === org.head);
+            if (headAccount) {
+                headAccount.permissions.organizationView = false;
+                const user = window.Auth.getUser();
+                if (user && user.id === org.head) {
+                    user.permissions.organizationView = false;
+                    window.Auth.setStoredUser(user);
+                }
+            }
+        }
+        addAuditLogOrg('Organization Deleted', `Deleted organization "${org?.name}"`);
+        organizationList = organizationList.filter(o => o.id !== b.dataset.id);
+        deleteConfirmOrgId = null;
+        showToast('Organization deleted.');
+        renderOrganizations();
+    }));
+
+    el.querySelectorAll('.org-approve-handover').forEach(b => b.addEventListener('click', () => {
+        const org = organizationList.find(o => o.id === b.dataset.id);
+        if (org && org.pendingHandover) {
+            const oldHead = org.head;
+            const newHead = org.pendingHandover.toStudentId;
+
+            const oldAccount = window.SAMPLE_ACCOUNTS.find(a => a.id === oldHead);
+            const newAccount = window.SAMPLE_ACCOUNTS.find(a => a.id === newHead);
+
+            if (oldAccount) {
+                oldAccount.permissions.organizationView = false;
+            }
+            if (newAccount) {
+                newAccount.permissions.organizationView = true;
+                const user = window.Auth.getUser();
+                if (user && user.id === newHead) {
+                    user.permissions.organizationView = true;
+                    window.Auth.setStoredUser(user);
+                }
+            }
+
+            org.head = newHead;
+            org.pendingHandover = null;
+
+            addAuditLogOrg('Org Head Handover Approved', `Approved handover for ${org.name} from ${getStudentName(oldHead)} to ${getStudentName(newHead)}`);
+            showToast('Handover approved.');
+            renderOrganizations();
+        }
+    }));
+
+    el.querySelectorAll('.org-reject-handover').forEach(b => b.addEventListener('click', () => {
+        const org = organizationList.find(o => o.id === b.dataset.id);
+        if (org && org.pendingHandover) {
+            const newHeadId = org.pendingHandover.toStudentId;
+            addAuditLogOrg('Org Head Handover Rejected', `Rejected handover for ${org.name}, head remains ${getStudentName(org.head)}`);
+            org.pendingHandover = null;
+            showToast('Handover rejected.');
+            renderOrganizations();
+        }
+    }));
 }
 
 function renderPermissions() {
