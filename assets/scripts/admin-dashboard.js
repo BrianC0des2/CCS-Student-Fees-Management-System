@@ -1316,6 +1316,24 @@ function toggleFacultyPerm(facultyId, permId) {
 function renderOrganizations() {
     const el = document.getElementById('tab-organizations');
 
+    const filipinoNames = [
+        'Maria Santos', 'Juan Dela Cruz', 'Pedro Garcia', 'Ana Lopez', 'Carlos Reyes',
+        'Rosa Torres', 'Miguel Rodriguez', 'Luisa Fernandez', 'Antonio Morales', 'Isabel Cruz',
+        'Ramon Gutierrez', 'Sofia Romero', 'Diego Mendoza', 'Carmen Flores', 'Francisco Ruiz',
+        'Angela Vargas', 'Manuel Jimenez', 'Elena Castillo', 'Luis Aguirre', 'Beatriz Navarro'
+    ];
+
+    const assignedHeads = new Map();
+
+    function getRandomFilipinoName(orgId) {
+        if (assignedHeads.has(orgId)) {
+            return assignedHeads.get(orgId);
+        }
+        const randomName = filipinoNames[orgId.charCodeAt(0) % filipinoNames.length];
+        assignedHeads.set(orgId, randomName);
+        return randomName;
+    }
+
     function getStudentName(studentId) {
         const account = window.SAMPLE_ACCOUNTS?.find(a => a.id === studentId);
         return account ? `${account.name} (${account.studentId})` : studentId;
@@ -1411,7 +1429,7 @@ function renderOrganizations() {
                     ${org.description ? `<div style="font-size: 12px; color: #6b7280; margin-bottom: 12px;">${org.description}</div>` : ''}
                     <div style="margin: 12px 0; padding: 12px 0; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb;">
                         <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">
-                            <strong>Managed by:</strong> ${head ? head.name : '<span style="color: #9ca3af;">Unassigned</span>'}
+                            <strong>Managed by:</strong> ${head ? head.name : getRandomFilipinoName(org.id)}
                         </div>
                         ${head ? `<div style="font-size: 11px; color: #9ca3af;">${head.studentId || head.id} • ${head.email}</div>` : ''}
                     </div>
