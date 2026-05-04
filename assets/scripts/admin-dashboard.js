@@ -106,8 +106,11 @@ let studentList = [
 ];
 
 let organizationList = [
-    { id: 'ORG-001', name: 'Supreme Student Council', abbreviation: 'SSC', description: 'Main student governing body', head: 'u-student-001', pendingHandover: null, createdAt: '2026-01-15T08:00:00.000Z' },
-    { id: 'ORG-002', name: 'Computer Science Club', abbreviation: 'CSC', description: 'Tech enthusiasts club', head: 'u-student-002', pendingHandover: null, createdAt: '2026-02-01T10:30:00.000Z' },
+    { id: 'u-org-001',   name: 'CCS Student Council',        abbreviation: 'CSC',    description: 'College Student Council',        head: 'u-org-001',   pendingHandover: null, createdAt: '2026-01-15T08:00:00.000Z' },
+    { id: 'org-msa-001', name: 'Muslim Student Association', abbreviation: 'MSA',    description: 'Muslim Student Association',      head: 'org-msa-001', pendingHandover: null, createdAt: '2026-01-15T08:00:00.000Z' },
+    { id: 'phiccs',      name: 'PHICCS',                     abbreviation: 'PHICCS', description: 'Philippine ICT Students Society', head: '',            pendingHandover: null, createdAt: '2026-01-15T08:00:00.000Z' },
+    { id: 'venom',       name: 'Venom Publication',          abbreviation: 'VP',     description: 'CCS Official Publication',        head: '',            pendingHandover: null, createdAt: '2026-01-15T08:00:00.000Z' },
+    { id: 'gender_club', name: 'CSC Gender Club',            abbreviation: 'GC',     description: 'CSC Gender Club',                 head: '',            pendingHandover: null, createdAt: '2026-01-15T08:00:00.000Z' },
 ];
 
 let showAddOrgForm = false;
@@ -1365,13 +1368,15 @@ function renderOrganizations() {
                     <textarea id="no-desc" placeholder="Organization description" style="resize: vertical; min-height: 60px;">${newOrgData.description}</textarea>
                 </div>
                 <div class="form-group" style="grid-column: 1 / -1;">
-                    <label>Organization Head *</label>
-                    <select id="no-head">
-                        <option value="">Select a student...</option>
-                        ${(window.SAMPLE_ACCOUNTS || []).filter(a => a.permissions?.studentView).map(a =>
-                            `<option value="${a.id}"${newOrgData.head === a.id ? ' selected' : ''}>${a.name} (${a.studentId})</option>`
-                        ).join('')}
-                    </select>
+                    <label>Organization Head</label>
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                        <input type="email" id="no-head-email" placeholder="Enter student email" style="flex: 1;">
+                        <button type="button" id="no-head-lookup" class="btn btn-green" style="padding: 8px 16px;">Find Student</button>
+                    </div>
+                    <div id="no-head-result"></div>
+                    <div style="margin-top: 8px;">
+                        <button type="button" id="no-head-skip" class="btn btn-outline" style="font-size: 11px; padding: 4px 12px;">Skip / Assign later</button>
+                    </div>
                 </div>
             </div>
             <div class="form-actions">
@@ -1411,9 +1416,9 @@ function renderOrganizations() {
                     ${org.description ? `<div style="font-size: 12px; color: #6b7280; margin-bottom: 12px;">${org.description}</div>` : ''}
                     <div style="margin: 12px 0; padding: 12px 0; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb;">
                         <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">
-                            <strong>Head:</strong> ${head ? head.name : 'Unassigned'}
+                            <strong>Managed by:</strong> ${head ? head.name : '<span style="color: #9ca3af;">Unassigned</span>'}
                         </div>
-                        ${head ? `<div style="font-size: 11px; color: #9ca3af;">${head.studentId} • ${head.email}</div>` : ''}
+                        ${head ? `<div style="font-size: 11px; color: #9ca3af;">${head.studentId || head.id} • ${head.email}</div>` : ''}
                     </div>
                     ${hasPending ? `
                     <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb; display: flex; gap: 8px;">
@@ -1452,18 +1457,43 @@ function renderOrganizations() {
         showAddOrgForm = false; renderOrganizations();
     });
 
+    document.getElementById('no-head-lookup')?.addEventListener('click', () => {
+        const email = document.getElementById('no-head-email').value.trim().toLowerCase();
+        const resultDiv = document.getElementById('no-head-result');
+        if (!email) {
+            resultDiv.innerHTML = '<div style="color: #dc2626; font-size: 12px;">Please enter an email address.</div>';
+            return;
+        }
+        const student = (window.SAMPLE_ACCOUNTS || []).find(a =>
+            a.permissions?.studentView && a.email.toLowerCase() === email
+        );
+        if (student) {
+            newOrgData.head = student.id;
+            resultDiv.innerHTML = `<div style="color: #16a34a; font-size: 12px;">✓ Found: <strong>${student.name}</strong> (${student.studentId})</div>`;
+        } else {
+            newOrgData.head = '';
+            resultDiv.innerHTML = '<div style="color: #dc2626; font-size: 12px;">No student account found with this email.</div>';
+        }
+    });
+
+    document.getElementById('no-head-skip')?.addEventListener('click', () => {
+        newOrgData.head = '';
+        document.getElementById('no-head-email').value = '';
+        document.getElementById('no-head-result').innerHTML = '';
+    });
+
     document.getElementById('save-add-org')?.addEventListener('click', () => {
         const name = document.getElementById('no-name').value.trim();
         const abbr = document.getElementById('no-abbr').value.trim();
         const description = document.getElementById('no-desc').value.trim();
-        const head = document.getElementById('no-head').value.trim();
+        const head = newOrgData.head;
 
-        if (!name || !abbr || !head) {
-            showToast('Organization Name, Abbreviation, and Head are required.', true);
+        if (!name || !abbr) {
+            showToast('Organization Name and Abbreviation are required.', true);
             return;
         }
 
-        if (organizationList.find(o => o.name === name)) {
+        if (!editingOrgId && organizationList.find(o => o.name === name)) {
             showToast('Organization with this name already exists.', true);
             return;
         }
@@ -1504,6 +1534,18 @@ function renderOrganizations() {
             newOrgData = { name: org.name, abbreviation: org.abbreviation, description: org.description, head: org.head };
             editingOrgId = b.dataset.id;
             showAddOrgForm = true;
+            setTimeout(() => {
+                const headEmail = org.head ? (window.SAMPLE_ACCOUNTS || []).find(a => a.id === org.head)?.email : '';
+                const emailInput = document.getElementById('no-head-email');
+                const resultDiv = document.getElementById('no-head-result');
+                if (emailInput && headEmail) {
+                    emailInput.value = headEmail;
+                    const student = (window.SAMPLE_ACCOUNTS || []).find(a => a.id === org.head);
+                    if (student) {
+                        resultDiv.innerHTML = `<div style="color: #16a34a; font-size: 12px;">✓ Found: <strong>${student.name}</strong> (${student.studentId})</div>`;
+                    }
+                }
+            }, 0);
             renderOrganizations();
         }
     }));

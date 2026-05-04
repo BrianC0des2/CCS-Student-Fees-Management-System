@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+	<meta charset="UTF-8">
+	<title>CCS PAY++</title>
+	<link rel="stylesheet" href="../../styles/sidebar.css">
+	<link rel="stylesheet" href="../../styles/organization-styles/organization-dashboard.css">
+	<link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+	<link rel="stylesheet" href="../../styles/settings.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style>
+		.profile-card {
+			background: #ffffff;
+			border: 1px solid #d4e2d8;
+			border-radius: 14px;
+			padding: 20px;
+			margin-bottom: 20px;
+		}
+		.profile-row {
+			display: flex;
+			justify-content: space-between;
+			align-items: flex-start;
+			margin-bottom: 16px;
+			padding-bottom: 16px;
+			border-bottom: 1px solid #e5e7eb;
+		}
+		.profile-row:last-child {
+			margin-bottom: 0;
+			padding-bottom: 0;
+			border-bottom: none;
+		}
+		.profile-label {
+			font-weight: 600;
+			color: #6b7280;
+			font-size: 12px;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+			min-width: 120px;
+		}
+		.profile-value {
+			color: #1a2420;
+			font-size: 14px;
+			text-align: right;
+			flex: 1;
+		}
+		.badge {
+			display: inline-block;
+			background: #eff6ff;
+			color: #1e40af;
+			border-radius: 999px;
+			padding: 4px 12px;
+			font-size: 11px;
+			font-weight: 600;
+			text-transform: uppercase;
+		}
+		.section-title {
+			font-size: 16px;
+			font-weight: 600;
+			color: #1a2420;
+			margin-bottom: 8px;
+			margin-top: 24px;
+		}
+		.section-sub {
+			font-size: 13px;
+			color: #6b7280;
+			margin-bottom: 16px;
+		}
+		.status-box {
+			background: #fef3c7;
+			border: 1px solid #fcd34d;
+			border-radius: 8px;
+			padding: 12px;
+			margin-bottom: 16px;
+			color: #8a6d3b;
+			font-size: 13px;
+		}
+		.handover-section {
+			background: #ffffff;
+			border: 1px solid #d4e2d8;
+			border-radius: 14px;
+			padding: 20px;
+			margin-bottom: 20px;
+		}
+		.modal-overlay {
+			display: none;
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background-color: rgba(0,0,0,0.5);
+			z-index: 1000;
+			align-items: center;
+			justify-content: center;
+		}
+		.modal-overlay.active {
+			display: flex;
+		}
+		.modal-card {
+			background: white;
+			padding: 30px;
+			border-radius: 12px;
+			box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+			width: 90%;
+			max-width: 450px;
+		}
+		.modal-card h2 {
+			margin-top: 0;
+			margin-bottom: 20px;
+			color: #1a2420;
+			font-size: 16px;
+		}
+		.form-group {
+			margin-bottom: 15px;
+		}
+		.form-group label {
+			display: block;
+			margin-bottom: 5px;
+			color: #5a7a66;
+			font-weight: 600;
+			font-size: 12px;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+		.form-group input {
+			width: 100%;
+			padding: 10px 12px;
+			border: 1px solid #d4e2d8;
+			border-radius: 8px;
+			font-size: 14px;
+			box-sizing: border-box;
+			outline: none;
+		}
+		.form-group input:focus {
+			border-color: #2e7d52;
+		}
+		.modal-actions {
+			display: flex;
+			justify-content: flex-end;
+			gap: 10px;
+			margin-top: 25px;
+		}
+		.btn {
+			padding: 10px 16px;
+			border-radius: 8px;
+			border: none;
+			font-size: 13px;
+			font-weight: 600;
+			cursor: pointer;
+		}
+		.btn-cancel {
+			background: #f5f5f5;
+			color: #1a2420;
+			border: 1px solid #d4e2d8;
+		}
+		.btn-submit {
+			background: #2e7d52;
+			color: white;
+		}
+		.btn-submit:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+		}
+		.result-text {
+			font-size: 12px;
+			margin-bottom: 15px;
+		}
+	</style>
+</head>
+<body>
+	<div id="sidebar-container"></div>
+
+	<section class="home-section">
+		<div class="home-content">
+			<div>
+				<i class='bx bx-menu'></i>
+				<span class="text">Profile</span>
+			</div>
+			<div class="org-header-card">
+				<a href="../organization/organization-dashboard.html">
+					<img src="../../assets/images/org-ccs.png" class="org-header-logo" alt="org-logo">
+					<div>
+						<div class="org-header-name">CCS Student Council</div>
+						<div class="org-header-sub" id="orgYearSem"></div>
+					</div>
+				</a>
+			</div>
+		</div>
+
+		<!-- Organization Profile Section -->
+		<div class="profile-card">
+			<div class="section-title">Organization Profile</div>
+			<div id="profileContent"></div>
+		</div>
+
+		<!-- Transfer Organization Role Section -->
+		<div class="handover-section">
+			<div class="section-title">Transfer Organization Role</div>
+			<div class="section-sub">Pass your organization role to another student. This requires admin approval.</div>
+			<div id="handoverStatus" style="display: none;"></div>
+			<button id="requestHandoverBtn" class="apply-btn" style="padding: 8px 16px; font-size: 13px;">Request Handover</button>
+		</div>
+	</section>
+
+	<!-- Handover Modal -->
+	<div id="handoverModal" class="modal-overlay">
+		<div class="modal-card">
+			<h2>Request Role Transfer</h2>
+			<div class="form-group">
+				<label for="handoverEmail">Student Email</label>
+				<input type="email" id="handoverEmail" placeholder="Enter student email">
+			</div>
+			<div style="margin-bottom: 15px; display: flex; gap: 8px;">
+				<button type="button" id="findStudentBtn" class="apply-btn" style="padding: 8px 16px; flex: 1;">Find Student</button>
+			</div>
+			<div id="lookupResult" class="result-text"></div>
+			<div class="modal-actions">
+				<button type="button" id="handoverCancel" class="btn btn-cancel">Cancel</button>
+				<button type="button" id="handoverSubmit" class="btn btn-submit" disabled>Submit Request</button>
+			</div>
+		</div>
+	</div>
+
+	<script src="../../assets/scripts/settings.js"></script>
+	<script src="../../assets/scripts/sample-accounts.js"></script>
+	<script src="../../assets/scripts/auth.js"></script>
+	<script src="../../assets/scripts/sidebar-template.js"></script>
+	<script src="../../assets/scripts/script.js"></script>
+	<script>
+		(function() {
+			const ORGS_STORAGE_KEY = 'ccs.organizations';
+			const modal = document.getElementById('handoverModal');
+			const requestBtn = document.getElementById('requestHandoverBtn');
+			const findBtn = document.getElementById('findStudentBtn');
+			const cancelBtn = document.getElementById('handoverCancel');
+			const submitBtn = document.getElementById('handoverSubmit');
+			const emailInput = document.getElementById('handoverEmail');
+			const resultDiv = document.getElementById('lookupResult');
+			let selectedStudentId = null;
+
+			function getOrganizations() {
+				try {
+					const orgs = JSON.parse(localStorage.getItem(ORGS_STORAGE_KEY) || '[]');
+					return Array.isArray(orgs) ? orgs : [];
+				} catch (_) {
+					return [];
+				}
+			}
+
+			function saveOrganizations(orgs) {
+				localStorage.setItem(ORGS_STORAGE_KEY, JSON.stringify(orgs));
+			}
+
+			function getCurrentOrgId() {
+				const scope = window.CCSAuthHelpers?.getCurrentOrganizationScope?.();
+				return scope?.orgId || 'u-org-001';
+			}
+
+			function getCurrentOrgName() {
+				const scope = window.CCSAuthHelpers?.getCurrentOrganizationScope?.();
+				return scope?.organization || 'Organization';
+			}
+
+			function formatDate(dateString) {
+				if (!dateString) return '';
+				const date = new Date(dateString);
+				return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+			}
+
+			function renderProfile() {
+				const profileContent = document.getElementById('profileContent');
+				const currentOrgId = getCurrentOrgId();
+				const orgs = getOrganizations();
+				const org = orgs.find(o => o.id === currentOrgId);
+				const orgName = getCurrentOrgName();
+
+				let managedByText = 'Unassigned';
+				let managedByIdText = '';
+
+				if (org && org.head) {
+					const headAccount = (window.SAMPLE_ACCOUNTS || []).find(a => a.id === org.head);
+					if (headAccount) {
+						managedByText = headAccount.name;
+						managedByIdText = headAccount.studentId || headAccount.id;
+					}
+				}
+
+				const createdDate = org ? formatDate(org.createdAt) : formatDate('2026-01-15T08:00:00.000Z');
+
+				profileContent.innerHTML = `
+					<div class="profile-row">
+						<div class="profile-label">Name</div>
+						<div class="profile-value">${org?.name || orgName}</div>
+					</div>
+					<div class="profile-row">
+						<div class="profile-label">Abbreviation</div>
+						<div class="profile-value"><span class="badge">${org?.abbreviation || 'ORG'}</span></div>
+					</div>
+					<div class="profile-row">
+						<div class="profile-label">Description</div>
+						<div class="profile-value">${org?.description || 'No description'}</div>
+					</div>
+					<div class="profile-row">
+						<div class="profile-label">Managed by</div>
+						<div class="profile-value">
+							${managedByText}${managedByIdText ? ' (' + managedByIdText + ')' : ''}
+							${!org || !org.head ? '<span style="color: #9ca3af;">(Unassigned)</span>' : ''}
+						</div>
+					</div>
+					<div class="profile-row">
+						<div class="profile-label">Created</div>
+						<div class="profile-value">${createdDate}</div>
+					</div>
+				`;
+			}
+
+			function updateHandoverStatus() {
+				const currentOrgId = getCurrentOrgId();
+				const orgs = getOrganizations();
+				const org = orgs.find(o => o.id === currentOrgId);
+				const statusDiv = document.getElementById('handoverStatus');
+				const btn = document.getElementById('requestHandoverBtn');
+
+				if (org && org.pendingHandover) {
+					statusDiv.style.display = 'block';
+					statusDiv.innerHTML = `
+						<div class="status-box">
+							Handover request pending admin approval.<br>
+							Transferring to: ${org.pendingHandover.toStudentName}
+						</div>
+					`;
+					btn.disabled = true;
+					btn.style.opacity = '0.5';
+				} else {
+					statusDiv.style.display = 'none';
+					btn.disabled = false;
+					btn.style.opacity = '1';
+				}
+			}
+
+			function addAuditLog(action, details) {
+				const log = {
+					id: 'LOG-' + Date.now(),
+					timestamp: new Date().toLocaleString(),
+					user: 'Organization User',
+					role: 'Organization Staff',
+					action: action,
+					details: details,
+					ipAddress: '192.168.1.1',
+					type: 'info'
+				};
+				const logs = JSON.parse(localStorage.getItem('ccs.audit.logs') || '[]');
+				logs.unshift(log);
+				localStorage.setItem('ccs.audit.logs', JSON.stringify(logs));
+			}
+
+			requestBtn.addEventListener('click', () => {
+				modal.classList.add('active');
+				emailInput.focus();
+			});
+
+			cancelBtn.addEventListener('click', () => {
+				modal.classList.remove('active');
+				emailInput.value = '';
+				resultDiv.innerHTML = '';
+				selectedStudentId = null;
+				submitBtn.disabled = true;
+				submitBtn.style.opacity = '0.5';
+			});
+
+			findBtn.addEventListener('click', () => {
+				const email = emailInput.value.trim().toLowerCase();
+				if (!email) {
+					resultDiv.innerHTML = '<div style="color: #dc2626;">Please enter an email address.</div>';
+					return;
+				}
+				const student = (window.SAMPLE_ACCOUNTS || []).find(a =>
+					a.permissions?.studentView && a.email.toLowerCase() === email
+				);
+				if (student) {
+					selectedStudentId = student.id;
+					resultDiv.innerHTML = `<div style="color: #16a34a;">✓ Found: <strong>${student.name}</strong> (${student.studentId})</div>`;
+					submitBtn.disabled = false;
+					submitBtn.style.opacity = '1';
+				} else {
+					selectedStudentId = null;
+					resultDiv.innerHTML = '<div style="color: #dc2626;">No student account found with this email.</div>';
+					submitBtn.disabled = true;
+					submitBtn.style.opacity = '0.5';
+				}
+			});
+
+			submitBtn.addEventListener('click', () => {
+				if (!selectedStudentId) return;
+				const orgs = getOrganizations();
+				const currentOrgId = getCurrentOrgId();
+				let org = orgs.find(o => o.id === currentOrgId);
+
+				if (!org) {
+					org = { id: currentOrgId, head: '', pendingHandover: null, createdAt: new Date().toISOString() };
+					orgs.push(org);
+				}
+
+				const student = (window.SAMPLE_ACCOUNTS || []).find(a => a.id === selectedStudentId);
+				org.pendingHandover = {
+					toStudentId: selectedStudentId,
+					toStudentName: student?.name || 'Unknown',
+					requestedAt: new Date().toISOString()
+				};
+
+				saveOrganizations(orgs);
+				addAuditLog('Role Transfer Requested', `Requested handover of ${getCurrentOrgName()} to ${student?.name}`);
+				modal.classList.remove('active');
+				emailInput.value = '';
+				resultDiv.innerHTML = '';
+				selectedStudentId = null;
+				updateHandoverStatus();
+				alert('Handover request submitted. Awaiting admin approval.');
+			});
+
+			modal.addEventListener('click', (e) => {
+				if (e.target === modal) {
+					modal.classList.remove('active');
+					emailInput.value = '';
+					resultDiv.innerHTML = '';
+					selectedStudentId = null;
+				}
+			});
+
+			renderProfile();
+			updateHandoverStatus();
+		})();
+	</script>
+</body>
+</html>
