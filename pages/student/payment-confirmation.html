@@ -350,7 +350,8 @@
         }
 
         const methodLabel = selectedAccount.type || method || 'Cash';
-        const isBankTransfer = /bank|transfer/i.test(methodLabel);
+        const BANK_TYPES = ['bpi', 'pnb', 'landbank'];
+        const isBankTransfer = BANK_TYPES.includes((selectedAccount.type || '').toLowerCase());
         const isCash = /cash/i.test(methodLabel);
         const isGCash = /gcash|g-cash/i.test(methodLabel);
 
@@ -395,9 +396,20 @@
             
             // Add auto-format and validation to GCash reference input
             const gcashRefInput = document.getElementById('gcashRefInput');
+            const confirmBtn = document.getElementById('confirm-pay-btn');
+
+            // Disable on load
+            confirmBtn.disabled = true;
+            confirmBtn.style.opacity = '0.5';
+            confirmBtn.style.cursor = 'not-allowed';
+
             if (gcashRefInput) {
                 gcashRefInput.addEventListener('input', function() {
                     this.value = this.value.replace(/[^0-9]/g, '').slice(0, 13);
+                    const valid = this.value.length === 13;
+                    confirmBtn.disabled = !valid;
+                    confirmBtn.style.opacity = valid ? '1' : '0.5';
+                    confirmBtn.style.cursor = valid ? 'pointer' : 'not-allowed';
                 });
             }
         } else if (isBankTransfer) {
@@ -496,8 +508,12 @@
                         <input type="text" id="bankAccountNameInput" class="confirm-input" placeholder="Enter the name on your account" style="width:100%;">
                     </div>
                     <div>
-                        <label style="display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:8px;">Amount Transferred (required)</label>
-                        <input type="number" id="bankAmountInput" class="confirm-input" placeholder="Enter exact amount transferred" step="0.01" style="width:100%;">
+                        <label style="display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:8px;">Payment Screenshot (optional)</label>
+                        <label id="screenshotLabel" style="display:flex; align-items:center; gap:10px; border:1.5px dashed #cbd5e0; border-radius:10px; padding:14px 16px; cursor:pointer; background:#f9fafb;">
+                            <i class="bx bx-image" style="font-size:20px; color:#6b7280;"></i>
+                            <span id="screenshotFileName" style="font-size:13px; color:#6b7280;">Attach screenshot of your transfer</span>
+                            <input type="file" id="screenshotInput" accept="image/*" style="display:none;">
+                        </label>
                     </div>
                 </div>
             </div>`;
@@ -509,11 +525,10 @@
             // Add event listeners for button enable/disable
             const bankRefInput = document.getElementById('bankRefInput');
             const bankAcctNameInput = document.getElementById('bankAccountNameInput');
-            const bankAmtInput = document.getElementById('bankAmountInput');
             const confirmBtn = document.getElementById('confirm-pay-btn');
             
             function updateButtonState() {
-                const allFilled = bankRefInput.value.trim() && bankAcctNameInput.value.trim() && bankAmtInput.value.trim();
+                const allFilled = bankRefInput.value.trim() && bankAcctNameInput.value.trim();
                 confirmBtn.disabled = !allFilled;
                 confirmBtn.style.opacity = allFilled ? '1' : '0.5';
                 confirmBtn.style.cursor = allFilled ? 'pointer' : 'not-allowed';
@@ -521,7 +536,16 @@
             
             bankRefInput.addEventListener('input', updateButtonState);
             bankAcctNameInput.addEventListener('input', updateButtonState);
-            bankAmtInput.addEventListener('input', updateButtonState);
+            
+            // Screenshot input handler
+            const screenshotInput = document.getElementById('screenshotInput');
+            const screenshotFileName = document.getElementById('screenshotFileName');
+            screenshotInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    screenshotFileName.textContent = this.files[0].name;
+                    screenshotFileName.style.color = '#1a5c2a';
+                }
+            });
             
             // Initial button state
             updateButtonState();
@@ -627,7 +651,6 @@
             if (isBankTransfer) {
                 const bankRef = (document.getElementById('bankRefInput').value || '').trim();
                 const bankAcctName = (document.getElementById('bankAccountNameInput').value || '').trim();
-                const bankAmt = (document.getElementById('bankAmountInput').value || '').trim();
                 
                 if (!bankRef) {
                     alert('Please enter your bank reference number.');
@@ -637,15 +660,10 @@
                     alert('Please enter the account name used for this transfer.');
                     return;
                 }
-                if (!bankAmt || isNaN(parseFloat(bankAmt)) || parseFloat(bankAmt) <= 0) {
-                    alert('Please enter a valid transfer amount.');
-                    return;
-                }
                 // Store Bank details
                 localStorage.setItem('ccs.payment.bankDetails', JSON.stringify({
                     referenceNumber: bankRef,
-                    accountNameUsed: bankAcctName,
-                    amountTransferred: parseFloat(bankAmt)
+                    accountNameUsed: bankAcctName
                 }));
             }
 
