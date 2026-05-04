@@ -491,8 +491,6 @@ function renderFaculty() {
                         <div style="margin: 12px 0; padding: 8px 0; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb;">
                             <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">
                                 <strong>Faculty:</strong> ${deptFaculty.length} total
-                                ${professorCount > 0 ? `, ${professorCount} Professor${professorCount > 1 ? 's' : ''}` : ''}
-                                ${headCount > 0 ? `, ${headCount} Head${headCount > 1 ? 's' : ''}` : ''}
                             </div>
                             ${dean ? `
                             <div style="font-size: 12px; color: #6b7280;">
