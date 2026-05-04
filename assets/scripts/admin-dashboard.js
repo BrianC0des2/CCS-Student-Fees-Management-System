@@ -656,23 +656,18 @@ function renderFaculty() {
                 </div>
                 <div class="form-group" style="grid-column: 1 / -1;">
                     <label>Roles * (select at least one)</label>
-                    <div style="display: flex; flex-direction: column; gap: 8px; padding-top: 6px;">
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
-                            <input type="checkbox" class="nf-role-check" value="adviser" ${newFacultyData.roles.includes('adviser') ? 'checked' : ''} style="cursor: pointer;">
-                            Adviser
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
-                            <input type="checkbox" class="nf-role-check" value="dept_head" ${newFacultyData.roles.includes('dept_head') ? 'checked' : ''} style="cursor: pointer;">
-                            Head
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
-                            <input type="checkbox" class="nf-role-check" value="dean" ${newFacultyData.roles.includes('dean') ? 'checked' : ''} style="cursor: pointer;">
-                            Dean
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
-                            <input type="checkbox" class="nf-role-check" value="coordinator" ${newFacultyData.roles.includes('coordinator') ? 'checked' : ''} style="cursor: pointer;">
-                            Coordinator
-                        </label>
+                    <div class="roles-pill-container">
+                        <input type="checkbox" class="nf-role-check role-pill-input" id="role-adviser" value="adviser" ${newFacultyData.roles.includes('adviser') ? 'checked' : ''}>
+                        <label for="role-adviser" class="role-pill">Adviser</label>
+
+                        <input type="checkbox" class="nf-role-check role-pill-input" id="role-head" value="dept_head" ${newFacultyData.roles.includes('dept_head') ? 'checked' : ''}>
+                        <label for="role-head" class="role-pill">Head</label>
+
+                        <input type="checkbox" class="nf-role-check role-pill-input" id="role-dean" value="dean" ${newFacultyData.roles.includes('dean') ? 'checked' : ''}>
+                        <label for="role-dean" class="role-pill">Dean</label>
+
+                        <input type="checkbox" class="nf-role-check role-pill-input" id="role-coordinator" value="coordinator" ${newFacultyData.roles.includes('coordinator') ? 'checked' : ''}>
+                        <label for="role-coordinator" class="role-pill">Coordinator</label>
                     </div>
                 </div>
                 <div class="form-group">

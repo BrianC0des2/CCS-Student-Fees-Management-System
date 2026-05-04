@@ -1933,3 +1933,48 @@ select.filter-select:focus {
 .clearance-save-row { display: flex; justify-content: flex-end; margin-top: 16px; }
 .text-dark { font-size: 13px; color: var(--text-dark); display: flex; align-items: center; gap: 6px; }
 .text-dark i { font-size: 15px; }
+
+/* ══════════════════════════════════════
+   ROLE PILLS STYLING
+══════════════════════════════════════ */
+.roles-pill-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 6px;
+}
+
+.role-pill-input {
+    display: none;
+}
+
+.role-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: 2px solid var(--border);
+    border-radius: 24px;
+    cursor: pointer;
+    user-select: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    color: var(--text-primary);
+    background: var(--card-bg);
+}
+
+.role-pill:hover {
+    border-color: var(--brand-700);
+}
+
+.role-pill-input:checked + .role-pill {
+    background: var(--brand-700);
+    color: white;
+    border-color: var(--brand-700);
+}
+
+.role-pill-input:checked + .role-pill::before {
+    content: '✓';
+    font-weight: bold;
+    font-size: 14px;
+}
