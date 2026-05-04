@@ -517,20 +517,5 @@
         }
     })();
     </script>
-    <script>
-        // Update semester badge
-        function updateSemesterBadge() {
-            const current = window.SemesterManager?.getCurrentSemester();
-            const badge = document.getElementById('sidebar-semester-badge');
-            if (badge && current) {
-                badge.innerHTML = window.SemesterManager.getSemesterSidebarBadgeHTML();
-            }
-        }
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', updateSemesterBadge);
-        } else {
-            updateSemesterBadge();
-        }
-    </script>
 </body>
 </html>

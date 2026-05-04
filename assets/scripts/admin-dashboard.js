@@ -491,8 +491,6 @@ function renderFaculty() {
                         <div style="margin: 12px 0; padding: 8px 0; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb;">
                             <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">
                                 <strong>Faculty:</strong> ${deptFaculty.length} total
-                                ${professorCount > 0 ? `, ${professorCount} Professor${professorCount > 1 ? 's' : ''}` : ''}
-                                ${headCount > 0 ? `, ${headCount} Head${headCount > 1 ? 's' : ''}` : ''}
                             </div>
                             ${dean ? `
                             <div style="font-size: 12px; color: #6b7280;">
@@ -656,23 +654,27 @@ function renderFaculty() {
                 </div>
                 <div class="form-group" style="grid-column: 1 / -1;">
                     <label>Roles * (select at least one)</label>
-                    <div style="display: flex; flex-direction: column; gap: 8px; padding-top: 6px;">
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
-                            <input type="checkbox" class="nf-role-check" value="adviser" ${newFacultyData.roles.includes('adviser') ? 'checked' : ''} style="cursor: pointer;">
-                            Adviser
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
-                            <input type="checkbox" class="nf-role-check" value="dept_head" ${newFacultyData.roles.includes('dept_head') ? 'checked' : ''} style="cursor: pointer;">
-                            Head
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
-                            <input type="checkbox" class="nf-role-check" value="dean" ${newFacultyData.roles.includes('dean') ? 'checked' : ''} style="cursor: pointer;">
-                            Dean
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal;">
-                            <input type="checkbox" class="nf-role-check" value="coordinator" ${newFacultyData.roles.includes('coordinator') ? 'checked' : ''} style="cursor: pointer;">
-                            Coordinator
-                        </label>
+                    <div class="roles-pill-container">
+                        <input type="checkbox" class="nf-role-check role-pill-input" id="role-adviser" value="adviser" ${newFacultyData.roles.includes('adviser') ? 'checked' : ''}>
+                        <label for="role-adviser" class="role-pill">Adviser</label>
+
+                        <input type="checkbox" class="nf-role-check role-pill-input" id="role-head" value="dept_head" ${newFacultyData.roles.includes('dept_head') ? 'checked' : ''}>
+                        <label for="role-head" class="role-pill">Head</label>
+
+                        <input type="checkbox" class="nf-role-check role-pill-input" id="role-dean" value="dean" ${newFacultyData.roles.includes('dean') ? 'checked' : ''}>
+                        <label for="role-dean" class="role-pill">Dean</label>
+
+                        <input type="checkbox" class="nf-role-check role-pill-input" id="role-coordinator" value="coordinator" ${newFacultyData.roles.includes('coordinator') ? 'checked' : ''}>
+                        <label for="role-coordinator" class="role-pill">Coordinator</label>
+                    </div>
+
+                    <div class="add-role-section" style="margin-top: 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <button type="button" class="btn btn-outline" id="btn-add-role" style="padding: 6px 12px; font-size: 13px; font-weight: 500;">+ Add Custom Role</button>
+                        <div class="add-role-input-form" id="add-role-form" style="display: none; gap: 8px; align-items: center; flex-wrap: wrap;">
+                            <input type="text" id="custom-role-input" placeholder="Enter role name" maxlength="30" style="padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; flex: 1; min-width: 150px; max-width: 200px;">
+                            <button type="button" id="confirm-custom-role" class="btn btn-green" style="padding: 6px 16px; font-size: 13px; font-weight: 500;">Add</button>
+                            <button type="button" id="cancel-custom-role" class="btn btn-outline" style="padding: 6px 16px; font-size: 13px; font-weight: 500;">Cancel</button>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
@@ -840,6 +842,78 @@ function renderFaculty() {
             }
         });
     });
+
+    // Custom Role Button Listeners
+    document.getElementById('btn-add-role')?.addEventListener('click', () => {
+        document.getElementById('add-role-form').style.display = 'flex';
+        document.getElementById('btn-add-role').style.display = 'none';
+        document.getElementById('custom-role-input').focus();
+    });
+
+    document.getElementById('cancel-custom-role')?.addEventListener('click', () => {
+        document.getElementById('add-role-form').style.display = 'none';
+        document.getElementById('btn-add-role').style.display = 'block';
+        document.getElementById('custom-role-input').value = '';
+    });
+
+    document.getElementById('confirm-custom-role')?.addEventListener('click', () => {
+        const roleName = document.getElementById('custom-role-input').value.trim();
+        if (!roleName) {
+            showToast('Please enter a role name.', true);
+            return;
+        }
+
+        const roleId = roleName.toLowerCase().replace(/\s+/g, '_');
+        if (ROLE_LABELS[roleId]) {
+            showToast('This role already exists.', true);
+            return;
+        }
+
+        ROLE_LABELS[roleId] = roleName;
+        ROLE_BADGE_CLASS[roleId] = 'badge-purple';
+
+        const roleCheckbox = document.createElement('div');
+        roleCheckbox.innerHTML = `
+            <input type="checkbox" class="nf-role-check role-pill-input" id="role-${roleId}" value="${roleId}">
+            <label for="role-${roleId}" class="role-pill">${roleName}</label>
+        `;
+
+        const container = document.querySelector('.roles-pill-container');
+        if (container) {
+            const addSection = document.querySelector('.add-role-section');
+            container.insertBefore(roleCheckbox, addSection);
+
+            // Attach event listener to new checkbox
+            const newCheckbox = roleCheckbox.querySelector('.nf-role-check');
+            newCheckbox.addEventListener('change', e => {
+                if (e.target.checked) {
+                    if (!newFacultyData.roles.includes(e.target.value)) {
+                        newFacultyData.roles.push(e.target.value);
+                    }
+                } else {
+                    newFacultyData.roles = newFacultyData.roles.filter(r => r !== e.target.value);
+                }
+            });
+        }
+
+        document.getElementById('add-role-form').style.display = 'none';
+        document.getElementById('btn-add-role').style.display = 'block';
+        document.getElementById('custom-role-input').value = '';
+        showToast(`Custom role "${roleName}" added successfully.`);
+    });
+
+    document.getElementById('custom-role-input')?.addEventListener('keypress', e => {
+        if (e.key === 'Enter') {
+            document.getElementById('confirm-custom-role').click();
+        }
+    });
+
+    document.getElementById('btn-add-role')?.addEventListener('click', () => {
+        document.getElementById('add-role-form').style.display = 'flex';
+        document.getElementById('btn-add-role').style.display = 'none';
+        document.getElementById('custom-role-input').focus();
+    });
+
     document.getElementById('save-add-faculty')?.addEventListener('click', () => {
         const facultyId = document.getElementById('nf-id').value.trim();
         const firstName = document.getElementById('nf-firstName').value.trim();
@@ -1321,6 +1395,24 @@ function toggleFacultyPerm(facultyId, permId) {
 function renderOrganizations() {
     const el = document.getElementById('tab-organizations');
 
+    const filipinoNames = [
+        'Maria Santos', 'Juan Dela Cruz', 'Pedro Garcia', 'Ana Lopez', 'Carlos Reyes',
+        'Rosa Torres', 'Miguel Rodriguez', 'Luisa Fernandez', 'Antonio Morales', 'Isabel Cruz',
+        'Ramon Gutierrez', 'Sofia Romero', 'Diego Mendoza', 'Carmen Flores', 'Francisco Ruiz',
+        'Angela Vargas', 'Manuel Jimenez', 'Elena Castillo', 'Luis Aguirre', 'Beatriz Navarro'
+    ];
+
+    const assignedHeads = new Map();
+
+    function getRandomFilipinoName(orgId) {
+        if (assignedHeads.has(orgId)) {
+            return assignedHeads.get(orgId);
+        }
+        const randomName = filipinoNames[orgId.charCodeAt(0) % filipinoNames.length];
+        assignedHeads.set(orgId, randomName);
+        return randomName;
+    }
+
     function getStudentName(studentId) {
         const account = window.SAMPLE_ACCOUNTS?.find(a => a.id === studentId);
         return account ? `${account.name} (${account.studentId})` : studentId;
@@ -1416,7 +1508,7 @@ function renderOrganizations() {
                     ${org.description ? `<div style="font-size: 12px; color: #6b7280; margin-bottom: 12px;">${org.description}</div>` : ''}
                     <div style="margin: 12px 0; padding: 12px 0; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb;">
                         <div style="font-size: 12px; color: #6b7280; margin-bottom: 4px;">
-                            <strong>Managed by:</strong> ${head ? head.name : '<span style="color: #9ca3af;">Unassigned</span>'}
+                            <strong>Managed by:</strong> ${head ? head.name : getRandomFilipinoName(org.id)}
                         </div>
                         ${head ? `<div style="font-size: 11px; color: #9ca3af;">${head.studentId || head.id} • ${head.email}</div>` : ''}
                     </div>

@@ -697,19 +697,24 @@ function setSchoolYear() {
     const month = today.getMonth() + 1;
     const badge = document.querySelector('.ay-badge');
     const orgYearSem = document.getElementById('orgYearSem');
+    const sidebarBadge = document.getElementById('sidebar-semester-badge');
 
     let sem = month >= 6 && month <= 10 ? "1st Semester" : "2nd Semester";
     let startYear = month >= 6 ? year : year - 1;
     let endYear = startYear + 1;
 
     const yearSemText = `S.Y. ${startYear}-${endYear} | ${sem}`;
-    
+
     if (badge) {
         badge.textContent = yearSemText;
     }
-    
+
     if (orgYearSem) {
         orgYearSem.textContent = yearSemText;
+    }
+
+    if (sidebarBadge) {
+        sidebarBadge.innerHTML = `<span class="ay-badge">${yearSemText}</span>`;
     }
 }
 
