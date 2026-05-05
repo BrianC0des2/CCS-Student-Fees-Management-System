@@ -331,3 +331,21 @@ window.SAMPLE_ORGANIZATION_FEES = [
 
 // Promissory requests are intentionally not auto-seeded for demo reset testing.
 window.SAMPLE_PROMISSORY_REQUESTS = [];
+
+(function seedDemoNotifications() {
+    const key = 'ccs.notifications.TY202500100';
+    if (localStorage.getItem(key)) return;
+    const demo = [
+        {
+            id: 'notif-demo-001',
+            type: 'org_role_offer',
+            title: 'Org Role Offer — CCS Student Council',
+            body: 'Landis Tarro has offered you the organization head role for CCS Student Council.',
+            orgId: 'u-org-001',
+            createdAt: new Date().toISOString(),
+            read: false,
+            resolved: false
+        }
+    ];
+    localStorage.setItem(key, JSON.stringify(demo));
+})();

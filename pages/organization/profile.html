@@ -197,7 +197,7 @@
 		<!-- Transfer Organization Role Section -->
 		<div class="handover-section">
 			<div class="section-title">Transfer Organization Role</div>
-			<div class="section-sub">Pass your organization role to another student. This requires admin approval.</div>
+			<div class="section-sub">Pass your organization role to another student. The receiving student will be notified and must accept the transfer.</div>
 			<div id="handoverStatus" style="display: none;"></div>
 			<button id="requestHandoverBtn" class="apply-btn" style="padding: 8px 16px; font-size: 13px;">Request Handover</button>
 		</div>
@@ -274,6 +274,7 @@
 				const orgs = getOrganizations();
 				const org = orgs.find(o => o.id === currentOrgId);
 				const orgName = getCurrentOrgName();
+				const currentUser = window.Auth && typeof window.Auth.getUser === 'function' ? window.Auth.getUser() : {};
 
 				let managedByText = 'Unassigned';
 				let managedByIdText = '';
@@ -284,6 +285,12 @@
 						managedByText = headAccount.name;
 						managedByIdText = headAccount.studentId || headAccount.id;
 					}
+				}
+
+				// Fallback to current user if no head is set or found
+				if (managedByText === 'Unassigned' && currentUser && currentUser.name) {
+					managedByText = currentUser.name;
+					managedByIdText = currentUser.studentId || currentUser.id;
 				}
 
 				const createdDate = org ? formatDate(org.createdAt) : formatDate('2026-01-15T08:00:00.000Z');
@@ -305,7 +312,7 @@
 						<div class="profile-label">Managed by</div>
 						<div class="profile-value">
 							${managedByText}${managedByIdText ? ' (' + managedByIdText + ')' : ''}
-							${!org || !org.head ? '<span style="color: #9ca3af;">(Unassigned)</span>' : ''}
+							${managedByText === 'Unassigned' ? '<span style="color: #9ca3af;">(Unassigned)</span>' : ''}
 						</div>
 					</div>
 					<div class="profile-row">
@@ -411,6 +418,26 @@
 
 				saveOrganizations(orgs);
 				addAuditLog('Role Transfer Requested', `Requested handover of ${getCurrentOrgName()} to ${student?.name}`);
+
+				// Write notification to receiving student
+				const receivingStudentId = student?.studentId;
+				if (receivingStudentId) {
+					const notifKey = 'ccs.notifications.' + receivingStudentId;
+					const notifs = JSON.parse(localStorage.getItem(notifKey) || '[]');
+					const currentUser = window.Auth && typeof window.Auth.getUser === 'function' ? window.Auth.getUser() : {};
+					notifs.unshift({
+						id: 'notif-' + Date.now(),
+						type: 'org_role_offer',
+						title: 'Org Role Offer — ' + org.name,
+						body: (currentUser.name || 'Someone') + ' has offered you the organization head role for ' + org.name + '.',
+						orgId: org.id,
+						createdAt: new Date().toISOString(),
+						read: false,
+						resolved: false
+					});
+					localStorage.setItem(notifKey, JSON.stringify(notifs));
+				}
+
 				modal.classList.remove('active');
 				emailInput.value = '';
 				resultDiv.innerHTML = '';

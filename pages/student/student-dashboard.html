@@ -9,6 +9,61 @@
         <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
         <link rel="stylesheet" href="../../styles/settings.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            .notif-bell { position: relative; cursor: pointer; }
+            .notif-dropdown {
+                position: absolute;
+                top: 48px;
+                right: 0;
+                width: 320px;
+                background: #fff;
+                border: 1px solid #e5e7eb;
+                border-radius: 12px;
+                box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+                z-index: 1000;
+                overflow: hidden;
+            }
+            .notif-dropdown-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 12px 16px;
+                border-bottom: 1px solid #e5e7eb;
+                font-weight: 600;
+                font-size: 14px;
+            }
+            .notif-mark-all {
+                font-size: 12px;
+                color: #2e7d52;
+                background: none;
+                border: none;
+                cursor: pointer;
+            }
+            .notif-list {
+                max-height: 400px;
+                overflow-y: auto;
+            }
+            .notif-item {
+                padding: 12px 16px;
+                border-bottom: 1px solid #f3f4f6;
+                font-size: 13px;
+                line-height: 1.5;
+            }
+            .notif-item.unread { background: #f0faf4; }
+            .notif-item-title { font-weight: 600; color: #111827; margin-bottom: 4px; }
+            .notif-item-body { color: #6b7280; }
+            .notif-item-time { font-size: 11px; color: #9ca3af; margin-top: 4px; }
+            .notif-item-actions { display: flex; gap: 8px; margin-top: 8px; }
+            .notif-btn-accept {
+                padding: 4px 12px; border-radius: 6px; font-size: 12px;
+                background: #2e7d52; color: #fff; border: none; cursor: pointer;
+            }
+            .notif-btn-decline {
+                padding: 4px 12px; border-radius: 6px; font-size: 12px;
+                background: #fff; color: #dc2626; border: 1px solid #dc2626; cursor: pointer;
+            }
+            .notif-empty { padding: 24px 16px; text-align: center; color: #9ca3af; font-size: 13px; }
+        </style>
     </head>
     <body>
         <div class="sidebar">
@@ -151,7 +206,16 @@
                             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                             <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
                         </svg>
-                        <span class="notif-badge">3</span>
+                        <span class="notif-badge"></span>
+                    </div>
+                    <div class="notif-dropdown" id="notifDropdown" style="display:none;">
+                        <div class="notif-dropdown-header">
+                            <span>Notifications</span>
+                            <button class="notif-mark-all" id="notifMarkAll">Mark all read</button>
+                        </div>
+                        <div class="notif-list" id="notifList">
+                            <div class="notif-empty">No notifications</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1204,12 +1268,153 @@
                 }
             })();
 
-            /* Notification badge system for promissory notes */
+            /* Notification system */
             (function () {
-                const badgeEl = document.getElementById('notificationBadge');
-                if (badgeEl) {
-                    badgeEl.textContent = '3';
-                    badgeEl.style.display = 'flex';
+                let currentStudentId = null;
+
+                function getNotifKey(studentId) {
+                    return 'ccs.notifications.' + studentId;
+                }
+
+                function getNotifications(studentId) {
+                    return JSON.parse(localStorage.getItem(getNotifKey(studentId)) || '[]');
+                }
+
+                function saveNotifications(studentId, notifs) {
+                    localStorage.setItem(getNotifKey(studentId), JSON.stringify(notifs));
+                }
+
+                function renderNotifications(studentId) {
+                    const notifs = getNotifications(studentId);
+                    const list = document.getElementById('notifList');
+                    const badge = document.querySelector('.notif-badge');
+
+                    const unread = notifs.filter(n => !n.read).length;
+                    if (badge) badge.textContent = unread > 0 ? unread : '';
+                    if (badge) badge.style.display = unread > 0 ? 'inline-flex' : 'none';
+
+                    if (!notifs.length) {
+                        list.innerHTML = '<div class="notif-empty">No notifications</div>';
+                        return;
+                    }
+
+                    list.innerHTML = notifs.map(n => `
+                        <div class="notif-item ${n.read ? '' : 'unread'}" data-id="${n.id}">
+                            <div class="notif-item-title">${n.title}</div>
+                            <div class="notif-item-body">${n.body}</div>
+                            <div class="notif-item-time">${new Date(n.createdAt).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
+                            ${n.type === 'org_role_offer' && !n.resolved ? `
+                                <div class="notif-item-actions">
+                                    <button class="notif-btn-accept" data-notif-id="${n.id}" data-org-id="${n.orgId}">Accept</button>
+                                    <button class="notif-btn-decline" data-notif-id="${n.id}" data-org-id="${n.orgId}">Decline</button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('');
+
+                    notifs.forEach(n => n.read = true);
+                    saveNotifications(studentId, notifs);
+
+                    list.querySelectorAll('.notif-btn-accept').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const orgId = this.dataset.orgId;
+                            const notifId = this.dataset.notifId;
+                            acceptOrgRoleOffer(studentId, orgId, notifId);
+                        });
+                    });
+
+                    list.querySelectorAll('.notif-btn-decline').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const orgId = this.dataset.orgId;
+                            const notifId = this.dataset.notifId;
+                            declineOrgRoleOffer(studentId, orgId, notifId);
+                        });
+                    });
+                }
+
+                function acceptOrgRoleOffer(studentId, orgId, notifId) {
+                    const orgs = JSON.parse(localStorage.getItem('ccs.organizations') || '[]');
+                    const org = orgs.find(o => o.id === orgId);
+                    if (!org || !org.pendingHandover) return;
+
+                    const oldHeadAccount = (window.SAMPLE_ACCOUNTS || []).find(a => a.id === org.head);
+                    if (oldHeadAccount) oldHeadAccount.permissions.organizationView = false;
+
+                    const newHeadAccount = (window.SAMPLE_ACCOUNTS || []).find(a => a.studentId === studentId);
+                    if (newHeadAccount) newHeadAccount.permissions.organizationView = true;
+
+                    org.head = newHeadAccount ? newHeadAccount.id : org.pendingHandover.toStudentId;
+                    org.pendingHandover = null;
+                    localStorage.setItem('ccs.organizations', JSON.stringify(orgs));
+
+                    const notifs = getNotifications(studentId);
+                    const n = notifs.find(n => n.id === notifId);
+                    if (n) { n.resolved = true; n.read = true; }
+                    saveNotifications(studentId, notifs);
+
+                    const logs = JSON.parse(localStorage.getItem('ccs.audit.logs') || '[]');
+                    logs.unshift({
+                        id: 'LOG-' + Date.now(),
+                        timestamp: new Date().toLocaleString(),
+                        user: newHeadAccount ? newHeadAccount.name : studentId,
+                        action: 'Org Role Accepted',
+                        details: `Accepted org head role for ${org.name}`,
+                        type: 'info'
+                    });
+                    localStorage.setItem('ccs.audit.logs', JSON.stringify(logs));
+
+                    renderNotifications(studentId);
+                    alert('You are now the head of ' + org.name + '. Please log out and log back in to access the org dashboard.');
+                }
+
+                function declineOrgRoleOffer(studentId, orgId, notifId) {
+                    const orgs = JSON.parse(localStorage.getItem('ccs.organizations') || '[]');
+                    const org = orgs.find(o => o.id === orgId);
+                    if (org) { org.pendingHandover = null; }
+                    localStorage.setItem('ccs.organizations', JSON.stringify(orgs));
+
+                    const notifs = getNotifications(studentId);
+                    const n = notifs.find(n => n.id === notifId);
+                    if (n) { n.resolved = true; n.read = true; n.body += ' (Declined)'; }
+                    saveNotifications(studentId, notifs);
+
+                    renderNotifications(studentId);
+                    alert('Role offer declined.');
+                }
+
+                document.querySelector('.notif-bell').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const dropdown = document.getElementById('notifDropdown');
+                    const isOpen = dropdown.style.display !== 'none';
+                    dropdown.style.display = isOpen ? 'none' : 'block';
+                    if (!isOpen) renderNotifications(currentStudentId);
+                });
+
+                document.addEventListener('click', function() {
+                    const dropdown = document.getElementById('notifDropdown');
+                    if (dropdown) dropdown.style.display = 'none';
+                });
+
+                document.getElementById('notifMarkAll')?.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const notifs = getNotifications(currentStudentId);
+                    notifs.forEach(n => n.read = true);
+                    saveNotifications(currentStudentId, notifs);
+                    renderNotifications(currentStudentId);
+                });
+
+                function initNotifications() {
+                    const user = window.Auth && typeof window.Auth.getUser === 'function' ? window.Auth.getUser() : null;
+                    if (user && user.studentId) {
+                        currentStudentId = user.studentId;
+                        renderNotifications(currentStudentId);
+                    }
+                }
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', initNotifications);
+                } else {
+                    initNotifications();
                 }
             })();
         </script>
