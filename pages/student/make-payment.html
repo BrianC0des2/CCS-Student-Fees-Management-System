@@ -553,6 +553,26 @@
             document.getElementById('promissoryReason').value = '';
             document.getElementById('promissoryPartialAmount').value = '';
             document.getElementById('promissoryDate').value = '';
+
+            // Set min date to today and max date to semester end date
+            const today = new Date().toISOString().slice(0, 10);
+            const academicSettings = JSON.parse(localStorage.getItem('ccs.academic.settings') || '{}');
+            const semesterEndDate = academicSettings.endDate || '';
+
+            const promisedDateInput = document.getElementById('promissoryDate');
+            if (promisedDateInput) {
+                promisedDateInput.min = today;
+                if (semesterEndDate) {
+                    promisedDateInput.max = semesterEndDate;
+                } else {
+                    // Fallback: try to get end date from current semester
+                    const currentSemester = window.SemesterManager && window.SemesterManager.getCurrentSemester ? window.SemesterManager.getCurrentSemester() : null;
+                    if (currentSemester && currentSemester.endDate) {
+                        promisedDateInput.max = currentSemester.endDate;
+                    }
+                }
+            }
+
             const modal = document.getElementById('promissoryModal');
             modal.classList.add('active');
             modal.setAttribute('aria-hidden', 'false');

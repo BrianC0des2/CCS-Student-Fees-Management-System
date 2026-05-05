@@ -692,18 +692,37 @@ function showSection(sectionId) {
 }
 
 function setSchoolYear() {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth() + 1;
     const badge = document.querySelector('.ay-badge');
     const orgYearSem = document.getElementById('orgYearSem');
     const sidebarBadge = document.getElementById('sidebar-semester-badge');
 
-    let sem = month >= 6 && month <= 10 ? "1st Semester" : "2nd Semester";
-    let startYear = month >= 6 ? year : year - 1;
-    let endYear = startYear + 1;
+  let yearSemText = '';
+  let academicSettings = null;
 
-    const yearSemText = `S.Y. ${startYear}-${endYear} | ${sem}`;
+  try {
+    academicSettings = JSON.parse(localStorage.getItem('ccs.academic.settings') || '{}');
+  } catch (_error) {
+    academicSettings = null;
+  }
+
+  if (academicSettings && academicSettings.schoolYear && academicSettings.semester) {
+    yearSemText = `S.Y. ${academicSettings.schoolYear} | ${academicSettings.semester}`;
+  } else if (window.SemesterManager && typeof window.SemesterManager.getCurrentSemester === 'function') {
+    const current = window.SemesterManager.getCurrentSemester();
+    if (current && current.schoolYear && current.name) {
+      yearSemText = `S.Y. ${current.schoolYear} | ${current.name}`;
+    }
+  }
+
+  if (!yearSemText) {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth() + 1;
+    const sem = month >= 6 && month <= 10 ? '1st Semester' : '2nd Semester';
+    const startYear = month >= 6 ? year : year - 1;
+    const endYear = startYear + 1;
+    yearSemText = `S.Y. ${startYear}-${endYear} | ${sem}`;
+  }
 
     if (badge) {
         badge.textContent = yearSemText;

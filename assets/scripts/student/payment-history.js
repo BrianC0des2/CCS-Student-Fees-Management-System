@@ -85,7 +85,7 @@ const PaymentHistory = (() => {
             return '';
         }
 
-        const sortedPayments = payments.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+        const sortedPayments = payments.slice().sort((a, b) => new Date(b.date || b.dateSubmitted) - new Date(a.date || a.dateSubmitted));
         currentReceiptList = sortedPayments;
 
         let html = `
@@ -323,6 +323,16 @@ const PaymentHistory = (() => {
                 <h4 class="receipt-modal-section-title">Payment Information</h4>
                 <div class="receipt-modal-row">
                     <div class="receipt-modal-item">
+                        <span class="receipt-modal-label">Student Name</span>
+                        <span class="receipt-modal-value">${payment.studentName || '—'}</span>
+                    </div>
+                    <div class="receipt-modal-item">
+                        <span class="receipt-modal-label">Student ID</span>
+                        <span class="receipt-modal-value">${payment.studentId || '—'}</span>
+                    </div>
+                </div>
+                <div class="receipt-modal-row">
+                    <div class="receipt-modal-item">
                         <span class="receipt-modal-label">Payment Method</span>
                         <span class="receipt-modal-value">${method}</span>
                     </div>
@@ -345,6 +355,15 @@ const PaymentHistory = (() => {
                         <span class="receipt-modal-value">${processedBy}</span>
                     </div>
                 </div>
+                ${(() => {
+                    let refDisplay = '';
+                    if (/gcash/i.test(payment.paymentMethod || payment.method || '')) {
+                        refDisplay = payment.gcashReference || payment.referenceNumber || '—';
+                    } else if (/bpi|pnb|landbank/i.test(payment.paymentMethod || payment.method || '')) {
+                        refDisplay = payment.bankReference || payment.referenceNumber || '—';
+                    }
+                    return refDisplay ? `<div class="receipt-modal-row"><div class="receipt-modal-item"><span class="receipt-modal-label">Reference Number</span><span class="receipt-modal-value">${refDisplay}</span></div></div>` : '';
+                })()}
             </div>
 
             <div class="receipt-modal-divider"></div>
@@ -372,9 +391,9 @@ const PaymentHistory = (() => {
                 <div class="receipt-security-info">
                     <div class="receipt-verified-badge">
                         <i class='bx bx-shield-check'></i>
-                        <span>Verified &amp; Approved</span>
+                        <span>Verified &amp; Approved by ${payment.orgName || 'Finance Office'}</span>
                     </div>
-                    <p class="receipt-security-text">This receipt has been digitally verified and authenticated by the Finance Office. The transaction ID and receipt number can be used to verify this payment in the official system.</p>
+                    <p class="receipt-security-text">This payment has been verified and confirmed by ${payment.orgName || 'Finance Office'}.</p>
                     <div class="receipt-verification-items">
                         <div class="receipt-verification-item">
                             <i class='bx bx-check-circle'></i>
