@@ -697,17 +697,8 @@ function setSchoolYear() {
     const sidebarBadge = document.getElementById('sidebar-semester-badge');
 
   let yearSemText = '';
-  let academicSettings = null;
 
-  try {
-    academicSettings = JSON.parse(localStorage.getItem('ccs.academic.settings') || '{}');
-  } catch (_error) {
-    academicSettings = null;
-  }
-
-  if (academicSettings && academicSettings.schoolYear && academicSettings.semester) {
-    yearSemText = `S.Y. ${academicSettings.schoolYear} | ${academicSettings.semester}`;
-  } else if (window.SemesterManager && typeof window.SemesterManager.getCurrentSemester === 'function') {
+  if (window.SemesterManager && typeof window.SemesterManager.getCurrentSemester === 'function') {
     const current = window.SemesterManager.getCurrentSemester();
     if (current && current.schoolYear && current.name) {
       yearSemText = `S.Y. ${current.schoolYear} | ${current.name}`;

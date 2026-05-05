@@ -277,7 +277,7 @@
                     if (!groupMap.has(orgId)) {
                         const group = {
                             orgId: orgId,
-                            orgName: orgId === 'org-msa-001' ? 'Muslim Student Association' : 'CCS Student Council',
+                            orgName: orgId === 'org-msa-001' ? 'Muslim Student Association' : orgId === 'org-dean-office-001' ? "Dean's Office — CCS" : 'CCS Student Council',
                             fees: [],
                             total: 0
                         };
@@ -678,7 +678,7 @@
                 }).filter(Boolean);
                 const feeName = feeNames.join(', ');
                 const orgId = currentGroup.orgId || (currentFees[0] && currentFees[0].orgId) || selectedAccount.orgId || 'u-org-001';
-                const orgName = currentGroup.orgName || (orgId === 'org-msa-001' ? 'Muslim Student Association' : 'CCS Student Council');
+                const orgName = currentGroup.orgName || (orgId === 'org-msa-001' ? 'Muslim Student Association' : orgId === 'org-dean-office-001' ? "Dean's Office — CCS" : 'CCS Student Council');
 
             const payment = {
                 id: `payment-${Date.now()}`,

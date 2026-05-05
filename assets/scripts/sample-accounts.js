@@ -63,6 +63,28 @@ window.SAMPLE_ACCOUNTS = [
     }
   },
   {
+    id: "org-dean-office-001",
+    name: "Mara Celestino",
+    studentId: "TY202500530",
+    email: "deanfinance@demo.com",
+    password: "123456",
+    role: "organization",
+    organization: "Dean's Office — CCS",
+    shortName: "Dean's Office",
+    academicYear: "S.Y. 2025-2026",
+    semester: "2nd Semester",
+    course: "BS Computer Science",
+    year: "4th Year",
+    section: "CS 4-A",
+    permissions: {
+      studentView: true,
+      organizationView: true,
+      adminView: false,
+      facultyView: false,
+      deanView: false
+    }
+  },
+  {
     id: "u-admin-001",
     name: "Bryan Admin",
     studentId: "TY202500102",
@@ -233,6 +255,13 @@ window.SAMPLE_PAYMENT_ACCOUNTS = {
         isActive: true
       }
     ]
+  },
+  'org-dean-office-001': {
+    orgId: 'org-dean-office-001',
+    accounts: [
+      { id: 'acct-dean-cash',     type: 'Cash',     name: "Dean's Office CCS", number: '',            isActive: true },
+      { id: 'acct-dean-landbank', type: 'Landbank', name: "Dean's Office CCS", number: '1234-5678-91', isActive: true }
+    ]
   }
 };
 
@@ -281,7 +310,7 @@ window.SAMPLE_ORGANIZATION_FEES = [
     isActive: true,
     feeType: 'mandatory',
     appliesTo: 'all',
-    orgId: 'u-org-001'
+    orgId: 'org-dean-office-001'
   }
 ];
 

@@ -211,8 +211,10 @@
 
         function initializePageForOrg() {
             const orgId = getCurrentOrgId();
-            const dashboardTitle = orgId === 'org-msa-001' 
-                ? 'Muslim Student Association Dashboard' 
+            const dashboardTitle = orgId === 'org-msa-001'
+                ? 'Muslim Student Association Dashboard'
+                : orgId === 'org-dean-office-001'
+                ? "Dean's Office Dashboard"
                 : 'CCS Student Council Dashboard';
             const headerElement = document.querySelector('.dashboard-title');
             if (headerElement) {
@@ -232,7 +234,7 @@
         function defaultFees() {
             return [
                 { id: 'fee-default-csc', name: 'CSC Fee', amount: 200, appliesTo: 'all', isActive: true, orgId: 'u-org-001' },
-                { id: 'fee-default-misc', name: 'Miscellaneous fee', amount: 60, appliesTo: 'all', isActive: true, orgId: 'u-org-001' },
+                { id: 'fee-default-misc', name: 'Miscellaneous fee', amount: 60, appliesTo: 'all', isActive: true, orgId: 'org-dean-office-001' },
                 { id: 'fee-default-msa', name: 'MSA Fee', amount: 50, appliesTo: 'Muslim', isActive: true, orgId: 'org-msa-001' },
                 { id: 'fee-default-insurance', name: 'Insurance (Whole Year)', amount: 100, appliesTo: 'all', isActive: true, orgId: 'u-org-001' }
             ];

@@ -131,7 +131,9 @@ window.SemesterManager = {
             status: 'inactive',
             startDate: data.startDate,
             endDate: data.endDate,
+            paymentStartDate: data.paymentStartDate || data.startDate,
             paymentDeadline: data.paymentDeadline || data.startDate,
+            gracePeriodDays: data.gracePeriodDays || 7,
             autoStartDate: data.autoStartDate || null,
             autoStartEnabled: data.autoStartEnabled || false,
             createdDate: new Date().toISOString(),
@@ -154,7 +156,7 @@ window.SemesterManager = {
         if (!semester) return false;
 
         // Update allowed fields
-        const updatableFields = ['name', 'startDate', 'endDate', 'paymentDeadline', 'description', 'autoStartDate', 'autoStartEnabled'];
+        const updatableFields = ['name', 'startDate', 'endDate', 'paymentStartDate', 'paymentDeadline', 'gracePeriodDays', 'description', 'autoStartDate', 'autoStartEnabled'];
         updatableFields.forEach(field => {
             if (data[field] !== undefined) {
                 semester[field] = data[field];

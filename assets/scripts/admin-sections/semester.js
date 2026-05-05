@@ -135,8 +135,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         <input id="ns-end" type="date">
                     </div>
                     <div class="form-group">
+                        <label>Payment Window Start Date *</label>
+                        <input id="ns-payment-start" type="date">
+                    </div>
+                    <div class="form-group">
                         <label>Payment Deadline *</label>
                         <input id="ns-payment" type="date">
+                    </div>
+                    <div class="form-group">
+                        <label>Payment Grace Period (Days)</label>
+                        <input id="ns-grace-period" type="number" min="0" max="30" value="7" placeholder="e.g. 7">
                     </div>
                     <div class="form-group">
                         <label>Description</label>
@@ -188,12 +196,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const name = document.getElementById('ns-name').value.trim();
             const start = document.getElementById('ns-start').value;
             const end = document.getElementById('ns-end').value;
+            const paymentStart = document.getElementById('ns-payment-start').value;
             const payment = document.getElementById('ns-payment').value;
+            const gracePeriod = parseInt(document.getElementById('ns-grace-period').value) || 7;
             const autoEnabled = document.getElementById('ns-auto').checked;
             const autoDate = document.getElementById('ns-auto-date').value;
             const desc = document.getElementById('ns-desc').value.trim();
 
-            if (!year || !name || !start || !end || !payment) {
+            if (!year || !name || !start || !end || !paymentStart || !payment) {
                 showToast('Please fill in all required fields.', true);
                 return;
             }
@@ -208,7 +218,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 name: name,
                 startDate: start,
                 endDate: end,
+                paymentStartDate: paymentStart,
                 paymentDeadline: payment,
+                gracePeriodDays: gracePeriod,
                 autoStartEnabled: autoEnabled,
                 autoStartDate: autoEnabled ? autoDate : null,
                 description: desc
@@ -220,7 +232,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('ns-name').value = '';
                 document.getElementById('ns-start').value = '';
                 document.getElementById('ns-end').value = '';
+                document.getElementById('ns-payment-start').value = '';
                 document.getElementById('ns-payment').value = '';
+                document.getElementById('ns-grace-period').value = '7';
                 document.getElementById('ns-desc').value = '';
                 document.getElementById('ns-auto').checked = false;
                 document.getElementById('ns-auto-date').value = '';

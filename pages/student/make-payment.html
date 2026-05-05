@@ -500,7 +500,7 @@
                 if (!groupMap.has(orgId)) {
                     const group = {
                         orgId: orgId,
-                        orgName: orgId === 'org-msa-001' ? 'Muslim Student Association' : 'CCS Student Council',
+                        orgName: orgId === 'org-msa-001' ? 'Muslim Student Association' : orgId === 'org-dean-office-001' ? "Dean's Office — CCS" : 'CCS Student Council',
                         fees: [],
                         total: 0
                     };

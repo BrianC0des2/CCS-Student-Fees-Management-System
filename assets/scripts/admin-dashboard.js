@@ -38,21 +38,17 @@ const bxi = (name, extra = '') =>
 ══════════════════════════════ */
 
 const ROLE_LABELS = {
-    professor:       'Professor',
-    dept_head:       'Department Head',
-    adviser:         'Class Adviser',
-    coordinator:     'Student Affairs Coordinator',
-    dean:            'College Dean',
-    finance_officer: 'Finance Officer',
+    dept_head:    'Department Head',
+    adviser:      'Class Adviser',
+    coordinator:  'Student Affairs Coordinator',
+    dean:         'College Dean',
 };
 
 const ROLE_BADGE_CLASS = {
-    professor:       'badge-blue',
-    dept_head:       'badge-purple',
-    adviser:         'badge-green',
-    coordinator:     'badge-amber',
-    dean:            'badge-red',
-    finance_officer: 'badge-indigo',
+    dept_head:    'badge-purple',
+    adviser:      'badge-green',
+    coordinator:  'badge-amber',
+    dean:         'badge-red',
 };
 
 const ALL_PERMISSIONS = [
@@ -108,6 +104,7 @@ let studentList = [
 let organizationList = [
     { id: 'u-org-001',   name: 'CCS Student Council',        abbreviation: 'CSC',    description: 'College Student Council',        head: 'u-org-001',   pendingHandover: null, createdAt: '2026-01-15T08:00:00.000Z' },
     { id: 'org-msa-001', name: 'Muslim Student Association', abbreviation: 'MSA',    description: 'Muslim Student Association',      head: 'org-msa-001', pendingHandover: null, createdAt: '2026-01-15T08:00:00.000Z' },
+    { id: 'org-dean-office-001', name: "Dean's Office — CCS", abbreviation: 'DO', description: "Dean's Office Finance", head: 'org-dean-office-001', pendingHandover: null, createdAt: '2026-01-15T08:00:00.000Z' },
     { id: 'phiccs',      name: 'PHICCS',                     abbreviation: 'PHICCS', description: 'Philippine ICT Students Society', head: '',            pendingHandover: null, createdAt: '2026-01-15T08:00:00.000Z' },
     { id: 'venom',       name: 'Venom Publication',          abbreviation: 'VP',     description: 'CCS Official Publication',        head: '',            pendingHandover: null, createdAt: '2026-01-15T08:00:00.000Z' },
     { id: 'gender_club', name: 'CSC Gender Club',            abbreviation: 'GC',     description: 'CSC Gender Club',                 head: '',            pendingHandover: null, createdAt: '2026-01-15T08:00:00.000Z' },
@@ -154,8 +151,6 @@ const auditLogs = [
 
 const systemSettings = {
     systemName:             'WMSU CCS Student Fees Management System',
-    academicYear:           '2025–2026',
-    semester:               '2nd Semester',
     paymentGracePeriod:     7,
     emailNotifications:     true,
     smsNotifications:       false,
@@ -169,9 +164,9 @@ const systemSettings = {
 // Initialize semester data if not exists
 if (!window.semesterList) {
     window.semesterList = [
-        { id: 'SEM-001', schoolYear: '2025-2026', name: '1st Semester', status: 'active', startDate: '2025-08-01', endDate: '2025-12-20', paymentDeadline: '2025-09-15', autoStartEnabled: false, autoStartDate: null, createdDate: '2025-06-01', description: 'First semester of academic year 2025-2026' },
-        { id: 'SEM-002', schoolYear: '2025-2026', name: '2nd Semester', status: 'inactive', startDate: '2026-01-06', endDate: '2026-05-31', paymentDeadline: '2026-02-15', autoStartEnabled: false, autoStartDate: null, createdDate: '2025-06-01', description: 'Second semester of academic year 2025-2026' },
-        { id: 'SEM-003', schoolYear: '2026-2027', name: '1st Semester', status: 'inactive', startDate: '2026-08-01', endDate: '2026-12-20', paymentDeadline: '2026-09-15', autoStartEnabled: true, autoStartDate: '2026-08-01', createdDate: '2025-06-01', description: 'First semester of academic year 2026-2027' },
+        { id: 'SEM-001', schoolYear: '2025-2026', name: '1st Semester', status: 'active', startDate: '2025-08-01', endDate: '2025-12-20', paymentDeadline: '2025-09-15', autoStartEnabled: false, autoStartDate: null, createdDate: '2025-06-01', description: 'First semester of academic year 2025-2026', gracePeriodDays: 7 },
+        { id: 'SEM-002', schoolYear: '2025-2026', name: '2nd Semester', status: 'inactive', startDate: '2026-01-06', endDate: '2026-05-31', paymentDeadline: '2026-02-15', autoStartEnabled: false, autoStartDate: null, createdDate: '2025-06-01', description: 'Second semester of academic year 2025-2026', gracePeriodDays: 7 },
+        { id: 'SEM-003', schoolYear: '2026-2027', name: '1st Semester', status: 'inactive', startDate: '2026-08-01', endDate: '2026-12-20', paymentDeadline: '2026-09-15', autoStartEnabled: true, autoStartDate: '2026-08-01', createdDate: '2025-06-01', description: 'First semester of academic year 2026-2027', gracePeriodDays: 7 },
     ];
     localStorage.setItem('ccs.semesters', JSON.stringify(window.semesterList));
 }
@@ -424,6 +419,7 @@ let newFacultyData = {
     lastName: '',
     firstName: '',
     middleName: '',
+    suffix: '',
     email: '',
     phone: '',
     sex: 'M',
@@ -650,7 +646,7 @@ function renderFaculty() {
                 </div>
                 <div class="form-group">
                     <label>Suffix (Optional)</label>
-                    <input id="nf-suffix" value="${newFacultyData.suffix}" placeholder="e.g. PhD., MIT, Jr.">
+                    <input id="nf-suffix" value="${newFacultyData.suffix || ''}" placeholder="e.g. PhD., MIT, Jr.">
                 </div>
                 <div class="form-group" style="grid-column: 1 / -1;">
                     <label>Roles * (select at least one)</label>
@@ -817,10 +813,18 @@ function renderFaculty() {
         showAddFacultyForm = true; renderFaculty();
     });
     document.getElementById('close-add-faculty')?.addEventListener('click', () => {
-        showAddFacultyForm = false; renderFaculty();
+        showAddFacultyForm = false;
+        document.getElementById('custom-role-input').value = '';
+        document.getElementById('add-role-form').style.display = 'none';
+        document.getElementById('btn-add-role').style.display = 'block';
+        renderFaculty();
     });
     document.getElementById('cancel-add-faculty')?.addEventListener('click', () => {
-        showAddFacultyForm = false; renderFaculty();
+        showAddFacultyForm = false;
+        document.getElementById('custom-role-input').value = '';
+        document.getElementById('add-role-form').style.display = 'none';
+        document.getElementById('btn-add-role').style.display = 'block';
+        renderFaculty();
     });
     document.getElementById('nf-id')?.addEventListener('input', e => {
         const generated = facultyEmailFromId(e.target.value.trim());
@@ -864,7 +868,7 @@ function renderFaculty() {
         }
 
         const roleId = roleName.toLowerCase().replace(/\s+/g, '_');
-        if (ROLE_LABELS[roleId]) {
+        if (Object.prototype.hasOwnProperty.call(ROLE_LABELS, roleId)) {
             showToast('This role already exists.', true);
             return;
         }
@@ -964,12 +968,15 @@ function renderFaculty() {
             lastName: '',
             firstName: '',
             middleName: '',
+            suffix: '',
             email: '',
             phone: '',
             sex: 'M',
             roles: [],
             department: 'BS Computer Science'
         };
+        document.getElementById('custom-role-input').value = '';
+        document.getElementById('add-role-form').style.display = 'none';
         showToast('Faculty member ' + name + ' added.');
         renderFaculty();
     });
@@ -2213,18 +2220,6 @@ function renderSystem() {
                     <input id="sys-name" value="${systemSettings.systemName}">
                 </div>
                 <div class="form-group">
-                    <label>Academic Year</label>
-                    <input id="sys-year" value="${systemSettings.academicYear}">
-                </div>
-                <div class="form-group">
-                    <label>Current Semester</label>
-                    <select id="sys-sem">
-                        <option${systemSettings.semester === '1st Semester' ? ' selected' : ''}>1st Semester</option>
-                        <option${systemSettings.semester === '2nd Semester' ? ' selected' : ''}>2nd Semester</option>
-                        <option${systemSettings.semester === 'Summer'       ? ' selected' : ''}>Summer</option>
-                    </select>
-                </div>
-                <div class="form-group">
                     <label>Payment Grace Period (days)</label>
                     <input id="sys-grace" type="number" value="${systemSettings.paymentGracePeriod}">
                 </div>
@@ -2309,8 +2304,6 @@ function renderSystem() {
     }));
     document.getElementById('save-system-btn')?.addEventListener('click', () => {
         systemSettings.systemName         = document.getElementById('sys-name').value;
-        systemSettings.academicYear       = document.getElementById('sys-year').value;
-        systemSettings.semester           = document.getElementById('sys-sem').value;
         systemSettings.paymentGracePeriod = parseInt(document.getElementById('sys-grace').value) || 7;
         showToast('System settings saved successfully.');
     });
@@ -2461,6 +2454,10 @@ function renderSemester() {
                     <input id="ns-payment" type="date">
                 </div>
                 <div class="form-group">
+                    <label>Payment Grace Period (Days)</label>
+                    <input id="ns-grace" type="number" value="7" min="0" max="30">
+                </div>
+                <div class="form-group">
                     <label>Description</label>
                     <input id="ns-desc" placeholder="e.g. First semester of AY 2026-2027">
                 </div>
@@ -2512,6 +2509,7 @@ function renderSemester() {
         const start = document.getElementById('ns-start').value;
         const end = document.getElementById('ns-end').value;
         const payment = document.getElementById('ns-payment').value;
+        const grace = parseInt(document.getElementById('ns-grace').value) || 7;
         const autoEnabled = document.getElementById('ns-auto').checked;
         const autoDate = document.getElementById('ns-auto-date').value;
         const desc = document.getElementById('ns-desc').value.trim();
@@ -2534,7 +2532,8 @@ function renderSemester() {
             paymentDeadline: payment,
             autoStartEnabled: autoEnabled,
             autoStartDate: autoEnabled ? autoDate : null,
-            description: desc
+            description: desc,
+            gracePeriodDays: grace
         });
 
         if (result) {
@@ -2544,6 +2543,7 @@ function renderSemester() {
             document.getElementById('ns-start').value = '';
             document.getElementById('ns-end').value = '';
             document.getElementById('ns-payment').value = '';
+            document.getElementById('ns-grace').value = '7';
             document.getElementById('ns-desc').value = '';
             document.getElementById('ns-auto').checked = false;
             document.getElementById('ns-auto-date').value = '';

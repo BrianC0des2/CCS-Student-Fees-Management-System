@@ -276,7 +276,7 @@
             if (!groupMap.has(orgId)) {
                 const group = {
                     orgId: orgId,
-                    orgName: orgId === 'org-msa-001' ? 'Muslim Student Association' : 'CCS Student Council',
+                    orgName: orgId === 'org-msa-001' ? 'Muslim Student Association' : orgId === 'org-dean-office-001' ? "Dean's Office — CCS" : 'CCS Student Council',
                     fees: [],
                     total: 0
                 };
@@ -332,7 +332,7 @@
     const orgAccounts = window.CCSPaymentAccounts && typeof window.CCSPaymentAccounts.getPaymentAccountsForOrg === 'function'
         ? window.CCSPaymentAccounts.getPaymentAccountsForOrg(selectedOrgId).filter(account => account.isActive !== false)
         : [];
-    const orgName = currentGroup.orgName || (orgAccounts[0] && orgAccounts[0].name ? orgAccounts[0].name : (selectedOrgId === 'org-msa-001' ? 'Muslim Student Association' : 'CCS Student Council'));
+    const orgName = currentGroup.orgName || (orgAccounts[0] && orgAccounts[0].name ? orgAccounts[0].name : (selectedOrgId === 'org-msa-001' ? 'Muslim Student Association' : selectedOrgId === 'org-dean-office-001' ? "Dean's Office — CCS" : 'CCS Student Council'));
 
     function getShortFeeName(feeName) {
         const normalized = String(feeName || '').toLowerCase();

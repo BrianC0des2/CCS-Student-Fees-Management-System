@@ -343,14 +343,6 @@
                         <textarea id="promissoryReason" rows="4" placeholder="Explain your reason for requesting a promissory note"></textarea>
                     </div>
                     <div class="promissory-form-group">
-                        <label for="promissoryPartialAmount">How much can you pay now? (optional)</label>
-                        <div class="input-prefix promissory-input-prefix">
-                            <span>₱</span>
-                            <input type="number" id="promissoryPartialAmount" min="0" step="0.01" placeholder="" oninput="if(this.value !== '' && Number(this.value) <= 0) this.value = '';">
-                        </div>
-                        <p style="font-size:12px; color:#5a7a66; margin-top:4px; line-height:1.4;">Leave empty if you cannot pay any amount at this time. If filled, this becomes your committed payment amount.</p>
-                    </div>
-                    <div class="promissory-form-group">
                         <label for="promissoryDate">Promised Payment Date <span class="required">*</span></label>
                         <input type="date" id="promissoryDate">
                     </div>
@@ -870,7 +862,6 @@
                     if (!selectedFee) return;
                     document.getElementById('promissoryFeeName').value = selectedFee.feeName;
                     document.getElementById('promissoryReason').value = '';
-                    document.getElementById('promissoryPartialAmount').value = '';
                     document.getElementById('promissoryDate').value = '';
 
                     // Set min date to today and max date to semester end date
@@ -909,16 +900,9 @@
 
                     const reason = document.getElementById('promissoryReason').value.trim();
                     const promisedDate = document.getElementById('promissoryDate').value;
-                    const partialRaw = document.getElementById('promissoryPartialAmount').value;
-                    const partialAmount = partialRaw === '' ? null : Number(partialRaw);
 
                     if (!reason || !promisedDate) {
                         alert('Please complete the required fields.');
-                        return;
-                    }
-
-                    if (partialAmount !== null && (Number.isNaN(partialAmount) || partialAmount < 0)) {
-                        alert('Please enter a valid partial payment amount.');
                         return;
                     }
 
