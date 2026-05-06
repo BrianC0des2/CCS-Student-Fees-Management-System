@@ -1,0 +1,159 @@
+.row-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.edit-btn {
+    background: #2e7d52;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.edit-btn:hover {
+    background: #1a5c3a;
+}
+.void-btn {
+    background: #d32f2f;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.void-btn:hover {
+    background: #b71c1c;
+}
+.voided-badge {
+    background: #e0e0e0;
+    color: #757575;
+    border-radius: 12px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: default;
+    display: inline-block;
+}
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+.modal-overlay.active {
+    display: flex;
+}
+.modal-card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    width: 90%;
+    max-width: 500px;
+}
+.modal-card h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #1a2420;
+    font-size: 16px;
+}
+.form-group {
+    margin-bottom: 15px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #5a7a66;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.form-group input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d4e2d8;
+    border-radius: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+    outline: none;
+}
+.form-group input:focus {
+    border-color: #2e7d52;
+}
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
+}
+.success-message {
+    display: none;
+    padding: 12px 20px;
+    background-color: #2e7d52;
+    color: white;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 13px;
+    font-weight: 500;
+}
+.success-message.active {
+    display: block;
+}
+.confirm-void-btn {
+    background: #d32f2f;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.confirm-void-btn:hover {
+    background: #b71c1c;
+}
+@media print {
+    .home-content,
+    .search-filter,
+    .success-message,
+    #saveExpenseReportBtn,
+    .edit-btn,
+    .void-btn,
+    .voided-badge,
+    #sidebar-container,
+    .bx-menu {
+        display: none !important;
+    }
+    .members-table {
+        margin-top: 20px;
+    }
+    .print-header {
+        display: block !important;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .print-header h1 {
+        margin: 0;
+        color: #333;
+    }
+    .print-header p {
+        margin: 5px 0;
+        color: #666;
+    }
+    .summary-cards {
+        break-inside: avoid;
+    }
+}
+.print-header { display: none; }

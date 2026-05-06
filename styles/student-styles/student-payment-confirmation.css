@@ -1,0 +1,109 @@
+.payment-popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(18, 26, 22, 0.58);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 2000;
+}
+.payment-popup-overlay.show {
+    display: flex;
+}
+.payment-popup-card {
+    width: min(100%, 560px);
+    background: #ffffff;
+    border-radius: 20px;
+    border: 1px solid #d4e2d8;
+    box-shadow: 0 24px 80px rgba(16, 24, 20, 0.24);
+    overflow: hidden;
+}
+.payment-popup-header {
+    padding: 22px 24px 16px;
+    border-bottom: 1px solid #edf3ef;
+}
+.payment-popup-header h3 {
+    margin: 0 0 8px;
+    font-size: 24px;
+    color: #1a2420;
+}
+.payment-popup-header p {
+    margin: 0;
+    color: #5a7a66;
+    font-size: 14px;
+}
+.payment-popup-body {
+    padding: 20px 24px 24px;
+}
+.payment-popup-ref {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: #f0fdf4;
+    color: #2e7d52;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+.payment-popup-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+.payment-popup-item {
+    padding: 14px;
+    border: 1px solid #edf3ef;
+    border-radius: 14px;
+    background: #fbfdfb;
+}
+.payment-popup-label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #5a7a66;
+    margin-bottom: 6px;
+    font-weight: 700;
+}
+.payment-popup-value {
+    color: #1a2420;
+    font-size: 14px;
+    font-weight: 700;
+}
+.payment-popup-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: #fff4e5;
+    color: #b45309;
+    font-size: 12px;
+    font-weight: 800;
+    margin-top: 16px;
+}
+.payment-popup-note {
+    margin: 14px 0 0;
+    color: #5a7a66;
+    line-height: 1.5;
+    font-size: 13px;
+}
+.payment-popup-actions {
+    display: flex;
+    gap: 12px;
+    padding: 0 24px 24px;
+    flex-wrap: wrap;
+}
+.payment-popup-actions .continue-btn,
+.payment-popup-actions .back-btn {
+    flex: 1 1 220px;
+    text-align: center;
+}
+@media (max-width: 640px) {
+    .payment-popup-grid {
+        grid-template-columns: 1fr;
+    }
+}

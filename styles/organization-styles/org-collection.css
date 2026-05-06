@@ -1,0 +1,121 @@
+.denomination-input {
+    width: 80px;
+    padding: 8px;
+    border: 1px solid #d4e2d8;
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: center;
+}
+.denomination-input:focus {
+    outline: none;
+    border-color: #2e7d52;
+}
+.total-row {
+    font-weight: bold;
+    color: #2e7d52;
+    font-size: 16px;
+    border-top: 2px solid #2e7d52;
+}
+.comparison-section {
+    background: white;
+    padding: 20px;
+    border-radius: 0 0 12px 12px;
+    border-top: 1px solid #d4e2d8;
+}
+.comparison-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #d4e2d8;
+}
+.comparison-row:last-child {
+    border-bottom: none;
+}
+.comparison-label {
+    font-weight: 500;
+    color: #5a7a66;
+    font-size: 13px;
+}
+.comparison-value {
+    font-weight: 600;
+    color: #1a2420;
+    font-size: 13px;
+}
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 10px;
+}
+.status-matched {
+    background: #e8f5e8;
+    color: #2e7d32;
+}
+.status-discrepancy {
+    background: #fff3e0;
+    color: #f57c00;
+}
+.button-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+.success-summary {
+    display: none;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #d4e2d8;
+    border-left: 4px solid #2e7d52;
+    margin-top: 20px;
+}
+.success-summary.active {
+    display: block;
+}
+.success-summary h3 {
+    color: #2e7d52;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 15px;
+}
+.success-summary p {
+    margin: 5px 0;
+    color: #5a7a66;
+    font-size: 13px;
+}
+@media print {
+    .home-content,
+    .bx-menu,
+    #sidebar-container,
+    .button-row,
+    .denomination-input,
+    .summary-cards,
+    .comparison-section {
+        display: none !important;
+    }
+    .print-header {
+        display: block !important;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .print-header h1 { margin: 0; color: #333; }
+    .print-header p { margin: 5px 0; color: #666; }
+    .members-table { margin-top: 20px; }
+    table td:nth-child(2) { text-align: center; }
+    .print-total-value { display: inline !important; }
+    .print-summary {
+        display: block !important;
+        margin-top: 30px;
+        padding: 15px;
+        border: 2px solid #333;
+        border-radius: 8px;
+    }
+    .print-summary h3 { margin-top: 0; }
+}
+.print-header { display: none; }
+.print-total-value { display: none; }
+.print-summary { display: none; }
