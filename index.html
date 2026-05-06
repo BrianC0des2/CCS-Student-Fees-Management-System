@@ -3,298 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles/login-style.css">
+    <link rel="stylesheet" href="/styles/landing-page.css">
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-    <style>
-    </style>
-    <title>Pay++</title>
+    <title>Pay++ — CCS Student Fees</title>
 </head>
 <body>
 
-    <div class="login-form">
-        <form id="login-form">
-            <!--? User Inputs-->
-            <div id="welcome-msg">
-                <p>Welcome to Pay++</p>
-                <h1>Login</h1><br><br>
-            </div>
-            <label class="user-inputs" for="user-email" >School Email Address</label>
-            <input type="email" name="user-email" id="user-email" placeholder="@wmsu.edu.ph"><br/>
+    <!-- NAV -->
+    <nav>
+        <a id="logo-name" href="index.html">
+            <img src="assets/images/pyt.png" alt="Pay++ Logo">
+        </a>
+        <div class="outer-nav">
+            <ul id="inner-nav">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+        <div class="nav-actions">
+            <a href="login.html"><button class="btn-ghost">Sign In</button></a>
+            <a href="signup.html"><button class="btn-solid">Sign Up</button></a>
+        </div>
+    </nav>
+
+
+        <!-- HERO -->
+        <section id="home" class="hero-section">
+            <div class="hero-bg"></div>
+            <div class="hero-inner">
+                <div class="hero-left">
+                    <span class="hero-badge"><i class='bx bx-shield-check'></i> Official CCS Payment Portal</span>
+                    <h1>Student Fees,<br><span class="hero-accent">Simplified.</span></h1>
+                    <p class="hero-sub">Pay++  is the smart, secure, and seamless way to manage student fees at CCS. Track balances, submit payments, and get cleared — all in one place.</p>
+                    <div class="hero-cta">
+                        <a href="signup.html"><button class="cta-primary">Get Started <i class='bx bx-right-arrow-alt'></i></button></a>
+                        <a href="#how-it-works"><button class="cta-secondary">See How It Works</button></a>
+                    </div>
+                    <div class="hero-trust">
+                        <span><i class='bx bx-check-circle'></i> Free to use</span>
+                        <span><i class='bx bx-check-circle'></i> Instant receipts</span>
+                        <span><i class='bx bx-check-circle'></i> Secure transactions</span>
+                    </div>
+                </div>
             
-            <label class="user-inputs" for="user-password">Password</label>
-                 <div style="position:relative; width:100%;">
-                <input type="password" name="user-password" 
-                       id="user-password" placeholder="password"
-                      style="width:100%; 
-                          padding-right:44px;
-                          box-sizing:border-box;
-                          display:block;">
-                <button type="button" id="togglePassword"
-                        style="position:absolute;
-                               right:12px;
-                               top:50%;
-                               transform:translateY(-50%);
-                               background:none;
-                               border:none;
-                               cursor:pointer;
-                               color:#2e7d52;
-                               font-size:20px;
-                               display:flex;
-                               align-items:center;
-                               padding:0;">
-                    <i class='bx bx-hide'></i>
-                </button>
             </div>
-            <div id="forgot">
-                <a href="#" id="forgot-password-link">Forgot Password?</a><br>
+        </section>
+
+        <!-- STATS STRIP -->
+        <div class="stats-strip">
+            <div class="stat-item">
+                <span class="stat-num">500+</span>
+                <span class="stat-label">Students Enrolled</span>
             </div>
-            
-            <input id="submit-btn" type="submit" value="Sign In">
-            <div style="text-align: center; margin-top: 16px; font-size: 12px;">
-                Don't have an account? <a href="signup.html" style="color: var(--first-color); text-decoration: none; font-weight: 600;">Sign Up</a>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-num">4</span>
+                <span class="stat-label">Fee Categories</span>
             </div>
-        </form>
-    </div>
-
-    <div id="forgot-password-overlay" class="fp-overlay" aria-hidden="true">
-        <div class="fp-modal" role="dialog" aria-modal="true" aria-labelledby="fp-title">
-            <button type="button" id="fp-close-btn" class="fp-close" aria-label="Close forgot password modal">&times;</button>
-
-            <div id="forgot-step-1" class="fp-step">
-                <h2 id="fp-title">Forgot Password</h2>
-                <p class="fp-subtitle">Enter your registered email and we'll send you a reset link.</p>
-
-                <label for="reset-email">Email</label>
-                <input type="email" id="reset-email" name="reset-email" placeholder="Enter your email" required>
-                <p id="email-error" style="color: red; font-size: 0.85rem; display: none; margin-top: 4px;">Please enter a valid email address.</p>
-
-                <button type="button" id="send-reset-btn" class="fp-primary-btn">Send Link</button>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-num">100%</span>
+                <span class="stat-label">Digital Receipts</span>
             </div>
-
-            <div id="forgot-step-2" class="fp-step fp-hidden" aria-hidden="true" style="display:none;">
-                <h2>Reset Link Sent!</h2>
-                <p class="fp-subtitle">A password reset link has been sent to your email. Please check your inbox.</p>
-                <button type="button" id="fp-back-btn" class="fp-primary-btn">Back to Login</button>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-num">8-step</span>
+                <span class="stat-label">Clearance Process</span>
             </div>
         </div>
-    </div>
 
-    <button id="reset-demo-data-btn" type="button" style="display: none;" aria-hidden="true" tabindex="-1">Reset Demo Data</button>
+        <!-- ABOUT -->
+        <section id="about" class="about-section">
+            <div class="about-inner">
+                <div class="about-left">
+                    <span class="section-tag">About Pay++</span>
+                    <h2>Built for CCS Students,<br>by the CCS Community</h2>
+                    <p>Pay++ bridges students, faculty, and organizations — making every transaction fast, reliable, and fully traceable. No more long queues, lost receipts, or unclear balances.</p>
+                    <div class="about-features">
+                        <div class="af-item">
+                            <div class="af-icon"><i class='bx bx-lock-alt'></i></div>
+                            <div>
+                                <p class="af-title">Secure Payments</p>
+                                <p class="af-desc">Every transaction is logged and audited in real time.</p>
+                            </div>
+                        </div>
+                        <div class="af-item">
+                            <div class="af-icon"><i class='bx bx-bell'></i></div>
+                            <div> 
+                                <p class="af-title">Due Date Alerts</p>
+                                <p class="af-desc">Never miss a payment deadline again.</p>
+                            </div>
+                        </div>
+                        <div class="af-item">
+                            <div class="af-icon"><i class='bx bx-file'></i></div>
+                            <div>
+                                <p class="af-title">Instant Clearance</p>
+                                <p class="af-desc">Track your clearance status across all signatories.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-right">
+                    <div class="about-visual">
+                        <div class="av-card av-card-1">
+                            <i class='bx bx-trending-up'></i>
+                            <div>
+                                <p class="av-title">Collection Rate</p>
+                                <p class="av-val">94.2%</p>
+                            </div>
+                        </div>
+                        <div class="av-card av-card-2">
+                            <i class='bx bx-receipt'></i>
+                            <div>
+                                <p class="av-title">Receipts Issued</p>
+                                <p class="av-val">1,240+</p>
+                            </div>
+                        </div>
+                        <div class="av-card av-card-3">
+                            <i class='bx bx-user-check'></i>
+                            <div>
+                                <p class="av-title">Cleared Students</p>
+                                <p class="av-val">87%</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-    <script src="assets/scripts/sample-accounts.js"></script>
-    <script src="assets/scripts/auth.js"></script>
-    <script src="assets/scripts/script.js"></script>
-    <script>
-        (function () {
-            function getDashboardPath(user) {
-                if (!user || !user.permissions) return 'pages/student/student-dashboard.html';
-                if (user.permissions.deanView) return 'pages/dean/dean-dashboard.html';
-                if (user.permissions.facultyView) return 'pages/faculty/faculty-dashboard.html';
-                if (user.permissions.adminView) return 'pages/admin/admin-dashboard.html';
-                if (user.permissions.organizationView) return 'pages/organization/organization-dashboard.html';
-                return 'pages/student/student-dashboard.html';
-            }
+        <!-- HOW IT WORKS -->
+        <section id="how-it-works" class="how-section">
+            <div class="how-inner">
+                <div class="how-header">
+                    <span class="section-tag">The Process</span>
+                    <h2>How It Works</h2>
+                    <p>Four simple steps from sign-up to clearance.</p>
+                </div>
+                <div class="how-steps">
+                    <div class="how-card">
+                        <div class="how-num">01</div>
+                        <div class="how-icon"><i class='bx bx-user-plus'></i></div>
+                        <h3>Sign Up</h3>
+                        <p>Register with your <strong>@wmsu.edu.ph</strong> email. Your professor verifies your section before access is granted.</p>
+                    </div>
+                    <div class="how-connector"><i class='bx bx-right-arrow-alt'></i></div>
+                    <div class="how-card">
+                        <div class="how-num">02</div>
+                        <div class="how-icon"><i class='bx bx-copy'></i></div>
+                        <h3>View Your Fees</h3>
+                        <p>See all outstanding balances, due dates, and payment history on your personal dashboard.</p>
+                    </div>
+                    <div class="how-connector"><i class='bx bx-right-arrow-alt'></i></div>
+                    <div class="how-card">
+                        <div class="how-num">03</div>
+                        <div class="how-icon"><i class='bx bx-credit-card'></i></div>
+                        <h3>Make Payment</h3>
+                        <p>Pay via cash or online. Get a reference code and a digital receipt instantly upon confirmation.</p>
+                    </div>
+                    <div class="how-connector"><i class='bx bx-right-arrow-alt'></i></div>
+                    <div class="how-card">
+                        <div class="how-num">04</div>
+                        <div class="how-icon"><i class='bx bx-check-shield'></i></div>
+                        <h3>Get Cleared</h3>
+                        <p>Track your 8-step clearance in real time. Know exactly which signatory still needs to sign off.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-            function appPath(targetPath) {
-                var isInsidePagesDir = window.location.pathname.indexOf('/pages/') !== -1;
-                if (!isInsidePagesDir) return targetPath;
-                return '../../' + targetPath;
-            }
+    </main>
 
-            function navigateTo(targetPath) {
-                window.location.replace(appPath(targetPath));
-            }
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <a id="footer-logo" href="index.html">
+                    <img src="assets/images/pyt.png" alt="Pay++ Logo">
+                </a>
+                <p>The official student fees management system of the College of Computing Studies.</p>
+                <div class="footer-socials">
+                    <a href="#"><i class='bx bxl-facebook'></i></a>
+                    <a href="#"><i class='bx bxl-twitter'></i></a>
+                    <a href="#"><i class='bx bxs-envelope'></i></a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#how-it-works">How It Works</a></li>
+                    <li><a href="login.html">Sign In</a></li>
+                    <li><a href="signup.html">Sign Up</a></li>
+                </ul>
+            </div>
+            <div id="contact" class="footer-contact">
+                <h4>Contact</h4>
+                <ul>
+                    <li><i class='bx bxs-envelope'></i> <a href="mailto:support@payplusplus.com">support@payplusplus.com</a></li>
+                    <li><i class='bx bxs-phone'></i> (012) 345-6789</li>
+                    <li><i class='bx bxs-map'></i> CCS Main Campus, Room 101</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Pay++. All rights reserved. Western Mindanao State University — CCS.</p>
+        </div>
+    </footer>
 
-            var loginForm = document.getElementById('login-form');
-            if (!loginForm) return;
-
-            var forgotLink = document.getElementById('forgot-password-link');
-            var forgotOverlay = document.getElementById('forgot-password-overlay');
-            var forgotCloseBtn = document.getElementById('fp-close-btn');
-            var forgotSendBtn = document.getElementById('send-reset-btn');
-            var forgotBackBtn = document.getElementById('fp-back-btn');
-            var forgotStep1 = document.getElementById('forgot-step-1');
-            var forgotStep2 = document.getElementById('forgot-step-2');
-            var forgotIdentifier = document.getElementById('reset-email');
-            var forgotEmailError = document.getElementById('email-error');
-
-            function resetForgotPasswordModal() {
-                if (!forgotStep1 || !forgotStep2) return;
-                forgotStep1.style.display = 'block';
-                forgotStep2.style.display = 'none';
-                forgotStep1.setAttribute('aria-hidden', 'false');
-                forgotStep2.setAttribute('aria-hidden', 'true');
-                if (forgotEmailError) {
-                    forgotEmailError.style.display = 'none';
-                }
-            }
-
-            function openForgotPasswordModal() {
-                if (!forgotOverlay) return;
-                resetForgotPasswordModal();
-                forgotOverlay.classList.add('is-open');
-                forgotOverlay.setAttribute('aria-hidden', 'false');
-
-                if (forgotIdentifier) {
-                    forgotIdentifier.value = '';
-                    setTimeout(function () {
-                        forgotIdentifier.focus();
-                    }, 40);
-                }
-            }
-
-            function closeForgotPasswordModal() {
-                if (!forgotOverlay) return;
-                forgotOverlay.classList.remove('is-open');
-                forgotOverlay.setAttribute('aria-hidden', 'true');
-                resetForgotPasswordModal();
-            }
-
-            loginForm.addEventListener('submit', function (e) {
-                e.preventDefault();
-                e.stopImmediatePropagation();
-
-                var emailInput = document.getElementById('user-email');
-                var passwordInput = document.getElementById('user-password');
-                var email = emailInput ? emailInput.value.trim() : '';
-                var password = passwordInput ? passwordInput.value.trim() : '';
-
-                if (!email || !password) {
-                    alert('Please enter both email and password');
-                    return;
-                }
-
-                if (!window.Auth) {
-                    alert('Authentication module failed to load. Please refresh and try again.');
-                    return;
-                }
-
-                var result = window.Auth.login(email, password);
-                if (!result.ok) {
-                    alert(result.message);
-                    return;
-                }
-
-                var user = window.Auth.getUser();
-                var dashboardPath = getDashboardPath(user);
-
-                navigateTo(dashboardPath);
-            }, true);
-
-            // Password change flow removed - students login directly without forced password change
-
-            if (forgotLink) {
-                forgotLink.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    openForgotPasswordModal();
-                });
-            }
-
-            if (forgotSendBtn) {
-                forgotSendBtn.addEventListener('click', function () {
-                    var emailInput = document.getElementById('reset-email');
-                    var errorMsg = document.getElementById('email-error');
-
-                    if (!emailInput || !errorMsg) return;
-
-                    if (!emailInput.value || !emailInput.validity.valid) {
-                        errorMsg.style.display = 'block';
-                        return;
-                    }
-
-                    errorMsg.style.display = 'none';
-                    document.getElementById('forgot-step-1').style.display = 'none';
-                    document.getElementById('forgot-step-2').style.display = 'block';
-                    if (forgotStep1) {
-                        forgotStep1.setAttribute('aria-hidden', 'true');
-                    }
-                    forgotStep2.setAttribute('aria-hidden', 'false');
-                });
-            }
-
-            if (forgotCloseBtn) {
-                forgotCloseBtn.addEventListener('click', function () {
-                    closeForgotPasswordModal();
-                });
-            }
-
-            if (forgotBackBtn) {
-                forgotBackBtn.addEventListener('click', function () {
-                    closeForgotPasswordModal();
-                });
-            }
-
-            if (forgotOverlay) {
-                forgotOverlay.addEventListener('click', function (e) {
-                    if (e.target === forgotOverlay) {
-                        closeForgotPasswordModal();
-                    }
-                });
-            }
-        })();
-    </script>
-    <script>
-const togglePassword = document.getElementById(
-    'togglePassword'
-);
-const passwordField = document.getElementById(
-    'user-password'
-);
-const toggleIcon = togglePassword.querySelector('i');
-
-togglePassword.addEventListener('click', function() {
-    if (passwordField.type === 'password') {
-        passwordField.type = 'text';
-        toggleIcon.className = 'bx bx-show';
-    } else {
-        passwordField.type = 'password';
-        toggleIcon.className = 'bx bx-hide';
-    }
-});
-
-(function () {
-    function parseJsonArray(key) {
-        try {
-            const parsed = JSON.parse(localStorage.getItem(key) || '[]');
-            return Array.isArray(parsed) ? parsed : [];
-        } catch (_err) {
-            return [];
-        }
-    }
-
-    function parseJsonObject(key) {
-        try {
-            const parsed = JSON.parse(localStorage.getItem(key) || '{}');
-            return parsed && typeof parsed === 'object' ? parsed : {};
-        } catch (_err) {
-            return {};
-        }
-    }
-
-    function resetDemoData() {
-        // Clear everything in localStorage completely
-        localStorage.clear();
-        
-        // Also clear sessionStorage
-        sessionStorage.clear();
-        
-        // Confirm reset
-        return {
-            ok: true,
-            message: 'Demo data reset complete. Please refresh the page.'
-        };
-    }
-
-    window.resetDemoData = resetDemoData;
-
-    const hiddenResetBtn = document.getElementById('reset-demo-data-btn');
-    if (hiddenResetBtn) {
-        hiddenResetBtn.addEventListener('click', function () {
-            resetDemoData();
-        });
-    }
-})();
-</script>
 </body>
 </html>
  

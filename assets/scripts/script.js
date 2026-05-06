@@ -59,7 +59,7 @@ function isStudentOnlyUser(user) {
 
 function navigateToRoleHome(user) {
   if (!user || !user.permissions) {
-    navigateTo('index.html');
+    navigateTo('login.html');
     return;
   }
 
@@ -222,8 +222,8 @@ if (loginForm) {
 function enforceRouteAccess() {
   if (!window.Auth) return;
 
-  const page = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
-  const isLoginPage = page === 'index.html';
+  const page = (window.location.pathname.split('/').pop() || 'login.html').toLowerCase();
+  const isLoginPage = page === 'login.html';
   const user = window.Auth.getUser();
 
   if (isLoginPage) {
@@ -234,7 +234,7 @@ function enforceRouteAccess() {
   }
 
   if (!user) {
-    navigateTo('index.html');
+    navigateTo('login.html');
     return;
   }
 

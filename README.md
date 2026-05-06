@@ -2,7 +2,7 @@
 
 ## Demo Login Accounts
 
-Use these accounts on `index.html` to test each role/view.
+Use these accounts on `login.html` to test each role/view.
 
 - Student
   - Email: `student1@demo.com`
@@ -26,5 +26,5 @@ Use these accounts on `index.html` to test each role/view.
 
 ## Notes
 
-- Main login page is `index.html`.
+- Main login page is `login.html`.
 - These are demo/sample credentials from `assets/scripts/sample-accounts.js`.
