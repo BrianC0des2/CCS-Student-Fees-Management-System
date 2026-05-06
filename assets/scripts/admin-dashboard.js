@@ -884,8 +884,7 @@ function renderFaculty() {
 
         const container = document.querySelector('.roles-pill-container');
         if (container) {
-            const addSection = document.querySelector('.add-role-section');
-            container.insertBefore(roleCheckbox, addSection);
+            container.appendChild(roleCheckbox);
 
             // Attach event listener to new checkbox
             const newCheckbox = roleCheckbox.querySelector('.nf-role-check');
