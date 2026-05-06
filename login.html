@@ -273,6 +273,7 @@ togglePassword.addEventListener('click', function() {
 
     function resetDemoData() {
         // Clear everything in localStorage completely
+        localStorage.removeItem('ccs.academic.settings');
         localStorage.clear();
         
         // Also clear sessionStorage

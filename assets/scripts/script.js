@@ -698,25 +698,18 @@ function setSchoolYear() {
 
   let yearSemText = '';
 
-  if (window.SemesterManager && typeof window.SemesterManager.getCurrentSemester === 'function') {
-    const current = window.SemesterManager.getCurrentSemester();
-    if (current && current.schoolYear && current.name) {
-      yearSemText = `S.Y. ${current.schoolYear} | ${current.name}`;
+  try {
+    const settings = JSON.parse(localStorage.getItem('ccs.academic.settings') || 'null');
+    if (settings && settings.academicYear && settings.semester) {
+      yearSemText = `S.Y. ${settings.academicYear} | ${settings.semester}`;
     }
-  }
-
-  if (!yearSemText) {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth() + 1;
-    const sem = month >= 6 && month <= 10 ? '1st Semester' : '2nd Semester';
-    const startYear = month >= 6 ? year : year - 1;
-    const endYear = startYear + 1;
-    yearSemText = `S.Y. ${startYear}-${endYear} | ${sem}`;
+  } catch (error) {
+    yearSemText = '';
   }
 
     if (badge) {
         badge.textContent = yearSemText;
+    badge.style.display = yearSemText ? '' : 'none';
     }
 
     if (orgYearSem) {
@@ -724,7 +717,9 @@ function setSchoolYear() {
     }
 
     if (sidebarBadge) {
-        sidebarBadge.innerHTML = `<span class="ay-badge">${yearSemText}</span>`;
+    sidebarBadge.innerHTML = window.SemesterManager && typeof window.SemesterManager.getSemesterSidebarBadgeHTML === 'function'
+      ? window.SemesterManager.getSemesterSidebarBadgeHTML()
+      : '';
     }
 }
 
