@@ -90,6 +90,16 @@ window.SemesterManager = {
 
         // Save changes
         this.saveSemesters();
+        if (current && current.id !== semesterId) {
+            localStorage.removeItem('ccs.academic.settings');
+        }
+        localStorage.setItem('ccs.academic.settings', JSON.stringify({
+            academicYear: semester.schoolYear,
+            semester: semester.name,
+            paymentStartDate: semester.paymentStartDate || null,
+            paymentDeadline: semester.paymentDeadline || null,
+            semesterEndDate: semester.endDate || null
+        }));
         this.logSemesterTransition('MANUAL', current?.id, semesterId);
 
         return true;
@@ -102,11 +112,16 @@ window.SemesterManager = {
         const semester = this.getSemesterById(semesterId);
         if (!semester) return false;
 
+        const wasActive = semester.status === 'active';
+
         semester.status = 'completed';
         semester.completedDate = new Date().toISOString();
         semester.completedBy = window.Auth?.getUser()?.id || 'admin';
 
         this.saveSemesters();
+        if (wasActive) {
+            localStorage.removeItem('ccs.academic.settings');
+        }
         this.logSemesterTransition('COMPLETED', semesterId, null);
 
         return true;
@@ -133,7 +148,6 @@ window.SemesterManager = {
             endDate: data.endDate,
             paymentStartDate: data.paymentStartDate || data.startDate,
             paymentDeadline: data.paymentDeadline || data.startDate,
-            gracePeriodDays: data.gracePeriodDays || 7,
             autoStartDate: data.autoStartDate || null,
             autoStartEnabled: data.autoStartEnabled || false,
             createdDate: new Date().toISOString(),
@@ -156,7 +170,7 @@ window.SemesterManager = {
         if (!semester) return false;
 
         // Update allowed fields
-        const updatableFields = ['name', 'startDate', 'endDate', 'paymentStartDate', 'paymentDeadline', 'gracePeriodDays', 'description', 'autoStartDate', 'autoStartEnabled'];
+        const updatableFields = ['name', 'startDate', 'endDate', 'paymentStartDate', 'paymentDeadline', 'description', 'autoStartDate', 'autoStartEnabled'];
         updatableFields.forEach(field => {
             if (data[field] !== undefined) {
                 semester[field] = data[field];
@@ -232,32 +246,43 @@ window.SemesterManager = {
 
     /**
      * Get semester badge HTML
+     * Returns empty string if no ccs.academic.settings is set (navbar badge should not appear)
      */
     getSemesterBadgeHTML: function() {
-        const current = this.getCurrentSemester();
-        if (!current) {
-            return '<span class="semester-badge semester-badge--inactive">No semester active</span>';
+        try {
+            const raw = localStorage.getItem('ccs.academic.settings');
+            if (!raw) return '';
+            const parsed = JSON.parse(raw);
+            if (!parsed.semester || !parsed.academicYear) {
+                return '';
+            }
+            return `<span class="semester-badge semester-badge--active" title="School Year: ${parsed.academicYear}">
+                ${parsed.semester} (${parsed.academicYear})
+            </span>`;
+        } catch (e) {
+            return '';
         }
-
-        const statusClass = current.status === 'active' ? 'semester-badge--active' : 'semester-badge--inactive';
-        return `<span class="semester-badge ${statusClass}" title="School Year: ${current.schoolYear}">
-            ${current.name} (${current.schoolYear})
-        </span>`;
     },
 
     /**
      * Get semester badge HTML for sidebar
+     * Returns empty string if no ccs.academic.settings is set (navbar badge should not appear)
      */
     getSemesterSidebarBadgeHTML: function() {
-        const current = this.getCurrentSemester();
-        if (!current) {
-            return '<span class="semester-badge semester-badge--inactive">No semester</span>';
+        try {
+            const raw = localStorage.getItem('ccs.academic.settings');
+            if (!raw) return '';
+            const parsed = JSON.parse(raw);
+            if (!parsed.semester || !parsed.academicYear) {
+                return '';
+            }
+            const yearSuffix = parsed.academicYear.split('-')[1];
+            return `<span class="semester-badge semester-badge--active" title="School Year: ${parsed.academicYear}">
+                ${parsed.semester} (${yearSuffix})
+            </span>`;
+        } catch (e) {
+            return '';
         }
-
-        const statusClass = current.status === 'active' ? 'semester-badge--active' : 'semester-badge--inactive';
-        return `<span class="semester-badge ${statusClass}" title="School Year: ${current.schoolYear}, Status: ${current.status}">
-            ${current.name} (${current.schoolYear.split('-')[1]})
-        </span>`;
     },
 
     /**

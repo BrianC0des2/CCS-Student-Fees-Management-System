@@ -107,6 +107,11 @@ function loadSidebar() {
     
     container.innerHTML = sidebarHTML;
 
+    const semBadge = document.getElementById('sidebar-semester-badge');
+    if (semBadge && window.SemesterManager) {
+        semBadge.innerHTML = window.SemesterManager.getSemesterSidebarBadgeHTML();
+    }
+
     applyRoleBasedSidebarAccess();
     
     initializeSidebarEvents();
