@@ -240,6 +240,24 @@
         document.querySelector('.progress-circle-wrapper text').textContent = `${percentage}%`;
     }
 
+    function getPaymentWindowStatus() {
+        try {
+            const raw = localStorage.getItem('ccs.academic.settings');
+            if (!raw) return 'closed';
+            const settings = JSON.parse(raw);
+            if (!settings || !settings.paymentStartDate || !settings.paymentDeadline) return 'closed';
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const start = new Date(settings.paymentStartDate);
+            start.setHours(0, 0, 0, 0);
+            const end = new Date(settings.paymentDeadline);
+            end.setHours(23, 59, 59, 999);
+            if (today >= start && today <= end) return 'open';
+            return 'closed';
+        } catch (e) {
+            return 'closed';
+        }
+    }
 
     function renderOutstandingFees() {
         const user = getCurrentUser();
@@ -394,21 +412,24 @@
             });
 
             // Build buttons/links row based on promissory and payment status
+            const windowStatus = getPaymentWindowStatus();
+            const closedBtn = `<button type="button" disabled style="background:#e5e7eb;color:#9ca3af;padding:8px 16px;border-radius:8px;border:none;cursor:not-allowed;font-size:13px;">Payment Window Closed</button>`;
+            const payNowBtn = `<button type="button" class="pay-now-btn" data-fee-id="${fee.id}" data-fee-name="${fee.name}" data-fee-amount="${fee.amount}" data-org-id="${fee.orgId || 'u-org-001'}">Pay Now</button>`;
+
             let buttonsRow = '';
             if (hasPendingVerification) {
                 // Do nothing - just show the badge
             } else if (isPendingReview) {
                 // Hide Pay Now and Request promissory
-            } else if (isPromissoryApproved || isPromissoryRejected) {
-                // Show Pay Now for approved or rejected
-                if (!paidBadge) {
-                    buttonsRow += `<button type="button" class="pay-now-btn" data-fee-id="${fee.id}" data-fee-name="${fee.name}" data-fee-amount="${fee.amount}" data-org-id="${fee.orgId || 'u-org-001'}">Pay Now</button>`;
-                }
+            } else if (isPromissoryApproved) {
+                // Promissory approved always unlocks Pay Now regardless of window
+                if (!paidBadge) buttonsRow += payNowBtn;
+            } else if (isPromissoryRejected) {
+                // Rejected — respect window
+                if (!paidBadge) buttonsRow += windowStatus === 'open' ? payNowBtn : closedBtn;
             } else {
-                // No promissory request - show Pay Now
-                if (!paidBadge) {
-                    buttonsRow += `<button type="button" class="pay-now-btn" data-fee-id="${fee.id}" data-fee-name="${fee.name}" data-fee-amount="${fee.amount}" data-org-id="${fee.orgId || 'u-org-001'}">Pay Now</button>`;
-                }
+                // No promissory request — respect window
+                if (!paidBadge) buttonsRow += windowStatus === 'open' ? payNowBtn : closedBtn;
             }
 
             // Show "Request promissory note" only if no promissory request or rejected
