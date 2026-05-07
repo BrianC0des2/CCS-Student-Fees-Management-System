@@ -123,6 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const semesters = window.SemesterManager.getAllSemesters();
         const current = window.SemesterManager.getCurrentSemester();
+        const years = ['2023-2024', '2024-2025', '2025-2026', '2026-2027', '2027-2028', '2028-2029'];
 
         pageContent.innerHTML = `
             <div class="section-header">
@@ -217,7 +218,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="form-grid">
                     <div class="form-group">
                         <label>School Year *</label>
-                        <input id="ns-year" placeholder="e.g. 2026-2027">
+                        <select id="ns-year">
+                            <option value="">Select school year</option>
+                            ${years.map(year => `<option value="${year}">${year}</option>`).join('')}
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Semester Name *</label>
@@ -289,7 +293,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 confirmColor: 'green',
                 onConfirm: () => {
                     window.SemesterManager.setActiveSemester(semesterId);
-                    showToast(`Activated: ${semester.name}`);
+                    setSchoolYear();
+                    showToast(`Activated: ${semester.name} (S.Y. ${semester.schoolYear})`);
                     renderSemester();
                 }
             });
@@ -310,6 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 confirmColor: 'amber',
                 onConfirm: () => {
                     window.SemesterManager.completeSemester(semesterId);
+                    setSchoolYear();
                     showToast(`Completed: ${semester.name}`);
                     renderSemester();
                 }
@@ -367,7 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('ns-auto-date-group').style.display = 'none';
                 renderSemester();
             } else {
-                showToast('Failed to create semester.', true);
+                showToast('A semester with this school year and name already exists.', true);
             }
         });
     }

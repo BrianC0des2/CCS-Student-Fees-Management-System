@@ -186,6 +186,7 @@ togglePassword.addEventListener('click', function() {
 
     function resetDemoData() {
         // Clear everything in localStorage completely
+        localStorage.removeItem('ccs.student.payments');
         localStorage.clear();
         
         // Also clear sessionStorage
