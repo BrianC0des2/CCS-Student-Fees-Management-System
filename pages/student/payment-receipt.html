@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="UTF-8">
+        <title> CCS PAY++ - Receipt </title>
+        <link rel="stylesheet" href="../../styles/student-styles/payment-process.css">
+        <link rel="stylesheet" href="../../styles/sidebar.css">
+        <link rel="stylesheet" href="../../styles/student-styles/payment-history.css">
+        <!-- Boxicons CDN Link -->
+        <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+        <link rel="stylesheet" href="../../styles/settings.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <nav class="navbar page-header payment-header">
+            <a href="student-dashboard.html" class="back-arrow"><i class="bx bx-arrow-back"></i></a>
+            <div class="nav-title">
+                <h2>Payment History</h2>
+                <p>View all your receipts and transactions</p>
+            </div>
+            <div class="topbar-right">
+                <span class="ay-badge"></span>
+                <div class="notif-bell" aria-label="Notifications">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                    </svg>
+                    <span class="notif-badge">3</span>
+                </div>
+            </div>
+        </nav>
+
+        <div class="receipt-container">
+            <!-- Table Header with Filter -->
+            <div class="table-header">
+                <div>
+                    <h2>Payment History</h2>
+                    <p style="color: var(--sys-text-500); font-size: 13px; margin-top: 4px;">View all your receipts and transactions</p>
+                </div>
+                <select class="receipt-filter-select" id="receipt-filter-select" onchange="PaymentHistory.filterReceipts(this.value)">
+                    <option value="all">All Receipts</option>
+                        <option value="recent">Recent Receipts</option>
+                        <option value="pending">Pending Receipts</option>
+                        <option value="old">Old Receipts</option>
+                        <option value="promissory">Promissory Notes</option>
+                </select>
+            </div>
+
+            <!-- Table Container -->
+            <div class="table-container">
+                <!-- Filter Sections -->
+                <div class="receipt-filter-sections" id="receipt-filter-sections"></div>
+            </div>
+
+            <!-- Receipt Detail Modal -->
+            <div class="receipt-modal-overlay" id="receipt-modal" onclick="if(event.target === this) PaymentHistory.closeModal()">
+                <div class="receipt-modal-card">
+                    <div class="receipt-modal-header">
+                        <h3 id="modal-title">Receipt Details</h3>
+                        <button class="receipt-modal-close" onclick="PaymentHistory.closeModal()">
+                            <i class='bx bx-x'></i>
+                        </button>
+                    </div>
+                    <div class="receipt-modal-content" id="receipt-modal-content"></div>
+                    <div class="receipt-modal-actions">
+                        <button class="receipt-modal-btn" onclick="PaymentHistory.downloadReceipt()">
+                            <i class='bx bx-download'></i> Download PDF
+                        </button>
+                        <button class="receipt-modal-btn-close" onclick="PaymentHistory.closeModal()">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <script src="../../assets/scripts/settings.js"></script>
+    <script src="../../assets/scripts/sample-accounts.js"></script>
+    <script src="../../assets/scripts/auth.js"></script>
+    <script src="../../assets/scripts/script.js"></script>
+    <script src="../../assets/scripts/student/payment-history.js"></script>
+    <script>
+        // Clear fees from storage after rendering
+        localStorage.removeItem('ccs.selected.fees');
+        localStorage.removeItem('ccs.payment.method');
+    </script>
+    </body>
+</html>
+

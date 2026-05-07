@@ -362,27 +362,9 @@
 
       const currentSeedVersion = localStorage.getItem(PAYMENTS_SEED_VERSION_KEY);
       if (currentSeedVersion !== PAYMENTS_SEED_VERSION) {
-        const seeded = (window.SAMPLE_PAYMENTS || []).map(function (payment, index) {
-          const orgId = getFallbackOrgIdForPayment(payment);
-          const normalizedDate = String(payment.date || '').trim();
-          return {
-            id: `seed-${index}-${orgId}-${normalizedDate}`,
-            orgId: orgId,
-            feeId: payment.feeId || `legacy-${orgId}-${String(payment.desc || '').replace(/\s+/g, '-').toLowerCase()}`,
-            feeName: payment.desc || payment.feeName || 'Fee',
-            studentId: payment.studentNo || payment.studentId || '',
-            studentName: payment.studentName || '',
-            amount: payment.amount || '₱0.00',
-            dateSubmitted: normalizedDate,
-            paymentMethod: payment.method || 'Cash',
-            referenceNumber: payment.referenceNumber || `PAY-${normalizedDate.slice(0, 4)}-${normalizedDate.slice(5).replace(/-/g, '')}-${String(1000 + index).slice(-4)}`,
-            status: 'Confirmed',
-            rejectionReason: '',
-            createdAt: payment.date ? `${payment.date}T00:00:00.000Z` : new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          };
-        });
-
+        // Do NOT seed demo payments into localStorage.
+        // Initialize with an empty array so dashboards only show real confirmed payments.
+        const seeded = [];
         savePayments(seeded);
         try {
           localStorage.setItem(PAYMENTS_SEED_VERSION_KEY, PAYMENTS_SEED_VERSION);
@@ -390,6 +372,7 @@
         }
         return seeded;
       }
+
 
       const parsed = raw ? JSON.parse(raw) : [];
       return Array.isArray(parsed) ? parsed : [];
