@@ -17,8 +17,7 @@ window.SAMPLE_ACCOUNTS = [
       organizationView: false,
       adminView: false,
       facultyView: false,
-      deanView:false
-
+      deanView: false
     }
   },
   {
@@ -42,7 +41,7 @@ window.SAMPLE_ACCOUNTS = [
       organizationView: true,
       adminView: false,
       facultyView: false,
-      deanView:false
+      deanView: false
     }
   },
   {
@@ -96,7 +95,7 @@ window.SAMPLE_ACCOUNTS = [
       organizationView: false,
       adminView: true,
       facultyView: false,
-      deanView:false
+      deanView: false
     }
   },
   {
@@ -135,7 +134,6 @@ window.SAMPLE_ACCOUNTS = [
 window.SAMPLE_PAYMENTS_SEED_VERSION = 3;
 window.SAMPLE_PAYMENTS = [
   // Kayden's payments (TY202500100) - Most recent to oldest
-  // Seed a confirmed partial payment for the approved promissory
   { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'CSC Fee', amount: '₱100.00', date: '2026-02-20', method: 'GCash', status: 'Pending Verification' },
   { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'CSC Fee', amount: '₱200.00', date: '2026-01-03', method: 'GCash', status: 'Pending Verification' },
   { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'Insurance', amount: '₱40.00', date: '2025-08-03', method: 'Cash', status: 'Pending Verification' },
@@ -145,14 +143,14 @@ window.SAMPLE_PAYMENTS = [
   { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'Insurance', amount: '₱40.00', date: '2023-08-03', method: 'Cash', status: 'Pending Verification' },
 
   // Demo students for organization dashboard
-  // Student 1: Marco Reyes - Fully Paid (all mandatory fees confirmed)
+  // Student 1: Marco Reyes - Fully Paid
   { studentNo: "TY202500115", studentName: "Marco Reyes", desc: 'CSC Fee', amount: '₱200.00', date: '2026-02-20', method: 'GCash', status: 'Confirmed' },
   { studentNo: "TY202500115", studentName: "Marco Reyes", desc: 'Gender Club', amount: '₱50.00', date: '2026-02-25', method: 'GCash', status: 'Confirmed' },
   { studentNo: "TY202500115", studentName: "Marco Reyes", desc: 'Miscellaneous', amount: '₱60.00', date: '2026-03-01', method: 'GCash', status: 'Confirmed' },
-  // Student 2: Jessica Santos - Pending (partial payment submitted)
+  // Student 2: Jessica Santos - Pending
   { studentNo: "TY202500116", studentName: "Jessica Santos", desc: 'CSC Fee', amount: '₱200.00', date: '2026-03-10', method: 'GCash', status: 'Pending Verification' },
-  // Student 3: Vincent Aquino - Unpaid (no payments made)
-  // (No entries - demonstrates zero payment state)
+  // Student 3: Vincent Aquino - Unpaid (no entries)
+
   { studentNo: "TY202500102", studentName: "Maria Santos", desc: 'CCSC Fee - BSCS 1A', amount: '₱1,000.00', date: '2026-02-10' },
   { studentNo: "TY202500104", studentName: "Ana Garcia", desc: 'Insurance - BSCS 1B', amount: '₱150.00', date: '2026-02-05' },
   { studentNo: "TY202500106", studentName: "Sofia Martinez", desc: 'Miscellaneous - BSIT 1A', amount: '₱850.00', date: '2026-02-01' },
@@ -200,72 +198,30 @@ window.SAMPLE_PAYMENT_ACCOUNTS = {
   'u-org-001': {
     orgId: 'u-org-001',
     accounts: [
-      {
-        id: 'acct-u-org-001-gcash',
-        type: 'GCash',
-        name: 'CCS Student Council',
-        number: '0912 345 6789',
-        isActive: true
-      },
-      {
-        id: 'acct-u-org-001-cash',
-        type: 'Cash',
-        name: 'CCS Student Council',
-        number: '',
-        isActive: true
-      },
-      {
-        id: 'acct-u-org-001-bpi',
-        type: 'BPI',
-        name: 'CCS Student Council',
-        number: '3456-7890-12',
-        isActive: true
-      },
-      {
-        id: 'acct-u-org-001-pnb',
-        type: 'PNB',
-        name: 'CCS Student Council',
-        number: '6789-0123-45',
-        isActive: true
-      },
-      {
-        id: 'acct-u-org-001-landbank',
-        type: 'Landbank',
-        name: 'CCS Student Council',
-        number: '1234-5678-90',
-        isActive: true
-      }
+      { id: 'acct-u-org-001-gcash',    type: 'GCash',    name: 'CCS Student Council', number: '0912 345 6789', isActive: true },
+      { id: 'acct-u-org-001-cash',     type: 'Cash',     name: 'CCS Student Council', number: '',              isActive: true },
+      { id: 'acct-u-org-001-bpi',      type: 'BPI',      name: 'CCS Student Council', number: '3456-7890-12',  isActive: true },
+      { id: 'acct-u-org-001-pnb',      type: 'PNB',      name: 'CCS Student Council', number: '6789-0123-45',  isActive: true },
+      { id: 'acct-u-org-001-landbank', type: 'Landbank', name: 'CCS Student Council', number: '1234-5678-90',  isActive: true }
     ]
   },
   'org-msa-001': {
     orgId: 'org-msa-001',
     accounts: [
-      {
-        id: 'msa-account-001',
-        type: 'GCash',
-        name: 'Muslim Student Association',
-        number: '0912 345 6789',
-        isActive: true
-      },
-      {
-        id: 'msa-account-002',
-        type: 'Cash',
-        name: 'Muslim Student Association',
-        number: '',
-        isActive: true
-      }
+      { id: 'msa-account-001', type: 'GCash', name: 'Muslim Student Association', number: '0912 345 6789', isActive: true },
+      { id: 'msa-account-002', type: 'Cash',  name: 'Muslim Student Association', number: '',              isActive: true }
     ]
   },
   'org-dean-office-001': {
     orgId: 'org-dean-office-001',
     accounts: [
-      { id: 'acct-dean-cash',     type: 'Cash',     name: "Dean's Office CCS", number: '',            isActive: true },
+      { id: 'acct-dean-cash',     type: 'Cash',     name: "Dean's Office CCS", number: '',             isActive: true },
       { id: 'acct-dean-landbank', type: 'Landbank', name: "Dean's Office CCS", number: '1234-5678-91', isActive: true }
     ]
   }
 };
 
-// Versioned default fees seed to keep localStorage in sync with sample updates.
+// Versioned default fees seed
 window.SAMPLE_ORGANIZATION_FEES_SEED_VERSION = 2;
 window.SAMPLE_ORGANIZATION_FEES = [
   {
@@ -325,11 +281,10 @@ window.SAMPLE_ORGANIZATION_FEES = [
       localStorage.setItem(FEES_STORAGE_KEY, JSON.stringify(window.SAMPLE_ORGANIZATION_FEES || []));
       localStorage.setItem(FEES_SEED_VERSION_KEY, nextVersion);
     }
-  } catch (_err) {
-  }
+  } catch (_err) {}
 })();
 
-// Promissory requests are intentionally not auto-seeded for demo reset testing.
+// Promissory requests are intentionally not auto-seeded
 window.SAMPLE_PROMISSORY_REQUESTS = [];
 
 (function seedDemoNotifications() {
@@ -349,3 +304,46 @@ window.SAMPLE_PROMISSORY_REQUESTS = [];
     ];
     localStorage.setItem(key, JSON.stringify(demo));
 })();
+
+window.resetDemoData = function () {
+    // Clear all ccs.* keys from localStorage
+    Object.keys(localStorage)
+        .filter(function (key) { return key.startsWith('ccs.'); })
+        .forEach(function (key) { localStorage.removeItem(key); });
+
+    // Re-seed fees
+    localStorage.setItem('ccs.organization.fees', JSON.stringify(window.SAMPLE_ORGANIZATION_FEES || []));
+    localStorage.setItem('ccs.organization.fees.seedVersion', String(window.SAMPLE_ORGANIZATION_FEES_SEED_VERSION || 1));
+
+    // Re-seed payment accounts
+    Object.keys(window.SAMPLE_PAYMENT_ACCOUNTS || {}).forEach(function (orgId) {
+        const data = window.SAMPLE_PAYMENT_ACCOUNTS[orgId];
+        localStorage.setItem(
+            'ccs.organization.paymentAccounts::' + orgId,
+            JSON.stringify(data.accounts || [])
+        );
+    });
+
+    // Re-seed demo notifications
+    const notifKey = 'ccs.notifications.TY202500100';
+    const demo = [
+        {
+            id: 'notif-demo-001',
+            type: 'org_role_offer',
+            title: 'Org Role Offer — CCS Student Council',
+            body: 'Landis Tarro has offered you the organization head role for CCS Student Council.',
+            orgId: 'u-org-001',
+            createdAt: new Date().toISOString(),
+            read: false,
+            resolved: false
+        }
+    ];
+    localStorage.setItem(notifKey, JSON.stringify(demo));
+
+    // NOTE: ccs.academic.settings is intentionally NOT re-seeded
+    // Badge must not appear until admin explicitly activates a semester
+    // NOTE: ccs.student.payments and ccs.promissory.requests are intentionally NOT re-seeded
+    // They start empty after reset
+
+    console.log('Demo data reset complete. All ccs.* keys cleared and defaults re-seeded.');
+};

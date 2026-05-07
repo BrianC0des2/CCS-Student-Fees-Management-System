@@ -164,9 +164,9 @@ const systemSettings = {
 // Initialize semester data if not exists
 if (!window.semesterList) {
     window.semesterList = [
-        { id: 'SEM-001', schoolYear: '2025-2026', name: '1st Semester', status: 'active', startDate: '2025-08-01', endDate: '2025-12-20', paymentDeadline: '2025-09-15', autoStartEnabled: false, autoStartDate: null, createdDate: '2025-06-01', description: 'First semester of academic year 2025-2026', gracePeriodDays: 7 },
-        { id: 'SEM-002', schoolYear: '2025-2026', name: '2nd Semester', status: 'inactive', startDate: '2026-01-06', endDate: '2026-05-31', paymentDeadline: '2026-02-15', autoStartEnabled: false, autoStartDate: null, createdDate: '2025-06-01', description: 'Second semester of academic year 2025-2026', gracePeriodDays: 7 },
-        { id: 'SEM-003', schoolYear: '2026-2027', name: '1st Semester', status: 'inactive', startDate: '2026-08-01', endDate: '2026-12-20', paymentDeadline: '2026-09-15', autoStartEnabled: true, autoStartDate: '2026-08-01', createdDate: '2025-06-01', description: 'First semester of academic year 2026-2027', gracePeriodDays: 7 },
+        { id: 'SEM-001', schoolYear: '2025-2026', name: '1st Semester', status: 'active', startDate: '2025-08-01', endDate: '2025-12-20', paymentDeadline: '2025-09-15', autoStartEnabled: false, autoStartDate: null, createdDate: '2025-06-01', description: 'First semester of academic year 2025-2026' },
+        { id: 'SEM-002', schoolYear: '2025-2026', name: '2nd Semester', status: 'inactive', startDate: '2026-01-06', endDate: '2026-05-31', paymentDeadline: '2026-02-15', autoStartEnabled: false, autoStartDate: null, createdDate: '2025-06-01', description: 'Second semester of academic year 2025-2026' },
+        { id: 'SEM-003', schoolYear: '2026-2027', name: '1st Semester', status: 'inactive', startDate: '2026-08-01', endDate: '2026-12-20', paymentDeadline: '2026-09-15', autoStartEnabled: true, autoStartDate: '2026-08-01', createdDate: '2025-06-01', description: 'First semester of academic year 2026-2027' },
     ];
     localStorage.setItem('ccs.semesters', JSON.stringify(window.semesterList));
 }
@@ -2330,6 +2330,88 @@ function renderSystem() {
 }
 
 /* ── SEMESTER MANAGEMENT ──────── */
+let semesterConfirmStylesInjected = false;
+
+function injectSemesterConfirmStyles() {
+    if (semesterConfirmStylesInjected) return;
+    semesterConfirmStylesInjected = true;
+
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes semesterModalSlideUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+function openConfirmModal(options) {
+    injectSemesterConfirmStyles();
+
+    const existing = document.getElementById('semester-confirm-modal-root');
+    if (existing) existing.remove();
+
+    const root = document.createElement('div');
+    root.id = 'semester-confirm-modal-root';
+    root.innerHTML = `
+        <div class="semester-confirm-overlay" style="position:fixed;inset:0;background:rgba(17,24,39,0.65);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;">
+            <div class="semester-confirm-card" style="background:#ffffff;border-radius:12px;width:min(560px,100%);box-shadow:0 24px 60px rgba(0,0,0,0.18);animation:semesterModalSlideUp 0.18s ease-out;overflow:hidden;font-family:Poppins,sans-serif;">
+                <div style="padding:24px;">
+                    <div style="font-size:20px;font-weight:600;color:#111827;margin-bottom:16px;">${options.title}</div>
+                    <div style="font-size:14px;line-height:1.7;color:#374151;white-space:normal;">${options.body}</div>
+                </div>
+                <div style="padding:0 24px 24px;display:flex;gap:12px;justify-content:flex-end;">
+                    <button type="button" class="btn btn-gray semester-confirm-cancel" style="font-size:14px;padding:8px 16px;">Cancel</button>
+                    <button type="button" class="btn btn-${options.confirmColor} semester-confirm-ok" style="font-size:14px;padding:8px 16px;">${options.confirmText}</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(root);
+
+    const overlay = root.querySelector('.semester-confirm-overlay');
+    const cancelBtn = root.querySelector('.semester-confirm-cancel');
+    const okBtn = root.querySelector('.semester-confirm-ok');
+    const close = () => root.remove();
+
+    cancelBtn.addEventListener('click', close);
+    okBtn.addEventListener('click', () => {
+        options.onConfirm();
+        close();
+    });
+    overlay.addEventListener('click', e => {
+        if (e.target === overlay) close();
+    });
+}
+
+function formatSemesterDate(value) {
+    if (!value) return '—';
+    return window.SemesterManager.formatDate(value);
+}
+
+function validateSemesterDates(paymentStart, paymentDeadline, semStart, semEnd) {
+    const start = paymentStart ? new Date(paymentStart + 'T00:00:00') : null;
+    const deadline = paymentDeadline ? new Date(paymentDeadline + 'T00:00:00') : null;
+    const semesterStart = semStart ? new Date(semStart + 'T00:00:00') : null;
+    const semesterEnd = semEnd ? new Date(semEnd + 'T00:00:00') : null;
+
+    if (!start || !deadline || !semesterStart || !semesterEnd) {
+        return 'Please fill in all required fields.';
+    }
+    if (start >= deadline) {
+        return 'Payment Window Start Date must be before Payment Deadline.';
+    }
+    if (deadline > semesterStart) {
+        return 'Payment Deadline must be on or before Semester Start Date.';
+    }
+    if (semesterStart >= semesterEnd) {
+        return 'Semester Start Date must be before Semester End Date.';
+    }
+    return '';
+}
+
 function renderSemester() {
     const el = document.getElementById('tab-semester');
     const semesters = window.SemesterManager.getAllSemesters();
@@ -2354,30 +2436,20 @@ function renderSemester() {
                 <div style="padding: 16px; background: #f0fdf4; border-radius: 8px; border-left: 4px solid #16a34a;">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px;">
                         <div>
-                            <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.3px;">School Year</div>
-                            <div style="font-size: 16px; font-weight: 600; color: #111827; margin-top: 4px;">${current.schoolYear}</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.3px;">Semester</div>
-                            <div style="font-size: 16px; font-weight: 600; color: #111827; margin-top: 4px;">${current.name}</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.3px;">Start Date</div>
-                            <div style="font-size: 14px; color: #111827; margin-top: 4px;">${window.SemesterManager.formatDate(current.startDate)}</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.3px;">End Date</div>
-                            <div style="font-size: 14px; color: #111827; margin-top: 4px;">${window.SemesterManager.formatDate(current.endDate)}</div>
+                            <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.3px;">Payment Window Start Date</div>
+                            <div style="font-size: 16px; font-weight: 600; color: #111827; margin-top: 4px;">${formatSemesterDate(current.paymentStartDate)}</div>
                         </div>
                         <div>
                             <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.3px;">Payment Deadline</div>
-                            <div style="font-size: 14px; color: #111827; margin-top: 4px;">${window.SemesterManager.formatDate(current.paymentDeadline)}</div>
+                            <div style="font-size: 16px; font-weight: 600; color: #111827; margin-top: 4px;">${formatSemesterDate(current.paymentDeadline)}</div>
                         </div>
                         <div>
-                            <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.3px;">Days Until Deadline</div>
-                            <div style="font-size: 14px; font-weight: 600; color: ${window.SemesterManager.daysUntilDeadline(current) <= 7 ? '#dc2626' : '#16a34a'}; margin-top: 4px;">
-                                ${window.SemesterManager.daysUntilDeadline(current)} days
-                            </div>
+                            <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.3px;">Semester Start Date</div>
+                            <div style="font-size: 14px; color: #111827; margin-top: 4px;">${formatSemesterDate(current.startDate)}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.3px;">Semester End Date</div>
+                            <div style="font-size: 14px; color: #111827; margin-top: 4px;">${formatSemesterDate(current.endDate)}</div>
                         </div>
                     </div>
                 </div>
@@ -2390,54 +2462,72 @@ function renderSemester() {
 
         <div class="card">
             <div class="card-title">All Semesters</div>
-            <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr style="border-bottom: 2px solid #e5e7eb; background: #f9fafb;">
-                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">School Year</th>
-                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">Semester</th>
-                            <th style="padding: 12px; text-align: center; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">Status</th>
-                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">Start Date</th>
-                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">End Date</th>
-                            <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">Auto-Start</th>
-                            <th style="padding: 12px; text-align: center; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${semesters.map(sem => `
-                        <tr style="border-bottom: 1px solid #e5e7eb; ${sem.status === 'active' ? 'background: #f0fdf4;' : ''}">
-                            <td style="padding: 12px; font-size: 13px; color: #111827;">${sem.schoolYear}</td>
-                            <td style="padding: 12px; font-size: 13px; color: #111827; font-weight: 500;">${sem.name}</td>
-                            <td style="padding: 12px; text-align: center;">
-                                <span class="badge ${sem.status === 'active' ? 'badge-green' : sem.status === 'completed' ? 'badge-gray' : 'badge-amber'}">
-                                    ${sem.status.charAt(0).toUpperCase() + sem.status.slice(1)}
-                                </span>
-                            </td>
-                            <td style="padding: 12px; font-size: 13px; color: #6b7280;">${window.SemesterManager.formatDate(sem.startDate)}</td>
-                            <td style="padding: 12px; font-size: 13px; color: #6b7280;">${window.SemesterManager.formatDate(sem.endDate)}</td>
-                            <td style="padding: 12px; font-size: 13px; color: #6b7280;">
-                                ${sem.autoStartEnabled ? `${window.SemesterManager.formatDate(sem.autoStartDate)} ✓` : '—'}
-                            </td>
-                            <td style="padding: 12px; text-align: center;">
-                                ${sem.status !== 'active' ? `
-                                    <button class="btn btn-green semester-activate-btn" data-id="${sem.id}" style="font-size: 12px; padding: 6px 12px;">
-                                        ${bxi('check')} Activate
-                                    </button>
-                                ` : `
-                                    <button class="btn btn-amber semester-complete-btn" data-id="${sem.id}" style="font-size: 12px; padding: 6px 12px;">
-                                        ${bxi('check-double')} Complete
-                                    </button>
-                                `}
-                            </td>
-                        </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>
+            ${semesters.length === 0 ? `
+                <div style="padding: 16px; text-align: center; color: #6b7280;">
+                    No semesters created yet. Use the form below to create one.
+                </div>
+            ` : `
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #e5e7eb; background: #f9fafb;">
+                                <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">School Year</th>
+                                <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">Semester</th>
+                                <th style="padding: 12px; text-align: center; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">Status</th>
+                                <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">Payment Window Start</th>
+                                <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">Payment Deadline</th>
+                                <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">Semester Start</th>
+                                <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">Semester End</th>
+                                <th style="padding: 12px; text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">Auto-Start</th>
+                                <th style="padding: 12px; text-align: center; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #6b7280;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${semesters.map(sem => `
+                            <tr style="border-bottom: 1px solid #e5e7eb; ${sem.status === 'active' ? 'background: #f0fdf4;' : ''}">
+                                <td style="padding: 12px; font-size: 13px; color: #111827;">${sem.schoolYear}</td>
+                                <td style="padding: 12px; font-size: 13px; color: #111827; font-weight: 500;">${sem.name}</td>
+                                <td style="padding: 12px; text-align: center;">
+                                    <span class="badge ${sem.status === 'active' ? 'badge-green' : sem.status === 'completed' ? 'badge-gray' : 'badge-amber'}">
+                                        ${sem.status.charAt(0).toUpperCase() + sem.status.slice(1)}
+                                    </span>
+                                </td>
+                                <td style="padding: 12px; font-size: 13px; color: #6b7280;">${formatSemesterDate(sem.paymentStartDate)}</td>
+                                <td style="padding: 12px; font-size: 13px; color: #6b7280;">${formatSemesterDate(sem.paymentDeadline)}</td>
+                                <td style="padding: 12px; font-size: 13px; color: #6b7280;">${formatSemesterDate(sem.startDate)}</td>
+                                <td style="padding: 12px; font-size: 13px; color: #6b7280;">${formatSemesterDate(sem.endDate)}</td>
+                                <td style="padding: 12px; font-size: 13px; color: #6b7280;">
+                                    ${sem.autoStartEnabled ? `${formatSemesterDate(sem.autoStartDate)} ✓` : '—'}
+                                </td>
+                                <td style="padding: 12px; text-align: center;">
+                                    ${sem.status !== 'active' ? `
+                                        <button class="btn btn-green semester-activate-btn" data-id="${sem.id}" style="font-size: 12px; padding: 6px 12px;">
+                                            ${bxi('check')} Activate
+                                        </button>
+                                    ` : `
+                                        <button class="btn btn-amber semester-complete-btn" data-id="${sem.id}" style="font-size: 12px; padding: 6px 12px;">
+                                            ${bxi('check-double')} Complete
+                                        </button>
+                                    `}
+                                </td>
+                            </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `}
         </div>
 
         <div class="card" style="margin-top: 24px;">
             <div class="card-title">Create New Semester</div>
+            <div class="info-banner info-banner--amber" style="margin-bottom: 16px;">
+                <span class="info-banner-icon">${bxi('info-circle')}</span>
+                <p>The payment window (clearance week) must happen before the semester starts.</p>
+            </div>
+            <div id="semester-form-error" style="display:none;margin-bottom:16px;padding:12px 16px;border-radius:8px;background:#fef2f2;border:1px solid #fca5a5;color:#b91c1c;align-items:center;gap:8px;">
+                <span class="info-banner-icon">${bxi('error')}</span>
+                <p style="margin:0;"></p>
+            </div>
             <div class="form-grid">
                 <div class="form-group">
                     <label>School Year *</label>
@@ -2453,34 +2543,24 @@ function renderSemester() {
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Start Date *</label>
-                    <input id="ns-start" type="date">
-                </div>
-                <div class="form-group">
-                    <label>End Date *</label>
-                    <input id="ns-end" type="date">
+                    <label>Payment Window Start Date *</label>
+                    <input id="ns-payment-start" type="date">
                 </div>
                 <div class="form-group">
                     <label>Payment Deadline *</label>
                     <input id="ns-payment" type="date">
                 </div>
                 <div class="form-group">
-                    <label>Payment Grace Period (Days)</label>
-                    <input id="ns-grace" type="number" value="7" min="0" max="30">
+                    <label>Semester Start Date *</label>
+                    <input id="ns-start" type="date">
                 </div>
                 <div class="form-group">
-                    <label>Description</label>
-                    <input id="ns-desc" placeholder="e.g. First semester of AY 2026-2027">
+                    <label>Semester End Date *</label>
+                    <input id="ns-end" type="date">
                 </div>
                 <div class="form-group" style="grid-column: 1 / -1;">
-                    <label style="display: flex; align-items: center; gap: 8px; font-weight: normal;">
-                        <input type="checkbox" id="ns-auto" style="width: 18px; height: 18px; cursor: pointer;">
-                        Enable auto-start on specific date
-                    </label>
-                </div>
-                <div class="form-group" id="ns-auto-date-group" style="display: none;">
-                    <label>Auto-Start Date</label>
-                    <input id="ns-auto-date" type="date">
+                    <label>Description</label>
+                    <input id="ns-desc" placeholder="e.g. First semester of AY 2026-2027">
                 </div>
             </div>
             <div class="form-actions">
@@ -2489,7 +2569,21 @@ function renderSemester() {
         </div>
     `;
 
-    // Event listeners
+    const semesterErrorEl = document.getElementById('semester-form-error');
+    const showSemesterError = msg => {
+        if (!semesterErrorEl) return;
+        const textEl = semesterErrorEl.querySelector('p');
+        if (textEl) textEl.textContent = msg;
+        semesterErrorEl.style.display = 'flex';
+        semesterErrorEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    };
+    const clearSemesterError = () => {
+        if (!semesterErrorEl) return;
+        const textEl = semesterErrorEl.querySelector('p');
+        if (textEl) textEl.textContent = '';
+        semesterErrorEl.style.display = 'none';
+    };
+
     el.querySelectorAll('.semester-activate-btn').forEach(b => b.addEventListener('click', () => {
         const semId = b.dataset.id;
         const sem = window.SemesterManager.getSemesterById(semId);
@@ -2510,59 +2604,68 @@ function renderSemester() {
         }
     }));
 
-    document.getElementById('ns-auto')?.addEventListener('change', e => {
-        document.getElementById('ns-auto-date-group').style.display = e.target.checked ? 'block' : 'none';
-    });
-
     document.getElementById('save-new-semester')?.addEventListener('click', () => {
         const year = document.getElementById('ns-year').value.trim();
         const name = document.getElementById('ns-name').value.trim();
+        const paymentStart = document.getElementById('ns-payment-start').value;
+        const payment = document.getElementById('ns-payment').value;
         const start = document.getElementById('ns-start').value;
         const end = document.getElementById('ns-end').value;
-        const payment = document.getElementById('ns-payment').value;
-        const grace = parseInt(document.getElementById('ns-grace').value) || 7;
-        const autoEnabled = document.getElementById('ns-auto').checked;
-        const autoDate = document.getElementById('ns-auto-date').value;
         const desc = document.getElementById('ns-desc').value.trim();
 
-        if (!year || !name || !start || !end || !payment) {
-            showToast('Please fill in all required fields.', true);
+        clearSemesterError();
+
+        if (!year || !name || !paymentStart || !payment || !start || !end) {
+            showSemesterError('Please fill in all required fields.');
             return;
         }
 
-        if (autoEnabled && !autoDate) {
-            showToast('Please specify auto-start date.', true);
+        const validationError = validateSemesterDates(paymentStart, payment, start, end);
+        if (validationError) {
+            showSemesterError(validationError);
             return;
         }
 
-        const result = window.SemesterManager.createSemester({
-            schoolYear: year,
-            name: name,
-            startDate: start,
-            endDate: end,
-            paymentDeadline: payment,
-            autoStartEnabled: autoEnabled,
-            autoStartDate: autoEnabled ? autoDate : null,
-            description: desc,
-            gracePeriodDays: grace
+        openConfirmModal({
+            title: 'Create Semester?',
+            body: `
+                <div><strong>School Year:</strong> ${year}</div>
+                <div><strong>Semester:</strong> ${name}</div>
+                <div><strong>Payment Window Start Date:</strong> ${formatSemesterDate(paymentStart)}</div>
+                <div><strong>Payment Deadline:</strong> ${formatSemesterDate(payment)}</div>
+                <div><strong>Semester Start Date:</strong> ${formatSemesterDate(start)}</div>
+                <div><strong>Semester End Date:</strong> ${formatSemesterDate(end)}</div>
+                ${desc ? `<div><strong>Description:</strong> ${desc}</div>` : ''}
+            `,
+            confirmText: 'Create Semester',
+            confirmColor: 'green',
+            onConfirm: () => {
+                const result = window.SemesterManager.createSemester({
+                    schoolYear: year,
+                    name: name,
+                    startDate: start,
+                    endDate: end,
+                    paymentStartDate: paymentStart,
+                    paymentDeadline: payment,
+                    description: desc
+                });
+
+                if (result) {
+                    showToast(`Created: ${year} ${name}`);
+                    document.getElementById('ns-year').value = '';
+                    document.getElementById('ns-name').value = '';
+                    document.getElementById('ns-payment-start').value = '';
+                    document.getElementById('ns-payment').value = '';
+                    document.getElementById('ns-start').value = '';
+                    document.getElementById('ns-end').value = '';
+                    document.getElementById('ns-desc').value = '';
+                    clearSemesterError();
+                    renderSemester();
+                } else {
+                    showSemesterError('A semester with this school year and name already exists.');
+                }
+            }
         });
-
-        if (result) {
-            showToast(`Created: ${year} ${name}`);
-            document.getElementById('ns-year').value = '';
-            document.getElementById('ns-name').value = '';
-            document.getElementById('ns-start').value = '';
-            document.getElementById('ns-end').value = '';
-            document.getElementById('ns-payment').value = '';
-            document.getElementById('ns-grace').value = '7';
-            document.getElementById('ns-desc').value = '';
-            document.getElementById('ns-auto').checked = false;
-            document.getElementById('ns-auto-date').value = '';
-            document.getElementById('ns-auto-date-group').style.display = 'none';
-            renderSemester();
-        } else {
-            showToast('Failed to create semester.', true);
-        }
     });
 }
 

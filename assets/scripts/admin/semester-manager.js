@@ -7,107 +7,81 @@
 
 window.SemesterManager = {
 
-    /**
-     * Initialize semester manager - should be called on page load
-     */
     init: function() {
-        // Load semester data from storage
         this.loadSemesters();
-        // Check for auto-transitions
         this.checkAutoTransitions();
     },
 
-    /**
-     * Load semesters from localStorage
-     */
     loadSemesters: function() {
         const stored = localStorage.getItem('ccs.semesters');
         if (stored) {
-            window.semesterList = JSON.parse(stored);
+            try {
+                const parsed = JSON.parse(stored);
+                // Only load if it's a valid array (not a seeded default)
+                window.semesterList = Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                window.semesterList = [];
+            }
+        } else {
+            // Do NOT seed any default semesters — admin creates them manually
+            window.semesterList = [];
         }
     },
 
-    /**
-     * Save semesters to localStorage
-     */
     saveSemesters: function() {
         localStorage.setItem('ccs.semesters', JSON.stringify(window.semesterList || []));
     },
 
-    /**
-     * Get current active semester
-     */
     getCurrentSemester: function() {
         if (!window.semesterList) return null;
-        const active = window.semesterList.find(s => s.status === 'active');
-        return active || null;
+        return window.semesterList.find(s => s.status === 'active') || null;
     },
 
-    /**
-     * Get all semesters
-     */
     getAllSemesters: function() {
         return window.semesterList || [];
     },
 
-    /**
-     * Get semester by ID
-     */
     getSemesterById: function(id) {
         if (!window.semesterList) return null;
-        return window.semesterList.find(s => s.id === id);
+        return window.semesterList.find(s => s.id === id) || null;
     },
 
-    /**
-     * Get semesters by school year
-     */
     getSemestersByYear: function(schoolYear) {
         if (!window.semesterList) return [];
         return window.semesterList.filter(s => s.schoolYear === schoolYear);
     },
 
-    /**
-     * Set a semester as active (manual transition)
-     */
     setActiveSemester: function(semesterId) {
         if (!window.semesterList) return false;
 
         const semester = this.getSemesterById(semesterId);
         if (!semester) return false;
 
-        // Deactivate current active semester
         const current = this.getCurrentSemester();
         if (current && current.id !== semesterId) {
-            // Mark previous as completed if it was active
             current.status = 'completed';
             current.completedDate = new Date().toISOString();
         }
 
-        // Activate new semester
         semester.status = 'active';
         semester.activatedDate = new Date().toISOString();
         semester.activatedBy = window.Auth?.getUser()?.id || 'admin';
 
-        // Save changes
         this.saveSemesters();
-        if (current && current.id !== semesterId) {
-            localStorage.removeItem('ccs.academic.settings');
-        }
+
         localStorage.setItem('ccs.academic.settings', JSON.stringify({
             academicYear: semester.schoolYear,
             semester: semester.name,
             paymentStartDate: semester.paymentStartDate || null,
             paymentDeadline: semester.paymentDeadline || null,
+            semesterStartDate: semester.startDate || null,
             semesterEndDate: semester.endDate || null
         }));
-        this.logSemesterTransition('MANUAL', current?.id, semesterId);
 
+        this.logSemesterTransition('MANUAL', current?.id, semesterId);
         return true;
     },
 
-    /**
-     * Mark semester as completed
-     */
     completeSemester: function(semesterId) {
         const semester = this.getSemesterById(semesterId);
         if (!semester) return false;
@@ -123,17 +97,12 @@ window.SemesterManager = {
             localStorage.removeItem('ccs.academic.settings');
         }
         this.logSemesterTransition('COMPLETED', semesterId, null);
-
         return true;
     },
 
-    /**
-     * Create a new semester
-     */
     createSemester: function(data) {
         if (!window.semesterList) window.semesterList = [];
 
-        // Check if semester already exists
         const exists = window.semesterList.find(s =>
             s.schoolYear === data.schoolYear && s.name === data.name
         );
@@ -146,8 +115,8 @@ window.SemesterManager = {
             status: 'inactive',
             startDate: data.startDate,
             endDate: data.endDate,
-            paymentStartDate: data.paymentStartDate || data.startDate,
-            paymentDeadline: data.paymentDeadline || data.startDate,
+            paymentStartDate: data.paymentStartDate,
+            paymentDeadline: data.paymentDeadline,
             autoStartDate: data.autoStartDate || null,
             autoStartEnabled: data.autoStartEnabled || false,
             createdDate: new Date().toISOString(),
@@ -158,18 +127,13 @@ window.SemesterManager = {
         window.semesterList.push(newSemester);
         this.saveSemesters();
         this.logSemesterTransition('CREATED', null, newSemester.id);
-
         return newSemester;
     },
 
-    /**
-     * Update semester details
-     */
     updateSemester: function(semesterId, data) {
         const semester = this.getSemesterById(semesterId);
         if (!semester) return false;
 
-        // Update allowed fields
         const updatableFields = ['name', 'startDate', 'endDate', 'paymentStartDate', 'paymentDeadline', 'description', 'autoStartDate', 'autoStartEnabled'];
         updatableFields.forEach(field => {
             if (data[field] !== undefined) {
@@ -182,29 +146,20 @@ window.SemesterManager = {
 
         this.saveSemesters();
         this.logSemesterTransition('UPDATED', semesterId, null);
-
         return true;
     },
 
-    /**
-     * Delete a semester (only if inactive)
-     */
     deleteSemester: function(semesterId) {
         const semester = this.getSemesterById(semesterId);
         if (!semester) return false;
-        if (semester.status === 'active') return false; // Cannot delete active semester
+        if (semester.status === 'active') return false;
 
         window.semesterList = window.semesterList.filter(s => s.id !== semesterId);
         this.saveSemesters();
         this.logSemesterTransition('DELETED', semesterId, null);
-
         return true;
     },
 
-    /**
-     * Check for auto-transitions
-     * Called on page load to see if any semester should auto-start
-     */
     checkAutoTransitions: function() {
         if (!window.semesterList) return;
 
@@ -212,14 +167,10 @@ window.SemesterManager = {
         let transitioned = false;
 
         window.semesterList.forEach(semester => {
-            // Skip if not enabled or already active/completed
             if (!semester.autoStartEnabled || semester.status !== 'inactive') return;
-
-            // Check if auto-start date has passed
             if (semester.autoStartDate) {
                 const autoDate = new Date(semester.autoStartDate);
                 if (now >= autoDate) {
-                    // Auto-activate this semester
                     this.setActiveSemester(semester.id);
                     transitioned = true;
                 }
@@ -229,33 +180,12 @@ window.SemesterManager = {
         return transitioned;
     },
 
-    /**
-     * Get semester info as formatted string
-     */
-    formatSemesterInfo: function(semester) {
-        if (!semester) return 'No semester selected';
-
-        const statusEmoji = {
-            'active': '✓',
-            'inactive': '○',
-            'completed': '✓'
-        };
-
-        return `S.Y. ${semester.schoolYear} • ${semester.name} ${statusEmoji[semester.status] || ''}`;
-    },
-
-    /**
-     * Get semester badge HTML
-     * Returns empty string if no ccs.academic.settings is set (navbar badge should not appear)
-     */
     getSemesterBadgeHTML: function() {
         try {
             const raw = localStorage.getItem('ccs.academic.settings');
             if (!raw) return '';
             const parsed = JSON.parse(raw);
-            if (!parsed.semester || !parsed.academicYear) {
-                return '';
-            }
+            if (!parsed.semester || !parsed.academicYear) return '';
             return `<span class="semester-badge semester-badge--active" title="School Year: ${parsed.academicYear}">
                 S.Y. ${parsed.academicYear} | ${parsed.semester}
             </span>`;
@@ -264,18 +194,12 @@ window.SemesterManager = {
         }
     },
 
-    /**
-     * Get semester badge HTML for sidebar
-     * Returns empty string if no ccs.academic.settings is set (navbar badge should not appear)
-     */
     getSemesterSidebarBadgeHTML: function() {
         try {
             const raw = localStorage.getItem('ccs.academic.settings');
             if (!raw) return '';
             const parsed = JSON.parse(raw);
-            if (!parsed.semester || !parsed.academicYear) {
-                return '';
-            }
+            if (!parsed.semester || !parsed.academicYear) return '';
             return `<span class="semester-badge semester-badge--active" title="School Year: ${parsed.academicYear}">
                 S.Y. ${parsed.academicYear} | ${parsed.semester}
             </span>`;
@@ -284,9 +208,6 @@ window.SemesterManager = {
         }
     },
 
-    /**
-     * Log semester transition for audit trail
-     */
     logSemesterTransition: function(action, fromSemesterId, toSemesterId) {
         if (!window.auditLogs) window.auditLogs = [];
 
@@ -304,7 +225,7 @@ window.SemesterManager = {
             ? `Deleted semester ${fromSemesterId}`
             : `Semester transition: ${action}`;
 
-        const logEntry = {
+        window.auditLogs.push({
             id: 'LOG-' + Date.now(),
             timestamp: new Date().toISOString(),
             user: window.Auth?.getUser()?.name || 'System',
@@ -313,17 +234,21 @@ window.SemesterManager = {
             details: details,
             ipAddress: window.location.hostname,
             type: action === 'CREATED' || action === 'UPDATED' ? 'info' : action === 'DELETED' ? 'warning' : 'success'
-        };
-
-        window.auditLogs.push(logEntry);
+        });
+    },
+    formatSemesterInfo: function(semester) {
+    if (!semester) return 'No semester selected';
+    const statusEmoji = {
+        'active': '✓',
+        'inactive': '○',
+        'completed': '✓'
+    };
+    return `S.Y. ${semester.schoolYear} • ${semester.name} ${statusEmoji[semester.status] || ''}`;
     },
 
-    /**
-     * Get formatted date string
-     */
     formatDate: function(dateString) {
         if (!dateString) return 'N/A';
-        const date = new Date(dateString);
+        const date = new Date(dateString + 'T00:00:00');
         return date.toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
@@ -331,29 +256,43 @@ window.SemesterManager = {
         });
     },
 
-    /**
-     * Check if payment deadline has passed
-     */
     isPaymentDeadlinePassed: function(semester) {
         if (!semester || !semester.paymentDeadline) return false;
-        return new Date() > new Date(semester.paymentDeadline);
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        const deadline = new Date(semester.paymentDeadline + 'T00:00:00');
+        return now > deadline;
     },
 
-    /**
-     * Get days until deadline
-     */
+    isPaymentWindowOpen: function() {
+        try {
+            const raw = localStorage.getItem('ccs.academic.settings');
+            if (!raw) return true; // No window set = always open
+            const settings = JSON.parse(raw);
+            if (!settings.paymentStartDate || !settings.paymentDeadline) return true;
+
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+            const start = new Date(settings.paymentStartDate + 'T00:00:00');
+            const deadline = new Date(settings.paymentDeadline + 'T00:00:00');
+
+            return now >= start && now <= deadline;
+        } catch (e) {
+            return true;
+        }
+    },
+
     daysUntilDeadline: function(semester) {
         if (!semester || !semester.paymentDeadline) return null;
 
         const now = new Date();
-        const deadline = new Date(semester.paymentDeadline);
+        now.setHours(0, 0, 0, 0);
+        const deadline = new Date(semester.paymentDeadline + 'T00:00:00');
         const days = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
-
         return days > 0 ? days : 0;
     }
 };
 
-// Auto-initialize on page load
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => window.SemesterManager.init());
 } else {
