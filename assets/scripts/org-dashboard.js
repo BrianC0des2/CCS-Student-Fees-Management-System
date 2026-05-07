@@ -129,194 +129,321 @@
         return religion === appliesTo;
     }
 
+    // ── FIX 1: Receipt modal ────────────────────────────────────────────────────
+
+    function showReceiptModal(payment) {
+        const existing = document.getElementById('org-receipt-modal-root');
+        if (existing) existing.remove();
+
+        const root = document.createElement('div');
+        root.id = 'org-receipt-modal-root';
+        root.innerHTML = `
+            <div style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;">
+                <div style="background:white;border-radius:12px;width:min(560px,100%);max-height:90vh;overflow-y:auto;padding:24px;font-family:Poppins,sans-serif;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                        <div style="font-size:16px;font-weight:600;">Receipt ${payment.referenceNumber || payment.id}</div>
+                        <button id="close-receipt-modal" style="background:none;border:none;font-size:20px;cursor:pointer;">×</button>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:13px;">
+                        <div><div style="color:#6b7280;font-size:11px;text-transform:uppercase;">Student Name</div><div style="font-weight:500;margin-top:4px;">${payment.studentName || '-'}</div></div>
+                        <div><div style="color:#6b7280;font-size:11px;text-transform:uppercase;">Student ID</div><div style="font-weight:500;margin-top:4px;">${payment.studentId || payment.studentNo || '-'}</div></div>
+                        <div><div style="color:#6b7280;font-size:11px;text-transform:uppercase;">Fee</div><div style="font-weight:500;margin-top:4px;">${payment.feeName || payment.desc || '-'}</div></div>
+                        <div><div style="color:#6b7280;font-size:11px;text-transform:uppercase;">Amount</div><div style="font-weight:500;margin-top:4px;">${formatPeso(parsePeso(payment.amount))}</div></div>
+                        <div><div style="color:#6b7280;font-size:11px;text-transform:uppercase;">Payment Method</div><div style="font-weight:500;margin-top:4px;">${payment.paymentMethod || payment.method || '-'}</div></div>
+                        <div><div style="color:#6b7280;font-size:11px;text-transform:uppercase;">Date</div><div style="font-weight:500;margin-top:4px;">${payment.date || payment.dateSubmitted || '-'}</div></div>
+                        <div><div style="color:#6b7280;font-size:11px;text-transform:uppercase;">Reference No.</div><div style="font-weight:500;margin-top:4px;">${payment.referenceNumber || '-'}</div></div>
+                        <div><div style="color:#6b7280;font-size:11px;text-transform:uppercase;">Status</div><div style="margin-top:4px;"><span style="background:#dcfce7;color:#16a34a;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;">Confirmed</span></div></div>
+                    </div>
+                    <div style="margin-top:20px;padding:12px;background:#f0fdf4;border-radius:8px;font-size:12px;color:#16a34a;font-weight:500;text-align:center;">
+                        Verified and confirmed by ${getCurrentOrgName()}
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(root);
+        document.getElementById('close-receipt-modal').addEventListener('click', () => root.remove());
+        root.querySelector('div').addEventListener('click', function (e) {
+            if (e.target === this) root.remove();
+        });
+    }
+
+    // ── FIX 2: Student records table reads from ccs.student.payments ────────────
+
     function renderOrgStudentRows() {
         const tbody = document.getElementById('orgStudentRecordsBody');
         if (!tbody) return;
 
-        // Demo students for organization dashboard
-        const demoStudents = [
-            { studentId: 'TY202500115', name: 'Marco Reyes', yearSection: '3rd Year - CS 3-A', amountPaid: 310, totalDue: 310, status: 'Fully Paid', lastPayment: '2026-03-01', paymentMethod: 'GCash' },
-            { studentId: 'TY202500116', name: 'Jessica Santos', yearSection: '3rd Year - CS 3-A', amountPaid: 200, totalDue: 310, status: 'Pending', lastPayment: '2026-03-10', paymentMethod: 'GCash' },
-            { studentId: 'TY202500117', name: 'Vincent Aquino', yearSection: '3rd Year - CS 3-A', amountPaid: 0, totalDue: 310, status: 'Unpaid', lastPayment: '-', paymentMethod: '-' }
-        ];
+        const currentOrgId = getCurrentOrgId();
+        const allPayments = JSON.parse(localStorage.getItem('ccs.student.payments') || '[]')
+            .filter(p => String(p.orgId) === String(currentOrgId));
 
-        const students = demoStudents;
+        const studentMap = new Map();
+        allPayments.forEach(function (p) {
+            const sid = String(p.studentId || p.studentNo || '');
+            if (!sid) return;
+            if (!studentMap.has(sid)) {
+                studentMap.set(sid, {
+                    studentId: sid,
+                    name: p.studentName || '-',
+                    yearSection: p.yearSection || '-',
+                    payments: []
+                });
+            }
+            studentMap.get(sid).payments.push(p);
+        });
 
-        tbody.innerHTML = students.map(function (student) {
-            const statusClass = student.status === 'Fully Paid' ? 'fully-paid' : student.status === 'Pending' ? 'pending' : 'unpaid';
+        if (studentMap.size === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px;color:#6b7280;">No student payment records found.</td></tr>';
+            return;
+        }
+
+        const allFees = JSON.parse(localStorage.getItem('ccs.organization.fees') || '[]')
+            .filter(f => String(f.orgId) === String(currentOrgId) && f.isActive !== false);
+        const totalDue = allFees.reduce((sum, f) => sum + (Number(f.amount) || 0), 0);
+
+        tbody.innerHTML = Array.from(studentMap.values()).map(function (student) {
+            const confirmed = student.payments.filter(p => String(p.status).toLowerCase() === 'confirmed');
+            const pending   = student.payments.filter(p => String(p.status).toLowerCase() === 'pending verification');
+            const amountPaid = confirmed.reduce((sum, p) => sum + parsePeso(p.amount), 0);
+            const lastConfirmed = confirmed.slice().sort((a, b) =>
+                new Date(b.date || b.dateSubmitted || 0) - new Date(a.date || a.dateSubmitted || 0)
+            )[0];
+
+            let status, statusClass, actionBtn;
+
+            if (amountPaid >= totalDue && totalDue > 0) {
+                status = 'Fully Paid';
+                statusClass = 'fully-paid';
+                actionBtn = `<button class="action-btn view-details-btn" data-student-id="${student.studentId}">View Details</button>`;
+            } else if (pending.length > 0) {
+                status = 'Pending';
+                statusClass = 'pending';
+                const pendingPayment = pending[0];
+                actionBtn = `
+                    <button class="action-btn confirm-btn" data-payment-id="${pendingPayment.id}" style="background:#16a34a;color:white;margin-right:4px;">Confirm</button>
+                    <button class="action-btn reject-btn" data-payment-id="${pendingPayment.id}" style="background:#dc2626;color:white;">Reject</button>
+                `;
+            } else if (amountPaid > 0) {
+                status = 'Partial';
+                statusClass = 'pending';
+                actionBtn = `<button class="action-btn view-details-btn" data-student-id="${student.studentId}">View Details</button>`;
+            } else {
+                status = 'Unpaid';
+                statusClass = 'unpaid';
+                actionBtn = '-';
+            }
 
             return `
-<tr>
-<td>${student.studentId}</td>
-<td>${student.name}</td>
-<td>${student.yearSection}</td>
-<td>${formatPeso(student.amountPaid)}</td>
-<td>${formatPeso(student.totalDue)}</td>
-<td><span class="status ${statusClass}">${student.status}</span></td>
-<td>${student.lastPayment}</td>
-<td>${student.paymentMethod}</td>
-<td><button class="action-btn">View Details</button></td>
-</tr>
-`;
+                <tr>
+                    <td>${student.studentId}</td>
+                    <td>${student.name}</td>
+                    <td>${student.yearSection}</td>
+                    <td>${formatPeso(amountPaid)}</td>
+                    <td>${formatPeso(totalDue)}</td>
+                    <td><span class="status ${statusClass}">${status}</span></td>
+                    <td>${lastConfirmed ? (lastConfirmed.date || lastConfirmed.dateSubmitted || '-') : '-'}</td>
+                    <td>${lastConfirmed ? (lastConfirmed.paymentMethod || lastConfirmed.method || '-') : '-'}</td>
+                    <td>${actionBtn}</td>
+                </tr>
+            `;
         }).join('');
+
+        tbody.querySelectorAll('.confirm-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const payments = JSON.parse(localStorage.getItem('ccs.student.payments') || '[]');
+                const payment  = payments.find(p => p.id === btn.dataset.paymentId);
+                if (!payment) return;
+                payment.status    = 'Confirmed';
+                payment.updatedAt = new Date().toISOString();
+                localStorage.setItem('ccs.student.payments', JSON.stringify(payments));
+                renderDashboard();
+            });
+        });
+
+        tbody.querySelectorAll('.reject-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const reason = prompt('Enter rejection reason:');
+                if (!reason) return;
+                const payments = JSON.parse(localStorage.getItem('ccs.student.payments') || '[]');
+                const payment  = payments.find(p => p.id === btn.dataset.paymentId);
+                if (!payment) return;
+                payment.status          = 'Rejected';
+                payment.rejectionReason = reason;
+                payment.updatedAt       = new Date().toISOString();
+                localStorage.setItem('ccs.student.payments', JSON.stringify(payments));
+                renderDashboard();
+            });
+        });
+
+        tbody.querySelectorAll('.view-details-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const studentId = btn.dataset.studentId;
+                const payments  = JSON.parse(localStorage.getItem('ccs.student.payments') || '[]')
+                    .filter(p =>
+                        String(p.studentId || p.studentNo) === String(studentId) &&
+                        String(p.orgId) === String(currentOrgId) &&
+                        String(p.status).toLowerCase() === 'confirmed'
+                    )
+                    .sort((a, b) => new Date(b.date || b.dateSubmitted || 0) - new Date(a.date || a.dateSubmitted || 0));
+                if (!payments.length) return;
+                showReceiptModal(payments[0]);
+            });
+        });
     }
+
+    // ── FIX 3: Summary cards read from ccs.student.payments ────────────────────
 
     function renderDashboard() {
         renderOrgStudentRows();
 
         const currentOrgId = getCurrentOrgId();
-        const currentOrgName = getCurrentOrgName();
-        const payments = window.CCSPaymentStore && typeof window.CCSPaymentStore.getPaymentsForOrg === 'function'
-            ? window.CCSPaymentStore.getPaymentsForOrg(currentOrgId)
-            : [];
-        const selectedFee = getSelectedFee();
-        const feeAmount = Number(selectedFee.amount) || 0;
-        const allStudents = (window.SAMPLE_ACCOUNTS || []).filter(function (account) {
-            return account && account.permissions && account.permissions.studentView;
-        });
+        const allPayments  = JSON.parse(localStorage.getItem('ccs.student.payments') || '[]')
+            .filter(p => String(p.orgId) === String(currentOrgId));
 
-        const students = allStudents.filter(function (student) {
-            const feeMatches = studentMatchesFee(student.religion, selectedFee);
-            const isMuslimStudent = String(student.religion || '').toLowerCase() === 'muslim/islam' || String(student.religion || '').toLowerCase() === 'muslim';
+        const confirmedPayments = allPayments.filter(p => String(p.status).toLowerCase() === 'confirmed');
+        const pendingPayments   = allPayments.filter(p => String(p.status).toLowerCase() === 'pending verification');
 
-            if (currentOrgId === 'org-msa-001') {
-                return isMuslimStudent && feeMatches;
-            } else {
-                return !isMuslimStudent && feeMatches;
-            }
-        });
+        const totalCollected = confirmedPayments.reduce((sum, p) => sum + parsePeso(p.amount), 0);
+        const uniqueStudents = new Set(allPayments.map(p => p.studentId || p.studentNo)).size;
 
-        const confirmedPayments = payments.filter(function (payment) {
-            return String(payment.status || 'Confirmed') === 'Confirmed';
-        });
+        const allFees  = JSON.parse(localStorage.getItem('ccs.organization.fees') || '[]')
+            .filter(f => String(f.orgId) === String(currentOrgId) && f.isActive !== false);
+        const totalDue = allFees.reduce((sum, f) => sum + (Number(f.amount) || 0), 0);
 
-        const totalCollected = confirmedPayments.reduce(function (total, payment) {
-            return total + parsePeso(payment.amount);
-        }, 0);
-
-        const fullyPaidStudents = students.filter(function (student) {
-            const studentPayments = confirmedPayments.filter(function (payment) {
-                return String(payment.studentId || payment.studentNo || '') === String(student.studentId) && String(payment.feeName || payment.desc || '').toLowerCase().includes(String(selectedFee.name || '').toLowerCase());
-            });
-            const paidAmount = studentPayments.reduce(function (total, payment) {
-                return total + parsePeso(payment.amount);
-            }, 0);
-            return feeAmount > 0 && paidAmount >= feeAmount;
-        }).length;
-
-        const pendingCount = payments.filter(function (payment) {
-            return String(payment.status || '').toLowerCase() === 'pending verification';
-        }).length;
+        const fullyPaidCount = Array.from(new Set(confirmedPayments.map(p => p.studentId || p.studentNo)))
+            .filter(function (sid) {
+                const paid = confirmedPayments
+                    .filter(p => String(p.studentId || p.studentNo) === String(sid))
+                    .reduce((sum, p) => sum + parsePeso(p.amount), 0);
+                return paid >= totalDue;
+            }).length;
 
         document.querySelectorAll('.summary-cards .card').forEach(function (card) {
             const title = card.querySelector('h3');
             const value = card.querySelector('p');
             if (!title || !value) return;
             const label = String(title.textContent || '').trim().toLowerCase();
-            if (label === 'total collected') {
-                value.textContent = formatPeso(totalCollected);
-            } else if (label === 'pending payments') {
-                value.textContent = String(pendingCount);
-            } else if (label === 'fully paid') {
-                value.textContent = String(fullyPaidStudents);
-            } else if (label === 'total students') {
-                value.textContent = String(students.length);
-            }
+            if      (label === 'total collected')  value.textContent = formatPeso(totalCollected);
+            else if (label === 'pending payments') value.textContent = String(pendingPayments.length);
+            else if (label === 'fully paid')       value.textContent = String(fullyPaidCount);
+            else if (label === 'total students')   value.textContent = String(uniqueStudents);
         });
 
         const orgHeaderName = document.querySelector('.org-header-name');
-        if (orgHeaderName) {
-            orgHeaderName.textContent = currentOrgName;
+        if (orgHeaderName) orgHeaderName.textContent = getCurrentOrgName();
+    }
+
+    // ── FIX 4: Filters moved inside IIFE ───────────────────────────────────────
+
+    const yearLabelMap = {
+        '1': '1st Year',
+        '2': '2nd Year',
+        '3': '3rd Year',
+        '4': '4th Year'
+    };
+
+    function matchesCourse(yearSection, course) {
+        if (!course) return true;
+        if (course === 'BSCS') return yearSection.includes('CS ');
+        if (course === 'BSIT') return yearSection.includes('IT ');
+        return yearSection.includes(course);
+    }
+
+    function applyStudentFilters() {
+        const searchInput         = document.getElementById('studentSearch');
+        const yearLevelSelect     = document.getElementById('filterYearLevel');
+        const courseSelect        = document.getElementById('filterCourse');
+        const sectionSelect       = document.getElementById('filterSection');
+        const paymentMethodSelect = document.getElementById('filterPaymentMethod');
+
+        const searchQuery   = searchInput         ? searchInput.value.toLowerCase().trim() : '';
+        const yearLevel     = yearLevelSelect     ? yearLevelSelect.value                  : '';
+        const course        = courseSelect        ? courseSelect.value                     : '';
+        const section       = sectionSelect       ? sectionSelect.value                   : '';
+        const paymentMethod = paymentMethodSelect ? paymentMethodSelect.value              : '';
+        const yearLabel     = yearLabelMap[yearLevel] || '';
+
+        document.querySelectorAll('#orgStudentRecordsBody tr').forEach(function (row) {
+            const cells       = row.querySelectorAll('td');
+            const rowText     = row.textContent.toLowerCase();
+            const yearSection = cells[2] ? cells[2].textContent.trim() : '';
+            const method      = cells[7] ? cells[7].textContent.trim() : '';
+
+            let show = true;
+            if (searchQuery   && !rowText.includes(searchQuery))   show = false;
+            if (yearLabel     && !yearSection.includes(yearLabel))  show = false;
+            if (!matchesCourse(yearSection, course))                show = false;
+            if (section       && !yearSection.includes(section))    show = false;
+            if (paymentMethod && method !== paymentMethod)          show = false;
+
+            row.style.display = show ? '' : 'none';
+        });
+    }
+
+    function initFilters() {
+        const filtersBtn          = document.getElementById('filtersBtn');
+        const filtersPopover      = document.getElementById('filtersPopover');
+        const searchBtn           = document.getElementById('studentSearchBtn');
+        const searchInput         = document.getElementById('studentSearch');
+        const applyBtn            = document.getElementById('applyFilters');
+        const resetBtn            = document.getElementById('resetFilters');
+
+        if (filtersBtn && filtersPopover) {
+            filtersBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                filtersPopover.classList.toggle('show');
+            });
+            document.addEventListener('click', function (e) {
+                if (!filtersBtn.contains(e.target) && !filtersPopover.contains(e.target)) {
+                    filtersPopover.classList.remove('show');
+                }
+            });
+        }
+
+        if (applyBtn) {
+            applyBtn.addEventListener('click', function () {
+                if (filtersPopover) filtersPopover.classList.remove('show');
+                applyStudentFilters();
+            });
+        }
+
+        if (resetBtn) {
+            resetBtn.addEventListener('click', function () {
+                ['filterYearLevel', 'filterCourse', 'filterSection', 'filterPaymentMethod'].forEach(function (id) {
+                    const el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
+                if (filtersPopover) filtersPopover.classList.remove('show');
+                applyStudentFilters();
+            });
+        }
+
+        if (searchBtn) {
+            searchBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                applyStudentFilters();
+            }, true);
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener('input', applyStudentFilters);
         }
     }
 
+    function initNotificationBadge() {
+        const badgeEl = document.getElementById('orgNotificationBadge');
+        if (badgeEl) {
+            badgeEl.textContent = '3';
+            badgeEl.style.display = 'flex';
+        }
+    }
+
+    // ── Init ───────────────────────────────────────────────────────────────────
+
     initializePageForOrg();
-    renderOrgStudentRows();
     renderDashboard();
-})();
+    initFilters();
+    initNotificationBadge();
 
-
-const yearLabelMap = {
-    '1': '1st Year',
-    '2': '2nd Year',
-    '3': '3rd Year',
-    '4': '4th Year'
-};
-
-function matchesCourse(yearSection, course) {
-    if (!course) return true;
-    if (course === 'BSCS') return yearSection.includes('CS ');
-    if (course === 'BSIT') return yearSection.includes('IT ');
-    return yearSection.includes(course);
-}
-
-function applyStudentFilters() {
-    const searchQuery = searchInput.value.toLowerCase().trim();
-    const yearLevel = yearLevelSelect.value;
-    const course = courseSelect.value;
-    const section = sectionSelect.value;
-    const paymentMethod = paymentMethodSelect.value;
-    const yearLabel = yearLabelMap[yearLevel] || '';
-
-    document.querySelectorAll('#orgStudentRecordsBody tr').forEach(row => {
-        const cells = row.querySelectorAll('td');
-        const rowText = row.textContent.toLowerCase();
-        const yearSection = cells[2]?.textContent.trim() || '';
-        const method = cells[7]?.textContent.trim() || '';
-
-        let show = true;
-
-        if (searchQuery && !rowText.includes(searchQuery)) show = false;
-        if (yearLabel && !yearSection.includes(yearLabel)) show = false;
-        if (!matchesCourse(yearSection, course)) show = false;
-        if (section && !yearSection.includes(section)) show = false;
-        if (paymentMethod && method !== paymentMethod) show = false;
-
-        row.style.display = show ? '' : 'none';
-    });
-}
-
-filtersBtn.addEventListener('click', function(e) {
-    e.stopPropagation();
-    filtersPopover.classList.toggle('show');
-});
-
-document.addEventListener('click', function(e) {
-    if (!filtersBtn.contains(e.target) &&
-        !filtersPopover.contains(e.target)) {
-        filtersPopover.classList.remove('show');
-    }
-});
-
-document.getElementById('applyFilters').addEventListener('click', function() {
-    filtersPopover.classList.remove('show');
-    applyStudentFilters();
-});
-
-document.getElementById('resetFilters').addEventListener('click', function() {
-    yearLevelSelect.value = '';
-    courseSelect.value = '';
-    sectionSelect.value = '';
-    paymentMethodSelect.value = '';
-    filtersPopover.classList.remove('show');
-    applyStudentFilters();
-});
-
-searchBtn.addEventListener('click', function(e) {
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    applyStudentFilters();
-}, true);
-
-searchInput.addEventListener('input', function() {
-    applyStudentFilters();
-});
-
-/* Notification badge system for pending promissory notes */
-(function () {
-    const badgeEl = document.getElementById('orgNotificationBadge');
-    if (badgeEl) {
-        badgeEl.textContent = '3';
-        badgeEl.style.display = 'flex';
-    }
 })();

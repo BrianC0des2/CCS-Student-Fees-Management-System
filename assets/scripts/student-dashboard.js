@@ -203,20 +203,25 @@
     }
 
     function updateClearanceProgress(fees, latestRequestByFee, studentId) {
-        const statusMap = getFeeStatusMap();
+        const allPayments = JSON.parse(localStorage.getItem('ccs.student.payments') || '[]');
+        const confirmedPayments = allPayments.filter(function (p) {
+            return String(p.studentId || p.studentNo) === String(studentId) &&
+                   String(p.status).toLowerCase() === 'confirmed';
+        });
+
         const mandatoryFees = fees.filter(function (fee) {
             return fee.feeType !== 'voluntary';
         });
 
         let completed = 0;
         mandatoryFees.forEach(function (fee) {
-            const paid = statusMap[statusKey(studentId, fee.id)] === 'paid';
+            const feeConfirmed = confirmedPayments.some(function (p) {
+                const feeIds = Array.isArray(p.feeIds) ? p.feeIds : (p.feeId ? [p.feeId] : []);
+                return feeIds.some(function (fid) { return String(fid) === String(fee.id); });
+            });
             const request = latestRequestByFee.get(fee.id);
             const promissoryApproved = request && request.status === 'Promissory Approved';
-
-            if (paid || promissoryApproved) {
-                completed += 1;
-            }
+            if (feeConfirmed || promissoryApproved) completed += 1;
         });
 
         const total = mandatoryFees.length;
@@ -234,6 +239,7 @@
             ?.setAttribute('stroke-dasharray', `${filled} ${circumference}`);
         document.querySelector('.progress-circle-wrapper text').textContent = `${percentage}%`;
     }
+
 
     function renderOutstandingFees() {
         const user = getCurrentUser();

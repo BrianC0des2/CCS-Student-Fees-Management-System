@@ -257,7 +257,7 @@ window.SemesterManager = {
                 return '';
             }
             return `<span class="semester-badge semester-badge--active" title="School Year: ${parsed.academicYear}">
-                ${parsed.semester} (${parsed.academicYear})
+                S.Y. ${parsed.academicYear} | ${parsed.semester}
             </span>`;
         } catch (e) {
             return '';
@@ -276,9 +276,8 @@ window.SemesterManager = {
             if (!parsed.semester || !parsed.academicYear) {
                 return '';
             }
-            const yearSuffix = parsed.academicYear.split('-')[1];
             return `<span class="semester-badge semester-badge--active" title="School Year: ${parsed.academicYear}">
-                ${parsed.semester} (${yearSuffix})
+                S.Y. ${parsed.academicYear} | ${parsed.semester}
             </span>`;
         } catch (e) {
             return '';

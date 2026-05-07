@@ -1,6 +1,31 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
+  const currentUser = window.Auth ? window.Auth.getUser() : null;
+  const studentId = currentUser ? String(currentUser.studentId) : null;
+
+  const allPayments = JSON.parse(localStorage.getItem('ccs.student.payments') || '[]');
+  const confirmedPayments = allPayments.filter(p =>
+      String(p.studentId) === studentId &&
+      String(p.status).toLowerCase() === 'confirmed'
+  );
+
+  const cscConfirmed = confirmedPayments.filter(p => p.orgId === 'u-org-001');
+  const deanConfirmed = confirmedPayments.filter(p => p.orgId === 'org-dean-office-001');
+  const cscPaid = cscConfirmed.length > 0;
+  const deanPaid = deanConfirmed.length > 0;
+  const allOrgsDone = cscPaid && deanPaid;
+
+  function getLatestDate(payments) {
+      if (!payments.length) return null;
+      const sorted = payments.sort((a, b) => new Date(b.date) - new Date(a.date));
+      return new Date(sorted[0].date).toLocaleDateString('en-US', {
+          month: 'short', day: 'numeric', year: 'numeric'
+      });
+  }
+
+  const cscSignedDate = getLatestDate([...cscConfirmed]);
+  const deanSignedDate = getLatestDate([...deanConfirmed]);
 
   /* ─── SECTION A — DATA ───────────────────────────────────────────── */
   const signatories = [
@@ -10,9 +35,9 @@ document.addEventListener('DOMContentLoaded', () => {
       role: 'CSC Officer',
       organization: 'College Student Council',
       type: 'org',
-      status: 'complete',
-      signedDate: 'Feb 3, 2026',
-      requirement: 'CSC Fee (\u20b1200.00) must be paid',
+      status: cscPaid ? 'complete' : 'pending',
+      signedDate: cscSignedDate,
+      requirement: 'CSC Fee (₱200.00) must be paid and confirmed',
       note: 'CSC Fee receipt required',
       contact: 'csc.ccs@wmsu.edu.ph'
     },
@@ -22,8 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
       role: 'Organization Officer',
       organization: 'Philippine ICT Students Society',
       type: 'org',
-      status: 'complete',
-      signedDate: 'Feb 4, 2026',
+      status: 'pending',
       requirement: 'PHICCS membership in good standing',
       note: 'No outstanding dues',
       contact: 'phiccs.ccs@wmsu.edu.ph'
@@ -41,14 +65,15 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     {
       id: 4,
-      name: 'CSC Gender Club',
-      role: 'Club President',
-      organization: 'CSC Gender Club',
+      name: "Dean's Office",
+      role: 'Finance Officer',
+      organization: "Dean's Office – CCS",
       type: 'org',
-      status: 'pending',
-      requirement: 'Gender Club Membership Fee (\u20b150.00) must be paid',
-      note: 'Pay at the Org Office',
-      contact: 'genderclub.ccs@wmsu.edu.ph'
+      status: deanPaid ? 'complete' : 'pending',
+      signedDate: deanSignedDate,
+      requirement: 'Miscellaneous Fee (₱60.00) must be paid and confirmed',
+      note: 'Pay via Cash or Landbank only',
+      contact: 'deanfinance@wmsu.edu.ph'
     },
     {
       id: 5,
@@ -56,8 +81,8 @@ document.addEventListener('DOMContentLoaded', () => {
       role: 'Department Head',
       organization: 'Department of Computer Studies',
       type: 'faculty',
-      status: 'locked',
-      requirement: 'Clearance from steps 1\u20134 must all be complete first',
+      status: allOrgsDone ? 'pending' : 'locked',
+      requirement: 'Clearance from steps 1–4 must all be complete first',
       note: 'Schedule an appointment via the department office',
       contact: 'jcballaho@wmsu.edu.ph'
     },
@@ -65,9 +90,9 @@ document.addEventListener('DOMContentLoaded', () => {
       id: 6,
       name: 'Class Adviser',
       role: 'Class Adviser',
-      organization: 'BS Computer Science \u2013 4A',
+      organization: 'BS Computer Science – 3A',
       type: 'faculty',
-      status: 'locked',
+      status: allOrgsDone ? 'pending' : 'locked',
       requirement: 'Department Head clearance must be signed first',
       note: 'Bring clearance form with step 5 signed',
       contact: 'dept.ccs@wmsu.edu.ph'
@@ -78,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
       role: 'Student Affairs Coordinator',
       organization: 'Office of Student Affairs, CCS',
       type: 'faculty',
-      status: 'locked',
+      status: allOrgsDone ? 'pending' : 'locked',
       requirement: 'All previous steps must be complete',
       note: 'Bring complete clearance form',
       contact: 'marojas@wmsu.edu.ph'
@@ -90,8 +115,9 @@ document.addEventListener('DOMContentLoaded', () => {
       organization: 'College of Computer Studies',
       type: 'dean',
       status: 'locked',
-      requirement: 'Final step \u2013 all 7 prior signatories must be complete',
-      note: "Dean's office is open Mon\u2013Fri, 8am\u20134pm",
+      signedDate: deanSignedDate,
+      requirement: 'Final step – all 7 prior signatories must be complete',
+      note: "Dean's office is open Mon–Fri, 8am–4pm",
       contact: 'mlflores@wmsu.edu.ph'
     }
   ];

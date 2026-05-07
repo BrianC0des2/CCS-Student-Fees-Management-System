@@ -74,12 +74,17 @@ body {
 }
 
 .ay-badge {
-    background: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    background: #1a5c2a;
     color: #ffffff;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 18px;
+    border-radius: 999px;
+    font-size: 12px;
     font-weight: 600;
+    white-space: nowrap;
+    max-height: 28px;
+    line-height: 1.4;
 }
 
 /* TABS */

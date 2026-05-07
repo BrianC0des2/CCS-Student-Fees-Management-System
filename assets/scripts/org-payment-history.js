@@ -101,15 +101,6 @@
         }).format(Number(value) || 0);
     }
 
-    function getSchoolYearAndSemester() {
-        const now = new Date();
-        const month = now.getMonth() + 1;
-        const startYear = month >= 6 ? now.getFullYear() : now.getFullYear() - 1;
-        const schoolYear = `${startYear}-${startYear + 1}`;
-        const semester = month >= 6 && month <= 10 ? '1st Semester' : '2nd Semester';
-        return { schoolYear, semester };
-    }
-
     function normalizeReligion(value) {
         return String(value || '').trim().toLowerCase();
     }
@@ -131,65 +122,52 @@
         return religion === appliesTo;
     }
 
+    // ── FIX: reads from ccs.student.payments, not SAMPLE_PAYMENTS ──────────────
+
     function renderPaymentHistoryRows() {
         const tbody = document.getElementById('orgPaymentHistoryBody');
         if (!tbody) return;
 
-        const selectedFee = getSelectedFee();
         const currentOrgId = getCurrentOrgId();
-        const feeName = String(selectedFee.name || '').toLowerCase();
-        const feeAmount = Number(selectedFee.amount) || 0;
-        const schedule = getSchoolYearAndSemester();
 
-        const overrides = readJson(localStorage.getItem(PROFILE_OVERRIDES_KEY), {});
-        const allStudents = (window.SAMPLE_ACCOUNTS || []).filter(function (account) {
-            return account && account.permissions && account.permissions.studentView;
-        }).map(function (account) {
-            const override = overrides[account.id] || {};
-            return {
-                ...account,
-                religion: typeof override.religion === 'string' ? override.religion : account.religion
-            };
-        });
-
-        const students = allStudents.filter(function (student) {
-            const feeMatches = studentMatchesFee(student.religion, selectedFee);
-            const isMuslimStudent = String(student.religion || '').toLowerCase() === 'muslim/islam' || String(student.religion || '').toLowerCase() === 'muslim';
-
-            if (currentOrgId === 'org-msa-001') {
-                return isMuslimStudent && feeMatches;
-            } else {
-                return !isMuslimStudent && feeMatches;
-            }
-        });
-
-        const allPayments = window.SAMPLE_PAYMENTS || [];
-
-        tbody.innerHTML = students.map(function (student) {
-            const payments = allPayments.filter(function (payment) {
-                if (payment.studentNo !== student.studentId) return false;
-                if (!feeName) return true;
-                return String(payment.desc || '').toLowerCase().includes(feeName);
+        const confirmedPayments = JSON.parse(localStorage.getItem('ccs.student.payments') || '[]')
+            .filter(function (p) {
+                return String(p.orgId) === String(currentOrgId) &&
+                       String(p.status).toLowerCase() === 'confirmed';
+            })
+            .sort(function (a, b) {
+                return new Date(b.date || b.dateSubmitted || b.updatedAt || 0) -
+                       new Date(a.date || a.dateSubmitted || a.updatedAt || 0);
             });
 
-            const paidAmount = payments.reduce(function (total, payment) {
-                return total + parsePeso(payment.amount);
-            }, 0);
+        let schoolYear = '-';
+        let semester = '-';
+        try {
+            const settings = JSON.parse(localStorage.getItem('ccs.academic.settings') || '{}');
+            if (settings.academicYear) schoolYear = settings.academicYear;
+            if (settings.semester) semester = settings.semester;
+        } catch (e) {}
 
-            const isPaid = feeAmount > 0 && paidAmount >= feeAmount;
+        if (!confirmedPayments.length) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;color:#6b7280;">No confirmed payments found.</td></tr>';
+            return;
+        }
 
+        tbody.innerHTML = confirmedPayments.map(function (p) {
+            const amount = parsePeso(p.amount).toFixed(2);
+            const date = p.date || p.dateSubmitted || '-';
             return `
-<tr>
-<td>${student.studentId || '-'}</td>
-<td>${student.name || '-'}</td>
-<td>${student.course || '-'}</td>
-<td>${student.year && student.section ? `${student.year} - ${student.section}` : '-'}</td>
-<td>${schedule.schoolYear}</td>
-<td>${schedule.semester}</td>
-<td>${formatPeso(feeAmount)}</td>
-<td><span class="status-badge ${isPaid ? 'paid' : 'pending'}">${isPaid ? 'Paid' : 'Pending'}</span></td>
-</tr>
-`;
+                <tr>
+                    <td>${p.studentId || p.studentNo || '-'}</td>
+                    <td>${p.studentName || '-'}</td>
+                    <td>${p.feeName || p.desc || '-'}</td>
+                    <td>${schoolYear}</td>
+                    <td>${semester}</td>
+                    <td>₱${amount}</td>
+                    <td>${p.paymentMethod || p.method || '-'}</td>
+                    <td><span class="status-badge paid">Confirmed</span></td>
+                </tr>
+            `;
         }).join('');
     }
 
@@ -273,22 +251,22 @@
         body.innerHTML = requests.map(function (request) {
             const canReview = request.status === 'Pending Review';
             return `
-<tr>
-<td>${request.studentName || '-'}</td>
-<td>${request.studentNumber || '-'}</td>
-<td>${request.feeName || '-'}</td>
-<td>${request.reason || '-'}</td>
-<td>${formatAmount(request.partialAmount)}</td>
-<td>${formatDate(request.promisedDate)}</td>
-<td><span class="promissory-status ${statusClass(request.status)}">${request.status || 'Pending Review'}</span></td>
-<td>
-<div class="promissory-actions">
-<button type="button" class="approve-btn" data-action="approve" data-id="${request.id}" ${canReview ? '' : 'disabled'}>Approve</button>
-<button type="button" class="reject-btn" data-action="reject" data-id="${request.id}" ${canReview ? '' : 'disabled'}>Reject</button>
-</div>
-</td>
-</tr>
-`;
+                <tr>
+                    <td>${request.studentName || '-'}</td>
+                    <td>${request.studentNumber || '-'}</td>
+                    <td>${request.feeName || '-'}</td>
+                    <td>${request.reason || '-'}</td>
+                    <td>${formatAmount(request.partialAmount)}</td>
+                    <td>${formatDate(request.promisedDate)}</td>
+                    <td><span class="promissory-status ${statusClass(request.status)}">${request.status || 'Pending Review'}</span></td>
+                    <td>
+                        <div class="promissory-actions">
+                            <button type="button" class="approve-btn" data-action="approve" data-id="${request.id}" ${canReview ? '' : 'disabled'}>Approve</button>
+                            <button type="button" class="reject-btn" data-action="reject" data-id="${request.id}" ${canReview ? '' : 'disabled'}>Reject</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
         }).join('');
 
         body.querySelectorAll('button[data-action="approve"]').forEach(function (button) {

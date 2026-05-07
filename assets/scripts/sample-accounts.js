@@ -132,17 +132,17 @@ window.SAMPLE_ACCOUNTS = [
 ];
 
 // Shared payment data for all students
-window.SAMPLE_PAYMENTS_SEED_VERSION = 2;
+window.SAMPLE_PAYMENTS_SEED_VERSION = 3;
 window.SAMPLE_PAYMENTS = [
   // Kayden's payments (TY202500100) - Most recent to oldest
   // Seed a confirmed partial payment for the approved promissory
-  { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'CSC Fee', amount: '₱100.00', date: '2026-02-20', method: 'GCash' },
-  { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'CSC Fee', amount: '₱200.00', date: '2026-01-03', method: 'GCash' },
-  { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'Insurance', amount: '₱40.00', date: '2025-08-03', method: 'Cash' },
-  { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'Gender Club', amount: '₱50.00', date: '2025-01-03', method: 'GCash' },
-  { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'Miscellaneous', amount: '₱60.00', date: '2024-08-02', method: 'Bank Transfer' },
-  { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'CSC Fee', amount: '₱200.00', date: '2024-01-05', method: 'GCash' },
-  { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'Insurance', amount: '₱40.00', date: '2023-08-03', method: 'Cash' },
+  { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'CSC Fee', amount: '₱100.00', date: '2026-02-20', method: 'GCash', status: 'Pending Verification' },
+  { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'CSC Fee', amount: '₱200.00', date: '2026-01-03', method: 'GCash', status: 'Pending Verification' },
+  { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'Insurance', amount: '₱40.00', date: '2025-08-03', method: 'Cash', status: 'Pending Verification' },
+  { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'Gender Club', amount: '₱50.00', date: '2025-01-03', method: 'GCash', status: 'Pending Verification' },
+  { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'Miscellaneous', amount: '₱60.00', date: '2024-08-02', method: 'Bank Transfer', status: 'Pending Verification' },
+  { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'CSC Fee', amount: '₱200.00', date: '2024-01-05', method: 'GCash', status: 'Pending Verification' },
+  { studentNo: "TY202500100", studentName: "Kayden Break", desc: 'Insurance', amount: '₱40.00', date: '2023-08-03', method: 'Cash', status: 'Pending Verification' },
 
   // Demo students for organization dashboard
   // Student 1: Marco Reyes - Fully Paid (all mandatory fees confirmed)
