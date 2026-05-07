@@ -1,6 +1,5 @@
 (function () {
     const FEES_STORAGE_KEY = 'ccs.organization.fees';
-    const PROFILE_OVERRIDES_KEY = 'ccs.auth.accountProfileOverrides';
 
     function getOrganizationScope() {
         if (window.CCSAuthHelpers && typeof window.CCSAuthHelpers.getCurrentOrganizationScope === 'function') {
@@ -41,60 +40,6 @@
         }
     }
 
-    function defaultFees() {
-        return [
-            { id: 'fee-default-csc', name: 'CSC Fee', amount: 200, appliesTo: 'all', isActive: true, orgId: 'u-org-001' },
-            { id: 'fee-default-misc', name: 'Miscellaneous fee', amount: 60, appliesTo: 'all', isActive: true, orgId: 'org-dean-office-001' },
-            { id: 'fee-default-msa', name: 'MSA Fee', amount: 50, appliesTo: 'Muslim', isActive: true, orgId: 'org-msa-001' },
-            { id: 'fee-default-insurance', name: 'Insurance (Whole Year)', amount: 100, appliesTo: 'all', isActive: true, orgId: 'u-org-001' }
-        ];
-    }
-
-    function normalizeAppliesToValue(appliesTo, specificReligion) {
-        const normalized = String(appliesTo || 'all').trim().toLowerCase();
-        if (normalized === 'muslim' || normalized === 'muslim/islam') return 'muslim';
-        if (normalized === 'catholic' || normalized === 'roman catholic') return 'catholic';
-        if (normalized === 'specific') {
-            const value = String(specificReligion || '').trim().toLowerCase();
-            return value || 'all';
-        }
-        return normalized || 'all';
-    }
-
-    function getSelectedFee() {
-        const savedFees = readJson(localStorage.getItem(FEES_STORAGE_KEY), []);
-        const fees = (Array.isArray(savedFees) && savedFees.length ? savedFees : defaultFees()).filter(function (fee) {
-            return String(fee.orgId || 'u-org-001') === String(getCurrentOrgId());
-        });
-
-        const params = new URLSearchParams(window.location.search);
-        const feeIdFromQuery = params.get('feeId');
-        const feeIdFromStorage = localStorage.getItem('ccs.organization.selectedFeeId') || localStorage.getItem('ccs.organization.activeFeeId');
-        const selectedFeeId = feeIdFromQuery || feeIdFromStorage;
-
-        if (selectedFeeId) {
-            const matched = fees.find(function (fee) { return fee.id === selectedFeeId; });
-            if (matched) return matched;
-        }
-
-        const feeNameFromQuery = params.get('feeName');
-        const feeNameFromStorage = localStorage.getItem('ccs.organization.selectedFeeName') || localStorage.getItem('ccs.organization.activeFeeName');
-        const selectedFeeName = (feeNameFromQuery || feeNameFromStorage || '').trim().toLowerCase();
-        if (selectedFeeName) {
-            const matchedByName = fees.find(function (fee) {
-                return String(fee.name || '').trim().toLowerCase() === selectedFeeName;
-            });
-            if (matchedByName) return matchedByName;
-        }
-
-        const selectedFeeRaw = readJson(localStorage.getItem('ccs.organization.selectedFee'), null);
-        if (selectedFeeRaw && typeof selectedFeeRaw === 'object' && String(selectedFeeRaw.orgId || 'u-org-001') === String(getCurrentOrgId())) {
-            return selectedFeeRaw;
-        }
-
-        return fees.find(function (fee) { return fee.isActive !== false; }) || fees[0] || { name: 'Selected Fee', amount: 0, appliesTo: 'all' };
-    }
-
     function parsePeso(value) {
         return Number(String(value || '0').replace(/[^\d.-]/g, '')) || 0;
     }
@@ -107,29 +52,6 @@
             maximumFractionDigits: 2
         }).format(Number(value) || 0);
     }
-
-    function normalizeReligion(value) {
-        return String(value || '').trim().toLowerCase();
-    }
-
-    function studentMatchesFee(studentReligion, fee) {
-        const appliesTo = normalizeAppliesToValue(fee.appliesTo, fee.specificReligion);
-        if (appliesTo === 'all') return true;
-
-        const religion = normalizeReligion(studentReligion);
-        if (!religion) return false;
-
-        if (appliesTo === 'muslim') {
-            return religion === 'muslim/islam' || religion === 'muslim';
-        }
-        if (appliesTo === 'catholic') {
-            return religion === 'roman catholic' || religion === 'catholic';
-        }
-
-        return religion === appliesTo;
-    }
-
-    // ── FIX 1: Receipt modal ────────────────────────────────────────────────────
 
     function showReceiptModal(payment) {
         const existing = document.getElementById('org-receipt-modal-root');
@@ -167,8 +89,6 @@
         });
     }
 
-    // ── FIX 2: Student records table reads from ccs.student.payments ────────────
-
     function renderOrgStudentRows() {
         const tbody = document.getElementById('orgStudentRecordsBody');
         if (!tbody) return;
@@ -193,12 +113,12 @@
         });
 
         if (studentMap.size === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px;color:#6b7280;">No student payment records found.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:20px;color:#6b7280;">No student payment records found.</td></tr>';
             return;
         }
 
         const allFees = JSON.parse(localStorage.getItem('ccs.organization.fees') || '[]')
-            .filter(f => String(f.orgId) === String(currentOrgId) && f.isActive !== false);
+            .filter(f => String(f.orgId) === String(currentOrgId) && f.isActive !== false && f.feeType !== 'voluntary');
         const totalDue = allFees.reduce((sum, f) => sum + (Number(f.amount) || 0), 0);
 
         tbody.innerHTML = Array.from(studentMap.values()).map(function (student) {
@@ -209,11 +129,23 @@
                 new Date(b.date || b.dateSubmitted || 0) - new Date(a.date || a.dateSubmitted || 0)
             )[0];
 
+            // Check promissory
+            const promissoryRequests = JSON.parse(localStorage.getItem('ccs.promissory.requests') || '[]');
+            const studentPromissory = promissoryRequests.filter(r =>
+                String(r.studentId) === String(student.studentId) &&
+                String(r.status).toLowerCase() === 'promissory approved'
+            );
+            const hasApprovedPromissory = studentPromissory.length > 0;
+
             let status, statusClass, actionBtn;
 
             if (amountPaid >= totalDue && totalDue > 0) {
                 status = 'Fully Paid';
                 statusClass = 'fully-paid';
+                actionBtn = `<button class="action-btn view-details-btn" data-student-id="${student.studentId}">View Details</button>`;
+            } else if (hasApprovedPromissory) {
+                status = 'Promissory';
+                statusClass = 'promissory';
                 actionBtn = `<button class="action-btn view-details-btn" data-student-id="${student.studentId}">View Details</button>`;
             } else if (pending.length > 0) {
                 status = 'Pending';
@@ -223,10 +155,6 @@
                     <button class="action-btn confirm-btn" data-payment-id="${pendingPayment.id}" style="background:#16a34a;color:white;margin-right:4px;">Confirm</button>
                     <button class="action-btn reject-btn" data-payment-id="${pendingPayment.id}" style="background:#dc2626;color:white;">Reject</button>
                 `;
-            } else if (amountPaid > 0) {
-                status = 'Partial';
-                statusClass = 'pending';
-                actionBtn = `<button class="action-btn view-details-btn" data-student-id="${student.studentId}">View Details</button>`;
             } else {
                 status = 'Unpaid';
                 statusClass = 'unpaid';
@@ -237,9 +165,10 @@
                 <tr>
                     <td>${student.studentId}</td>
                     <td>${student.name}</td>
+                    <td>-</td>
                     <td>${student.yearSection}</td>
-                    <td>${formatPeso(amountPaid)}</td>
                     <td>${formatPeso(totalDue)}</td>
+                    <td>${formatPeso(amountPaid)}</td>
                     <td><span class="status ${statusClass}">${status}</span></td>
                     <td>${lastConfirmed ? (lastConfirmed.date || lastConfirmed.dateSubmitted || '-') : '-'}</td>
                     <td>${lastConfirmed ? (lastConfirmed.paymentMethod || lastConfirmed.method || '-') : '-'}</td>
@@ -291,8 +220,6 @@
         });
     }
 
-    // ── FIX 3: Summary cards read from ccs.student.payments ────────────────────
-
     function renderDashboard() {
         renderOrgStudentRows();
 
@@ -307,7 +234,7 @@
         const uniqueStudents = new Set(allPayments.map(p => p.studentId || p.studentNo)).size;
 
         const allFees  = JSON.parse(localStorage.getItem('ccs.organization.fees') || '[]')
-            .filter(f => String(f.orgId) === String(currentOrgId) && f.isActive !== false);
+            .filter(f => String(f.orgId) === String(currentOrgId) && f.isActive !== false && f.feeType !== 'voluntary');
         const totalDue = allFees.reduce((sum, f) => sum + (Number(f.amount) || 0), 0);
 
         const fullyPaidCount = Array.from(new Set(confirmedPayments.map(p => p.studentId || p.studentNo)))
@@ -332,8 +259,6 @@
         const orgHeaderName = document.querySelector('.org-header-name');
         if (orgHeaderName) orgHeaderName.textContent = getCurrentOrgName();
     }
-
-    // ── FIX 4: Filters moved inside IIFE ───────────────────────────────────────
 
     const yearLabelMap = {
         '1': '1st Year',
@@ -366,8 +291,8 @@
         document.querySelectorAll('#orgStudentRecordsBody tr').forEach(function (row) {
             const cells       = row.querySelectorAll('td');
             const rowText     = row.textContent.toLowerCase();
-            const yearSection = cells[2] ? cells[2].textContent.trim() : '';
-            const method      = cells[7] ? cells[7].textContent.trim() : '';
+            const yearSection = cells[3] ? cells[3].textContent.trim() : '';
+            const method      = cells[8] ? cells[8].textContent.trim() : '';
 
             let show = true;
             if (searchQuery   && !rowText.includes(searchQuery))   show = false;
@@ -438,8 +363,6 @@
             badgeEl.style.display = 'flex';
         }
     }
-
-    // ── Init ───────────────────────────────────────────────────────────────────
 
     initializePageForOrg();
     renderDashboard();
