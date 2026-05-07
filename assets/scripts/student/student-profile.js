@@ -2,7 +2,7 @@
 (function () {
     const RELIGION_OPTIONS = [
         "Roman Catholic",
-        "Muslim/Islam",
+        "Islam",
         "Iglesia ni Cristo",
         "Born Again Christian",
         "Seventh Day Adventist",

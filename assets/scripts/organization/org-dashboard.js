@@ -53,6 +53,13 @@
         }).format(Number(value) || 0);
     }
 
+    function getStudentProfile(studentId) {
+        const accounts = window.SAMPLE_ACCOUNTS || [];
+        return accounts.find(function (a) {
+            return String(a.studentId || '') === String(studentId || '');
+        }) || null;
+    }
+
     function showReceiptModal(payment) {
         const existing = document.getElementById('org-receipt-modal-root');
         if (existing) existing.remove();
@@ -139,14 +146,16 @@
 
             let status, statusClass, actionBtn;
 
+            const viewDetailsBtn = `<button class="action-btn view-details-btn" data-student-id="${student.studentId}">View Details</button>`;
+
             if (amountPaid >= totalDue && totalDue > 0) {
                 status = 'Fully Paid';
                 statusClass = 'fully-paid';
-                actionBtn = `<button class="action-btn view-details-btn" data-student-id="${student.studentId}">View Details</button>`;
+                actionBtn = viewDetailsBtn;
             } else if (hasApprovedPromissory) {
                 status = 'Promissory';
                 statusClass = 'promissory';
-                actionBtn = `<button class="action-btn view-details-btn" data-student-id="${student.studentId}">View Details</button>`;
+                actionBtn = confirmed.length > 0 ? viewDetailsBtn : '-';
             } else if (pending.length > 0) {
                 status = 'Pending';
                 statusClass = 'pending';
@@ -155,18 +164,26 @@
                     <button class="action-btn confirm-btn" data-payment-id="${pendingPayment.id}" style="background:#16a34a;color:white;margin-right:4px;">Confirm</button>
                     <button class="action-btn reject-btn" data-payment-id="${pendingPayment.id}" style="background:#dc2626;color:white;">Reject</button>
                 `;
+            } else if (confirmed.length > 0) {
+                status = 'Unpaid';
+                statusClass = 'unpaid';
+                actionBtn = viewDetailsBtn;
             } else {
                 status = 'Unpaid';
                 statusClass = 'unpaid';
                 actionBtn = '-';
             }
 
+            const profile = getStudentProfile(student.studentId);
+            const course = profile ? (profile.course || '-') : '-';
+            const yearSection = profile ? [profile.year, profile.section].filter(Boolean).join(', ') || '-' : '-';
+
             return `
                 <tr>
                     <td>${student.studentId}</td>
                     <td>${student.name}</td>
-                    <td>-</td>
-                    <td>${student.yearSection}</td>
+                    <td>${course}</td>
+                    <td>${yearSection}</td>
                     <td>${formatPeso(totalDue)}</td>
                     <td>${formatPeso(amountPaid)}</td>
                     <td><span class="status ${statusClass}">${status}</span></td>

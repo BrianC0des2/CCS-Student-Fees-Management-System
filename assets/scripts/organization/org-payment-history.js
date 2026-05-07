@@ -27,6 +27,58 @@
         return Number(String(value || '0').replace(/[^\d.-]/g, '')) || 0;
     }
 
+    function getStudentProfile(studentId) {
+        const accounts = window.SAMPLE_ACCOUNTS || [];
+        return accounts.find(function (a) {
+            return String(a.studentId || '') === String(studentId || '');
+        }) || null;
+    }
+
+    function formatPeso(value) {
+        return new Intl.NumberFormat('en-PH', {
+            style: 'currency',
+            currency: 'PHP',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(Number(value) || 0);
+    }
+
+    function showReceiptModal(payment) {
+        const existing = document.getElementById('org-receipt-modal-root');
+        if (existing) existing.remove();
+
+        const root = document.createElement('div');
+        root.id = 'org-receipt-modal-root';
+        root.innerHTML = `
+            <div style="position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;">
+                <div style="background:white;border-radius:12px;width:min(560px,100%);max-height:90vh;overflow-y:auto;padding:24px;font-family:Poppins,sans-serif;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                        <div style="font-size:16px;font-weight:600;">Receipt ${payment.referenceNumber || payment.id}</div>
+                        <button id="close-receipt-modal" style="background:none;border:none;font-size:20px;cursor:pointer;">×</button>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:13px;">
+                        <div><div style="color:#6b7280;font-size:11px;text-transform:uppercase;">Student Name</div><div style="font-weight:500;margin-top:4px;">${payment.studentName || '-'}</div></div>
+                        <div><div style="color:#6b7280;font-size:11px;text-transform:uppercase;">Student ID</div><div style="font-weight:500;margin-top:4px;">${payment.studentId || payment.studentNo || '-'}</div></div>
+                        <div><div style="color:#6b7280;font-size:11px;text-transform:uppercase;">Fee</div><div style="font-weight:500;margin-top:4px;">${payment.feeName || payment.desc || '-'}</div></div>
+                        <div><div style="color:#6b7280;font-size:11px;text-transform:uppercase;">Amount</div><div style="font-weight:500;margin-top:4px;">${formatPeso(parsePeso(payment.amount))}</div></div>
+                        <div><div style="color:#6b7280;font-size:11px;text-transform:uppercase;">Payment Method</div><div style="font-weight:500;margin-top:4px;">${payment.paymentMethod || payment.method || '-'}</div></div>
+                        <div><div style="color:#6b7280;font-size:11px;text-transform:uppercase;">Date</div><div style="font-weight:500;margin-top:4px;">${payment.date || payment.dateSubmitted || '-'}</div></div>
+                        <div><div style="color:#6b7280;font-size:11px;text-transform:uppercase;">Reference No.</div><div style="font-weight:500;margin-top:4px;">${payment.referenceNumber || '-'}</div></div>
+                        <div><div style="color:#6b7280;font-size:11px;text-transform:uppercase;">Status</div><div style="margin-top:4px;"><span style="background:#dcfce7;color:#16a34a;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;">Confirmed</span></div></div>
+                    </div>
+                    <div style="margin-top:20px;padding:12px;background:#f0fdf4;border-radius:8px;font-size:12px;color:#16a34a;font-weight:500;text-align:center;">
+                        Verified and confirmed by ${getCurrentOrgName()}
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(root);
+        document.getElementById('close-receipt-modal').addEventListener('click', () => root.remove());
+        root.querySelector('div').addEventListener('click', function (e) {
+            if (e.target === this) root.remove();
+        });
+    }
+
     function renderPaymentHistoryRows() {
         const tbody = document.getElementById('orgPaymentHistoryBody');
         if (!tbody) return;
@@ -59,21 +111,36 @@
         tbody.innerHTML = confirmedPayments.map(function (p) {
             const amount = parsePeso(p.amount).toFixed(2);
             const date = p.date || p.dateSubmitted || '-';
+            const profile = getStudentProfile(p.studentId || p.studentNo);
+            const course = profile ? (profile.course || '-') : '-';
+            const yearSection = profile ? [profile.year, profile.section].filter(Boolean).join(', ') || '-' : '-';
+
             return `
                 <tr>
                     <td>${p.studentId || p.studentNo || '-'}</td>
                     <td>${p.studentName || '-'}</td>
-                    <td>-</td>
-                    <td>-</td>
+                    <td>${course}</td>
+                    <td>${yearSection}</td>
                     <td>${schoolYear}</td>
                     <td>${semester}</td>
                     <td>${p.feeName || p.desc || '-'}</td>
                     <td>₱${amount}</td>
                     <td>${p.paymentMethod || p.method || '-'}</td>
                     <td>${date}</td>
+                    <td><button class="action-btn view-details-btn" data-payment-id="${p.id || ''}">View Details</button></td>
                 </tr>
             `;
         }).join('');
+
+        tbody.querySelectorAll('.view-details-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const paymentId = btn.dataset.paymentId;
+                const payments = JSON.parse(localStorage.getItem('ccs.student.payments') || '[]');
+                const payment = payments.find(function (p) { return String(p.id || '') === String(paymentId); });
+                if (!payment) return;
+                showReceiptModal(payment);
+            });
+        });
     }
 
     renderPaymentHistoryRows();
