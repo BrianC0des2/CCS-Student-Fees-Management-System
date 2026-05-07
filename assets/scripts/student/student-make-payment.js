@@ -1,7 +1,5 @@
 const FEES_STORAGE_KEY = 'ccs.organization.fees';
-const PROMISSORY_STORAGE_KEY = window.CCSStudentDataHelpers && typeof window.CCSStudentDataHelpers.getStudentDataStorageKey === 'function'
-    ? window.CCSStudentDataHelpers.getStudentDataStorageKey('PROMISSORY_STORAGE_KEY')
-    : (window.CCSStudentDataKeys && window.CCSStudentDataKeys.PROMISSORY_STORAGE_KEY);
+const PROMISSORY_STORAGE_KEY = 'ccs.promissory.requests';
 const feeListEl = document.getElementById('makePaymentFeeList');
 const multiOrgNoticeEl = document.getElementById('multiOrgNotice');
 const summaryItems = document.getElementById('summary-items');

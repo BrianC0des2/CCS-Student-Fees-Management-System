@@ -1,5 +1,10 @@
 'use strict';
 
+// ── bxi helper (renders boxicons inline) ──────────────────────────────────────
+function bxi(name) {
+    return `<i class="bx bx-${name}"></i>`;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const pageContent = document.getElementById('page-content');
     let modalStyleInjected = false;
@@ -7,7 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function injectModalStyles() {
         if (modalStyleInjected) return;
         modalStyleInjected = true;
-
         const style = document.createElement('style');
         style.textContent = `
             @keyframes semesterModalSlideUp {
@@ -62,7 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function openConfirmModal(options) {
         injectModalStyles();
-
         const existing = document.getElementById('semester-confirm-modal-root');
         if (existing) existing.remove();
 
@@ -84,7 +87,6 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
 
         document.body.appendChild(root);
-
         const overlay   = root.querySelector('.semester-confirm-overlay');
         const cancelBtn = root.querySelector('.semester-confirm-cancel');
         const okBtn     = root.querySelector('.semester-confirm-ok');
@@ -95,50 +97,56 @@ document.addEventListener('DOMContentLoaded', () => {
         overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
     }
 
-    // ─── Validation helpers ───────────────────────────────────────────────────
-
     function parseLocalDate(str) {
-        // Avoid timezone shift by treating as local midnight
         return str ? new Date(str + 'T00:00:00') : null;
     }
 
     function validateSemesterDates(paymentStart, paymentDeadline, semStart, semEnd) {
-        const ps  = parseLocalDate(paymentStart);
-        const pd  = parseLocalDate(paymentDeadline);
-        const ss  = parseLocalDate(semStart);
-        const se  = parseLocalDate(semEnd);
+        const ps = parseLocalDate(paymentStart);
+        const pd = parseLocalDate(paymentDeadline);
+        const ss = parseLocalDate(semStart);
+        const se = parseLocalDate(semEnd);
 
-        if (!ps || !pd || !ss || !se) {
-            return 'Please fill in all required date fields.';
-        }
-
-        // Payment window must be before semester starts
-        if (ps >= ss) {
-            return 'Payment Window Start Date must be before the Semester Start Date.';
-        }
-        if (pd > ss) {
-            return 'Payment Deadline must be on or before the Semester Start Date.';
-        }
-        // Payment window internal order
-        if (ps >= pd) {
-            return 'Payment Window Start Date must be before the Payment Deadline.';
-        }
-        // Semester dates
-        if (ss >= se) {
-            return 'Semester Start Date must be before the Semester End Date.';
-        }
-
-        return null; // no error
+        if (!ps || !pd || !ss || !se) return 'Please fill in all required date fields.';
+        if (ps >= ss) return 'Payment Window Start Date must be before the Semester Start Date.';
+        if (pd > ss)  return 'Payment Deadline must be on or before the Semester Start Date.';
+        if (ps >= pd) return 'Payment Window Start Date must be before the Payment Deadline.';
+        if (ss >= se) return 'Semester Start Date must be before the Semester End Date.';
+        return null;
     }
 
-    // ─── Render ───────────────────────────────────────────────────────────────
+    function generateYearOptions() {
+        const currentYear = new Date().getFullYear();
+        const years = [];
+        for (let y = currentYear - 1; y <= currentYear + 4; y++) {
+            years.push(`${y}-${y + 1}`);
+        }
+        return years.map(y => `<option value="${y}">${y}</option>`).join('');
+    }
+
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        if (!toast) return;
+        toast.textContent = msg;
+        toast.classList.remove('toast--hidden');
+        setTimeout(() => toast.classList.add('toast--hidden'), 3000);
+    }
+
+    function setSchoolYear() {
+        // update ay-badge if present
+        const settings = (() => {
+            try { return JSON.parse(localStorage.getItem('ccs.academic.settings') || 'null'); } catch (_) { return null; }
+        })();
+        document.querySelectorAll('.ay-badge').forEach(el => {
+            el.textContent = settings ? `${settings.academicYear} ${settings.semester}` : '';
+        });
+    }
 
     function renderSemester() {
         if (!pageContent) return;
 
         const semesters = window.SemesterManager.getAllSemesters();
         const current   = window.SemesterManager.getCurrentSemester();
-        const years     = ['2023-2024','2024-2025','2025-2026','2026-2027','2027-2028','2028-2029'];
 
         pageContent.innerHTML = `
             <div class="section-header">
@@ -237,16 +245,16 @@ document.addEventListener('DOMContentLoaded', () => {
             <!-- Create New Semester Form -->
             <div class="card" style="margin-top:24px;">
                 <div class="card-title">Create New Semester</div>
-                <div style="background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#854d0e;line-height:1.6;">
-                    <strong>Date rules:</strong> The payment window (clearance week) must happen <em>before</em> the semester starts.
-                    Set the payment window open and deadline dates first, then the semester start and end dates.
+                <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#166534;line-height:1.6;display:flex;align-items:flex-start;gap:8px;">
+                    <i class='bx bx-info-circle' style="font-size:16px;margin-top:1px;flex-shrink:0;"></i>
+                    The payment window (clearance week) must happen before the semester starts.
                 </div>
                 <div class="form-grid">
                     <div class="form-group">
                         <label>School Year *</label>
                         <select id="ns-year">
                             <option value="">Select school year</option>
-                            ${years.map(y => `<option value="${y}">${y}</option>`).join('')}
+                            ${generateYearOptions()}
                         </select>
                     </div>
                     <div class="form-group">
@@ -401,7 +409,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Confirmation modal before creating
             openConfirmModal({
                 title: 'Create Semester?',
                 body: `
@@ -429,7 +436,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     if (result) {
                         showToast(`Created: ${year} ${name}`);
-                        // Reset form
                         ['ns-year','ns-name','ns-payment-start','ns-payment','ns-start','ns-end','ns-desc','ns-auto-date'].forEach(id => {
                             const el = document.getElementById(id);
                             if (el) el.value = '';

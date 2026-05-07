@@ -1,8 +1,6 @@
 (function () {
     const FEES_STORAGE_KEY = 'ccs.organization.fees';
-    const PROMISSORY_STORAGE_KEY = window.CCSStudentDataHelpers && typeof window.CCSStudentDataHelpers.getStudentDataStorageKey === 'function'
-        ? window.CCSStudentDataHelpers.getStudentDataStorageKey('PROMISSORY_STORAGE_KEY')
-        : (window.CCSStudentDataKeys && window.CCSStudentDataKeys.PROMISSORY_STORAGE_KEY);
+    const PROMISSORY_STORAGE_KEY = 'ccs.promissory.requests';
     const STUDENT_FEE_STATUS_KEY = 'ccs.student.feeStatus';
 
     const DEFAULT_FEES = [
@@ -530,10 +528,9 @@ ${rejectionReason}
         document.getElementById('promissoryReason').value = '';
         document.getElementById('promissoryDate').value = '';
 
-        // Set min date to today and max date to semester end date
         const today = new Date().toISOString().slice(0, 10);
         const academicSettings = JSON.parse(localStorage.getItem('ccs.academic.settings') || '{}');
-        const semesterEndDate = academicSettings.endDate || '';
+        const semesterEndDate = academicSettings.semesterEndDate || '';
 
         const promisedDateInput = document.getElementById('promissoryDate');
         if (promisedDateInput) {
@@ -541,11 +538,7 @@ ${rejectionReason}
             if (semesterEndDate) {
                 promisedDateInput.max = semesterEndDate;
             } else {
-                // Fallback: try to get end date from current semester
-                const currentSemester = window.SemesterManager && window.SemesterManager.getCurrentSemester ? window.SemesterManager.getCurrentSemester() : null;
-                if (currentSemester && currentSemester.endDate) {
-                    promisedDateInput.max = currentSemester.endDate;
-                }
+                promisedDateInput.removeAttribute('max');
             }
         }
 
@@ -577,7 +570,6 @@ ${rejectionReason}
             return;
         }
 
-        // Get the fee object to extract orgId
         const fees = getFees();
         const feeObj = fees.find(function (f) { return String(f.id || '') === String(selectedFee.feeId); }) || {};
         const orgId = feeObj.orgId || selectedFee.orgId || 'u-org-001';
@@ -591,7 +583,6 @@ ${rejectionReason}
             studentNumber: selectedFee.studentNumber,
             studentName: selectedFee.studentName,
             amount: feeObj.amount || null,
-            partialAmount: partialAmount,
             reason: reason,
             promisedDate: promisedDate,
             dateRequested: new Date().toISOString().split('T')[0],
