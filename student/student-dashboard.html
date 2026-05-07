@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="UTF-8">
+        <title> CCS PAY++ </title>
+        <link rel="stylesheet" href="../../styles/sidebar.css">
+        <link rel="stylesheet" href="../../styles/student-styles/student-dashboard.css">
+        <!-- Boxiocns CDN Link -->
+        <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+        <link rel="stylesheet" href="../../styles/settings.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+           
+        </style>
+    </head>
+    <body>
+        <div class="sidebar">
+            <a href="student-dashboard.html" style="text-decoration: none; color: inherit; cursor: pointer;">
+                <div class="logo-details">
+                    <img src="../../assets/images/pyt.png" alt="Pay++ Logo" class="sidebar-logo-img">
+                    <span class="logo_name">Pay++</span>
+                </div>
+            </a>
+                  <ul class="nav-links">
+                <li>
+                    <a href="student-dashboard.html">
+                        <i class='bx bx-grid-alt' ></i>
+                        <span class="link_name">Dashboard</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name" href="student-dashboard.html">Dashboard</a></li>
+                    </ul>
+                </li>
+                <!-- <li>
+                    <div class="iocn-link">
+                        <a href="#">
+                            <i class='bx bx-collection' ></i>
+                            <span class="link_name">Category</span>
+                        </a>
+                        <i class='bx bxs-chevron-down arrow' ></i>
+                    </div>
+                    <ul class="sub-menu">
+                        <li><a class="link_name" href="#">Category</a></li>
+                        <li><a href="#">HTML & CSS</a></li>
+                        <li><a href="#">JavaScript</a></li>
+                        <li><a href="#">PHP & MySQL</a></li>
+                    </ul>
+                </li> -->
+                <!-- <li>
+                    <div class="iocn-link">
+                        <a href="#">
+                            <i class='bx bx-book-alt' ></i>
+                            <span class="link_name">Posts</span>
+                        </a>
+                        <i class='bx bxs-chevron-down arrow' ></i>
+                    </div>
+                    <ul class="sub-menu">
+                        <li><a class="link_name" href="#">Posts</a></li>
+                        <li><a href="#">Web Design</a></li>
+                        <li><a href="#">Login Form</a></li>
+                        <li><a href="#">Card Design</a></li>
+                    </ul>
+                </li> -->
+                <li>
+                    <div class="iocn-link">
+                        <a href="#">
+                            <i class='bx bx-wallet' ></i>
+                            <span class="link_name">Payments</span>
+                        </a>
+                        <i class='bx bxs-chevron-down arrow' ></i>
+                    </div>
+                    <ul class="sub-menu">
+                        <li><a href="make-payment.html">Make Payment</a></li>
+                        <li><a href="payment-receipt.html">Payment History</a></li>
+                    </ul>
+                </li>
+                <!-- <li>
+                    <div class="iocn-link">
+                        <a href="#">
+                            <i class='bx bx-plug' ></i>
+                            <span class="link_name">Plugins</span>
+                        </a>
+                        <i class='bx bxs-chevron-down arrow' ></i>
+                    </div>
+                    <ul class="sub-menu">
+                        <li><a class="link_name" href="#">Plugins</a></li>
+                        <li><a href="#">UI Face</a></li>
+                        <li><a href="#">Pigments</a></li>
+                        <li><a href="#">Box Icons</a></li>
+                    </ul>
+                </li> -->
+                <li>
+                    <a href="clearance-status.html">
+                        <i class='bx bx-clipboard' ></i>
+                        <span class="link_name">Clearance</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name" href="clearance-status.html">Clearance</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#" class="js-settings-open">
+                        <i class='bx bx-cog' ></i>
+                        <span class="link_name">Settings</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name js-settings-open" href="#">Settings</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="student-profile.html">
+                        <i class='bx bx-user-circle'></i>
+                        <span class="link_name">Profile</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name" href="student-profile.html">Profile</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <div class="profile-details">
+                        <div class="profile-main">
+                            <div class="profile-content">
+                                <img src="../../assets/images/profile.png" alt="profileImg">
+                            </div>
+                            <div class="name-job">
+                                <div class="name-with-switch">
+                                    <div class="profile_name" id="sidebarProfileName">Student</div>
+                                    <button type="button" class="view-switch-container" aria-label="Switch view">
+                                        <i class='bx bx-chevron-up view-switch-icon'></i>
+                                    </button>
+                                </div>
+                                <div class="job" id="sidebarStudentId">0000000000</div>
+                            </div>
+                        </div>
+                        <a class="logout-section">
+                            <span>Sign out</span>
+                            <i class='bx bx-log-out'></i>
+                        </a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <section class="home-section">
+            <div class="home-content">
+                <div class="home-heading">
+                    <i class='bx bx-menu' ></i>
+                    <span class="text">Student Dashboard</span>
+                </div>
+                <div class="topbar-right">
+                    <span class="ay-badge"></span>
+                    <div class="notif-bell" aria-label="Notifications">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                        </svg>
+                        <span class="notif-badge"></span>
+                    </div>
+                    <div class="notif-dropdown" id="notifDropdown" style="display:none;">
+                        <div class="notif-dropdown-header">
+                            <span>Notifications</span>
+                            <button class="notif-mark-all" id="notifMarkAll">Mark all read</button>
+                        </div>
+                        <div class="notif-list" id="notifList">
+                            <div class="notif-empty">No notifications</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="dashboard-container" style="width: 100%; overflow-x: hidden; box-sizing: border-box; max-width: 100%;">
+                <div class="header">
+                    <h1 id="dashboardWelcome">Welcome back, Student!</h1>
+                    <p>Here's your clearance status and academic informations</p>
+                </div>
+                <div style="width:100%; overflow:hidden; box-sizing:border-box;">
+                <div class="clearance-progress-container" style="width: 100%; box-sizing: border-box;">
+                    <div class="progress-circle-wrapper">
+                        <svg width="100" height="100" viewBox="0 0 100 100">
+                            <circle
+                                cx="50" cy="50" r="40"
+                                fill="none"
+                                stroke="rgba(255,255,255,0.3)"
+                                stroke-width="10"
+                            />
+                            <circle
+                                cx="50" cy="50" r="40"
+                                fill="none"
+                                stroke="#f97316"
+                                stroke-width="10"
+                                stroke-dasharray="62.8 251.2"
+                                stroke-dashoffset="0"
+                                stroke-linecap="round"
+                                transform="rotate(-90 50 50)"
+                            />
+                            <text
+                                x="50" y="50"
+                                dominant-baseline="middle"
+                                text-anchor="middle"
+                                fill="white"
+                                font-size="16"
+                                font-weight="bold"
+                            >25%</text>
+                        </svg>
+                    </div>
+                    <div class="clearance-content progress">
+                        <h2>Clearance Progress</h2>
+                        <p>2 of 8 Requirements Completed</p>
+                    </div>
+                    <div class="labels">
+                        <div class="clearance-content completed">
+                            <h1>2</h1>
+                            <p>Completed</p>
+                        </div>
+                        <div class="clearance-content pending">
+                            <h1>6</h1>
+                            <p>Pending</p>
+                        </div>
+                    </div>
+                </div>
+                </div>
+
+                <div style="width:100%; overflow:hidden; box-sizing:border-box;">
+                <div class="payment-progress-container">
+                    <div class="fees">
+                        <h2><i class='bx bx-wallet'></i> Outstanding Fees</h2>
+                        <h1 id="outstandingTotal">₱0.00</h1>
+                        <p id="outstandingDueLabel">Due: -</p>
+                        
+                        <div class="fee-list">
+                            <ul id="outstandingFeeList"></ul>
+                        </div>
+                    </div>
+                    <div class="payments-history">
+                        <div class="payments-header">
+                            <label for="payments-filter" class="payments-label">View:</label>
+                            <select id="payments-filter" class="payments-filter">
+                                <option value="recent">Recent Payments</option>
+                                <option value="pending">Pending Payments</option>
+                                <option value="promissory">Promissory Notes</option>
+                            </select>
+                        </div>
+
+                        <div class="payments-list" id="payments-list-container">
+
+                        </div>
+
+                        <div class="payments-bottom">
+
+                        </div>
+                    </div>
+                </div>
+                </div>
+                <div class="approval-status">
+                    <div class="clearance-header">
+                        <h2>Clearance Signatories</h2>
+                        <p>All departments must be cleared before issuance of clearance</p>
+                    </div>
+                    <div class="personels">
+                        <h2>CSC Student Council</h2>
+                        <h3>Organization</h3>
+                        <p class="cleared"><i class='bx bx-check-circle'></i> Cleared</p>
+                    </div>
+                    <div class="personels">
+                        <h2>Venom Publication</h2>
+                        <h3>Organization</h3>
+                        <p class="cleared"><i class='bx bx-check-circle'></i> Cleared</p>
+                    </div>
+                    <div class="personels">
+                        <h2>PHICCS</h2>
+                        <h3>Organization</h3>
+                        <p class="pendings"><i class='bx bx-time-five'></i> Pending</p>
+                    </div>
+                    <div class="personels">
+                        <h2>CSC Gender Club</h2>
+                        <h3>Organization</h3>
+                        <p class="pendings"><i class='bx bx-time-five'></i> Pending</p>
+                    </div>
+                    <div class="personels">
+                        <h2>Rhamrhem Jaafar</h2>
+                        <h3>Adviser</h3>
+                        <p class="pendings"><i class='bx bx-time-five'></i> Pending</p>
+                    </div>
+                    <div class="personels">
+                        <h2>Mr. Jaydee C. Ballaho, MIT</h2>
+                        <h3>Department Head</h3>
+                        <p class="pendings"><i class='bx bx-time-five'></i> Pending</p>
+                    </div>
+                    <div class="personels">
+                        <h2>Asst Prof Marjorie A. Rojas</h2>
+                        <h3>Student Affairs Coordinator, CCS</h3>
+                        <p class="pendings"><i class='bx bx-time-five'></i> Pending</p>
+                    </div>
+                    <div class="personels">
+                        <h2>Dr. Mark L. Flores</h2>
+                        <h3>College Dean CCS</h3>
+                        <p class="pendings"><i class='bx bx-time-five'></i> Pending</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- First Login Modal -->
+        <div class="first-login-overlay" id="firstLoginModal" aria-hidden="true">
+            <div class="first-login-modal-container" role="dialog" aria-modal="true" aria-labelledby="firstLoginModalTitle">
+                <div class="first-login-modal-content">
+                    <h2 id="firstLoginModalTitle">Complete Your Profile</h2>
+                    <p class="first-login-subtitle">Please provide the following information to personalize your experience.</p>
+                    
+                    <form id="firstLoginForm">
+                        <div class="first-login-form-group">
+                            <label for="profileReligion">Religion <span class="required">*</span></label>
+                            <select id="profileReligion" required>
+                                <option value="">Select Religion</option>
+                                <option value="Roman Catholic">Roman Catholic</option>
+                                <option value="Muslim/Islam">Muslim/Islam</option>
+                                <option value="Iglesia ni Cristo">Iglesia ni Cristo</option>
+                                <option value="Born Again Christian">Born Again Christian</option>
+                                <option value="Seventh Day Adventist">Seventh Day Adventist</option>
+                                <option value="Philippine Independent Church (Aglipayan)">Philippine Independent Church (Aglipayan)</option>
+                                <option value="Judaism">Judaism</option>
+                                <option value="Buddhism">Buddhism</option>
+                                <option value="Hinduism">Hinduism</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <span class="first-login-error" id="religionError"></span>
+                        </div>
+
+                        <div class="first-login-form-group">
+                            <label for="profilePhoneNumber">Phone Number <span class="optional">(optional)</span></label>
+                            <input type="tel" id="profilePhoneNumber" placeholder="e.g. 09171234567">
+                        </div>
+
+                        <button type="submit" class="first-login-submit-btn">Complete Profile</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="promissory-modal-overlay" id="promissoryModal" aria-hidden="true">
+            <div class="promissory-modal-container" role="dialog" aria-modal="true" aria-labelledby="promissoryModalTitle">
+                <div class="promissory-modal-header">
+                    <h3 id="promissoryModalTitle">Promissory Note Request</h3>
+                    <button type="button" class="promissory-close" id="promissoryCloseBtn" aria-label="Close promissory request">
+                        <i class='bx bx-x'></i>
+                    </button>
+                </div>
+                <div class="promissory-modal-body">
+                    <div class="promissory-form-group">
+                        <label for="promissoryFeeName">Fee Name</label>
+                        <input type="text" id="promissoryFeeName" readonly>
+                    </div>
+                    <div class="promissory-form-group">
+                        <label for="promissoryReason">Reason <span class="required">*</span></label>
+                        <textarea id="promissoryReason" rows="4" placeholder="Explain your reason for requesting a promissory note"></textarea>
+                    </div>
+                    <div class="promissory-form-group">
+                        <label for="promissoryDate">Promised Payment Date <span class="required">*</span></label>
+                        <input type="date" id="promissoryDate">
+                    </div>
+                </div>
+                <div class="promissory-modal-footer">
+                    <button type="button" class="btn-cancel" id="promissoryCancelBtn">Cancel</button>
+                    <button type="button" class="btn-submit" id="promissorySubmitBtn">Submit Request</button>
+                </div>
+            </div>
+        </div>
+
+        <script src="../../assets/scripts/settings.js"></script>
+        <script src="../../assets/scripts/sample-accounts.js"></script>
+        <script src="../../assets/scripts/auth.js"></script>
+        <script src="../../assets/scripts/script.js"></script>
+        <script src="../../assets/scripts/student/student-dashboard.js"></script>
+
+    </body>
+</html>

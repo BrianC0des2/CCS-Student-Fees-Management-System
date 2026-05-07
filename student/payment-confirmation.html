@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="UTF-8">
+        <title> CCS PAY++ - Confirmation </title>
+        <link rel="stylesheet" href="../../styles/student-styles/payment-process.css">
+        <link rel="stylesheet" href="../../styles/sidebar.css">
+        <link rel="stylesheet" href="../../styles/student-styles/student-payment-confirmation.css">
+        <!-- Boxicons CDN Link -->
+        <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+        <link rel="stylesheet" href="../../styles/settings.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <nav class="navbar page-header payment-header">
+            <a href="payment-method.html" class="back-arrow"><i class="bx bx-arrow-back"></i></a>
+            <div class="nav-title">
+                <h2>Make Payment</h2>
+                <p>Complete your fee payment securely</p>
+            </div>
+        </nav>
+
+        <!-- Step Indicator -->
+        <div id="payment-process-container" class="step-indicator">
+            <div class="vis-container">
+                <div class="circle done step-circle"><i class='bx bx-check'></i></div>
+                <p class="texts step-label">Select Fees</p>
+            </div>
+            <div class="line line-done step-line"></div>
+
+            <div class="vis-container">
+                <div class="circle done step-circle"><i class='bx bx-check'></i></div>
+                <p class="texts step-label">Payment Method</p>
+            </div>
+
+            <div class="line line-done step-line"></div>
+
+            <div class="vis-container">
+                <div class="circle c3-active step-circle"><p>3</p></div>
+                <p class="texts t3-active step-label">Confirmation</p>
+            </div>
+        </div>
+
+        <!-- Single Confirmation Card -->
+        <div class="confirm-card">
+            <div class="confirm-header">
+                <h2>Confirm Your Payment</h2>
+                <p>Please review your payment details before proceeding</p>
+            </div>
+
+            <h3 class="confirm-section-title">Payment Details</h3>
+
+                <div id="paymentGroupBanner" class="summary-empty" style="display:none; max-width: 960px; margin: 0 auto 12px;">
+                </div>
+<div id="confirm-fee-items"></div>
+                    <div class="summary-total">
+                        <span>Total Amount</span>
+                        <span id="confirm-total">₱0</span>
+            </div>
+
+            <div class="confirm-detail-row">
+                <span class="confirm-label">Payment Method</span>
+                <span class="confirm-value" id="confirm-method-label">
+                    <i class='bx bx-wallet'></i> GCash
+                </span>
+            </div>
+            <div class="confirm-detail-row" id="gcashPaymentSection" style="display:none; flex-direction:column; align-items:stretch; border-bottom:none; padding:0;">
+                <div style="width:100%; background:#ecfdf5; border:1px solid #d4e2d8; border-radius:12px; padding:16px; margin-top:24px; margin-bottom:20px;">
+                    <p style="font-size:11px; color:#2e7d52; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin:0 0 12px 0;">Send Payment To</p>
+                    <p style="font-size:14px; font-weight:700; color:#1a2420; margin:0 0 8px 0;" id="gcashNumber">0912 345 6789</p>
+                    <p style="font-size:12px; color:#6b7280; margin:0 0 12px 0;" id="gcashRecipientName"></p>
+                    <p style="font-size:11px; color:#2e7d52; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin:0 0 4px 0;">Amount to Send</p>
+                    <p style="font-size:14px; font-weight:700; color:#047857;" id="gcashAmount">₱0.00</p>
+                </div>
+                <div style="margin-top:20px;">
+                    <label style="display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:12px;">GCash Reference Number (required)</label>
+                    <input type="text" id="gcashRefInput" class="confirm-input" placeholder="Enter 13-digit reference number" maxlength="13" inputmode="numeric" style="margin-bottom:8px; width:100%;">
+                    <p style="font-size:11px; color:#5a7a66; margin:0;">Enter exactly 13 digits from your GCash receipt</p>
+                </div>
+            </div>
+
+            <!-- CASH SECTION -->
+            <div id="cashNoteSection" style="display:none; margin-top:24px; padding:16px; background:#fef3c7; border:1px solid #fcd34d; border-radius:12px;">
+                <p style="font-size:13px; color:#92400e; margin:0; line-height:1.5;">
+                    <i class='bx bx-info-circle' style="margin-right:8px;"></i>
+                    Please proceed to the organization office to pay in cash. Your payment will be marked as Pending Verification until confirmed by the org.
+                </p>
+            </div>
+
+
+            <div class="action-row action-buttons payment-actions" style="margin-top: 24px;">
+                <a href="payment-method.html" class="back-btn">Back</a>
+                <button id="confirm-pay-btn" class="continue-btn" style="flex:1; margin:0;">Confirm &amp; Pay</button>
+            </div>
+        </div>
+
+        <div class="payment-popup-overlay" id="paymentSubmittedPopup" aria-hidden="true">
+            <div class="payment-popup-card" role="dialog" aria-modal="true" aria-labelledby="paymentSubmittedTitle">
+                <div class="payment-popup-header">
+                    <h3 id="paymentSubmittedTitle">Payment Submitted!</h3>
+                    <p>Your payment has been saved and is now waiting for organization verification.</p>
+                </div>
+                <div class="payment-popup-body">
+                    <div class="payment-popup-ref" id="paymentPopupRef">PAY-2026-0000-0000</div>
+                    <div class="payment-popup-grid">
+                        <div class="payment-popup-item">
+                            <span class="payment-popup-label">Fee Name</span>
+                            <div class="payment-popup-value" id="paymentPopupFeeName">—</div>
+                        </div>
+                        <div class="payment-popup-item">
+                            <span class="payment-popup-label">Amount</span>
+                            <div class="payment-popup-value" id="paymentPopupAmount">₱0.00</div>
+                        </div>
+                        <div class="payment-popup-item">
+                            <span class="payment-popup-label">Date</span>
+                            <div class="payment-popup-value" id="paymentPopupDate">—</div>
+                        </div>
+                        <div class="payment-popup-item">
+                            <span class="payment-popup-label">Payment Method</span>
+                            <div class="payment-popup-value" id="paymentPopupMethod">—</div>
+                        </div>
+                        <div class="payment-popup-item" id="gcashRefPopupItem" style="display:none;">
+                            <span class="payment-popup-label">GCash Reference Number</span>
+                            <div class="payment-popup-value" id="paymentPopupGCashRef">—</div>
+                        </div>
+                    </div>
+                    <div class="payment-popup-status">
+                        <i class='bx bx-time-five'></i>
+                        <span>Pending Verification</span>
+                    </div>
+                    <p class="payment-popup-note">
+                        Your payment is pending verification by the organization. You will be notified once confirmed.
+                    </p>
+                </div>
+                <div class="payment-popup-actions">
+                    <button type="button" class="continue-btn" id="makeAnotherPaymentBtn">Go to Dashboard</button>
+                    <button type="button" class="back-btn" id="goToDashboardBtn" style="display:none;">Go to Dashboard</button>
+                </div>
+            </div>
+        </div>
+
+    <script src="../../assets/scripts/settings.js"></script>
+    <script src="../../assets/scripts/sample-accounts.js"></script>
+    <script src="../../assets/scripts/auth.js"></script>
+    <script src="../../assets/scripts/script.js"></script>
+    <script src="../../assets/scripts/student/student-payment-confirmation.js"></script>
+    </body>
+</html>

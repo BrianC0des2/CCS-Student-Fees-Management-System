@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="UTF-8">
+        <title> CCS PAY++ - Payment Method </title>
+        <link rel="stylesheet" href="../../styles/student-styles/payment-process.css">
+        <link rel="stylesheet" href="../../styles/sidebar.css">
+        <link rel="stylesheet" href="../../styles/student-styles/student-payment-method.css">
+        <!-- Boxicons CDN Link -->
+        <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+        <link rel="stylesheet" href="../../styles/settings.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <nav class="navbar page-header payment-header">
+            <a href="make-payment.html" class="back-arrow"><i class="bx bx-arrow-back"></i></a>
+            <div class="nav-title">
+                <h2>Make Payment</h2>
+                <p>Complete your fee payment securely</p>
+            </div>
+        </nav>
+
+        <!-- Step Indicator -->
+        <div id="payment-process-container" class="step-indicator">
+            <div class="vis-container">
+                <div class="circle done step-circle"><i class='bx bx-check'></i></div>
+                <p class="texts step-label">Select Fees</p>
+            </div>
+            <div class="line line-done step-line"></div>
+
+            <div class="vis-container">
+                <div class="circle c2 step-circle"><p>2</p></div>
+                <p class="texts t2 step-label">Payment Method</p>
+            </div>
+
+            <div class="line l2 step-line"></div>
+
+            <div class="vis-container">
+                <div class="circle c3 step-circle"><p>3</p></div>
+                <p class="texts t3 step-label">Confirmation</p>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="step-one-wrapper payment-body payment-layout payment-content">
+            <div id="paymentGroupBanner" style="display:none; width:100%; text-align:center; font-size:0.9rem; color:#666; margin-bottom:16px; font-weight:600;"></div>
+
+            <!-- Payment Method Options -->
+            <div class="fee-selection-container fees-panel fee-selection">
+                <div style="width:100%">
+                    <h3>Choose Payment Method</h3>
+                    <div id="paymentAccountsList"></div>
+                    <p id="paymentAccountsEmpty" class="summary-empty" style="display:none; margin-top:12px;">
+                        No active payment accounts are configured for this organization.
+                    </p>
+
+                    <!-- Security badges -->
+                    <div class="security-badges">
+                        <i class='bx bx-lock-alt'></i>
+                        <span>Secure Payment</span>
+                        <span class="badge-sep">•</span>
+                        <span>256-bit SSL Encrypted</span>
+                        <span class="badge-sep">•</span>
+                        <span>PCI DSS Compliant</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Summary -->
+            <div class="payment-summary summary-panel" style="min-width:280px;">
+                <h3>Payment Summary</h3>
+                <div id="method-summary-items"></div>
+                <div class="summary-total">
+                    <span>Total Amount</span>
+                    <span id="method-summary-total">₱0</span>
+                </div>
+
+                <div class="action-row-col action-buttons payment-actions">
+                    <button id="reviewPaymentBtn" 
+                            class="continue-btn full-btn">
+                        Review Payment
+                    </button>
+                    <a href="make-payment.html" class="back-btn full-btn">Back to Fees</a>
+                </div>
+            </div>
+
+        </div>
+
+    <script src="../../assets/scripts/settings.js"></script>
+    <script src="../../assets/scripts/sample-accounts.js"></script>
+    <script src="../../assets/scripts/auth.js"></script>
+    <script src="../../assets/scripts/script.js"></script>
+    <script src="../../assets/scripts/student/student-payment-method.js"></script>
+    </body>
+</html>

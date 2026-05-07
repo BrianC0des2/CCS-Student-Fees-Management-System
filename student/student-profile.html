@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="UTF-8">
+        <title>CCS PAY++ · Profile</title>
+        <link rel="stylesheet" href="../../styles/sidebar.css">
+        <link rel="stylesheet" href="../../styles/student-styles/student-profile.css">
+        <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+        <link rel="stylesheet" href="../../styles/settings.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <!-- ─── Sidebar ─────────────────────────────────────────────── -->
+        <div class="sidebar">
+            <div class="logo-details">
+                <img src="../../assets/images/pyt.png" alt="Pay++ Logo" class="sidebar-logo-img">
+                <span class="logo_name">Pay++</span>
+            </div>
+            <ul class="nav-links">
+                <li>
+                    <a href="student-dashboard.html">
+                        <i class='bx bx-grid-alt'></i>
+                        <span class="link_name">Dashboard</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name" href="student-dashboard.html">Dashboard</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <div class="iocn-link">
+                        <a href="#">
+                            <i class='bx bx-wallet'></i>
+                            <span class="link_name">Payments</span>
+                        </a>
+                        <i class='bx bxs-chevron-down arrow'></i>
+                    </div>
+                    <ul class="sub-menu">
+                        <li><a href="make-payment.html">Make Payment</a></li>
+                        <li><a href="payment-receipt.html">Payment History</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="clearance-status.html">
+                        <i class='bx bx-clipboard'></i>
+                        <span class="link_name">Clearance</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name" href="clearance-status.html">Clearance</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#" class="js-settings-open">
+                        <i class='bx bx-cog'></i>
+                        <span class="link_name">Settings</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name js-settings-open" href="#">Settings</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="student-profile.html">
+                        <i class='bx bx-user-circle'></i>
+                        <span class="link_name">Profile</span>
+                    </a>
+                    <ul class="sub-menu blank">
+                        <li><a class="link_name" href="student-profile.html">Profile</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <div class="profile-details">
+                        <div class="profile-main">
+                            <div class="profile-content">
+                                <img src="../../assets/images/profile.png" alt="profileImg">
+                            </div>
+                            <div class="name-job">
+                                <div class="name-with-switch">
+                                    <div class="profile_name">Maria</div>
+                                    <button type="button" class="view-switch-container" aria-label="Switch view">
+                                        <i class='bx bx-chevron-up view-switch-icon'></i>
+                                    </button>
+                                </div>
+                                <div class="job">2022-00123</div>
+                            </div>
+                        </div>
+                        <a class="logout-section">
+                            <span>Sign out</span>
+                            <i class='bx bx-log-out'></i>
+                        </a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- ─── Main content ─────────────────────────────────────────── -->
+        <section class="home-section">
+            <div class="home-content">
+                <div>
+                    <i class='bx bx-menu'></i>
+                    <span class="text">Student Profile</span>
+                </div>
+                <div class="topbar-right">
+                    <span class="ay-badge"></span>
+                    <div class="notif-bell" aria-label="Notifications">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                        </svg>
+                        <span class="notif-badge">3</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-page-container">
+
+                <!-- ── Profile Hero Card ───────────────────────────────── -->
+                <div class="profile-hero-card">
+                    <div class="hero-avatar-wrap">
+                        <img src="../../assets/images/profile.png" alt="Profile Photo" class="hero-avatar">
+                    </div>
+                    <div class="hero-info">
+                        <h1 class="hero-name" id="heroName">Student</h1>
+                        <p class="hero-id" id="heroStudentId">0000000000</p>
+                        <span class="status-badge active"><i class='bx bx-check-circle'></i> Active</span>
+                    </div>
+                </div>
+
+                <!-- ── Account Information ────────────────────────────── -->
+                <div class="profile-section-card">
+                    <div class="section-header">
+                        <h2><i class='bx bx-user'></i> Account Information</h2>
+                    </div>
+                    <div class="info-grid" id="accountInfoGrid">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+
+                <!-- ── Personal Information ───────────────────────────── -->
+                <div class="profile-section-card">
+                    <div class="section-header">
+                        <div class="header-top">
+                            <h2><i class='bx bx-heart'></i> Personal Information</h2>
+                            <button type="button" class="profile-edit-btn" id="editPersonalInfoBtn" aria-label="Edit personal information">
+                                <i class='bx bx-edit'></i> Edit
+                            </button>
+                        </div>
+                    </div>
+                    <div class="personal-info-content">
+                        <div class="personal-info-view" id="personalInfoView">
+                            <!-- Read-only view populated by JS -->
+                        </div>
+                        <form class="personal-info-edit" id="personalInfoEditForm" style="display: none;">
+                            <!-- Editable fields populated by JS -->
+                        </form>
+                        <div class="personal-info-actions" id="personalInfoActions" style="display: none;">
+                            <button type="button" class="btn-save" id="savPersonalInfoBtn">Save Changes</button>
+                            <button type="button" class="btn-cancel" id="cancelPersonalInfoBtn">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Password & Security ────────────────────────────── -->
+                <div class="profile-section-card">
+                    <div class="section-header">
+                        <h2><i class='bx bx-lock-alt'></i> Password &amp; Security</h2>
+                    </div>
+                    <div class="security-row">
+                        <div class="security-info">
+                            <i class='bx bx-check-shield security-icon'></i>
+                            <div>
+                                <p class="security-title">Password is set</p>
+                                <p class="security-sub">Last changed 30 days ago</p>
+                            </div>
+                        </div>
+                        <button class="change-password-btn">
+                            <i class='bx bx-key'></i> Change Password
+                        </button>
+                    </div>
+                </div>
+
+            </div><!-- end .profile-page-container -->
+        </section>
+
+        <script src="../../assets/scripts/settings.js"></script>
+        <script src="../../assets/scripts/sample-accounts.js"></script>
+        <script src="../../assets/scripts/auth.js"></script>
+        <script src="../../assets/scripts/script.js"></script>
+        <script src="../../assets/scripts/student/student-profile.js"></script>

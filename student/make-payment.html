@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="UTF-8">
+        <title> CCS PAY++ - Finance </title>
+        <link rel="stylesheet" href="../../styles/student-styles/payment-process.css">
+        <link rel="stylesheet" href="../../styles/sidebar.css">
+        <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+        <link rel="stylesheet" href="../../styles/settings.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <nav class="navbar page-header payment-header">
+            <a href="student-dashboard.html" class="back-arrow"><i class="bx bx-arrow-back"></i></a>
+            <div class="nav-title">
+                <h2>Make Payment</h2>
+                <p>Complete your fee payment securely</p>
+            </div>
+        </nav>
+        <div id="payment-process-container" class="step-indicator">
+            <div class="vis-container">
+                <div class="circle c1 step-circle"><p>1</p></div>
+                <p class="texts t1 step-label">Select Fees</p>
+            </div>
+            <div class="line l1 step-line"></div>
+            
+            <div class="vis-container">
+                <div class="circle c2 step-circle"><p>2</p></div>
+                <p class="texts t2 step-label">Payment Method</p>
+            </div>
+            
+            <div class="line l2 step-line"></div>
+            
+            <div class="vis-container">
+                <div class="circle c3 step-circle"><p>3</p></div>
+                <p class="texts t3 step-label">Confirmation</p>
+            </div>
+        
+        </div>
+
+        <div class="step-one-wrapper payment-body payment-layout payment-content">
+            <div class="fee-selection-container fees-panel fee-selection">
+                <form action="">   
+                    <h3>Select Fees to Pay</h3> 
+                    <div id="makePaymentFeeList"></div>
+                    <p id="multiOrgNotice" class="summary-empty" style="display:none; margin-top:12px;"></p>
+                </form>
+            </div>
+
+            <div class="payment-summary summary-panel">
+                <h3>Payment Summary</h3>
+                <div id="summary-items">
+                    <p class="summary-empty">No fees selected yet.</p>
+                </div>
+                <div class="summary-total">
+                    <span>Total Amount</span>
+                    <span id="summary-total-amount">₱0</span>
+                </div>
+                <div class="action-buttons payment-actions">
+                    <a class="continue-btn" href="payment-method.html">Continue to Payment Method</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="promissory-modal-overlay" id="promissoryModal" aria-hidden="true">
+            <div class="promissory-modal-container" role="dialog" aria-modal="true" aria-labelledby="promissoryModalTitle">
+                <div class="promissory-modal-header">
+                    <h3 id="promissoryModalTitle">Promissory Note Request</h3>
+                    <button type="button" class="promissory-close" id="promissoryCloseBtn" aria-label="Close promissory request">
+                        <i class='bx bx-x'></i>
+                    </button>
+                </div>
+                <div class="promissory-modal-body">
+                    <div class="promissory-form-group">
+                        <label for="promissoryFeeName">Fee Name</label>
+                        <input type="text" id="promissoryFeeName" readonly>
+                    </div>
+                    <div class="promissory-form-group">
+                        <label for="promissoryReason">Reason <span class="required">*</span></label>
+                        <textarea id="promissoryReason" rows="4" placeholder="Explain your reason for requesting a promissory note"></textarea>
+                    </div>
+                    <div class="promissory-form-group">
+                        <label for="promissoryPartialAmount">How much can you pay now? (optional)</label>
+                        <div class="promissory-input-prefix">
+                            <span>₱</span>
+                            <input type="number" id="promissoryPartialAmount" min="0" step="0.01" placeholder="" oninput="if(this.value !== '' && Number(this.value) <= 0) this.value = '';">
+                        </div>
+                        <p style="font-size:12px; color:#5a7a66; margin-top:4px; line-height:1.4;">Leave empty if you cannot pay any amount at this time. If filled, this becomes your committed payment amount.</p>
+                    </div>
+                    <div class="promissory-form-group">
+                        <label for="promissoryDate">Promised Payment Date <span class="required">*</span></label>
+                        <input type="date" id="promissoryDate">
+                    </div>
+                </div>
+                <div class="promissory-modal-footer">
+                    <button type="button" class="btn-cancel" id="promissoryCancelBtn">Cancel</button>
+                    <button type="button" class="btn-submit" id="promissorySubmitBtn">Submit Request</button>
+                </div>
+            </div>
+        </div>
+
+    <script src="../../assets/scripts/settings.js"></script>
+    <script src="../../assets/scripts/sample-accounts.js"></script>
+    <script src="../../assets/scripts/auth.js"></script>
+    <script src="../../assets/scripts/script.js"></script>
+    <script src="../../assets/scripts/student/student-make-payment.js"></script>
+    </body>
+</html>
