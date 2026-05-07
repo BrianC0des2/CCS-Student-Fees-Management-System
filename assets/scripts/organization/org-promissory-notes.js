@@ -96,7 +96,7 @@
 </div>
 `;
             } else {
-                actionsHTML = `<span class="${statusClass}">${request.status}</span>`;
+              actionsHTML = `<span style="color:#9ca3af;">—</span>`;
             }
 
             return `
