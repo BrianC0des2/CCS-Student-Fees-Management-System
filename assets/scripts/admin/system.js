@@ -26,32 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
 
             <div class="settings-card">
-                <div class="settings-card-title">${bxi('cog')} General</div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>System Name</label>
-                        <input id="sys-name" value="${systemSettings.systemName}">
-                    </div>
-                    <div class="form-group">
-                        <label>Academic Year</label>
-                        <input id="sys-year" value="${systemSettings.academicYear}">
-                    </div>
-                    <div class="form-group">
-                        <label>Current Semester</label>
-                        <select id="sys-sem">
-                            <option${systemSettings.semester === '1st Semester' ? ' selected' : ''}>1st Semester</option>
-                            <option${systemSettings.semester === '2nd Semester' ? ' selected' : ''}>2nd Semester</option>
-                            <option${systemSettings.semester === 'Summer'       ? ' selected' : ''}>Summer</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Payment Grace Period (days)</label>
-                        <input id="sys-grace" type="number" value="${systemSettings.paymentGracePeriod}">
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-card">
                 <div class="settings-card-title">${bxi('bell')} Notifications</div>
                 ${notifToggles.map(item => `
                 <div class="toggle-row">

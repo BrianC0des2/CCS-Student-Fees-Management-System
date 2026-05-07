@@ -414,6 +414,7 @@ let deleteConfirmFacultyId = null;
 let showAddDepartmentForm = false;
 let editingDepartmentId = null;
 let deleteConfirmDepartmentId = null;
+let customRoles = [];
 let newFacultyData = {
     facultyId: '',
     lastName: '',
@@ -662,6 +663,13 @@ function renderFaculty() {
 
                         <input type="checkbox" class="nf-role-check role-pill-input" id="role-coordinator" value="coordinator" ${newFacultyData.roles.includes('coordinator') ? 'checked' : ''}>
                         <label for="role-coordinator" class="role-pill">Coordinator</label>
+                        ${customRoles.map(r => `
+                          <span style="display:inline-flex;align-items:center;gap:4px;position:relative;">
+                            <input type="checkbox" class="nf-role-check role-pill-input" id="role-${r.id}" value="${r.id}" ${newFacultyData.roles.includes(r.id)?'checked':''}>
+                            <label for="role-${r.id}" class="role-pill">${r.label}</label>
+                            <button type="button" class="custom-role-delete" data-id="${r.id}" style="position:absolute;top:-6px;right:-6px;background:#fee2e2;border:none;border-radius:50%;width:18px;height:18px;cursor:pointer;color:#dc2626;font-size:11px;display:flex;align-items:center;justify-content:center;">×</button>
+                          </span>
+                        `).join('')}
                     </div>
 
                     <div class="add-role-section" style="margin-top: 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
@@ -814,6 +822,7 @@ function renderFaculty() {
     });
     document.getElementById('close-add-faculty')?.addEventListener('click', () => {
         showAddFacultyForm = false;
+        customRoles = [];
         document.getElementById('custom-role-input').value = '';
         document.getElementById('add-role-form').style.display = 'none';
         document.getElementById('btn-add-role').style.display = 'block';
@@ -821,6 +830,7 @@ function renderFaculty() {
     });
     document.getElementById('cancel-add-faculty')?.addEventListener('click', () => {
         showAddFacultyForm = false;
+        customRoles = [];
         document.getElementById('custom-role-input').value = '';
         document.getElementById('add-role-form').style.display = 'none';
         document.getElementById('btn-add-role').style.display = 'block';
@@ -862,47 +872,64 @@ function renderFaculty() {
 
     document.getElementById('confirm-custom-role')?.addEventListener('click', () => {
         const roleName = document.getElementById('custom-role-input').value.trim();
-        if (!roleName) {
-            showToast('Please enter a role name.', true);
-            return;
-        }
+        if (!roleName) { showToast('Please enter a role name.', true); return; }
 
         const roleId = roleName.toLowerCase().replace(/\s+/g, '_');
-        if (Object.prototype.hasOwnProperty.call(ROLE_LABELS, roleId)) {
-            showToast('This role already exists.', true);
-            return;
+        if (ROLE_LABELS[roleId] || customRoles.find(r => r.id === roleId)) {
+            showToast('This role already exists.', true); return;
         }
 
+        // Push to customRoles array
+        customRoles.push({ id: roleId, label: roleName });
+
+        // Register in ROLE_LABELS and ROLE_BADGE_CLASS
         ROLE_LABELS[roleId] = roleName;
         ROLE_BADGE_CLASS[roleId] = 'badge-purple';
 
-        const roleCheckbox = document.createElement('div');
-        roleCheckbox.innerHTML = `
-            <input type="checkbox" class="nf-role-check role-pill-input" id="role-${roleId}" value="${roleId}">
-            <label for="role-${roleId}" class="role-pill">${roleName}</label>
-        `;
+        // Save all current form inputs into newFacultyData
+        newFacultyData.facultyId  = document.getElementById('nf-id')?.value       ?? '';
+        newFacultyData.firstName  = document.getElementById('nf-firstName')?.value ?? '';
+        newFacultyData.lastName   = document.getElementById('nf-lastName')?.value  ?? '';
+        newFacultyData.middleName = document.getElementById('nf-middleName')?.value ?? '';
+        newFacultyData.suffix     = document.getElementById('nf-suffix')?.value     ?? '';
+        newFacultyData.phone     = document.getElementById('nf-phone')?.value     ?? '';
+        newFacultyData.email     = document.getElementById('nf-email')?.value     ?? '';
+        newFacultyData.department = document.getElementById('nf-dept')?.value     ?? '';
+        newFacultyData.sex       = document.querySelector('input[name="nf-sex"]:checked')?.value ?? 'M';
+        newFacultyData.roles     = Array.from(document.querySelectorAll('.nf-role-check:checked')).map(c => c.value);
 
-        const container = document.querySelector('.roles-pill-container');
-        if (container) {
-            container.appendChild(roleCheckbox);
-
-            // Attach event listener to new checkbox
-            const newCheckbox = roleCheckbox.querySelector('.nf-role-check');
-            newCheckbox.addEventListener('change', e => {
-                if (e.target.checked) {
-                    if (!newFacultyData.roles.includes(e.target.value)) {
-                        newFacultyData.roles.push(e.target.value);
-                    }
-                } else {
-                    newFacultyData.roles = newFacultyData.roles.filter(r => r !== e.target.value);
-                }
-            });
-        }
-
+        // Reset add-role form
         document.getElementById('add-role-form').style.display = 'none';
-        document.getElementById('btn-add-role').style.display = 'block';
+        document.getElementById('btn-add-role').style.display  = 'block';
         document.getElementById('custom-role-input').value = '';
-        showToast(`Custom role "${roleName}" added successfully.`);
+
+        showToast(`Custom role "${roleName}" added.`);
+        renderFaculty();
+
+        // Re-attach custom-role-delete handlers after render
+        document.querySelectorAll('.custom-role-delete').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const idToDelete = btn.dataset.id;
+                // Remove from customRoles, ROLE_LABELS, ROLE_BADGE_CLASS
+                customRoles = customRoles.filter(r => r.id !== idToDelete);
+                delete ROLE_LABELS[idToDelete];
+                delete ROLE_BADGE_CLASS[idToDelete];
+                // Remove from current newFacultyData.roles if present
+                newFacultyData.roles = newFacultyData.roles.filter(r => r !== idToDelete);
+                // Save current form inputs then re-render
+                newFacultyData.facultyId   = document.getElementById('nf-id')?.value       ?? '';
+                newFacultyData.firstName   = document.getElementById('nf-firstName')?.value ?? '';
+                newFacultyData.lastName    = document.getElementById('nf-lastName')?.value  ?? '';
+                newFacultyData.middleName  = document.getElementById('nf-middleName')?.value ?? '';
+                newFacultyData.suffix      = document.getElementById('nf-suffix')?.value     ?? '';
+                newFacultyData.phone       = document.getElementById('nf-phone')?.value     ?? '';
+                newFacultyData.email       = document.getElementById('nf-email')?.value     ?? '';
+                newFacultyData.department  = document.getElementById('nf-dept')?.value     ?? '';
+                newFacultyData.sex         = document.querySelector('input[name="nf-sex"]:checked')?.value ?? 'M';
+                newFacultyData.roles       = Array.from(document.querySelectorAll('.nf-role-check:checked')).map(c => c.value);
+                renderFaculty();
+            });
+        });
     });
 
     document.getElementById('custom-role-input')?.addEventListener('keypress', e => {
@@ -974,6 +1001,7 @@ function renderFaculty() {
             roles: [],
             department: 'BS Computer Science'
         };
+        customRoles = [];
         document.getElementById('custom-role-input').value = '';
         document.getElementById('add-role-form').style.display = 'none';
         showToast('Faculty member ' + name + ' added.');
@@ -2212,20 +2240,6 @@ function renderSystem() {
         </div>
 
         <div class="settings-card">
-            <div class="settings-card-title">${bxi('cog')} General</div>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>System Name</label>
-                    <input id="sys-name" value="${systemSettings.systemName}">
-                </div>
-                <div class="form-group">
-                    <label>Payment Grace Period (days)</label>
-                    <input id="sys-grace" type="number" value="${systemSettings.paymentGracePeriod}">
-                </div>
-            </div>
-        </div>
-
-        <div class="settings-card">
             <div class="settings-card-title">${bxi('bell')} Notifications</div>
             ${notifToggles.map(item => `
             <div class="toggle-row">
@@ -2302,8 +2316,6 @@ function renderSystem() {
         renderSystem();
     }));
     document.getElementById('save-system-btn')?.addEventListener('click', () => {
-        systemSettings.systemName         = document.getElementById('sys-name').value;
-        systemSettings.paymentGracePeriod = parseInt(document.getElementById('sys-grace').value) || 7;
         showToast('System settings saved successfully.');
     });
     document.getElementById('reset-clearance-btn')?.addEventListener('click', () =>
